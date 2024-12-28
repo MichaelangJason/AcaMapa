@@ -4,3 +4,5 @@ node_modules
 .env.*
 .DS_Store
 next-env.d.ts
+src/app/demo/
+src/crawler/*.csv

@@ -1,0 +1,27 @@
+# Node modules
+node_modules
+
+# Build artifacts
+dist
+build
+
+# Local environment configuration
+.env.local
+.env.development
+
+# Logs and temporary files
+*.log
+tmp/
+
+# Tests and documentation
+test/
+src/tests/
+src/crawler/
+docs/
+
+# IDE and editor configurations
+.vscode/
+.idea/
+
+# Source maps
+*.map
