@@ -37,6 +37,14 @@
   align-items: center;
   padding: 0px 50px 0px 0px;
 
+  &.dragging {
+    background-color: var(--dragging-bg-color);
+  }
+
+  &.dragging-over {
+    background-color: var(--dragging-over-bg-color);
+  }
+
   .term {
     width: var(--term-width);
     height: var(--term-height);
@@ -83,9 +91,10 @@
       background-color: var(--dragging-bg-color);
     }
 
-    // &.dragging-over {
-    //   background-color: var(--dragging-over-bg-color);
-    // }
+    &.dragging-over {
+      // background-color: var(--dragging-over-bg-color);
+      background-color: #50dbee74;
+    }
 
     .add-course-mask {
       position: absolute;

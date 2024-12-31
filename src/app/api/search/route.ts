@@ -31,6 +31,16 @@ const mockCoursesMetadata = [
     name: "Software Design",
     credits: 3,
   },
+  {
+    id: "COMP 206",
+    name: "Introduction to Software Systems",
+    credits: 3,
+  },
+  {
+    id: "COMP 250",
+    name: "Software Design",
+    credits: 3,
+  }
 ]
 
 export const GET = async (req: Request) => {

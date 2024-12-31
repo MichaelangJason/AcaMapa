@@ -36,6 +36,10 @@
   &.satisfied {
     background-color: var(--course-satisfied-bg-color);
   }
+
+  &.unsatisfied {
+    background-color: var(--course-unsatisfied-bg-color);
+  }
 }
 
 .course-card-info-basic {

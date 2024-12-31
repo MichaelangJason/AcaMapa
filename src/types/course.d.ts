@@ -4,6 +4,8 @@ export interface Course {
   id: CourseCode;
   name: string;
   credits: number;
+  department?: string;
+  allowedPrograms?: string[];
   prerequisites?: CourseCode[][];
   antirequisites?: CourseCode[];
   corequisites?: CourseCode[];

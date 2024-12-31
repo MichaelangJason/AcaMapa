@@ -13,9 +13,9 @@
   --term-body-bg-color: #F0F0F0;
   --term-topbottom-height: 40px;
   --border-radius: 15px;
-  --dragging-bg-color: #1a7b8837;
+  --dragging-bg-color: #50dbee74;
   --term-topbottom-color-hover: #acd78ac1;
-  --dragging-over-bg-color: #50dbee74;
+  --dragging-over-bg-color: #1a7b8837;
   
   /* course */
   --course-search-bg-color: #FFF;
@@ -27,6 +27,7 @@
 
   /* course card status */
   --course-satisfied-bg-color: #B2E026;
+  --course-unsatisfied-bg-color: #ED7155;
 }
 
 /* @media (prefers-color-scheme: dark) {

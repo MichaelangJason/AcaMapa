@@ -6,7 +6,7 @@ import { TermId } from "@/types/term";
 import { DragDropContext, DragStart, Droppable, DropResult, DragUpdate } from "@hello-pangea/dnd";
 import { useDispatch } from "react-redux";
 import { addTerm, deleteTerm, moveTerm, moveCourse } from "@/store/termSlice";
-import { setDraggingType } from "@/store/eventSlice";
+import { setDraggingType, setDroppableId } from "@/store/eventSlice";
 import "@/styles/terms.scss";
 import { DraggingType } from "@/utils/enums";
 
@@ -30,6 +30,7 @@ const Terms = () => {
 
   const handleDragStart = (start: DragStart) => {
     dispatch(setDraggingType(start.type as DraggingType));
+    dispatch(setDroppableId(start.source.droppableId));
   }
 
   const handleDragUpdate = (update: DragUpdate) => {
@@ -37,16 +38,18 @@ const Terms = () => {
     const { destination, source, draggableId, type } = update;
     if (!destination) {
       dispatch(setDraggingType(null));
+      dispatch(setDroppableId(null));
     }
     else {
       dispatch(setDraggingType(type as DraggingType));
+      dispatch(setDroppableId(destination.droppableId));
     }
   }
 
   const handleDragEnd = (result: DropResult) => {
     const { destination, source, draggableId, type } = result;
     dispatch(setDraggingType(null));
-
+    dispatch(setDroppableId(null));
     if (!destination) return;
     if (
       destination.droppableId === source.droppableId &&

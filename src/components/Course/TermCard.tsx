@@ -41,16 +41,12 @@ const TermCard = (props: TermCardProps) => {
   const addingCourseId = useSelector((state: RootState) => state.event.addingCourseId);
   const isAddingCourse = addingCourseId !== null;
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const isDragging = useSelector((state: RootState) => 
-    state.event.draggingType === DraggingType.COURSE
-  );
-
   const handleAddCourse = useCallback(async () => {
     const state = store.getState();
     const terms = state.terms;
     const inTermCourseIds = terms.inTermCourseIds;
 
+    // check if course exists in any term
     if (inTermCourseIds.includes(addingCourseId!)) {
       const index = terms.order.findIndex((termId: TermId) => terms.data[termId].courseIds.includes(addingCourseId!));
       toast.error(`${addingCourseId} already in term ${index+1}`);
@@ -85,7 +81,7 @@ const TermCard = (props: TermCardProps) => {
 
   return (
     <Draggable draggableId={termId} index={index}>
-      {(provided, snapshot) =>
+      {(provided) =>
         <div
           className="term"
           ref={provided.innerRef}
@@ -95,19 +91,18 @@ const TermCard = (props: TermCardProps) => {
             <div >Term {index + 1}</div>
           </div>
           <Droppable droppableId={termId} type={DraggingType.COURSE}>
-            {(provided) => (
+            {(provided, snapshot) => (
               <div
                 className={`
                   term-body 
-                  ${snapshot.draggingOver === termId ? "dragging-over" : ""}
-
+                  ${snapshot.isDraggingOver ? "dragging-over" : ""}
                 `}
                 ref={provided.innerRef}
                 {...provided.droppableProps}
               >
                 {/* add course mask */}
-                {isAddingCourse && <div className="add-course-mask" onClick={handleAddCourse}>Click to Add Course</div>} 
-                
+                {isAddingCourse && <div className="add-course-mask" onClick={handleAddCourse}>Click to Add Course</div>}
+
                 {courseIds.map((courseId, index) => (
                   <CourseCard key={courseId} termId={termId} courseId={courseId} index={index} />
                 ))}
@@ -118,7 +113,8 @@ const TermCard = (props: TermCardProps) => {
           <div className="term-footer">
             <div>{credits} credits</div>
           </div>
-        </div>}
+        </div>
+      }
     </Draggable>
   )
 }
