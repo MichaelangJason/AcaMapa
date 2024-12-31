@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react"
 import Image  from "next/image"
 import "@/styles/sidebar.scss"
 import { CourseResult } from "./Course/CourseResult"
+import React from "react"
 
 const Search = () => {
   const [input, setInput] = useState('')
@@ -19,6 +20,20 @@ const Search = () => {
     setInput(e.target.value)
   }
 
+  const handleSearch = async (e: any) => {
+    if (!input) {
+      setResults([]);
+      return;
+    }
+    if (e.key && e.key !== "Enter") {
+      return;
+    }
+    e.preventDefault();
+    searchCourses(input).then((courses) => {
+      setResults(courses);
+    });
+  }
+
   useEffect(() => {
     if (!input) {
       setResults([]);
@@ -32,16 +47,22 @@ const Search = () => {
   return (
     <>
       <div className="search-bar">
-        <input type="text" value={input} onChange={handleInputChange} />
+        <input 
+          type="text" 
+          value={input} 
+          onChange={handleInputChange} 
+          onKeyDown={handleSearch} 
+          placeholder="course code or name"
+        />
         <Image 
           src="/search.svg" 
           alt="search" 
           width={20} 
           height={20} 
           className="search-icon"
+          onClick={handleSearch}
         />
       </div>
-      {/* <div>{JSON.stringify(results)}</div> */}
       <div className="course-result-container">
         {results.map(course => <CourseResult key={course.id} {...course} />)}
       </div>

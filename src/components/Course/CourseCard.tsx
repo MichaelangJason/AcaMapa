@@ -8,6 +8,7 @@ import { deleteCourseFromTerm } from "@/store/termSlice";
 import { toast } from "react-toastify";
 import { CourseCode } from "@/types/course";
 import { isSatisfied } from "@/utils";
+import PreReq from "./PreReq";
 
 export interface CourseCardProps {
   termId: string;
@@ -30,12 +31,20 @@ const useIsSatisfied = (courseId: CourseCode, termId: string) => {
 const CourseCard = (props: CourseCardProps) => {
   const { termId, courseId, index } = props;
   const course = useSelector((state: RootState) => state.courses[courseId]);
-  const { name, id, credits } = course;
+  const { name, id, credits, prerequisites } = course;
   const dispatch = useDispatch();
 
   const handleRemoveCourse = () => {
     dispatch(deleteCourseFromTerm({ termId, courseId }));
     toast.success(`${courseId} removed`);
+  }
+
+  const handleCourseClick = () => {
+    // open course page in new tab
+    const domain = process.env.NEXT_PUBLIC_SCHOOL_DOMAIN;
+    const endpoint = process.env.NEXT_PUBLIC_SCHOOL_ENDPOINT;
+    const id = courseId.replace(" ", "-").toLowerCase();
+    window.open(`${domain}${endpoint}${id}`, "_blank");
   }
 
   const isSatisfied = useIsSatisfied(courseId, termId);
@@ -51,7 +60,13 @@ const CourseCard = (props: CourseCardProps) => {
         >
           <div className="course-card-info-basic">
             <div className="name">{name}</div>
-            <div className="id-credits"><b>{id}</b> ({credits} credits)</div>
+            <div 
+              className="id-credits" 
+              onClick={handleCourseClick}
+              title="Go to course page"
+            >
+              <b>{id}</b> ({credits} credits)
+            </div>
             <Image
               src="/delete.svg"
               alt="Delete Course"
@@ -61,6 +76,10 @@ const CourseCard = (props: CourseCardProps) => {
               className="course-button delete"
             />
           </div>
+          {prerequisites && <PreReq
+            prerequisites={prerequisites}
+            termId={termId}
+          />}
         </div>
       )}
     </Draggable>

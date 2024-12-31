@@ -28,6 +28,20 @@
   /* course card status */
   --course-satisfied-bg-color: #B2E026;
   --course-unsatisfied-bg-color: #ED7155;
+
+  /* course req notes */
+  --course-req-notes-bg-color: #F0F0F0;
+  --course-req-notes-border-radius: 7px;
+  --course-req-notes-title-font-size: 12px;
+  --course-req-notes-title-color: #939393;
+
+  /* course tag */
+  --course-tag-default-bg-color: #CCCCCC;
+  --course-tag-border-radius: 3px;
+  --course-tag-font-size: 12px;
+  --course-tag-hover-bg-color: #939393;
+  --course-tag-satisfied-bg-color: #A5D63F;
+  --course-tag-unsatisfied-bg-color: #ED7155;
 }
 
 /* @media (prefers-color-scheme: dark) {

@@ -24,12 +24,25 @@ export const CourseResult = (props: CourseResultProps) => {
     }
   }
 
+  const handleCourseClick = () => {
+    // open course page in new tab
+    const domain = process.env.NEXT_PUBLIC_SCHOOL_DOMAIN;
+    const endpoint = process.env.NEXT_PUBLIC_SCHOOL_ENDPOINT;
+    const courseId = id.replace(" ", "-").toLowerCase();
+    window.open(`${domain}${endpoint}${courseId}`, "_blank");
+  }
+
   return (
     <div className={`course-card-container result ${addingCourseId === id ? "selected" : ""}`}>
       <div className="course-card-info-basic">
         <div className="name">{name}</div>
-        <div className="id-credits"><b>{id}</b> ({credits} credits)</div>
-        {/* <div className="course-button" onClick={handleAddCourse}>Add Course</div> */}
+        <div 
+          className="id-credits" 
+          onClick={handleCourseClick}
+          title="Go to course page"
+        >
+          <b>{id}</b> ({credits} credits)
+        </div>
         <Image 
           src="/cross.svg" 
           alt="Add Course" 

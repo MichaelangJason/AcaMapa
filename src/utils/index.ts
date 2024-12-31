@@ -2,7 +2,6 @@ import { CourseCode } from "@/types/course";
 import { TermMap } from "@/types/term";
 import { TermId } from "@/types/term";
 
-
 export const isSatisfied = (
   {prerequisites, antirequisites, corequisites, terms, termId}: {
     prerequisites?: CourseCode[][],
@@ -40,3 +39,8 @@ export const isSatisfied = (
 
   return prereqSatisfied && antireqSatisfied && coreqSatisfied;
 }
+
+// export const splitCourseCodes = (courseCodes: string[]) => {
+//   const regex = /([A-Z]{4}\s\d{4})|(.*)/g;
+
+// }

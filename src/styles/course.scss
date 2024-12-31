@@ -9,11 +9,12 @@
 .course-card-container {
   display: flex;
   flex-direction: column;
+  flex-shrink: 0;
   padding: 10px 16px 10px 16px;
   width: var(--course-card-width);
   min-height: 66px;
   height: fit-content;
-  gap: 30px;
+  gap: 5px;
   border-radius: var(--border-radius);
   justify-content: center;
   box-shadow: 0px 3px 10px 0px rgba(0, 0, 0, 0.25);
@@ -46,7 +47,7 @@
   flex-grow: 1;
   flex-shrink: 0;
   width: 100%;
-  height: 100%;
+  height: fit-content;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -63,6 +64,11 @@
     font-size: var(--course-id-credits-font-size);
     text-wrap: wrap;
     width: calc(100% - 15px);
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
   }
 
   .course-button {
@@ -79,4 +85,82 @@
       opacity: 0.5;
     }
   }
+}
+
+.course-tag {
+  background-color: var(--course-tag-default-bg-color);
+  border-radius: var(--course-tag-border-radius);
+  padding: 0px 4px 0px 4px;
+  width: fit-content;
+  height: fit-content;
+  font-size: var(--course-tag-font-size);
+  font-weight: bold;
+  flex-shrink: 0;
+  text-wrap: nowrap;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+  
+  &:hover {
+    background-color: var(--course-tag-hover-bg-color);
+  }
+
+  &.required {
+    background-color: var(--course-satisfied-bg-color);
+  }
+
+  &.restricted {
+    background-color: var(--course-unsatisfied-bg-color);
+  }
+}
+
+.course-req-notes-container {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  justify-content: start;
+  width: calc(100% + 12px);
+  background-color: var(--course-req-notes-bg-color);
+  border-radius: var(--course-req-notes-border-radius);
+  height: fit-content;
+  align-self: center;
+  padding: 5px 8px 8px 8px;
+  overflow: hidden;
+  height: fit-content;
+
+  .title {
+    font-size: var(--course-req-notes-title-font-size);
+    font-weight: bold;
+    color: var(--course-req-notes-title-color);
+  }
+
+  .prereq-container {
+    width: 100%;
+    height: fit-content;
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+    align-items: center;
+    overflow-x: scroll;
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+    &::-webkit-scrollbar {
+      display: none; /* Chrome, Safari and Opera */
+    }
+    gap: 5px;
+
+    .prereq-group {
+      width: fit-content;
+      height: fit-content;
+      display: flex;
+      flex-direction: column;
+      justify-content: start;
+      align-items: start;
+      gap: 1px;
+    }
+  }
+
+  .prereq-or {
+    align-self: center;
+  }
+
 }

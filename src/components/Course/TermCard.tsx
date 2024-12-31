@@ -93,10 +93,7 @@ const TermCard = (props: TermCardProps) => {
           <Droppable droppableId={termId} type={DraggingType.COURSE}>
             {(provided, snapshot) => (
               <div
-                className={`
-                  term-body 
-                  ${snapshot.isDraggingOver ? "dragging-over" : ""}
-                `}
+                className={`term-body${snapshot.isDraggingOver ? " dragging-over" : ""}`}
                 ref={provided.innerRef}
                 {...provided.droppableProps}
               >
