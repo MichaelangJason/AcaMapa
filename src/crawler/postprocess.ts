@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 // import { readFileSync, writeFileSync } from 'fs'
 const fs = require('fs')
 const readFileSync = fs.readFileSync

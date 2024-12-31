@@ -5,17 +5,44 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --sidebar-background: #83A4C9;
+  --term-width: 300px;
+  --term-height: 90vh;
+  --term-border-color: #CFCFCF;
+  --term-topbottom-color: #CFCFCF;
+  --term-body-bg-color: #F0F0F0;
+  --term-topbottom-height: 40px;
+  --border-radius: 15px;
+  --dragging-bg-color: #1a7b8837;
+  --term-topbottom-color-hover: #acd78ac1;
+  --dragging-over-bg-color: #50dbee74;
+  
+  /* course */
+  --course-search-bg-color: #FFF;
+  --course-card-width: 260px;
+  --course-name-font-size: 12px;
+  --course-id-credits-font-size: 18px;
+  --course-selected-border-color: #ff0000;
+  --course-in-term-margin-top: 10px;
+
+  /* course card status */
+  --course-satisfied-bg-color: #B2E026;
 }
 
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
   }
-}
+} */
 
 body {
   color: var(--foreground);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
+
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: row;
 }

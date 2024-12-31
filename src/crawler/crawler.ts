@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 // import { load } from 'cheerio'
 // import { writeFileSync } from 'fs'
 const cheerio = require('cheerio')
