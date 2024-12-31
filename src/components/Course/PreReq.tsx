@@ -34,26 +34,27 @@ export interface PreReqProps {
 }
 
 const PreReq = (props: PreReqProps) => {
-  const { prerequisites: prerequisite, termId } = props;
+  const { prerequisites, termId } = props;
   const terms = useSelector((state: RootState) => state.terms);
 
   const prevTermCourseIds = terms.order
     .slice(0, terms.order.indexOf(termId))
     .flatMap(termId => terms.data[termId].courseIds);
-  const checkedPrereq = prerequisite
+  const checkedPrereq = prerequisites
     .map(group => group.map(id => prevTermCourseIds.includes(id)));
-
+  
+  // TODO: add string case for prereq
   return (
     <div className="course-req-notes-container">
       <div className="title">Pre-req:</div>
       <div className="prereq-container">
-        {prerequisite.flatMap((group, index) => [
+        {prerequisites.flatMap((group, index) => [
           <ReqGroup 
             req={group} 
             checked={checkedPrereq[index]} 
             key={index} 
           />,
-          index < prerequisite.length - 1 
+          index < prerequisites.length - 1 
             ? <Image src={"/cross.svg"} alt="AND" width={10} height={10} key={`and-${index}`} className="prereq-and" />
             : null
         ]).filter(Boolean)}

@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 import { CourseCode } from "@/types/course";
 import { isSatisfied } from "@/utils";
 import PreReq from "./PreReq";
+import AntiReq from "./AntiReq";
 
 export interface CourseCardProps {
   termId: string;
@@ -17,9 +18,9 @@ export interface CourseCardProps {
 }
 
 const useIsSatisfied = (courseId: CourseCode, termId: string) => {
-  const state = useSelector((state: RootState) => state);
+  const courses = useSelector((state: RootState) => state.courses);
   const terms = useSelector((state: RootState) => state.terms);
-  const { prerequisites, antirequisites, corequisites } = state.courses[courseId]; // will be fixed
+  const { prerequisites, antirequisites, corequisites } = courses[courseId]; // will be fixed
   
   return useMemo(() => 
     isSatisfied({prerequisites, antirequisites, corequisites, terms, termId}),
@@ -31,7 +32,14 @@ const useIsSatisfied = (courseId: CourseCode, termId: string) => {
 const CourseCard = (props: CourseCardProps) => {
   const { termId, courseId, index } = props;
   const course = useSelector((state: RootState) => state.courses[courseId]);
-  const { name, id, credits, prerequisites } = course;
+  const { 
+    name, 
+    id, 
+    credits, 
+    prerequisites, 
+    antirequisites, 
+    corequisites 
+  } = course;
   const dispatch = useDispatch();
 
   const handleRemoveCourse = () => {
@@ -78,6 +86,10 @@ const CourseCard = (props: CourseCardProps) => {
           </div>
           {prerequisites && <PreReq
             prerequisites={prerequisites}
+            termId={termId}
+          />}
+          {antirequisites && <AntiReq
+            antirequisites={antirequisites}
             termId={termId}
           />}
         </div>

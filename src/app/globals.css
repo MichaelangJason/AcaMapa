@@ -5,6 +5,7 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --sidebar-width: 300px;
   --sidebar-background: #83A4C9;
   --term-width: 300px;
   --term-height: 90vh;
@@ -60,4 +61,5 @@ body {
   width: 100vw;
   display: flex;
   flex-direction: row;
+  /* overflow: hidden; */
 }

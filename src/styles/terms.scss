@@ -1,21 +1,12 @@
-.terms-container {
-  flex-grow: 1;
-  height: 100%;
-  width: 100%;
-  background-color: var(--background);
-  display: flex;
-  flex-direction: row;
-  overflow: hidden;
+
+
+body {
   transition: background-color 0.3s ease;
+  background-color: var(--background);
 
   &.dragging {
     background-color: var(--dragging-bg-color);
   }
-}
-
-.react-beautiful-dnd-dragging {
-  transition: none !important;
-  display: none !important;
 }
 
 .delete-term {
@@ -33,7 +24,7 @@
   height: 100%;
   display: flex;
   flex-direction: row;
-  overflow-x: scroll;
+  // overflow-x: scroll;
   align-items: center;
   padding: 0px 50px 0px 0px;
 
@@ -43,6 +34,11 @@
 
   &.dragging-over {
     background-color: var(--dragging-over-bg-color);
+  }
+
+  .terms-placeholder-box {
+    width: var(--sidebar-width);
+    flex-shrink: 0;
   }
 
   .term {
@@ -65,6 +61,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-shrink: 0;
     cursor: grab;
     transition: background-color 0.3s ease;
 
@@ -78,7 +75,12 @@
     width: 100%;
     flex-grow: 1;
     background-color: var(--term-body-bg-color);
-    overflow-y: scroll;
+    overflow: scroll;
+    scrollbar-width: thin;  /* Firefox */
+    -ms-overflow-style: thin;  /* IE and Edge */
+    &::-webkit-scrollbar {
+      width: 6px; /* Chrome, Safari and Opera */
+    }
     transition: background-color 0.3s ease;
     display: flex;
     flex-direction: column;
@@ -133,6 +135,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-shrink: 0;
   }
 }
 
@@ -144,10 +147,15 @@
   border-radius: 50%;
   
   flex-shrink: 0;
-  position: absolute;
+  position: fixed;
   right: 20px;
   top: 50%;
   transform: translateY(-60%);
   cursor: pointer;
+  transition: transform 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-60%) scale(1.1);
+  }
 }
 

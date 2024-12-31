@@ -40,7 +40,17 @@ export const isSatisfied = (
   return prereqSatisfied && antireqSatisfied && coreqSatisfied;
 }
 
-// export const splitCourseCodes = (courseCodes: string[]) => {
-//   const regex = /([A-Z]{4}\s\d{4})|(.*)/g;
+export const splitCourseIds = (val: string[]) => {
+  const pattern = /^[a-zA-Z]{4} \d{3}([djnDJN][1-3])?$/g;
+  
+  const { courseIds, notes } = val.reduce((acc, val) => {
+    if (pattern.test(val)) {  
+      acc.courseIds.push(val);
+    } else {
+      acc.notes.push(val);
+    }
+    return acc;
+  }, {courseIds: [] as string[], notes: [] as string[]});
 
-// }
+  return {courseIds, notes};
+}

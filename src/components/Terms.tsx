@@ -9,6 +9,12 @@ import { addTerm, deleteTerm, moveTerm, moveCourse } from "@/store/termSlice";
 import { setDraggingType, setDroppableId } from "@/store/eventSlice";
 import "@/styles/terms.scss";
 import { DraggingType } from "@/utils/enums";
+import { useEffect, useRef } from "react";
+declare global {
+  interface Window {
+    scrollInterval: NodeJS.Timeout | undefined;
+  }
+}
 
 const Terms = () => {
   const order = useSelector((state: RootState) => state.terms.order);
@@ -16,6 +22,14 @@ const Terms = () => {
     state.event.draggingType === DraggingType.TERM
   );
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (isDragging) {
+      document.body.classList.add('dragging');
+    } else {
+      document.body.classList.remove('dragging');
+    }
+  }, [isDragging]);
 
   const handleAddTerm = () => {
     dispatch(addTerm());
@@ -80,23 +94,22 @@ const Terms = () => {
       onDragEnd={handleDragEnd}
       onDragUpdate={handleDragUpdate}
     >
-      <div className={`terms-container ${isDragging ? "dragging" : ""}`}>
-        <Droppable droppableId="terms" direction="horizontal" type={DraggingType.TERM}>
-          {(provided) => (
-            <div 
-              className="terms" 
-              ref={provided.innerRef} 
-              {...provided.droppableProps}
-            >
-              {order.map((termId: TermId, index: number) => {
-                return <TermCard key={termId} termId={termId} index={index} />
-              })}
-              {provided.placeholder}
-            </div>
-          )}
-        </Droppable>
-        <Image className="add-term-button" src="add.svg" alt="add" width={30} height={30} onClick={handleAddTerm}/>
-      </div>
+      <Droppable droppableId="terms" direction="horizontal" type={DraggingType.TERM}>
+        {(provided) => (
+          <div 
+            className="terms" 
+            ref={provided.innerRef} 
+            {...provided.droppableProps}
+          >
+            <div className="terms-placeholder-box"/>
+            {order.map((termId: TermId, index: number) => {
+              return <TermCard key={termId} termId={termId} index={index} />
+            })}
+            {provided.placeholder}
+          </div>
+        )}
+      </Droppable>
+      <Image className="add-term-button" src="add.svg" alt="add" width={30} height={30} onClick={handleAddTerm}/>
     </DragDropContext>
   )
 }
