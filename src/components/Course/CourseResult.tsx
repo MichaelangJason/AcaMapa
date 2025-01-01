@@ -43,15 +43,17 @@ export const CourseResult = (props: CourseResultProps) => {
         >
           <b>{id}</b> ({credits} credits)
         </div>
-        <Image 
-          src="/cross.svg" 
-          alt="Add Course" 
-          width={15} 
-          height={15} 
-          onClick={handleAddCourse} 
-          className="course-button"
-        />
       </div>
+      <div className="course-button-container in-search">
+          <Image 
+            src="/cross.svg" 
+            alt="Add Course" 
+            width={15} 
+            height={15} 
+            onClick={handleAddCourse} 
+            className="course-button"
+          />
+        </div>
     </div>
   );
 };

@@ -9,7 +9,7 @@ import { addTerm, deleteTerm, moveTerm, moveCourse } from "@/store/termSlice";
 import { setDraggingType, setDroppableId } from "@/store/eventSlice";
 import "@/styles/terms.scss";
 import { DraggingType } from "@/utils/enums";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 declare global {
   interface Window {
     scrollInterval: NodeJS.Timeout | undefined;

@@ -1,8 +1,7 @@
-
-
 body {
   transition: background-color 0.3s ease;
   background-color: var(--background);
+  // overflow: scroll;
 
   &.dragging {
     background-color: var(--dragging-bg-color);
@@ -102,23 +101,19 @@ body {
       position: absolute;
       width: 100%;
       height: 100%;
-      background-color: #FFFFFF19;
-      display: flex;
+      background-color: #ffffff94;
       justify-content: center;
       align-items: center;
       cursor: pointer;
-      transition: opacity 0.3s ease, background-color 0.3s ease;
       opacity: 0;
-      animation: fadeIn 0.3s ease forwards;
+      display: flex;
       z-index: 10000;
-
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-        }
-        to {
-          opacity: 1;
-        }
+      visibility: hidden;
+      transition: opacity 0.3s ease, background-color 0.3s ease, visibility 0.3s ease;
+      
+      &.visible {
+        visibility: visible;
+        opacity: 1;
       }
 
       &:hover {

@@ -98,7 +98,12 @@ const TermCard = (props: TermCardProps) => {
                 {...provided.droppableProps}
               >
                 {/* add course mask */}
-                {isAddingCourse && <div className="add-course-mask" onClick={handleAddCourse}>Click to Add Course</div>}
+                <div 
+                  className={`add-course-mask ${isAddingCourse ? "visible" : ""}`} 
+                  onClick={handleAddCourse}
+                >
+                  Click to Add Course
+                </div>
 
                 {courseIds.map((courseId, index) => (
                   <CourseCard key={courseId} termId={termId} courseId={courseId} index={index} />

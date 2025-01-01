@@ -35,6 +35,7 @@
   --course-req-notes-border-radius: 7px;
   --course-req-notes-title-font-size: 12px;
   --course-req-notes-title-color: #939393;
+  --course-req-notes-notes-font-size: 15px;
 
   /* course tag */
   --course-tag-default-bg-color: #CCCCCC;
@@ -43,6 +44,9 @@
   --course-tag-hover-bg-color: #939393;
   --course-tag-satisfied-bg-color: #A5D63F;
   --course-tag-unsatisfied-bg-color: #ED7155;
+
+  /* course expand */
+  --course-expand-color: var(--course-tag-default-bg-color);
 }
 
 /* @media (prefers-color-scheme: dark) {

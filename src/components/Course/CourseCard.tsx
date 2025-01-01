@@ -1,5 +1,5 @@
 import { Draggable } from "@hello-pangea/dnd";
-import { memo, useMemo } from "react";
+import { memo, useMemo, useState } from "react";
 import "@/styles/course.scss";
 import Image from "next/image";
 import { useDispatch, useSelector } from "react-redux";
@@ -8,8 +8,9 @@ import { deleteCourseFromTerm } from "@/store/termSlice";
 import { toast } from "react-toastify";
 import { CourseCode } from "@/types/course";
 import { isSatisfied } from "@/utils";
+import { OtherReqTitle } from "@/utils/enums";
 import PreReq from "./PreReq";
-import AntiReq from "./AntiReq";
+import OtherReq from "./OtherReq";
 
 export interface CourseCardProps {
   termId: string;
@@ -38,10 +39,11 @@ const CourseCard = (props: CourseCardProps) => {
     credits, 
     prerequisites, 
     antirequisites, 
-    corequisites 
+    corequisites,
+    notes
   } = course;
   const dispatch = useDispatch();
-
+  const [isExpanded, setIsExpanded] = useState(true);
   const handleRemoveCourse = () => {
     dispatch(deleteCourseFromTerm({ termId, courseId }));
     toast.success(`${courseId} removed`);
@@ -55,18 +57,56 @@ const CourseCard = (props: CourseCardProps) => {
     window.open(`${domain}${endpoint}${id}`, "_blank");
   }
 
+  const subs = useMemo(() => {
+    const hasPrereq = prerequisites && prerequisites.length > 0;
+    const hasAntiReq = antirequisites && antirequisites.length > 0;
+    const hasCoReq = corequisites && corequisites.length > 0;
+    const hasNotes = notes && notes.length > 0;
+
+    return {
+      hasPrereq,
+      hasAntiReq,
+      hasCoReq,
+      hasNotes,
+      hasSubsection: hasPrereq || hasAntiReq || hasCoReq || hasNotes
+    };
+  }, [prerequisites, antirequisites, corequisites, notes]);
+
+  const { hasPrereq, hasAntiReq, hasCoReq, hasNotes, hasSubsection } = subs;
   const isSatisfied = useIsSatisfied(courseId, termId);
 
   return (
     <Draggable draggableId={courseId} index={index}>
       {(provided) => (
         <div
-          className={`course-card-container in-term ${isSatisfied ? "satisfied" : "unsatisfied"}`}
+          className={`course-card-container ${isExpanded ? "in-term" : "in-term-folded"} ${isSatisfied ? "satisfied" : "unsatisfied"}`}
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
         >
-          <div className="course-card-info-basic">
+           <div className="course-button-container in-term">
+            {hasSubsection && 
+              <div className="hot-zone" onClick={() => setIsExpanded(!isExpanded)}>
+                <Image
+                  src="/expand-single.svg"
+                  alt="Expand"
+                  width={12}
+                  height={12}
+                  className={`expand-icon ${isExpanded ? "expanded" : ""}`}
+                />
+              </div>
+            }
+            <div className="hot-zone" onClick={handleRemoveCourse}>
+              <Image
+                src="/delete.svg"
+                alt="Delete Course"
+                width={10}
+                height={10}
+                className="delete"
+              />
+            </div>
+          </div>
+          <div className={`course-card-info-basic`}>
             <div className="name">{name}</div>
             <div 
               className="id-credits" 
@@ -75,22 +115,25 @@ const CourseCard = (props: CourseCardProps) => {
             >
               <b>{id}</b> ({credits} credits)
             </div>
-            <Image
-              src="/delete.svg"
-              alt="Delete Course"
-              width={15}
-              height={15}
-              onClick={handleRemoveCourse}
-              className="course-button delete"
-            />
           </div>
-          {prerequisites && <PreReq
-            prerequisites={prerequisites}
+          {hasPrereq && isExpanded && <PreReq
+            prerequisites={prerequisites!}
             termId={termId}
           />}
-          {antirequisites && <AntiReq
-            antirequisites={antirequisites}
+          {hasAntiReq && isExpanded && <OtherReq
+            data={antirequisites!}
             termId={termId}
+            title={OtherReqTitle.ANTI_REQ}
+          />}
+          {hasCoReq && isExpanded && <OtherReq
+            data={corequisites!}
+            termId={termId}
+            title={OtherReqTitle.CO_REQ}
+          />}
+          {hasNotes && isExpanded && <OtherReq
+            data={notes!}
+            termId={termId}
+            title={OtherReqTitle.NOTES}
           />}
         </div>
       )}
