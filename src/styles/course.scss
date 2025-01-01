@@ -9,17 +9,15 @@
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
-  padding: 10px 16px 10px 16px;
+  padding: 13px 19px 9px 19px;
   width: var(--course-card-width);
-  // min-height: 66px;
   height: fit-content;
   gap: 6px;
   position: relative;
   border-radius: var(--border-radius);
-  // justify-content: center;
   box-shadow: 0px 3px 10px 0px rgba(0, 0, 0, 0.25);
   transition: border 0.2s ease-in-out;
-  border: 3px solid transparent;
+
   > * + *:not(:nth-child(2)):not(:nth-child(3)) {
     margin-top: 3px;
   }
@@ -29,18 +27,42 @@
   }
   
   &.selected {
-    border: 3px solid var(--course-selected-border-color);
+    &::before {
+      content: '';
+      position: absolute;
+      top: -4px;
+      left: -4px;
+      right: -4px;
+      bottom: -4px;
+      border: 4px solid var(--course-selected-border-color);
+      border-radius: calc(var(--border-radius) + 4px);
+      pointer-events: none;
+      opacity: 1;
+      transition: opacity 0.2s ease-in-out;
+    }
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: -4px;
+    right: -4px;
+    bottom: -4px;
+    border: 4px solid var(--course-selected-border-color);
+    border-radius: calc(var(--border-radius) + 4px);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
   }
 
   &.in-term {
     margin-top: var(--course-in-term-margin-top);
-    padding: 10px 16px 6px 16px;
     z-index: 100;
   }
 
   &.in-term-folded {
     margin-top: var(--course-in-term-margin-top);
-    padding: 10px 16px 8px 16px;
     z-index: 100;
   }
 
@@ -67,10 +89,17 @@
     justify-content: center;
     align-items: center;
     gap: 3px;
+    z-index: 100;
 
     &.in-search {
       top: 50%;
       transform: translateY(-50%);
+      opacity: 0.5;
+      transition: opacity 0.2s ease-in-out;
+
+      &:hover {
+        opacity: 1;
+      }
     }
 
     &.in-term {
@@ -98,9 +127,11 @@
       justify-content: center;
       align-items: center;
       cursor: pointer;
+      opacity: 0.5;
+      transition: opacity 0.2s ease-in-out;
 
       &:hover {
-        opacity: 0.5;
+        opacity: 1;
       }
     }
   }
