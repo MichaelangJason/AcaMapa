@@ -41,7 +41,7 @@ export const isSatisfied = (
 }
 
 export const splitCourseIds = (val: string[]) => {
-  const pattern = /^[a-zA-Z]{4} \d{3}([djnDJN][1-3])?$/g;
+  const pattern = /^[a-zA-Z]{4} \d{3}([djnDJN][1-3])?$/;
   
   const { courseIds, notes } = val.reduce((acc, val) => {
     if (pattern.test(val)) {  
@@ -50,7 +50,7 @@ export const splitCourseIds = (val: string[]) => {
       acc.notes.push(val);
     }
     return acc;
-  }, {courseIds: [] as string[], notes: [] as string[]});
+  }, {courseIds: [] as CourseCode[], notes: [] as string[]});
 
   return {courseIds, notes};
 }
