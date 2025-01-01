@@ -8,6 +8,7 @@ export const GlobalKeyPressListener = () => {
 
   const handleKeyDown = (event: KeyboardEvent) => {
     const key = event.key;
+    console.log(key);
 
     if (key === "Escape") {
       dispatch(setAddingCourseId(null));

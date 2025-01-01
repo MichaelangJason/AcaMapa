@@ -9,12 +9,12 @@ import { setAddingCourseId } from "@/store/eventSlice";
 import { toast } from "react-toastify";
 import CourseCard from "./CourseCard";
 import { getCourse } from "@/utils/requests";
-import { addCourseToTerm } from "@/store/termSlice";
+import { addCourseToTerm, deleteTerm } from "@/store/termSlice";
 import { addCourse } from "@/store/courseSlice";
 import store from "@/store/store";
 import { Course } from "@/types/course";
 import "@/styles/terms.scss"
-
+import Image from "next/image";
 export interface TermCardProps {
   termId: TermId;
   index: number;
@@ -50,6 +50,7 @@ const TermCard = (props: TermCardProps) => {
     if (inTermCourseIds.includes(addingCourseId!)) {
       const index = terms.order.findIndex((termId: TermId) => terms.data[termId].courseIds.includes(addingCourseId!));
       toast.error(`${addingCourseId} already in term ${index+1}`);
+      dispatch(setAddingCourseId(null));
       return;
     }
 
@@ -79,16 +80,26 @@ const TermCard = (props: TermCardProps) => {
 
   }, [index, termId, addingCourseId, dispatch]);
 
+  const handleDeleteTerm = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    e.preventDefault();
+    dispatch(deleteTerm(termId));
+  }
+
   return (
     <Draggable draggableId={termId} index={index}>
-      {(provided) =>
+      {(provided, snapshot) =>
         <div
           className="term"
           ref={provided.innerRef}
           {...provided.draggableProps}
         >
-          <div className="term-header" {...provided.dragHandleProps}>
+          <div 
+            className={`term-header ${snapshot.isDragging ? "dragging" : ""}`} 
+            {...provided.dragHandleProps}
+          >
             <div >Term {index + 1}</div>
+            <Image className="delete" src="delete.svg" alt="delete" width={20} height={20} onClick={handleDeleteTerm}/>
           </div>
           <Droppable droppableId={termId} type={DraggingType.COURSE}>
             {(provided, snapshot) => (

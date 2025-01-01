@@ -29,11 +29,10 @@ const termSlice = createSlice({
     },
     deleteTerm: (state, action: PayloadAction<TermId>) => {
       const termId = action.payload
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      // const { [termId]: removed, ...rest } = state.data
-      // state.data = rest
-      delete state.data[termId]
+      const courseIds = state.data[termId].courseIds
       state.order = state.order.filter((id) => id !== termId)
+      state.inTermCourseIds = state.inTermCourseIds.filter((id) => !courseIds.includes(id))
+      delete state.data[termId]
     },
     moveTerm: (state, action: PayloadAction<{sourceIdx: number; destinationIdx: number}>) => {
       const { sourceIdx, destinationIdx } = action.payload
