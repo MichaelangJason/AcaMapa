@@ -10,12 +10,11 @@ export interface OtherReqProps {
   data: string[];
   termId: TermId;
   title: string;
+  isMoving: boolean;
 }
 
-// const ReqCourses = 
-
 const OtherReq = (props: OtherReqProps) => {
-  const { data, termId, title } = props;
+  const { data, termId, title, isMoving } = props;
   const terms = useSelector((state: RootState) => state.terms);
   const { courseIds, notes } = splitCourseIds(data);
   const hasCourseIds = courseIds.length > 0;
@@ -40,6 +39,7 @@ const OtherReq = (props: OtherReqProps) => {
             courseId={id} 
             type={courseTagType} 
             itExists={checkedExistence[idx]} 
+            isMoving={isMoving}
           />
         )}
       </div>

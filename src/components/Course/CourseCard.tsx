@@ -11,6 +11,7 @@ import { isSatisfied } from "@/utils";
 import { OtherReqTitle } from "@/utils/enums";
 import PreReq from "./PreReq";
 import OtherReq from "./OtherReq";
+import { setCourseExpanded, setCourseMounted } from "@/store/courseSlice";
 
 export interface CourseCardProps {
   termId: string;
@@ -23,11 +24,12 @@ const useIsSatisfied = (courseId: CourseCode, termId: string) => {
   const terms = useSelector((state: RootState) => state.terms);
   const { prerequisites, antirequisites, corequisites } = courses[courseId]; // will be fixed
   
-  return useMemo(() => 
-    isSatisfied({prerequisites, antirequisites, corequisites, terms, termId}),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [terms, termId]
-  );
+  // return useMemo(() => 
+  //   isSatisfied({prerequisites, antirequisites, corequisites, terms, termId}),
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  //   [terms, termId]
+  // );
+  return isSatisfied({prerequisites, antirequisites, corequisites, terms, termId})
 }
 
 const CourseCard = (props: CourseCardProps) => {
@@ -43,13 +45,22 @@ const CourseCard = (props: CourseCardProps) => {
     notes
   } = course;
   const dispatch = useDispatch();
-  const [isExpanded, setIsExpanded] = useState(true);
+  const isExpanded = useSelector((state: RootState) => state.courses[courseId].isExpanded);
+  const [isRemoving, setIsRemoving] = useState(false);
+  const isMounted = useSelector((state: RootState) => state.courses[courseId].isMounted); // for styling 
+  // const [isMoving, setIsMoving] = useState(isMounted); // for styling during drag
+
   const handleRemoveCourse = () => {
-    dispatch(deleteCourseFromTerm({ termId, courseId }));
-    toast.success(`${courseId} removed`);
+    setIsRemoving(true);
+    setTimeout(() => {
+      dispatch(deleteCourseFromTerm({ termId, courseId }));
+      dispatch(setCourseMounted({ courseId: id, isMounted: false }))
+      dispatch(setCourseExpanded({ courseId, isExpanded: true })) // default to expanded
+      toast.success(`${courseId} removed`);
+    }, 200);
   }
 
-  const handleCourseClick = () => {
+  const handleCoursePageJump = () => {
     // open course page in new tab
     const domain = process.env.NEXT_PUBLIC_SCHOOL_DOMAIN;
     const endpoint = process.env.NEXT_PUBLIC_SCHOOL_ENDPOINT;
@@ -57,7 +68,7 @@ const CourseCard = (props: CourseCardProps) => {
     window.open(`${domain}${endpoint}${id}`, "_blank");
   }
 
-  const subs = useMemo(() => {
+  const subsectionCheck = useMemo(() => {
     const hasPrereq = prerequisites && prerequisites.length > 0;
     const hasAntiReq = antirequisites && antirequisites.length > 0;
     const hasCoReq = corequisites && corequisites.length > 0;
@@ -72,21 +83,37 @@ const CourseCard = (props: CourseCardProps) => {
     };
   }, [prerequisites, antirequisites, corequisites, notes]);
 
-  const { hasPrereq, hasAntiReq, hasCoReq, hasNotes, hasSubsection } = subs;
+  const { hasPrereq, hasAntiReq, hasCoReq, hasNotes, hasSubsection } = subsectionCheck;
   const isSatisfied = useIsSatisfied(courseId, termId);
+
+  // remove moving class after 100ms for animation
+  // useEffect(() => {
+  //   const timer = setTimeout(() => {
+  //     setIsMoving(false);
+  //   }, 100);
+  //   return () => clearTimeout(timer);
+  // }, []);
 
   return (
     <Draggable draggableId={courseId} index={index}>
-      {(provided) => (
+      {(provided, snapshot) => {
+
+        const classNames = 'course-card-container' 
+                        + (!isMounted ? ' fade-in' : '') 
+                        + (isExpanded ? " in-term" : " in-term-folded") 
+                        + (isSatisfied ? " satisfied" : " unsatisfied") 
+                        + (isRemoving ? ' fade-out' : '')
+                        + (snapshot.isDragging ? ' moving' : '');
+        return (
         <div
-          className={`course-card-container ${isExpanded ? "in-term" : "in-term-folded"} ${isSatisfied ? "satisfied" : "unsatisfied"}`}
+          className={classNames}
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
         >
-           <div className="course-button-container in-term">
+          <div className="course-button-container in-term">
             {hasSubsection && 
-              <div className="hot-zone" onClick={() => setIsExpanded(!isExpanded)}>
+              <div className="hot-zone" onClick={() => dispatch(setCourseExpanded({courseId, isExpanded: !isExpanded}))}>
                 <Image
                   src="/expand-single.svg"
                   alt="Expand"
@@ -110,33 +137,37 @@ const CourseCard = (props: CourseCardProps) => {
             <div className="name">{name}</div>
             <div 
               className="id-credits" 
-              onClick={handleCourseClick}
+              onClick={handleCoursePageJump}
               title="Go to course page"
             >
               <b>{id}</b> ({credits} credits)
             </div>
           </div>
-          {hasPrereq && isExpanded && <PreReq
+          {isExpanded && hasPrereq && <PreReq
             prerequisites={prerequisites!}
             termId={termId}
+            isMoving={snapshot.isDragging}
           />}
-          {hasAntiReq && isExpanded && <OtherReq
+          {isExpanded && hasAntiReq && <OtherReq
             data={antirequisites!}
             termId={termId}
             title={OtherReqTitle.ANTI_REQ}
+            isMoving={snapshot.isDragging}
           />}
-          {hasCoReq && isExpanded && <OtherReq
+          {isExpanded && hasCoReq && <OtherReq
             data={corequisites!}
             termId={termId}
             title={OtherReqTitle.CO_REQ}
+            isMoving={snapshot.isDragging}
           />}
-          {hasNotes && isExpanded && <OtherReq
+          {isExpanded && hasNotes && <OtherReq
             data={notes!}
             termId={termId}
             title={OtherReqTitle.NOTES}
+            isMoving={snapshot.isDragging}
           />}
         </div>
-      )}
+      )}}
     </Draggable>
   );
 };

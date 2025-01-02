@@ -1,45 +1,32 @@
 .course-result-container {
   margin-top: 30px;
+  
   display: flex;
   flex-direction: column;
   gap: 15px;
 }
 
 .course-card-container {
+  position: relative;
+  z-index: 100;
+  
+  width: var(--course-card-width);
+  height: fit-content;
+  padding: 13px 19px 9px 19px;
+  
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
-  padding: 13px 19px 9px 19px;
-  width: var(--course-card-width);
-  height: fit-content;
   gap: 6px;
-  position: relative;
+  
+  background-color: var(--course-moving-bg-color);
   border-radius: var(--border-radius);
   box-shadow: 0px 3px 10px 0px rgba(0, 0, 0, 0.25);
   transition: border 0.2s ease-in-out;
+  // transition: border 0.2s ease-in-out, background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
   > * + *:not(:nth-child(2)):not(:nth-child(3)) {
     margin-top: 3px;
-  }
-
-  &.result {
-    background-color: var(--course-search-bg-color);
-  }
-  
-  &.selected {
-    &::before {
-      content: '';
-      position: absolute;
-      top: -4px;
-      left: -4px;
-      right: -4px;
-      bottom: -4px;
-      border: 4px solid var(--course-selected-border-color);
-      border-radius: calc(var(--border-radius) + 4px);
-      pointer-events: none;
-      opacity: 1;
-      transition: opacity 0.2s ease-in-out;
-    }
   }
 
   &::before {
@@ -49,21 +36,26 @@
     left: -4px;
     right: -4px;
     bottom: -4px;
+    
     border: 4px solid var(--course-selected-border-color);
     border-radius: calc(var(--border-radius) + 4px);
-    pointer-events: none;
     opacity: 0;
+    pointer-events: none;
     transition: opacity 0.2s ease-in-out;
   }
 
-  &.in-term {
-    margin-top: var(--course-in-term-margin-top);
-    z-index: 100;
+  &.result {
+    background-color: var(--course-search-bg-color);
+  }
+  
+  &.selected {
+    &::before {
+      opacity: 1;
+    }
   }
 
-  &.in-term-folded {
+  &.in-term, &.in-term-folded {
     margin-top: var(--course-in-term-margin-top);
-    z-index: 100;
   }
 
   &.satisfied {
@@ -74,27 +66,33 @@
     background-color: var(--course-unsatisfied-bg-color);
   }
 
+  &.moving {
+    background-color: var(--course-moving-bg-color);
+  }
 
   .course-button-container {
     position: absolute;
-    right: 16px;
     top: 10px;
-    align-self: center;
-    cursor: pointer;
+    right: 16px;
+    z-index: 100;
+    
     width: 15px;
     height: 15px;
-    transition: opacity 0.2s ease;
+    
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
     gap: 3px;
-    z-index: 100;
+    
+    cursor: pointer;
+    transition: opacity 0.2s ease;
 
     &.in-search {
       top: 50%;
-      transform: translateY(-50%);
+      
       opacity: 0.5;
+      transform: translateY(-50%);
       transition: opacity 0.2s ease-in-out;
 
       &:hover {
@@ -108,6 +106,7 @@
 
     .expand-icon {
       color: var(--background);
+      // transition: transform 0.2s ease-in-out;
     
       svg path {
         stroke: var(--background) !important;
@@ -120,14 +119,16 @@
     }
 
     .hot-zone {
-      flex-shrink: 0;
       width: 20px;
       height: 20px;
+      
       display: flex;
       justify-content: center;
       align-items: center;
-      cursor: pointer;
+      flex-shrink: 0;
+      
       opacity: 0.5;
+      cursor: pointer;
       transition: opacity 0.2s ease-in-out;
 
       &:hover {
@@ -138,34 +139,38 @@
 }
 
 .course-card-info-basic {
-  // flex-grow: 1;
-  flex-shrink: 0;
+  position: relative;
+  
   width: fit-content;
   max-width: calc(100% - 15px);
   height: fit-content;
+  
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: start;
-  position: relative;
+  flex-shrink: 0;
 
   .name {
-    font-size: var(--course-name-font-size);
-    text-wrap: wrap;
-    // width: calc(100% - 15px);
-    width:fit-content;
+    width: fit-content;
+    
     flex-shrink: 0;
+    
+    font-size: var(--course-name-font-size);
     line-height: 1;
+    text-wrap: wrap;
   }
 
   .id-credits {
-    font-size: var(--course-id-credits-font-size);
     width: fit-content;
-    cursor: pointer;
-    line-height: 1;
-    margin-bottom: 3px;
-    flex-shrink: 0;
     margin-top: 5px;
+    margin-bottom: 3px;
+    
+    flex-shrink: 0;
+    
+    font-size: var(--course-id-credits-font-size);
+    line-height: 1;
+    cursor: pointer;
 
     &:hover {
       text-decoration: underline;
@@ -174,17 +179,21 @@
 }
 
 .course-tag {
-  background-color: var(--course-tag-default-bg-color);
-  border-radius: var(--course-tag-border-radius);
-  padding: 0px 4px 0px 4px;
   width: fit-content;
   height: fit-content;
+  padding: 0px 4px;
+  
+  flex-shrink: 0;
+  
+  background-color: var(--course-tag-default-bg-color);
+  border-radius: var(--course-tag-border-radius);
+  
   font-size: var(--course-tag-font-size);
   font-weight: bold;
-  flex-shrink: 0;
   text-wrap: nowrap;
+  
   cursor: pointer;
-  transition: background-color 0.2s ease-in-out;
+  // transition: background-color 0.2s ease-in-out;
   
   &:hover {
     background-color: var(--course-tag-hover-bg-color);
@@ -197,23 +206,27 @@
   &.restricted {
     background-color: var(--course-unsatisfied-bg-color);
   }
+
+  &.moving {
+    background-color: var(--course-tag-default-bg-color);
+  }
 }
 
 .course-req-notes-container {
+  width: calc(100% + 20px);
+  height: fit-content;
+  padding: 5px 8px 8px 8px;
+  
   display: flex;
   flex-direction: column;
   align-items: start;
   justify-content: start;
   flex-shrink: 0;
-
-  width: calc(100% + 20px);
+  align-self: center;
+  
   background-color: var(--course-req-notes-bg-color);
   border-radius: var(--course-req-notes-border-radius);
-  height: fit-content;
-  align-self: center;
-  padding: 5px 8px 8px 8px;
   overflow: hidden;
-  height: fit-content;
 
   .title {
     font-size: var(--course-req-notes-title-font-size);
@@ -224,21 +237,25 @@
   .prereq-container {
     width: 100%;
     height: fit-content;
+    
     display: flex;
     flex-direction: row;
     justify-content: start;
     align-items: center;
+    gap: 5px;
+    
     overflow-x: scroll;
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
+    
     &::-webkit-scrollbar {
       display: none; /* Chrome, Safari and Opera */
     }
-    gap: 5px;
 
     .prereq-group {
       width: fit-content;
       height: fit-content;
+      
       display: flex;
       flex-direction: column;
       justify-content: start;
@@ -252,31 +269,52 @@
   }
   
   .course-ids {
+    width: 100%;
+    
     display: flex;
     flex-direction: row;
     justify-content: start;
     align-items: center;
-    width: 100%;
     gap: 5px;
+    
     overflow-x: scroll;
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
+    
     &::-webkit-scrollbar {
       display: none; /* Chrome, Safari and Opera */
     }
   }
 
   .notes {
-    list-style-type:square;
-    padding: 4px 0px 1px 0px;
-    font-family: Arial, Helvetica, sans-serif;
-    padding-left: 20px;
-    font-size: var(--course-req-notes-notes-font-size);
-    line-height: 1.1;
-    font-weight: 500;
-    font-size: calc(var(--course-req-notes-title-font-size) + 1px);
+    padding: 4px 0px 1px 20px;
+    
     display: flex;
     flex-direction: column;
     gap: 5px;
+    
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: calc(var(--course-req-notes-title-font-size) + 1px);
+    font-weight: 500;
+    line-height: 1.1;
+    list-style-type: square;
   }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.fade-out {
+  animation: fadeOut 0.1s ease-out forwards;
+}
+
+.fade-in {
+  animation: fadeIn 0.235s ease forwards;
 }
