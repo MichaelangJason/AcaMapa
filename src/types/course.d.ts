@@ -13,5 +13,8 @@ export interface Course {
 }
 
 export interface CourseMap {
-  [id: CourseCode]: Course;
+  [id: CourseCode]: Course & {
+    isExpanded: boolean;
+    isMounted: boolean;
+  };
 }

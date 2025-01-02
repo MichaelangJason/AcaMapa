@@ -11,13 +11,16 @@
   --term-height: 90vh;
   --term-border-color: #CFCFCF;
   --term-topbottom-color: #CFCFCF;
-  --term-body-bg-color: #F0F0F0;
+  --term-body-bg-color: #ffffffe9;
   --term-topbottom-height: 40px;
   --border-radius: 15px;
-  --dragging-bg-color: #50dbee74;
+  /* --dragging-bg-color: #50dbee74; */
   --term-topbottom-color-hover: #acd78ac1;
   --dragging-over-bg-color: #1a7b8837;
-  
+
+  /* terms */
+  --dragging-over-term-body-bg-color: #ffffff8d;
+
   /* course */
   --course-search-bg-color: #FFF;
   --course-card-width: 260px;
@@ -29,6 +32,7 @@
   /* course card status */
   --course-satisfied-bg-color: #B2E026;
   --course-unsatisfied-bg-color: #ED7155;
+  --course-moving-bg-color: #8d8d8d;
 
   /* course req notes */
   --course-req-notes-bg-color: #F0F0F0;

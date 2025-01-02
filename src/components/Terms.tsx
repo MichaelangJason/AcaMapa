@@ -50,6 +50,8 @@ const Terms = () => {
             ref={provided.innerRef} 
             {...provided.droppableProps}
           >
+            <Image 
+              className="terms-background" src="/school.webp" alt="school" width={2400} height={2400}/>
             <div className="terms-placeholder-box"/>
             {order.map((termId: TermId, index: number) => {
               return <TermCard key={termId} termId={termId} index={index} />

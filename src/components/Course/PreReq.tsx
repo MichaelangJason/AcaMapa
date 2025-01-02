@@ -8,8 +8,14 @@ import { CourseTagType } from "@/utils/enums";
 import "@/styles/course.scss"
 import Image from "next/image";
 
-const ReqGroup = (props: {req: CourseCode[], checked: boolean[]}) => {
-  const { req, checked } = props;
+interface PreReqProps {
+  prerequisites: CourseCode[][];
+  termId: TermId;
+  isMoving: boolean;
+}
+
+const ReqGroup = (props: {req: CourseCode[], checked: boolean[], isMoving: boolean}) => {
+  const { req, checked, isMoving } = props;
 
   return (
     <div className="prereq-group">
@@ -19,6 +25,7 @@ const ReqGroup = (props: {req: CourseCode[], checked: boolean[]}) => {
           type={CourseTagType.REQUIRED} 
           itExists={checked[index]} 
           key={id} 
+          isMoving={isMoving}
         />,
         index < req.length - 1 
           ? <Image src={"/slash.svg"} alt="OR" width={10} height={10} key={`or-${id}`} className="prereq-or" />
@@ -28,13 +35,8 @@ const ReqGroup = (props: {req: CourseCode[], checked: boolean[]}) => {
   )
 }
 
-export interface PreReqProps {
-  prerequisites: CourseCode[][];
-  termId: TermId;
-}
-
 const PreReq = (props: PreReqProps) => {
-  const { prerequisites, termId } = props;
+  const { prerequisites, termId, isMoving } = props;
   const terms = useSelector((state: RootState) => state.terms);
 
   const prevTermCourseIds = terms.order
@@ -53,6 +55,7 @@ const PreReq = (props: PreReqProps) => {
             req={group} 
             checked={checkedPrereq[index]} 
             key={index} 
+            isMoving={isMoving}
           />,
           index < prerequisites.length - 1 
             ? <Image src={"/cross.svg"} alt="AND" width={10} height={10} key={`and-${index}`} className="prereq-and" />

@@ -10,7 +10,7 @@ import { toast } from "react-toastify";
 import CourseCard from "./CourseCard";
 import { getCourse } from "@/utils/requests";
 import { addCourseToTerm, deleteTerm } from "@/store/termSlice";
-import { addCourse } from "@/store/courseSlice";
+import { addCourse, setCourseMounted } from "@/store/courseSlice";
 import store from "@/store/store";
 import { Course } from "@/types/course";
 import "@/styles/terms.scss"
@@ -33,7 +33,7 @@ const TermCard = (props: TermCardProps) => {
     }, 0)
   )
 
-  if (!courseIds || courseIds.length === 0) {
+  if (!courseIds) {
     courseIds = [];
   }
 
@@ -53,9 +53,12 @@ const TermCard = (props: TermCardProps) => {
       dispatch(setAddingCourseId(null));
       return;
     }
+    
+    dispatch(setAddingCourseId(null));
 
-    let course: Course | null = state.courses[addingCourseId!];
-      dispatch(setAddingCourseId(null));
+    /// for animation purposes, delay adding course
+    setTimeout(async () => {
+      let course: Course | null = state.courses[addingCourseId!];
       // else fetch from api
       if (!course) {
         course = await toast.promise(
@@ -71,12 +74,16 @@ const TermCard = (props: TermCardProps) => {
       if (!course) {
         toast.error("Course not found");
       } else {
+          const id = course.id;
+          dispatch(addCourse(course))
+          dispatch(addCourseToTerm({ termId, courseId: id }))
+          toast.success(`${id} added to term ${index + 1}`);
 
-        const id = course.id;
-        dispatch(addCourse(course))
-        dispatch(addCourseToTerm({ termId, courseId: id }))
-        toast.success(`${id} added to term ${index + 1}`);
-      }
+          setTimeout(() => { // set mounted after animation
+            dispatch(setCourseMounted({ courseId: id, isMounted: true }))
+          }, 200);
+        }
+      }, 100);
 
   }, [index, termId, addingCourseId, dispatch]);
 
@@ -94,6 +101,7 @@ const TermCard = (props: TermCardProps) => {
           ref={provided.innerRef}
           {...provided.draggableProps}
         >
+          {/* term header */}
           <div 
             className={`term-header ${snapshot.isDragging ? "dragging" : ""}`} 
             {...provided.dragHandleProps}
@@ -101,6 +109,7 @@ const TermCard = (props: TermCardProps) => {
             <div >Term {index + 1}</div>
             <Image className="delete" src="delete.svg" alt="delete" width={20} height={20} onClick={handleDeleteTerm}/>
           </div>
+          {/* droppable for courses */}
           <Droppable droppableId={termId} type={DraggingType.COURSE}>
             {(provided, snapshot) => (
               <div
@@ -115,7 +124,7 @@ const TermCard = (props: TermCardProps) => {
                 >
                   Click to Add Course
                 </div>
-
+                {/* courses */}
                 {courseIds.map((courseId, index) => (
                   <CourseCard key={courseId} termId={termId} courseId={courseId} index={index} />
                 ))}
@@ -123,6 +132,7 @@ const TermCard = (props: TermCardProps) => {
               </div>
             )}
           </Droppable>
+          {/* term footer */}
           <div className="term-footer">
             <div>{credits} credits</div>
           </div>
