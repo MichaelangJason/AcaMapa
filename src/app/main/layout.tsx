@@ -1,6 +1,6 @@
 "use client"
 
-import store from "@/store/store"
+import store from "@/store"
 import { Provider } from "react-redux"
 
 export default function Layout({

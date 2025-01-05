@@ -4,7 +4,7 @@
   
   height: 100vh;
   width: var(--sidebar-width);
-  padding: 20px;
+  padding: 20px 0px 20px 0px;
   
   display: flex;
   flex-direction: column;
@@ -12,7 +12,7 @@
   align-items: center;
   
   background-color: var(--sidebar-background);
-  overflow-y: auto;
+  overflow-y: hidden;
 
   .search-bar {
     position: relative;
@@ -22,6 +22,7 @@
     
     display: flex;
     align-items: center;
+    flex-shrink: 0;
 
     input {
       width: 100%;
@@ -41,6 +42,118 @@
 
       &:hover {
         transform: scale(1.1);
+      }
+    }
+  }
+
+  .result-container {
+    position: relative;
+    width: 100%;
+    padding: 5% 0px 5% 0px;
+
+    flex-grow: 1;
+    flex-shrink: 1;
+    
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+
+
+    overflow-y: scroll;
+    // thin scrollbar
+    scrollbar-width: thin;  /* Firefox */
+    -ms-overflow-style: thin;  /* IE and Edge */
+    
+    &::-webkit-scrollbar {
+      width: 6px; /* Chrome, Safari and Opera */
+    }
+
+    mask-image: linear-gradient(to bottom, transparent, black 2.5%, black 97.5%, transparent);
+    -webkit-mask-image: linear-gradient(to bottom, transparent, black 2.5%, black 97.5%, transparent); /* 兼容 Webkit 浏览器 */
+  }
+
+  .course-taken-container {
+    position: relative;
+    width: 90%;
+    height: fit-content;
+    z-index: 100;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    background-color: #fff;
+    border: 2px solid #000;
+    border-radius: 15px;
+    box-shadow: 0px 3px 10px 0px rgba(0, 0, 0, 0.25);
+
+    .course-taken-header {
+      position: relative;
+      width: 100%;
+      height: 30px;
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      .expand-button {
+        position: absolute;
+        top: 0;
+        right: 10px;
+        width: fit-content;
+        height: 100%;
+
+        cursor: pointer;
+  
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        transform: rotate(180deg);
+
+        &.expanded {
+          transform: rotate(0deg);
+        }
+      }
+    }
+
+    .course-taken-list {
+      width: 100%;
+      max-height: 200px;
+      height: fit-content;
+      padding: 0px 10px 0px 10px;
+
+      display: flex;
+      flex-direction: column;
+      // align-items: center;
+
+      overflow-y: scroll;
+
+      .course-taken-group {
+        width: 100%;
+        height: fit-content;
+        margin-bottom: 10px;
+
+        .course-taken-group-header {
+          width: 100%;
+          height: fit-content;
+
+          font-size: var(--course-req-notes-title-font-size);
+          font-weight: bold;
+          color: var(--course-req-notes-title-color);
+        }
+
+        .course-taken-group-body {
+          width: 100%;
+          height: fit-content;
+
+          display: flex;
+          flex-direction: row;
+          flex-wrap: wrap;
+          gap: 10px;
+        }
       }
     }
   }

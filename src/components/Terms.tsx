@@ -1,7 +1,7 @@
 import { useSelector } from "react-redux";
 import TermCard from "./Course/TermCard";
 import Image from "next/image";
-import { RootState } from "@/store/store";
+import { RootState } from "@/store";
 import { TermId } from "@/types/term";
 import { Droppable } from "@hello-pangea/dnd";
 import { useDispatch } from "react-redux";
@@ -13,7 +13,7 @@ import { useEffect } from "react";
 const Terms = () => {
   const order = useSelector((state: RootState) => state.terms.order);
   const isDragging = useSelector((state: RootState) => 
-    state.event.draggingType === DraggingType.TERM
+    state.events.draggingType === DraggingType.TERM
   );
   const dispatch = useDispatch();
 

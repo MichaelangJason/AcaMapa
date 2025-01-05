@@ -3,10 +3,11 @@ import { TermMap } from "@/types/term";
 import { TermId } from "@/types/term";
 
 export const isSatisfied = (
-  {prerequisites, antirequisites, corequisites, terms, termId}: {
+  {prerequisites, antirequisites, corequisites, courseTaken, terms, termId}: {
     prerequisites?: CourseCode[][],
     antirequisites?: CourseCode[],
-    corequisites?: CourseCode[],
+    corequisites?: CourseCode[][],
+    courseTaken: CourseCode[],
     terms: {
       data: TermMap;
       order: TermId[];
@@ -20,7 +21,8 @@ export const isSatisfied = (
   const thisTermCourseIds = terms.data[termId].courseIds;
   const prevTermCourseIds = order
     .slice(0, thisTermIdx)
-    .flatMap(termId => terms.data[termId].courseIds);
+    .flatMap(termId => terms.data[termId].courseIds)
+    .concat(courseTaken);
 
   const prereqSatisfied = !prerequisites || prerequisites.every(group => 
     // every group must have at least one course from the previous term
@@ -32,9 +34,9 @@ export const isSatisfied = (
     id => !prevTermCourseIds.includes(id) && !thisTermCourseIds.includes(id)
   );
 
-  const coreqSatisfied = !corequisites || corequisites.every(
+  const coreqSatisfied = !corequisites || corequisites.every(group => 
     // every corequisite must be from the previous term or this term
-    id => prevTermCourseIds.includes(id) || thisTermCourseIds.includes(id)
+    group.some(id => prevTermCourseIds.includes(id) || thisTermCourseIds.includes(id))
   );
 
   return prereqSatisfied && antireqSatisfied && coreqSatisfied;

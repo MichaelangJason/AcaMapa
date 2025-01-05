@@ -12,6 +12,7 @@
   "dependencies": {
     "@hello-pangea/dnd": "^17.0.0",
     "@reduxjs/toolkit": "^2.5.0",
+    "fuse.js": "^7.0.0",
     "immer": "^10.1.1",
     "lodash": "^4.17.21",
     "mongoose": "^8.9.2",

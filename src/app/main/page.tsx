@@ -71,7 +71,7 @@ export default function Main() {
         <Terms />
         <GlobalKeyPressListener />
         <ToastContainer
-          position="bottom-right"
+          position="top-right"
           autoClose={5000}
           hideProgressBar={true}
           newestOnTop={false}

@@ -25,17 +25,13 @@ export const throttle = (fn: Function, delay: number) => {
   };
 };
 
-export const searchCourses = async (input: string) => {
-  const encodedInput = encodeURIComponent(input);
-  const response = await fetch(`/api/search?val=${encodedInput}`);
-  const data: Course[] = await response.json();
-  return data;
-}
-
 export const getCourse = async (courseId: string) => {
   if (!courseId) return null;
-  const response = await fetch(`/api/course/${courseId}`);
+  const response = await fetch(`/api/courses/${courseId}`);
   if (!response.ok) return null;
-  const data: Course = await response.json();
-  return data;
+  const data = await response.json();
+  console.log(data);
+  const { id, name, credits, processed } = data;
+  const { prerequisite, restriction, corequisite, note } = processed;
+  return { id, name, credits, prerequisites: prerequisite, antirequisites: restriction, corequisites: corequisite, notes: note } as Course;
 }

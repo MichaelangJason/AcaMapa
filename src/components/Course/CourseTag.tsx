@@ -1,5 +1,8 @@
-import { CourseTagType } from "@/utils/enums";
 
+import { addCourseTaken, removeCourseTaken } from "@/store/courseTakenSlice";
+import { CourseTagType } from "@/utils/enums";
+import { useDispatch } from "react-redux";
+import { toast } from "react-toastify";
 export interface CourseTagProps {
   courseId: string;
   type: CourseTagType;
@@ -12,10 +15,18 @@ const CourseTag = (props: CourseTagProps) => {
   const className = 'course-tag' 
                     + (itExists ? ' ' + type.toLowerCase() : '') 
                     + (isMoving ? ' moving' : '');
+  const dispatch = useDispatch();
 
   const handleClick = () => {
-    console.log(courseId, type, itExists);
+    if (type === CourseTagType.TAKEN) {
+      dispatch(removeCourseTaken(courseId));
+      toast.success(`${courseId} removed from course taken`)
+    } else {
+      dispatch(addCourseTaken(courseId));
+      toast.success(`${courseId} added to course taken`)
+    }
   }
+
   return (
     <div 
       className={className} 
