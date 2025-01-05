@@ -139,13 +139,19 @@ body {
       width: 6px; /* Chrome, Safari and Opera */
     }
 
-    &.dragging {
-      background-color: var(--dragging-bg-color);
+    &.dragging-over {
+      background-color: var(--dragging-over-bg-color);
+    }
+
+    &.overflow-hidden {
+      overflow: hidden;
     }
 
     .add-course-mask {
       --animation-duration: 0.08s;
       position: absolute;
+      top: 0;
+      left: 0;
       z-index: 5000;
       
       width: 100%;
@@ -195,6 +201,7 @@ body {
   position: fixed;
   right: 20px;
   top: 50%;
+  z-index: 300;
   
   width: 30px;
   height: 30px;

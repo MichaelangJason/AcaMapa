@@ -6,9 +6,19 @@ export interface Course {
   credits: number;
   department?: string;
   allowedPrograms?: string[];
-  prerequisites?: CourseCode[][];
-  antirequisites?: CourseCode[];
-  corequisites?: CourseCode[];
+  prerequisites?: {
+    raw: string;
+    logical_group: CourseCode[][];
+  };
+  antirequisites?: {
+    raw: string;
+    takenOrTaking: CourseCode[];
+    onlyTaken: CourseCode[];
+  };
+  corequisites?: {
+    raw: string;
+    logical_group: CourseCode[][];
+  };
   notes?: string[];
 }
 

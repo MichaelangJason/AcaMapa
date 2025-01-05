@@ -1,4 +1,4 @@
-import { RootState } from "@/store/store";
+import { RootState } from "@/store";
 import { setAddingCourseId } from "@/store/eventSlice";
 import "@/styles/course.scss"
 import { useDispatch, useSelector } from "react-redux";
@@ -13,7 +13,7 @@ export interface CourseResultProps {
 export const CourseResult = (props: CourseResultProps) => {
   const { id, name, credits } = props;
   const dispatch = useDispatch();
-  const addingCourseId = useSelector((state: RootState) => state.event.addingCourseId);
+  const addingCourseId = useSelector((state: RootState) => state.events.addingCourseId);
 
   const handleAddCourse = () => {
     if (addingCourseId === id) {
@@ -41,7 +41,7 @@ export const CourseResult = (props: CourseResultProps) => {
           onClick={handleCourseClick}
           title="Go to course page"
         >
-          <b>{id}</b> ({credits} credits)
+          {credits < 0 ? <b>{id}</b> : <><b>{id}</b> ({credits} credits)</>}
         </div>
       </div>
       <div className="course-button-container in-search">

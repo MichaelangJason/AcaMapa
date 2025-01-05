@@ -2,7 +2,7 @@
 import { TermId } from "@/types/term";
 import { Draggable, Droppable } from "@hello-pangea/dnd";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "@/store/store";
+import { RootState } from "@/store";
 import { memo, useCallback } from "react";
 import { DraggingType } from "@/utils/enums";
 import { setAddingCourseId } from "@/store/eventSlice";
@@ -11,7 +11,7 @@ import CourseCard from "./CourseCard";
 import { getCourse } from "@/utils/requests";
 import { addCourseToTerm, deleteTerm } from "@/store/termSlice";
 import { addCourse, setCourseMounted } from "@/store/courseSlice";
-import store from "@/store/store";
+import store from "@/store";
 import { Course } from "@/types/course";
 import "@/styles/terms.scss"
 import Image from "next/image";
@@ -29,7 +29,8 @@ const TermCard = (props: TermCardProps) => {
       if (!(courseId in state.courses)) {
         return acc;
       }
-      return acc + state.courses[courseId].credits;
+      const credits = state.courses[courseId].credits;
+      return acc + (credits < 0 ? 0 : credits);
     }, 0)
   )
 
@@ -38,7 +39,7 @@ const TermCard = (props: TermCardProps) => {
   }
 
   const dispatch = useDispatch();
-  const addingCourseId = useSelector((state: RootState) => state.event.addingCourseId);
+  const addingCourseId = useSelector((state: RootState) => state.events.addingCourseId);
   const isAddingCourse = addingCourseId !== null;
 
   const handleAddCourse = useCallback(async () => {
@@ -64,11 +65,12 @@ const TermCard = (props: TermCardProps) => {
         course = await toast.promise(
           getCourse(addingCourseId!),
           {
-            pending: `Loading ${addingCourseId}...`,
-            error: `Failed to load ${addingCourseId}`,
-            success: `${addingCourseId} loaded successfully`,
+            pending: `Fetching ${addingCourseId}...`,
+            error: `Failed to fetch ${addingCourseId}`,
+            success: `${addingCourseId} fetched successfully`,
           }
         );
+        console.log(course);
       }
       
       if (!course) {
@@ -113,7 +115,7 @@ const TermCard = (props: TermCardProps) => {
           <Droppable droppableId={termId} type={DraggingType.COURSE}>
             {(provided, snapshot) => (
               <div
-                className={`term-body${snapshot.isDraggingOver ? " dragging-over" : ""}`}
+                className={"term-body" + (snapshot.isDraggingOver ? " dragging-over" : "") + (isAddingCourse ? " overflow-hidden" : "")}
                 ref={provided.innerRef}
                 {...provided.droppableProps}
               >
