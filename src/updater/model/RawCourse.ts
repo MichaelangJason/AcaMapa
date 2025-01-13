@@ -1,5 +1,4 @@
 import { Schema, Model, model } from "mongoose";
-import mongoose from "mongoose";
 
 export interface IRawCourse {
   id: string;
@@ -48,7 +47,6 @@ export const RawCourseSchema = new Schema<IRawCourse>({
 
 const ACADEMIC_YEAR = process.env.NEXT_PUBLIC_ACADEMIC_YEAR?.replace("-", "_");
 
-export const RawCourse: Model<IRawCourse> = mongoose.models.RawCourse || 
-  model<IRawCourse>("RawCourse", RawCourseSchema, "raw_courses_" + ACADEMIC_YEAR);
+export const RawCourse: Model<IRawCourse> = model<IRawCourse>("RawCourse", RawCourseSchema, "raw_courses_" + ACADEMIC_YEAR);
 
-export default RawCourse;
+export default IRawCourse;

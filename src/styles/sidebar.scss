@@ -11,7 +11,7 @@
   flex-shrink: 0;
   align-items: center;
   
-  background-color: var(--sidebar-background);
+  background-color: var(--term-topbottom-color);
   overflow-y: hidden;
 
   .search-bar {
@@ -69,8 +69,8 @@
       width: 6px; /* Chrome, Safari and Opera */
     }
 
-    mask-image: linear-gradient(to bottom, transparent, black 2.5%, black 97.5%, transparent);
-    -webkit-mask-image: linear-gradient(to bottom, transparent, black 2.5%, black 97.5%, transparent); /* 兼容 Webkit 浏览器 */
+    mask-image: linear-gradient(to bottom, transparent, black 2%, black 98%, transparent);
+    -webkit-mask-image: linear-gradient(to bottom, transparent, black 2%, black 98%, transparent); /* 兼容 Webkit 浏览器 */
   }
 
   .course-taken-container {
@@ -98,6 +98,8 @@
       justify-content: center;
       align-items: center;
 
+      cursor: pointer;
+
       .expand-button {
         position: absolute;
         top: 0;
@@ -112,6 +114,7 @@
         align-items: center;
 
         transform: rotate(180deg);
+        transition: transform 0.1s ease;
 
         &.expanded {
           transform: rotate(0deg);
@@ -130,6 +133,9 @@
       // align-items: center;
 
       overflow-y: scroll;
+
+      mask-image: linear-gradient(to bottom, transparent, black 2%, black 98%, transparent);
+      -webkit-mask-image: linear-gradient(to bottom, transparent, black 2%, black 98%, transparent);
 
       .course-taken-group {
         width: 100%;
@@ -156,6 +162,39 @@
         }
       }
     }
+
+    .course-taken-empty {
+      // height: 100%;
+      margin-bottom: 10px;
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      font-size: var(--course-req-notes-title-font-size);
+      font-weight:lighter;
+      color: var(--course-req-notes-title-color);
+    }
   }
+}
+
+
+/* Glow effect */
+@keyframes glow {
+  0% {
+    box-shadow: 0 0 10px 2px rgba(255, 215, 0, 0.8); /* Golden glow */
+  }
+  50% {
+    box-shadow: 0 0 20px 4px rgba(255, 215, 0, 1);
+  }
+  100% {
+    box-shadow: 0 0 10px 2px rgba(255, 215, 0, 0.8);
+  }
+}
+
+/* Add a class to trigger the glow */
+.glow-border {
+  animation: glow 1s ease-in-out;
+  animation-fill-mode: forwards;
 }
 

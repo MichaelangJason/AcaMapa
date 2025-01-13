@@ -15,3 +15,10 @@ export enum ReqTitle {
   CO_REQ = "Co-req:",
   NOTES = "Notes:",
 }
+
+export enum GroupType {
+  AND = "AND",
+  OR = "OR",
+  SINGLE = "SINGLE",
+  EMPTY = "EMPTY",
+}

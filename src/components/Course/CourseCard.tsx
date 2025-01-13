@@ -6,10 +6,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { deleteCourseFromTerm } from "@/store/termSlice";
 import { toast } from "react-toastify";
-import { CourseCode } from "@/types/course";
-import { isSatisfied } from "@/utils";
-import { ReqTitle } from "@/utils/enums";
-import PreReq from "./PreReq";
+import { IGroup } from "@/types/course";
+import { isSatisfied, parseGroup } from "@/utils";
+import { GroupType, ReqTitle } from "@/utils/enums";
+import PreCoReq from "./PreCoReq";
 import OtherReq from "./OtherReq";
 import { setCourseExpanded, setCourseMounted } from "@/store/courseSlice";
 
@@ -19,12 +19,12 @@ export interface CourseCardProps {
   index: number;
 }
 
-const useIsSatisfied = (termId: string, prerequisites: CourseCode[][] | undefined, antirequisites: CourseCode[] | undefined, corequisites: CourseCode[][] | undefined) => {
+const useIsSatisfied = (termId: string, prerequisites: IGroup, restrictions: IGroup, corequisites: IGroup) => {
   const terms = useSelector((state: RootState) => state.terms);
   const courseTaken = useSelector((state: RootState) => Object.values(state.courseTaken).flat());
   
   return useMemo(() => 
-    isSatisfied({prerequisites, antirequisites, corequisites, courseTaken, terms, termId}),
+    isSatisfied({prerequisites, restrictions, corequisites, courseTaken, terms, termId}),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [terms, termId, courseTaken]
   );
@@ -38,7 +38,7 @@ const CourseCard = (props: CourseCardProps) => {
     id, 
     credits, 
     prerequisites, 
-    antirequisites, 
+    restrictions, 
     corequisites,
     notes
   } = course;
@@ -61,15 +61,16 @@ const CourseCard = (props: CourseCardProps) => {
   const handleCoursePageJump = () => {
     // open course page in new tab
     const domain = process.env.NEXT_PUBLIC_SCHOOL_DOMAIN;
-    const endpoint = process.env.NEXT_PUBLIC_SCHOOL_ENDPOINT;
+    const academicYear = process.env.NEXT_PUBLIC_ACADEMIC_YEAR;
+    const endpoint = process.env.NEXT_PUBLIC_SCHOOL_ENDPOINT?.replace(/ACADEMIC_YEAR/i, academicYear || "");
     const id = courseId.replace(" ", "-").toLowerCase();
     window.open(`${domain}${endpoint}${id}`, "_blank");
   }
 
   const subsectionCheck = useMemo(() => {
-    const hasPrereq = prerequisites && prerequisites.logical_group.length > 0;
-    const hasAntiReq = antirequisites && (antirequisites.takenOrTaking.length > 0 || antirequisites.onlyTaken.length > 0);
-    const hasCoReq = corequisites && corequisites.logical_group.length > 0;
+    const hasPrereq = prerequisites && parseGroup(prerequisites.parsed).type !== GroupType.EMPTY;
+    const hasAntiReq = restrictions && parseGroup(restrictions.parsed).type !== GroupType.EMPTY;
+    const hasCoReq = corequisites && parseGroup(corequisites.parsed).type !== GroupType.EMPTY;
     const hasNotes = notes && notes.length > 0;
 
     return {
@@ -79,14 +80,19 @@ const CourseCard = (props: CourseCardProps) => {
       hasNotes,
       hasSubsection: hasPrereq || hasAntiReq || hasCoReq || hasNotes
     };
-  }, [prerequisites, antirequisites, corequisites, notes]);
+  }, [prerequisites, restrictions, corequisites, notes]);
 
   const { hasPrereq, hasAntiReq, hasCoReq, hasNotes, hasSubsection } = subsectionCheck;
+  const handleExpand = () => {
+    if (hasSubsection) {
+      dispatch(setCourseExpanded({courseId, isExpanded: !isExpanded}));
+    }
+  }
   const isSatisfied = useIsSatisfied(
     termId, 
-    prerequisites?.logical_group, 
-    antirequisites?.takenOrTaking.concat(antirequisites?.onlyTaken).filter(id => id !== courseId), 
-    corequisites?.logical_group
+    parseGroup(prerequisites!.parsed), 
+    parseGroup(restrictions!.parsed), 
+    parseGroup(corequisites!.parsed)
   );
 
   // remove moving class after 100ms for animation
@@ -115,17 +121,20 @@ const CourseCard = (props: CourseCardProps) => {
           {...provided.dragHandleProps}
         >
           <div className="course-button-container in-term">
-            {hasSubsection && 
-              <div className="hot-zone" onClick={() => dispatch(setCourseExpanded({courseId, isExpanded: !isExpanded}))}>
-                <Image
-                  src="/expand-single.svg"
-                  alt="Expand"
-                  width={12}
-                  height={12}
-                  className={`expand-icon ${isExpanded ? "expanded" : ""}`}
-                />
-              </div>
-            }
+            <div 
+              className={`hot-zone ${hasSubsection ? "" : "disabled"}`}
+              onClick={handleExpand}
+              title={hasSubsection ? "Expand" : "No Subsection"}
+            >
+              <Image
+                src="/expand-single.svg"
+                alt="Expand"
+                width={12}
+                height={12}
+                className={`expand-icon ${isExpanded ? "expanded" : ""}`}
+              />
+            </div>
+            
             <div className="hot-zone" onClick={handleRemoveCourse}>
               <Image
                 src="/delete.svg"
@@ -146,30 +155,29 @@ const CourseCard = (props: CourseCardProps) => {
               {credits < 0 ? <b>{id}</b> : <><b>{id}</b> ({credits} credits)</>}
             </div>
           </div>
-          {isExpanded && hasPrereq && <PreReq
-            data={prerequisites!}
+          {isExpanded && hasPrereq && <PreCoReq
+            parsed={prerequisites!.parsed}
+            raw={prerequisites!.raw}
             termId={termId}
             title={ReqTitle.PRE_REQ}
             isMoving={snapshot.isDragging}
           />}
-          {isExpanded && hasCoReq && <PreReq
-            data={corequisites!}
+          {isExpanded && hasCoReq && <PreCoReq
+            parsed={corequisites!.parsed}
+            raw={corequisites!.raw}
             termId={termId}
             title={ReqTitle.CO_REQ}
             isMoving={snapshot.isDragging}
           />}
           {isExpanded && hasAntiReq && <OtherReq
-            data={{
-              logical_group: 
-                (antirequisites?.takenOrTaking.concat(antirequisites?.onlyTaken) || []).filter(id => id !== courseId),
-              raw: antirequisites?.raw || ""
-            }}
+            parsed={restrictions!.parsed}
+            notes={[restrictions!.raw]}
             termId={termId}
             title={ReqTitle.ANTI_REQ}
             isMoving={snapshot.isDragging}
           />}
           {isExpanded && hasNotes && <OtherReq
-            data={{logical_group: [], raw: notes!.join("\n")}}
+            notes={notes}
             termId={termId}
             title={ReqTitle.NOTES}
             isMoving={snapshot.isDragging}

@@ -81,7 +81,7 @@ const SideBar = () => {
       results = results.slice(0, 10)
 
       return results.map(result => result.item);
-    }, 500),
+    }, 100),
     [fuse]
   );
 
@@ -158,7 +158,10 @@ const SideBar = () => {
         {results.map(course => <CourseResult key={course.id} {...course} />)}
       </div>
       <div className="course-taken-container">
-        <div className="course-taken-header">
+        <div 
+          className="course-taken-header"
+          onClick={() => setExpanded(!expanded)}
+        >
           <b>Courses Taken</b>
           <div 
             className={`expand-button ${expanded ? 'expanded' : ''}`}
@@ -167,17 +170,21 @@ const SideBar = () => {
             <Image src="/expand-single.svg" alt="expand" width={15} height={15} />
         </div>
         </div>
-        {expanded && nonEmptyCourseTaken.length > 0 && 
-          <div className="course-taken-list">
-            {nonEmptyCourseTaken.map((prefix, index) => (
-              <CourseTagGroup 
-                key={index} 
-                courseTaken={courseTaken[prefix]} 
-                prefix={prefix}
-              />
-            ))}
-          </div>
-        }
+        {expanded 
+          ? nonEmptyCourseTaken.length > 0
+            ? <div className="course-taken-list">
+                {nonEmptyCourseTaken.map((prefix, index) => (
+                  <CourseTagGroup 
+                    key={index} 
+                    courseTaken={courseTaken[prefix]} 
+                    prefix={prefix}
+                  />
+                ))}
+              </div>
+            : <div className="course-taken-empty">
+                no courses taken
+              </div>
+          : null}
       </div>
     </div>
   )

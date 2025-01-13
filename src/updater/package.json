@@ -1,0 +1,24 @@
+{
+	"scripts": {
+		"update": "ts-node updater/crawler.ts",
+		"preprocess": "ts-node updater/preprocessor.ts",
+		"parse": "ts-node updater/parser.ts",
+		"verify": "ts-node updater/verifier.ts",
+		"postprocess": "ts-node updater/postprocessor.ts"
+	},
+	"dependencies": {
+		"@azure/identity": "^4.5.0",
+		"@azure/openai": "^2.0.0",
+		"cli-progress": "^3.12.0",
+		"dotenv": "^16.4.7",
+		"jsdom": "^25.0.1",
+		"mongoose": "^8.9.3",
+		"openai": "^4.77.3",
+		"ts-node": "^10.9.2",
+		"typescript": "^5.7.2"
+	},
+	"devDependencies": {
+		"@types/cli-progress": "^3.11.6",
+		"@types/jsdom": "^21.1.7"
+	}
+}
