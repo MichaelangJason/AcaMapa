@@ -1,5 +1,4 @@
-// import { Course } from "@/types/course";
-import { ProcessedCourse } from "@/db/schema";
+import { RawCourse } from "@/db/schema";
 import { NextResponse } from "next/server";
 import { connectToDatabase, disconnectDatabase } from "@/db";
 
@@ -21,9 +20,9 @@ export const GET = async (
 
   try {
     await connectToDatabase(process.env.DATABASE_URL!, process.env.DATABASE_NAME!);
-    const course = await ProcessedCourse.findOne(
+    const course = await RawCourse.findOne(
       { id: courseId },
-      { id: 1, name: 1, credits: 1, processed: 1 }
+      { id: 1, name: 1, credits: 1, prerequisites: 1, corequisites: 1, restrictions: 1, notes: 1 }
     );
     await disconnectDatabase();
     

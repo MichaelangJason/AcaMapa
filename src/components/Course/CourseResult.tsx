@@ -27,7 +27,8 @@ export const CourseResult = (props: CourseResultProps) => {
   const handleCourseClick = () => {
     // open course page in new tab
     const domain = process.env.NEXT_PUBLIC_SCHOOL_DOMAIN;
-    const endpoint = process.env.NEXT_PUBLIC_SCHOOL_ENDPOINT;
+    const academicYear = process.env.NEXT_PUBLIC_ACADEMIC_YEAR;
+    const endpoint = process.env.NEXT_PUBLIC_SCHOOL_ENDPOINT?.replace(/ACADEMIC_YEAR/i, academicYear || "");
     const courseId = id.replace(" ", "-").toLowerCase();
     window.open(`${domain}${endpoint}${courseId}`, "_blank");
   }

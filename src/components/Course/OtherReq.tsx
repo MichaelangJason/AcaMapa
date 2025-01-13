@@ -4,25 +4,25 @@ import { TermId } from "@/types/term";
 import { memo } from "react";
 import { CourseTagType, ReqTitle } from "@/utils/enums";
 import CourseTag from "./CourseTag";
+import { findCourseIds, parseGroup } from "@/utils";
 
 export interface OtherReqProps {
-  data: {
-    logical_group: string[];
-    raw: string;
-  };
+  parsed?: string;
+  notes?: string[];
   termId: TermId;
   title: string;
   isMoving: boolean;
 }
 
 const OtherReq = (props: OtherReqProps) => {
-  const { data, termId, title, isMoving } = props;
-  const { logical_group: parsed, raw } = data;
-
+  const { parsed, notes, termId, title, isMoving } = props;
   const terms = useSelector((state: RootState) => state.terms);
 
-  const hasCourseIds = parsed.length > 0;
-  const hasNotes = raw.length > 0;
+  const parsedGroup = parsed ? parseGroup(parsed) : undefined;
+  const allCourseIds = parsed ? findCourseIds(parsed, true) : [];
+
+  const hasCourseIds = parsedGroup && allCourseIds.length > 0;
+  const hasNotes = notes && notes.length > 0;
 
   const prevTermCourseIds = terms.order
     .slice(0, terms.order.indexOf(termId))
@@ -30,7 +30,11 @@ const OtherReq = (props: OtherReqProps) => {
   const thisTermCourseIds = terms.data[termId].courseIds;
   const courseTaken = useSelector((state: RootState) => state.courseTaken);
 
-  const checkedExistence: boolean[] = parsed.map(id => prevTermCourseIds.includes(id) || thisTermCourseIds.includes(id) || courseTaken[id.split(' ')[0]]?.includes(id));
+  // for restrictions only
+  const isPresent = new Map(allCourseIds.map(id => [
+    id,
+    prevTermCourseIds.includes(id) || thisTermCourseIds.includes(id) || courseTaken[id.split(' ')[0]]?.includes(id)
+  ]));
   const courseTagType = title === ReqTitle.ANTI_REQ ? CourseTagType.RESTRICTED : CourseTagType.REQUIRED;
 
   return (
@@ -38,12 +42,12 @@ const OtherReq = (props: OtherReqProps) => {
       <div className="title">{title}</div>
       {hasCourseIds && 
       <div className="course-ids">
-        {parsed.map((id, idx) => 
+        {allCourseIds.map((id, idx) => 
           <CourseTag 
             key={idx} 
             courseId={id} 
             type={courseTagType} 
-            itExists={checkedExistence[idx]} 
+            itExists={isPresent.get(id) || false}
             isMoving={isMoving}
           />
         )}
@@ -51,7 +55,8 @@ const OtherReq = (props: OtherReqProps) => {
       }
       {hasNotes && 
         <ul className="notes">
-          {raw.split("\n").map((note, idx) => <li key={idx}>{note}</li>)}
+          {/* filter out instructor and term notes for now*/}
+          {notes?.filter(raw => !/^(instructor|term)/.test(raw)).map((note, idx) => <li key={idx}>{note}</li>)}
         </ul>
       }
     </div>

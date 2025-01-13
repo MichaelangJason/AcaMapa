@@ -24,6 +24,14 @@ const CourseTag = (props: CourseTagProps) => {
     } else {
       dispatch(addCourseTaken(courseId));
       toast.success(`${courseId} added to course taken`)
+      const courseTakenElem = document.getElementsByClassName('course-taken-container').item(0);
+
+      if (courseTakenElem && !courseTakenElem.classList.contains('glow-border')) {
+        courseTakenElem.classList.add('glow-border')
+        setTimeout(() => {
+          courseTakenElem.classList.remove('glow-border')
+        }, 2000)  
+      }
     }
   }
 
@@ -31,7 +39,7 @@ const CourseTag = (props: CourseTagProps) => {
     <div 
       className={className} 
       onClick={handleClick}
-      title={"click to add to course taken"}
+      title={"click to " + (type === CourseTagType.TAKEN ? "remove from" : "add to") + " course taken"}
     >
       {courseId}
     </div>

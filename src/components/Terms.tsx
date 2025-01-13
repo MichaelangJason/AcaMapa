@@ -51,7 +51,15 @@ const Terms = () => {
             {...provided.droppableProps}
           >
             <Image 
-              className="terms-background" src="/school.webp" alt="school" width={2400} height={2400}/>
+              className="terms-background" 
+              src="/school.webp" 
+              alt="school" 
+              width={2400} height={2400}
+              style={{
+                width: "100%",
+                height: "auto"
+              }}
+            />
             <div className="terms-placeholder-box"/>
             {order.map((termId: TermId, index: number) => {
               return <TermCard key={termId} termId={termId} index={index} />

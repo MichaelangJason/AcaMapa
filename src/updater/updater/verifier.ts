@@ -178,8 +178,8 @@ export const findCourseIds = (raw: string, findAll: boolean, log: boolean = fals
     // map multiterm course ids to separate course ids
     if (id.match(multitermPattern)) {
       if (log) console.log("multitermPattern: ", id);
-      let [prefix, terms] = id.split(" ");
-      let suffix = terms.split("/")
+      const [prefix, terms] = id.split(" ");
+      const suffix = terms.split("/")
       suffix.forEach((s, i) => {
         if (i === 0) {
           acc.push(prefix + " " + s);
@@ -190,20 +190,20 @@ export const findCourseIds = (raw: string, findAll: boolean, log: boolean = fals
       })
     } else if (id.match(alternativePattern)) {
       if (log) console.log("alternativePattern: ", id);
-      let [prefix, suffix] = id.replace(/( )*or( )*/ig, "/").split(" ");
+      const [prefix, suffix] = id.replace(/( )*or( )*/ig, "/").split(" ");
       prefix.split("/").forEach(p => {
         acc.push(p + " " + suffix);
       })
     } else if (id.match(consecutivePattern)) {
       if (log) console.log("consecutivePattern: ", id);
-      let [prefix, ...rest] = id.replace(/( )*,( )*/ig, " ").split(" ");
+      const [prefix, ...rest] = id.replace(/( )*,( )*/ig, " ").split(" ");
       rest.forEach(r => {
         if (log) console.log("inner: ", r);
         r = r.replace(",", "").trim();
 
         if (r.match(/\d{3}[A-Z]\d(\/[A-Z]\d)+/ig)) {
           if (log) console.log("inner multitermPattern: ", r);
-          let suffix = r.split("/")
+          const suffix = r.split("/")
           
           suffix.forEach((s, i) => {
             if (i === 0) {

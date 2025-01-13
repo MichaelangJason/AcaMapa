@@ -29,9 +29,8 @@ export const getCourse = async (courseId: string) => {
   if (!courseId) return null;
   const response = await fetch(`/api/courses/${courseId}`);
   if (!response.ok) return null;
-  const data = await response.json();
-  console.log(data);
-  const { id, name, credits, processed } = data;
-  const { prerequisite, restriction, corequisite, note } = processed;
-  return { id, name, credits, prerequisites: prerequisite, antirequisites: restriction, corequisites: corequisite, notes: note } as Course;
+  const data = await response.json() as Course;
+
+  const { id, name, credits, prerequisites, restrictions, corequisites, notes } = data;
+  return { id, name, credits, prerequisites, restrictions, corequisites, notes } as Course;
 }
