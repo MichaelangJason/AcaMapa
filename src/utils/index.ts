@@ -1,11 +1,11 @@
-import { CourseCode } from "@/types/course";
+import { Course, CourseCode } from "@/types/course";
 import { TermMap } from "@/types/term";
 import { TermId } from "@/types/term";
 import { GroupType } from "@/utils/enums";
 import { IGroup } from "@/types/course";
 
 export const isSatisfied = (
-  {prerequisites, restrictions, corequisites, courseTaken, terms, termId}: {
+  {prerequisites, restrictions, corequisites, courseTaken, terms, termId, initCourses}: {
     prerequisites: IGroup,
     restrictions: IGroup,
     corequisites: IGroup,
@@ -15,55 +15,84 @@ export const isSatisfied = (
       order: TermId[];
       inTermCourseIds: CourseCode[];
     },
+    initCourses: Course[],
     termId: string
   }
 ) => {
   const { order } = terms;
   const thisTermIdx = order.indexOf(termId);
-  const thisTermCourseIds = terms.data[termId].courseIds;
-  const prevTermCourseIds = order
+  const thisTerm = terms.data[termId].courseIds;
+  const prevTerm = thisTermIdx === 0 ? [] : terms.data[order[thisTermIdx - 1]].courseIds;
+  const priorTerms = order
     .slice(0, thisTermIdx)
-    .flatMap(termId => terms.data[termId].courseIds)
+    .map(termId => terms.data[termId].courseIds)
     .concat(courseTaken);
 
+
+  const isGroupSatisfied = (group: IGroup, context: string[][]) => {
+    if (group.type === GroupType.EMPTY) return true;
+    const flatContext = context.flat();
+    const multiTermPattern = /[A-Z0-9]{4}(( )*|-)\d{3}([A-Z]\d)/i
+    if (group.type === GroupType.SINGLE) return flatContext.includes(group.inner[0] as string); // guaranteed to be a string
+  
+    if (group.type === GroupType.AND) {
+      for (const i of group.inner) {
+        if (typeof i === "string") { 
+          if (!flatContext.includes(i)) return false;
+        } else {
+          if (!isGroupSatisfied(i, context)) return false;
+        }
+      }
+      return true;
+    }
+    
+    if (group.type === GroupType.OR) {
+      for (const i of group.inner) {
+        if (typeof i === "string") {
+          if (flatContext.includes(i)) return true;
+        } else {
+          if (isGroupSatisfied(i, context)) return true;
+        }
+      }
+      return false;
+    }
+  
+    if (group.type === GroupType.PAIR) {
+      const ids = group.inner as string[];
+      const count = ids.filter(id => flatContext.includes(id)).length;
+      return count >= 2;
+    }
+  
+    if (group.type === GroupType.CREDIT) {
+      const [required, scopes, ...prefixes] = group.inner as string[];
+      const levels = scopes.split("").map(l => parseInt(l));
+
+      const total = initCourses
+        .filter(course => flatContext.includes(course.id))
+        .filter(course => {
+          const [prefix, code] = course.id.split(" ");
+          const level = parseInt(code[0]);
+          return prefixes.includes(prefix) && (levels[0] === 0 || levels.includes(level));
+        })
+        .reduce((acc, course) => acc + course.credits, 0);
+
+      return total >= parseInt(required);
+    }
+  }
+
   // every prerequisite must be from the previous term
-  const prereqSatisfied = isGroupSatisfied(prerequisites, prevTermCourseIds);
+  const prereqSatisfied = isGroupSatisfied(prerequisites, priorTerms);
 
   // restrictions are OR groups, so either it's empty or it's should not be satisfied
-  const restrictionSatisfied = restrictions.type === GroupType.EMPTY || !isGroupSatisfied(restrictions, prevTermCourseIds.concat(thisTermCourseIds));
+  const restrictionSatisfied = restrictions.type === GroupType.EMPTY || !isGroupSatisfied(restrictions, priorTerms.concat(thisTerm));
 
   // every corequisite must be from the previous term or this term
-  const coreqSatisfied = isGroupSatisfied(corequisites, prevTermCourseIds.concat(thisTermCourseIds));
+  const coreqSatisfied = isGroupSatisfied(corequisites, priorTerms.concat(thisTerm));
 
   return prereqSatisfied && restrictionSatisfied && coreqSatisfied;
 }
 
-const isGroupSatisfied = (group: IGroup, context: string[]) => {
-  if (group.type === GroupType.EMPTY) return true;
-  if (group.type === GroupType.SINGLE) return context.includes(group.inner[0] as string); // guaranteed to be a string
-  
-  if (group.type === GroupType.AND) {
-    for (const i of group.inner) {
-      if (typeof i === "string") {
-        if (!context.includes(i)) return false;
-      } else {
-        if (!isGroupSatisfied(i, context)) return false;
-      }
-    }
-    return true;
-  }
-  
-  if (group.type === GroupType.OR) {
-    for (const i of group.inner) {
-      if (typeof i === "string") {
-        if (context.includes(i)) return true;
-      } else {
-        if (isGroupSatisfied(i, context)) return true;
-      }
-    }
-    return false;
-  }
-}
+
 
 export const splitCourseIds = (val: string[]) => {
   const pattern = /^[a-zA-Z]{4} \d{3}([djnDJN][1-3])?$/;
@@ -91,7 +120,7 @@ export const findCourseIds = (raw: string, findAll: boolean, log: boolean = fals
   const consecutivePattern = /([A-Z0-9]{4}(( )*|-)\d{3}([A-Z]\d(\/[A-Z]\d)*)?((,)?( )*\d{3}([A-Z]\d(\/[A-Z]\d)*)?)+)/i
 
   // find all course ids in the string that match the pattern
-  let courseIds = raw.match(pattern);
+  const courseIds = raw.match(pattern);
   let result = courseIds as string[] || [];
   if (!findAll) result = result.slice(0, 1);
 
@@ -160,12 +189,12 @@ export const parseGroup = (text: string) => {
     if (!id.includes(" ")) {
       id = id.slice(0, 4) + " " + id.slice(4);
     }
-    return id;
+    return id.trim();
   }
 
-  const tailRecursiveParse = (remaining: string[], ) => {
+  const tailRecursiveParse = (remaining: string[], groupType: GroupType = GroupType.SINGLE) => {
     const group = {
-      type: GroupType.SINGLE,
+      type: groupType,
       inner: []
     } as IGroup;
 
@@ -199,11 +228,10 @@ export const parseGroup = (text: string) => {
         case "\n": // skip newline
           break;
         case "/": // or
-          if (group.type === GroupType.AND) {
-            throw new Error("Invalid group: no mixed group type: " + JSON.stringify(group, null, 2));
-          }
           if (group.type === GroupType.SINGLE) { // assign new group type
             group.type = GroupType.OR;  
+          } else if (group.type !== GroupType.OR) {
+            throw new Error("Invalid group: no mixed group type: " + JSON.stringify(group, null, 2));
           }
           if (nextCourseId.length > 0) {
             if (findCourseIds(nextCourseId, false).length === 0) {
@@ -214,15 +242,43 @@ export const parseGroup = (text: string) => {
           }
           break;
         case "+": // and
-          if (group.type === GroupType.OR) {
-            throw new Error("Invalid group: no mixed group type: " + JSON.stringify(group, null, 2));
-          }
           if (group.type === GroupType.SINGLE) { // assign new group type
             group.type = GroupType.AND;
+          } else if (group.type !== GroupType.AND) {
+            throw new Error("Invalid group: no mixed group type: " + JSON.stringify(group, null, 2));
           }
           if (nextCourseId.length > 0) {
             if (findCourseIds(nextCourseId, false).length === 0) {
               throw new Error("pushed string is not a valid courseId: " + nextCourseId);
+            }
+            group.inner.push(formatCourseId(nextCourseId));
+            nextCourseId = "";
+          }
+          break;
+        case "|": // pair
+          if (group.type === GroupType.SINGLE) {
+            group.type = GroupType.PAIR;
+          } else if (group.type !== GroupType.PAIR) {
+            throw new Error("Invalid group: no mixed group type: " + JSON.stringify(group, null, 2));
+          }
+          if (nextCourseId.length > 0) {
+            if (findCourseIds(nextCourseId, false).length === 0) {
+              throw new Error("pushed string is not a valid courseId: " + nextCourseId);
+            }
+            group.inner.push(formatCourseId(nextCourseId));
+            nextCourseId = "";
+          }
+          break;
+        case "-": // credit
+          if (group.type === GroupType.SINGLE) {
+            group.type = GroupType.CREDIT;
+          } else if (group.type !== GroupType.CREDIT) {
+            throw new Error("Invalid group: no mixed group type: " + JSON.stringify(group, null, 2));
+          }
+          if (nextCourseId.length > 0) {
+            // verify that its either a number or a string of len 4
+            if (!nextCourseId.match(/^((\d){1,7}|[A-Z]{4})$/)) {
+              throw new Error("Invalid group: credit must be a number or a string of len 4: " + nextCourseId);
             }
             group.inner.push(formatCourseId(nextCourseId));
             nextCourseId = "";

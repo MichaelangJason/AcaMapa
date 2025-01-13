@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { setAddingCourseId } from "@/store/eventSlice";
+import { setAddingCourseId } from "@/store/globalSlice";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 

@@ -21,10 +21,11 @@ export interface CourseCardProps {
 
 const useIsSatisfied = (termId: string, prerequisites: IGroup, restrictions: IGroup, corequisites: IGroup) => {
   const terms = useSelector((state: RootState) => state.terms);
+  const initCourses = useSelector((state: RootState) => state.global.initCourses);
   const courseTaken = useSelector((state: RootState) => Object.values(state.courseTaken).flat());
   
   return useMemo(() => 
-    isSatisfied({prerequisites, restrictions, corequisites, courseTaken, terms, termId}),
+    isSatisfied({prerequisites, restrictions, corequisites, courseTaken, terms, termId, initCourses}),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [terms, termId, courseTaken]
   );
@@ -68,9 +69,9 @@ const CourseCard = (props: CourseCardProps) => {
   }
 
   const subsectionCheck = useMemo(() => {
-    const hasPrereq = prerequisites && parseGroup(prerequisites.parsed).type !== GroupType.EMPTY;
-    const hasAntiReq = restrictions && parseGroup(restrictions.parsed).type !== GroupType.EMPTY;
-    const hasCoReq = corequisites && parseGroup(corequisites.parsed).type !== GroupType.EMPTY;
+    const hasPrereq = prerequisites && prerequisites.raw !== "";
+    const hasAntiReq = restrictions && restrictions.raw !== "";
+    const hasCoReq = corequisites && corequisites.raw !== "";
     const hasNotes = notes && notes.length > 0;
 
     return {

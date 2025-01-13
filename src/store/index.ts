@@ -1,7 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit'
 import courseSlice from './courseSlice'
 import termSlice from './termSlice'
-import eventSlice from './eventSlice'
+import globalSlice from './globalSlice'
 import { enableMapSet } from 'immer'
 import courseTakenSlice from './courseTakenSlice'
 
@@ -11,7 +11,7 @@ const store = configureStore({
   reducer: {
     courses: courseSlice,
     terms: termSlice,
-    events: eventSlice,
+    global: globalSlice,
     courseTaken: courseTakenSlice,
   },
 })

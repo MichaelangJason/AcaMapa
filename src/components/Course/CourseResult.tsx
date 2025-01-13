@@ -1,5 +1,5 @@
 import { RootState } from "@/store";
-import { setAddingCourseId } from "@/store/eventSlice";
+import { setAddingCourseId } from "@/store/globalSlice";
 import "@/styles/course.scss"
 import { useDispatch, useSelector } from "react-redux";
 import Image from "next/image";
@@ -13,7 +13,7 @@ export interface CourseResultProps {
 export const CourseResult = (props: CourseResultProps) => {
   const { id, name, credits } = props;
   const dispatch = useDispatch();
-  const addingCourseId = useSelector((state: RootState) => state.events.addingCourseId);
+  const addingCourseId = useSelector((state: RootState) => state.global.addingCourseId);
 
   const handleAddCourse = () => {
     if (addingCourseId === id) {

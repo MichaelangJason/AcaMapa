@@ -8,16 +8,18 @@ export interface CourseTagProps {
   type: CourseTagType;
   itExists: boolean;
   isMoving: boolean;
+  disabled?: boolean;
 }
 
 const CourseTag = (props: CourseTagProps) => {
-  const { courseId, type, itExists, isMoving } = props;
+  const { courseId, type, itExists, isMoving, disabled } = props;
   const className = 'course-tag' 
                     + (itExists ? ' ' + type.toLowerCase() : '') 
                     + (isMoving ? ' moving' : '');
   const dispatch = useDispatch();
 
   const handleClick = () => {
+    if (disabled) return;
     if (type === CourseTagType.TAKEN) {
       dispatch(removeCourseTaken(courseId));
       toast.success(`${courseId} removed from course taken`)
@@ -37,7 +39,7 @@ const CourseTag = (props: CourseTagProps) => {
 
   return (
     <div 
-      className={className} 
+      className={className + (disabled ? ' disabled' : '')} 
       onClick={handleClick}
       title={"click to " + (type === CourseTagType.TAKEN ? "remove from" : "add to") + " course taken"}
     >

@@ -3,8 +3,8 @@
 import GlobalKeyPressListener from "@/components/GlobalKeyPressListener";
 import SideBar from "@/components/SideBar";
 import Terms from "@/components/Terms";
-import { setDroppableId } from "@/store/eventSlice";
-import { setDraggingType } from "@/store/eventSlice";
+import { setDroppableId } from "@/store/globalSlice";
+import { setDraggingType } from "@/store/globalSlice";
 import { deleteTerm, moveCourse, moveTerm } from "@/store/termSlice";
 import { DraggingType } from "@/utils/enums";
 import { DragDropContext, DragStart, DragUpdate, DropResult } from "@hello-pangea/dnd";

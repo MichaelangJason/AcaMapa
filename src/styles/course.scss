@@ -151,6 +151,7 @@
 
   .name {
     width: fit-content;
+    max-width: calc(100% - 8px);
     
     flex-shrink: 0;
     
@@ -189,12 +190,18 @@
   font-size: var(--course-tag-font-size);
   font-weight: bold;
   text-wrap: nowrap;
+  text-align: center;
+  align-self: center;
   
   cursor: pointer;
   // transition: background-color 0.2s ease-in-out;
   
-  &:hover {
+  &:not(.disabled):hover {
     background-color: var(--course-tag-hover-bg-color);
+  }
+
+  &.disabled {
+    cursor: not-allowed;
   }
 
   &.required {
@@ -254,7 +261,7 @@
       height: fit-content;
       
       display: flex;
-      justify-content: start;
+      justify-content: center;
       align-items: center;
     }
   }
@@ -269,6 +276,18 @@
     align-self: center;
     font-size: calc(var(--course-req-notes-title-font-size) - 4px);
     line-height: 1;
+  }
+
+  .prereq-pair {
+    @extend .prereq-or;
+    text-wrap: nowrap;
+    text-align: center;
+    align-self: center;
+  }
+
+  .prereq-credits {
+    @extend .prereq-pair;
+    margin-bottom: 3px;
   }
   
   .course-ids {

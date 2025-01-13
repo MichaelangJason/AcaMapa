@@ -7,10 +7,11 @@ import React from "react"
 import { toast } from "react-toastify"
 import Fuse from "fuse.js"
 import "@/styles/sidebar.scss"
-import { useSelector } from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
 import { RootState } from "@/store"
 import CourseTag from "./Course/CourseTag"
 import { CourseTagType } from "@/utils/enums"
+import { setInitCourses } from "@/store/globalSlice"
 
 const CourseTagGroup = (props: { courseTaken: CourseCode[], prefix: string }) => {
   const { courseTaken, prefix } = props;
@@ -41,6 +42,7 @@ const SideBar = () => {
   const [isLoading, setIsLoading] = useState(true)
   const [results, setResults] = useState<Course[]>([])
   const [expanded, setExpanded] = useState(false)
+  const dispatch = useDispatch()
   const courseTaken = useSelector((state: RootState) => state.courseTaken);
   
   // fuse search
@@ -130,6 +132,7 @@ const SideBar = () => {
       )
       setCourses(courses || [])
       setIsLoading(false)
+      dispatch(setInitCourses(courses || []))
     }
     fetchCourses()
   }, [])

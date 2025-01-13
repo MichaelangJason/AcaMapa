@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { memo, useCallback } from "react";
 import { DraggingType } from "@/utils/enums";
-import { setAddingCourseId } from "@/store/eventSlice";
+import { setAddingCourseId } from "@/store/globalSlice";
 import { toast } from "react-toastify";
 import CourseCard from "./CourseCard";
 import { getCourse } from "@/utils/requests";
@@ -39,7 +39,7 @@ const TermCard = (props: TermCardProps) => {
   }
 
   const dispatch = useDispatch();
-  const addingCourseId = useSelector((state: RootState) => state.events.addingCourseId);
+  const addingCourseId = useSelector((state: RootState) => state.global.addingCourseId);
   const isAddingCourse = addingCourseId !== null;
 
   const handleAddCourse = useCallback(async () => {

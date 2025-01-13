@@ -13,7 +13,7 @@ import { useEffect } from "react";
 const Terms = () => {
   const order = useSelector((state: RootState) => state.terms.order);
   const isDragging = useSelector((state: RootState) => 
-    state.events.draggingType === DraggingType.TERM
+    state.global.draggingType === DraggingType.TERM
   );
   const dispatch = useDispatch();
 

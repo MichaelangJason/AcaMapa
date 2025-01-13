@@ -20,5 +20,7 @@ export enum GroupType {
   AND = "AND",
   OR = "OR",
   SINGLE = "SINGLE",
+  PAIR = "PAIR",
+  CREDIT = "CREDIT",
   EMPTY = "EMPTY",
 }
