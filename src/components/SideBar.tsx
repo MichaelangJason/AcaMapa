@@ -11,7 +11,7 @@ import { useDispatch, useSelector } from "react-redux"
 import { RootState } from "@/store"
 import CourseTag from "./Course/CourseTag"
 import { CourseTagType } from "@/utils/enums"
-import { setInitCourses } from "@/store/globalSlice"
+import { setAddingCourseId, setInitCourses, setSearchInput } from "@/store/globalSlice"
 
 const CourseTagGroup = (props: { courseTaken: CourseCode[], prefix: string }) => {
   const { courseTaken, prefix } = props;
@@ -37,13 +37,14 @@ const CourseTagGroup = (props: { courseTaken: CourseCode[], prefix: string }) =>
 }
 
 const SideBar = () => {
-  const [input, setInput] = useState('')
-  const [courses, setCourses] = useState<Course[]>([])
+  const input = useSelector((state: RootState) => state.global.searchInput);
+  const courses = useSelector((state: RootState) => state.global.initCourses);
   const [isLoading, setIsLoading] = useState(true)
   const [results, setResults] = useState<Course[]>([])
   const [expanded, setExpanded] = useState(false)
   const dispatch = useDispatch()
   const courseTaken = useSelector((state: RootState) => state.courseTaken);
+  const addingCourseId = useSelector((state: RootState) => state.global.addingCourseId);
   
   // fuse search
   const fuse = useMemo(() => 
@@ -108,6 +109,13 @@ const SideBar = () => {
     }
   }
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (addingCourseId) {
+      dispatch(setAddingCourseId(null));
+    }
+    dispatch(setSearchInput(e.target.value));
+  }
+
   // input
   useEffect(() => {
     if (!input) {
@@ -130,20 +138,19 @@ const SideBar = () => {
           error: 'Failed to initialize'
         }
       )
-      setCourses(courses || [])
-      setIsLoading(false)
       dispatch(setInitCourses(courses || []))
+      setIsLoading(false)
     }
     fetchCourses()
   }, [])
 
   return (
-    <div className="sidebar">
+    <div className="sidebar" id="sidebar">
       <div className="search-bar">
         <input 
           type="text" 
           value={input} 
-          onChange={(e) => setInput(e.target.value)} 
+          onChange={handleInputChange} 
           onKeyDown={handleSearch} 
           placeholder="course code or name"
           disabled={isLoading}

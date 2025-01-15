@@ -69,12 +69,12 @@
     right: 16px;
     z-index: 100;
     
-    width: 15px;
+    width: fit-content;
     height: 15px;
     
     display: flex;
     flex-direction: row;
-    justify-content: center;
+    justify-content: end;
     align-items: center;
     gap: 3px;
     
@@ -94,7 +94,7 @@
     }
 
     &.in-term {
-      margin-right: 4px;
+      margin-right: -10px;
     }
 
     .expand-icon {
@@ -109,6 +109,11 @@
       &.expanded {
         transform: rotate(180deg);
       }
+    }
+
+    .future-icon {
+      transform: scaleX(-1);
+      // rotate: -30deg;
     }
 
     .hot-zone {
@@ -128,11 +133,19 @@
         opacity: 1;
       }
 
+      &.seeking {
+        opacity: 1;
+      }
+
       &.disabled {
         opacity: 0.2;
         cursor: not-allowed;        
       }
     }
+  }
+
+  &.seeking {
+    z-index: 301;
   }
 }
 
@@ -151,13 +164,19 @@
 
   .name {
     width: fit-content;
-    max-width: calc(100% - 8px);
     
     flex-shrink: 0;
     
     font-size: var(--course-name-font-size);
     line-height: 1;
-    text-wrap: wrap;
+    
+    &.in-term {
+      max-width: calc(100% - 40px);
+      // for hyphenation
+      hyphens: auto;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
   }
 
   .id-credits {

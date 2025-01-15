@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { memo, useCallback } from "react";
 import { DraggingType } from "@/utils/enums";
-import { setAddingCourseId } from "@/store/globalSlice";
+import { setAddingCourseId, setSeekingInfo } from "@/store/globalSlice";
 import { toast } from "react-toastify";
 import CourseCard from "./CourseCard";
 import { getCourse } from "@/utils/requests";
@@ -23,6 +23,10 @@ export interface TermCardProps {
 const TermCard = (props: TermCardProps) => {
   const { termId, index } = props;
   let courseIds = useSelector((state: RootState) => state.terms.data[termId].courseIds);
+  const { seekingId, seekingTerm } = useSelector((state: RootState) => state.global.seekingInfo);
+
+  const isSeeking = seekingId !== undefined && seekingTerm !== undefined;
+  const isSeekingSelf = isSeeking && seekingTerm === termId;
 
   const credits = useSelector((state: RootState) => 
     courseIds.reduce((acc, courseId) => {
@@ -70,7 +74,6 @@ const TermCard = (props: TermCardProps) => {
             success: `${addingCourseId} fetched successfully`,
           }
         );
-        console.log(course);
       }
       
       if (!course) {
@@ -92,20 +95,22 @@ const TermCard = (props: TermCardProps) => {
   const handleDeleteTerm = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
     e.preventDefault();
+    if (isSeekingSelf) dispatch(setSeekingInfo({})); // clear seeking info
     dispatch(deleteTerm(termId));
   }
 
   return (
-    <Draggable draggableId={termId} index={index}>
+    <Draggable draggableId={termId} index={index} isDragDisabled={isSeeking}>
       {(provided, snapshot) =>
         <div
           className="term"
           ref={provided.innerRef}
           {...provided.draggableProps}
+          id={termId}
         >
           {/* term header */}
           <div 
-            className={`term-header ${snapshot.isDragging ? "dragging" : ""}`} 
+            className={`term-header ${snapshot.isDragging ? "dragging" : ""} ${isSeeking ? "seeking" : ""}`} 
             {...provided.dragHandleProps}
           >
             <div >Term {index + 1}</div>
@@ -115,7 +120,7 @@ const TermCard = (props: TermCardProps) => {
           <Droppable droppableId={termId} type={DraggingType.COURSE}>
             {(provided, snapshot) => (
               <div
-                className={"term-body" + (snapshot.isDraggingOver ? " dragging-over" : "") + (isAddingCourse ? " overflow-hidden" : "")}
+                className={"term-body" + (snapshot.isDraggingOver ? " dragging-over" : "") + (isAddingCourse || isSeeking ? " overflow-hidden" : "")}
                 ref={provided.innerRef}
                 {...provided.droppableProps}
               >

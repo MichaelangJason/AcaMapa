@@ -8,20 +8,20 @@ export interface CourseResultProps {
   id: string;
   name: string;
   credits: number;
+  additionalFn?: () => void;
 }
 
 export const CourseResult = (props: CourseResultProps) => {
-  const { id, name, credits } = props;
+  const { id, name, credits, additionalFn } = props;
   const dispatch = useDispatch();
   const addingCourseId = useSelector((state: RootState) => state.global.addingCourseId);
 
   const handleAddCourse = () => {
-    if (addingCourseId === id) {
-      dispatch(setAddingCourseId(null));
-    }
-    else {
-      dispatch(setAddingCourseId(id));
-    }
+    if (additionalFn) additionalFn();
+    dispatch(addingCourseId === id 
+      ? setAddingCourseId(null) 
+      : setAddingCourseId(id)
+    );
   }
 
   const handleCourseClick = () => {

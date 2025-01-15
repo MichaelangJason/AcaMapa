@@ -22,7 +22,7 @@ export const GET = async (
     await connectToDatabase(process.env.DATABASE_URL!, process.env.DATABASE_NAME!);
     const course = await RawCourse.findOne(
       { id: courseId },
-      { id: 1, name: 1, credits: 1, prerequisites: 1, corequisites: 1, restrictions: 1, notes: 1 }
+      { _id: 0 }
     );
     await disconnectDatabase();
     

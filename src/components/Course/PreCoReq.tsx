@@ -16,7 +16,7 @@ interface PreCoReqProps {
   isMoving: boolean;
 }
 
-const ReqGroup = (props: { group: IGroup, termId: TermId, isPresent: Map<CourseCode, boolean>, isMoving: boolean}) => {
+const ReqGroup = (props: { group: IGroup, termId: TermId, isPresent: Map<CourseCode, boolean>, isMoving: boolean }) => {
   const { group, termId, isPresent, isMoving } = props;
 
   const AndOrGroup = (props: { group: IGroup, elemGap: number, direction: 'row' | 'column'}) => {
@@ -35,19 +35,27 @@ const ReqGroup = (props: { group: IGroup, termId: TermId, isPresent: Map<CourseC
                 courseId={item} 
                 type={CourseTagType.REQUIRED} 
                 itExists={isPresent.get(item) || false} 
-                key={item} 
+                key={`${item}-${index}`} 
                 isMoving={isMoving} 
               />
-            : <InnerGroup group={item} elemGap={elemGap - 1} direction={direction === 'row' ? 'column' : 'row'} />
+            : <InnerGroup 
+                group={item} 
+                elemGap={elemGap - 1} 
+                direction={direction === 'row' ? 'column' : 'row'} 
+                key={`group-${index}`}
+              />
           return [
-            elem,
+            <div key={`elem-${index}`}>{elem}</div>,
             index < group.inner.length - 1 
-              ? <div className={groupType === GroupType.AND ? "prereq-and" : "prereq-or"}>
+              ? <div 
+                  key={`divider-${index}`} 
+                  className={groupType === GroupType.AND ? "prereq-and" : "prereq-or"}
+                >
                   {groupType === GroupType.AND ? "AND" : "OR"}
                 </div>
               : null
-            ]
-          })}
+          ]
+        })}
       </div>
     )
   }

@@ -3,16 +3,18 @@
 import GlobalKeyPressListener from "@/components/GlobalKeyPressListener";
 import SideBar from "@/components/SideBar";
 import Terms from "@/components/Terms";
-import { setDroppableId } from "@/store/globalSlice";
+import { setDroppableId, setSeekingInfo } from "@/store/globalSlice";
 import { setDraggingType } from "@/store/globalSlice";
 import { deleteTerm, moveCourse, moveTerm } from "@/store/termSlice";
 import { DraggingType } from "@/utils/enums";
 import { DragDropContext, DragStart, DragUpdate, DropResult } from "@hello-pangea/dnd";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Flip, ToastContainer } from "react-toastify";
+import { RootState } from "@/store";
 
 export default function Main() {
   const dispatch = useDispatch();
+  const { seekingId, seekingTerm } = useSelector((state: RootState) => state.global.seekingInfo);
 
   const handleDragStart = (start: DragStart) => {
     dispatch(setDraggingType(start.type as DraggingType));
@@ -71,7 +73,7 @@ export default function Main() {
         <Terms />
         <GlobalKeyPressListener />
         <ToastContainer
-          position="top-right"
+          position="bottom-right"
           autoClose={5000}
           hideProgressBar={true}
           newestOnTop={false}
