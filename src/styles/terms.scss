@@ -155,8 +155,8 @@ body {
     .add-course-mask {
       --animation-duration: 0.08s;
       position: absolute;
-      top: 0;
-      left: 0;
+      // top: 0;
+      // left: 0;
       z-index: 200;
       
       width: 100%;
@@ -241,7 +241,7 @@ body {
     mask-image: linear-gradient(to bottom, transparent, black 1%, black 99%, transparent);
     -webkit-mask-image: linear-gradient(to bottom, transparent, black 1%, black 99%, transparent);
 
-    animation: fade-in 0.3s ease-in-out forwards;
+    // animation: fade-in 0.3s ease-in-out forwards;
   }
 
   .seeking-placeholder-box {

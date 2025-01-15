@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { CourseResult } from "@/components/Course/CourseResult";
 import { setSearchInput, setSeekingInfo } from "@/store/globalSlice";
 import { Course } from "@/types/course";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 
 const useSeeking = (seekingId: string | null) => {
   const courses = useSelector((state: RootState) => state.courses);
@@ -69,7 +69,7 @@ const Seeking = () => {
           style={{ top, maxHeight }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.3 }}
+          transition={{ duration: 0.25 }}
         >
           {futureCourses?.map((course) => (
             <CourseResult key={course.id} {...course} additionalFn={() => handleAddCourse(course)} />

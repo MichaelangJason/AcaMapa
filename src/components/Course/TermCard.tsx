@@ -24,6 +24,11 @@ const TermCard = (props: TermCardProps) => {
   const { termId, index } = props;
   let courseIds = useSelector((state: RootState) => state.terms.data[termId].courseIds);
   const { seekingId, seekingTerm } = useSelector((state: RootState) => state.global.seekingInfo);
+  const getMaskTop = () => {
+    const termBody = document.getElementById(termId)?.querySelector(".term-body");
+    if (!termBody) return 0;
+    return termBody.scrollTop;
+  }
 
   const isSeeking = seekingId !== undefined && seekingTerm !== undefined;
   const isSeekingSelf = isSeeking && seekingTerm === termId;
@@ -126,7 +131,8 @@ const TermCard = (props: TermCardProps) => {
               >
                 {/* add course mask */}
                 <div 
-                  className={`add-course-mask ${isAddingCourse ? "visible" : ""}`} 
+                  className={`add-course-mask ${isAddingCourse ? "visible" : ""}`}
+                  style={{ top: getMaskTop() }}
                   onClick={handleAddCourse}
                 >
                   Click to Add Course
