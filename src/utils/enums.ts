@@ -7,6 +7,7 @@ export enum CourseTagType {
   REQUIRED = "REQUIRED",
   RESTRICTED = "RESTRICTED",
   TAKEN = "TAKEN",
+  UTILITY = "UTILITY",
 }
 
 export enum ReqTitle {
@@ -20,5 +21,7 @@ export enum GroupType {
   AND = "AND",
   OR = "OR",
   SINGLE = "SINGLE",
+  PAIR = "PAIR",
+  CREDIT = "CREDIT",
   EMPTY = "EMPTY",
 }

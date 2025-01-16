@@ -150,6 +150,7 @@ export const isValidParsedResult = (course: IRawCourse, field: Field) => {
     parseGroup(parsed);
     return true;
   } catch (e) {
+    console.error(e);
     return false;
   }
 }
@@ -296,6 +297,7 @@ const main2 = async () => {
     try {
       parseGroup(course[field]!.parsed);
     } catch (e) {
+      console.error(e);
       console.log(course.id);
     }
   }

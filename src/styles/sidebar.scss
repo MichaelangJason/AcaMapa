@@ -1,6 +1,6 @@
 .sidebar {
   position: fixed;
-  z-index: 10000;
+  z-index: 220;
   
   height: 100vh;
   width: var(--sidebar-width);
@@ -12,6 +12,7 @@
   align-items: center;
   
   background-color: var(--term-topbottom-color);
+  box-shadow: 3px 0px 10px 0px rgba(149, 149, 149, 0.25);
   overflow-y: hidden;
 
   .search-bar {

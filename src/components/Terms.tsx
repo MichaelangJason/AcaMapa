@@ -9,12 +9,18 @@ import { addTerm } from "@/store/termSlice";
 import "@/styles/terms.scss";
 import { DraggingType } from "@/utils/enums";
 import { useEffect } from "react";
+import Seeking from "./Seeking";
+import { setSeekingInfo } from "@/store/globalSlice";
+import UtilityBar from "./UtilityBar";
 
 const Terms = () => {
   const order = useSelector((state: RootState) => state.terms.order);
   const isDragging = useSelector((state: RootState) => 
-    state.events.draggingType === DraggingType.TERM
+    state.global.draggingType === DraggingType.TERM
   );
+  const { seekingId,seekingTerm } = useSelector((state: RootState) => state.global.seekingInfo);
+  const isSeeking = seekingId !== undefined && seekingTerm !== undefined;
+
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -40,6 +46,10 @@ const Terms = () => {
       });
     }, 50);
   }
+
+  const handleSeekingMaskClick = () => {
+    dispatch(setSeekingInfo({ })); // clear seeking info
+  }
   
   return (
     <>
@@ -49,8 +59,9 @@ const Terms = () => {
             className="terms" 
             ref={provided.innerRef} 
             {...provided.droppableProps}
+            id="terms"
           >
-            <Image 
+            {/* <Image 
               className="terms-background" 
               src="/school.webp" 
               alt="school" 
@@ -59,10 +70,15 @@ const Terms = () => {
                 width: "100%",
                 height: "auto"
               }}
-            />
+            /> */}
+            <UtilityBar />
+            {isSeeking && <div className="seeking-mask" onClick={handleSeekingMaskClick}/>}
             <div className="terms-placeholder-box"/>
-            {order.map((termId: TermId, index: number) => {
-              return <TermCard key={termId} termId={termId} index={index} />
+            {order.flatMap((termId: TermId, index: number) => {
+              return [
+                <TermCard key={termId} termId={termId} index={index} />,
+                seekingTerm === termId && <Seeking key={"seeking-" + termId} />
+              ]
             })}
             {provided.placeholder}
           </div>

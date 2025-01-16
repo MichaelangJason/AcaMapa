@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { setAddingCourseId } from "@/store/eventSlice";
+import { setAddingCourseId, setSeekingInfo } from "@/store/globalSlice";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 
@@ -11,6 +11,7 @@ export const GlobalKeyPressListener = () => {
 
     if (key === "Escape") {
       dispatch(setAddingCourseId(null));
+      dispatch(setSeekingInfo({ })); // clear seeking info
     }
   }
 

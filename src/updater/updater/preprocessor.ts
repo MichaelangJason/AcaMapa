@@ -84,7 +84,7 @@ const parseNotes = (rawCourse: IRawCourse) => {
 
 const formatNotes = async (caseQueries: {
   [key: string]: {
-    query: Object, 
+    query: object, 
     fixNotes: (rawCourse: IRawCourse) => void
   }
 }) => {

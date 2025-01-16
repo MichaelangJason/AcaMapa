@@ -69,12 +69,12 @@
     right: 16px;
     z-index: 100;
     
-    width: 15px;
+    width: fit-content;
     height: 15px;
     
     display: flex;
     flex-direction: row;
-    justify-content: center;
+    justify-content: end;
     align-items: center;
     gap: 3px;
     
@@ -94,7 +94,7 @@
     }
 
     &.in-term {
-      margin-right: 4px;
+      margin-right: -10px;
     }
 
     .expand-icon {
@@ -109,6 +109,11 @@
       &.expanded {
         transform: rotate(180deg);
       }
+    }
+
+    .future-icon {
+      transform: scaleX(-1);
+      // rotate: -30deg;
     }
 
     .hot-zone {
@@ -128,11 +133,19 @@
         opacity: 1;
       }
 
+      &.seeking {
+        opacity: 1;
+      }
+
       &.disabled {
         opacity: 0.2;
         cursor: not-allowed;        
       }
     }
+  }
+
+  &.seeking {
+    z-index: 301;
   }
 }
 
@@ -156,7 +169,14 @@
     
     font-size: var(--course-name-font-size);
     line-height: 1;
-    text-wrap: wrap;
+    
+    &.in-term {
+      max-width: calc(100% - 40px);
+      // for hyphenation
+      hyphens: auto;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
   }
 
   .id-credits {
@@ -189,12 +209,18 @@
   font-size: var(--course-tag-font-size);
   font-weight: bold;
   text-wrap: nowrap;
+  text-align: center;
+  align-self: center;
   
   cursor: pointer;
   // transition: background-color 0.2s ease-in-out;
   
-  &:hover {
+  &:not(.disabled):hover {
     background-color: var(--course-tag-hover-bg-color);
+  }
+
+  &.disabled {
+    cursor: not-allowed;
   }
 
   &.required {
@@ -254,7 +280,7 @@
       height: fit-content;
       
       display: flex;
-      justify-content: start;
+      justify-content: center;
       align-items: center;
     }
   }
@@ -269,6 +295,18 @@
     align-self: center;
     font-size: calc(var(--course-req-notes-title-font-size) - 4px);
     line-height: 1;
+  }
+
+  .prereq-pair {
+    @extend .prereq-or;
+    text-wrap: nowrap;
+    text-align: center;
+    align-self: center;
+  }
+
+  .prereq-credits {
+    @extend .prereq-pair;
+    margin-bottom: 3px;
   }
   
   .course-ids {

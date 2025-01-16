@@ -31,6 +31,5 @@ export const getCourse = async (courseId: string) => {
   if (!response.ok) return null;
   const data = await response.json() as Course;
 
-  const { id, name, credits, prerequisites, restrictions, corequisites, notes } = data;
-  return { id, name, credits, prerequisites, restrictions, corequisites, notes } as Course;
+  return data;
 }
