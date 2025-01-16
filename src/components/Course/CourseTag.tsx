@@ -9,10 +9,18 @@ export interface CourseTagProps {
   itExists: boolean;
   isMoving: boolean;
   disabled?: boolean;
+  style?: React.CSSProperties;
 }
 
 const CourseTag = (props: CourseTagProps) => {
-  const { courseId, type, itExists, isMoving, disabled } = props;
+  const { 
+    courseId, 
+    type, 
+    itExists, 
+    isMoving, 
+    disabled,
+    style = {}
+  } = props;
   const className = 'course-tag' 
                     + (itExists ? ' ' + type.toLowerCase() : '') 
                     + (isMoving ? ' moving' : '');
@@ -42,6 +50,7 @@ const CourseTag = (props: CourseTagProps) => {
       className={className + (disabled ? ' disabled' : '')} 
       onClick={handleClick}
       title={"click to " + (type === CourseTagType.TAKEN ? "remove from" : "add to") + " course taken"}
+      style={style}
     >
       {courseId}
     </div>

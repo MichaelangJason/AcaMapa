@@ -2,7 +2,7 @@ import { RawCourse } from "@/db/schema";
 import { NextResponse } from "next/server";
 import { connectToDatabase, disconnectDatabase } from "@/db";
 
-const COURSE_ID_REGEX = /^(?:(?:[A-Z]{4} \d{3}(?:D[12]|N[12]|J[123])?)|(?:[A-Z]+ [A-Z]+))$/;
+const COURSE_ID_REGEX = /((?!(fall|lent))[A-Z0-9]{4}(( )*(\/|or)( )*[A-Z0-9]{4})?(( )*|-)\d{3}([A-Z]\d(\/[A-Z]\d)*)?((,)?( )*\d{3}([A-Z]\d(\/[A-Z]\d)*)?)*)/i
 
 export const GET = async (
   req: Request,
@@ -17,6 +17,8 @@ export const GET = async (
       !COURSE_ID_REGEX.test(courseId)) {
     return NextResponse.json({ message: 'Invalid course ID format' }, { status: 400 });
   }
+
+  console.log("courseId", courseId);
 
   try {
     await connectToDatabase(process.env.DATABASE_URL!, process.env.DATABASE_NAME!);

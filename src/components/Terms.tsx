@@ -11,6 +11,7 @@ import { DraggingType } from "@/utils/enums";
 import { useEffect } from "react";
 import Seeking from "./Seeking";
 import { setSeekingInfo } from "@/store/globalSlice";
+import UtilityBar from "./UtilityBar";
 
 const Terms = () => {
   const order = useSelector((state: RootState) => state.terms.order);
@@ -70,6 +71,7 @@ const Terms = () => {
                 height: "auto"
               }}
             /> */}
+            <UtilityBar />
             {isSeeking && <div className="seeking-mask" onClick={handleSeekingMaskClick}/>}
             <div className="terms-placeholder-box"/>
             {order.flatMap((termId: TermId, index: number) => {

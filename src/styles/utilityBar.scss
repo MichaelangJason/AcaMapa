@@ -1,0 +1,15 @@
+.utility-bar {
+  position: fixed;
+  width: calc(100vw - var(--sidebar-width));
+  left: var(--sidebar-width);
+  height: var(--utility-bar-height);
+
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 10px;
+  padding: 0px 10px;
+
+  background-color: var(--term-topbottom-color);
+
+}

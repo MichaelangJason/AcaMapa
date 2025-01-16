@@ -8,7 +8,7 @@
   --sidebar-width: 300px;
   --sidebar-background: #83A4C9;
   --term-width: 300px;
-  --term-height: 90vh;
+  --term-height: calc(90vh - 50px);
   --term-border-color: #CFCFCF;
   --term-topbottom-color: #CFCFCF;
   --term-body-bg-color: #ffffffe9;
@@ -51,6 +51,10 @@
 
   /* course expand */
   --course-expand-color: var(--course-tag-default-bg-color);
+
+  /* utility bar */
+  --utility-bar-height: 45px;
+  --utility-bar-course-tag-bg-color: #6c6c6c;
 }
 
 /* @media (prefers-color-scheme: dark) {

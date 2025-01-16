@@ -5,7 +5,7 @@ import Image  from "next/image"
 import { CourseResult } from "./Course/CourseResult"
 import React from "react"
 import { toast } from "react-toastify"
-import Fuse from "fuse.js"
+import FlexSearch from "flexsearch"
 import "@/styles/sidebar.scss"
 import { useDispatch, useSelector } from "react-redux"
 import { RootState } from "@/store"
@@ -45,22 +45,46 @@ const SideBar = () => {
   const dispatch = useDispatch()
   const courseTaken = useSelector((state: RootState) => state.courseTaken);
   const addingCourseId = useSelector((state: RootState) => state.global.addingCourseId);
+  const [page, setPage] = useState(1);
   
-  // fuse search
-  const fuse = useMemo(() => 
-    new Fuse(
-      courses, 
-      { 
-        keys: [
-          { name: 'id', weight: 2 },
-          { name: 'name', weight: 1 }
+  // flexsearch
+  const index = useMemo(() => {
+    const index = new FlexSearch.Document<Course>({
+      tokenize: 'full',
+      document: {
+        id: 'id',
+        index: [
+          { 
+            field: 'id',
+            tokenize: 'forward',
+            resolution: 9,
+            encode: (str: string) => {
+              const exact = str.toLowerCase();
+              const noSpace = str.toLowerCase().replace(/\s+/g, '');
+              return [exact, noSpace];
+            }
+          },
+          { 
+            field: 'name',
+            tokenize: 'forward',
+            resolution: 9,
+            encode: (str: string) => {
+              const exact = str.toLowerCase();
+              const noSpace = str.toLowerCase().replace(/\s+/g, '');
+              return [exact, noSpace];
+            }
+          }
         ],
-        threshold: 0.1,
-        shouldSort: true
+        // @ts-ignore, some typing error happened here
+        store: ['id', 'name', 'credits']
       }
-    ), 
-    [courses]
-  )
+    })
+    
+    courses.forEach(course => {
+      index.add(course)
+    })
+    return index
+  }, [courses])
 
   // filter course taken
   const nonEmptyCourseTaken = Object.keys(courseTaken).filter(prefix => courseTaken[prefix].length > 0);
@@ -74,18 +98,33 @@ const SideBar = () => {
     return (await response.json()) as Course[]
   }
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const debounceFuseSearch = useCallback(
-    debounce(async (input: string) => {
-      let results = fuse.search(input)
-      if (results.length === 0 && input.length > 4) {
-        results = fuse.search(input.slice(0, 4) + " " + input.slice(4))
-      }
-      results = results.slice(0, 10)
+  const processQuery = (query: FlexSearch.SimpleDocumentSearchResultSetUnit[]) => {
+    const result = [] as Course[];
+    const uniqueResult = new Set<string>();
 
-      return results.map(result => result.item);
+    query.flatMap(i => i.result).forEach(r => {
+      const course = (r as unknown as {doc: Course, id: string}).doc;
+      if (!uniqueResult.has(course.id)) {
+        result.push(course);
+        uniqueResult.add(course.id);
+      }
+    })
+
+    return result;
+  }
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const debouncedSearch = useCallback(
+    debounce(async (input: string) => {
+      setPage(1) // reset page
+      const query = index.search(input, {
+        enrich: true,
+      })
+
+      const result = processQuery(query);
+      return result;
     }, 100),
-    [fuse]
+    [index]
   );
 
   // search icon callback
@@ -100,8 +139,9 @@ const SideBar = () => {
     e.preventDefault();
 
     try {
-      const results = fuse.search(input);
-      setResults(results.map(result => result.item));
+      const query = index.search(input, { enrich: true });
+      const results = processQuery(query);
+      setResults(results);
     } catch (error) {
       console.error('Search error:', error);
       toast.error('Search failed');
@@ -113,7 +153,7 @@ const SideBar = () => {
     if (addingCourseId) {
       dispatch(setAddingCourseId(null));
     }
-    dispatch(setSearchInput(e.target.value));
+    dispatch(setSearchInput(e.target.value)); // need it for seeking
   }
 
   // input
@@ -122,10 +162,11 @@ const SideBar = () => {
       setResults([]);
       return;
     }
-    debounceFuseSearch(input).then((courses) => {
-      setResults(courses);
-    });
-  }, [input, debounceFuseSearch])
+    debouncedSearch(input)
+      .then((courses) => {
+        setResults(courses);
+      });
+  }, [input, debouncedSearch])
 
   // initializes the search results
   useEffect(() => {
@@ -138,6 +179,7 @@ const SideBar = () => {
           error: 'Failed to initialize'
         }
       )
+      console.log("courses fetched")
       dispatch(setInitCourses(courses || []))
       setIsLoading(false)
     }
@@ -165,13 +207,13 @@ const SideBar = () => {
         />
       </div>
       <div className="result-container">
-        {results.map(course => <CourseResult key={course.id} {...course} />)}
+        {results.slice((page - 1) * 10, page * 10).map(course => <CourseResult key={course.id} {...course} partialMatch={input} />)}
       </div>
       <div className="course-taken-container">
         <div 
           className="course-taken-header"
           onClick={() => setExpanded(!expanded)}
-        >
+        > 
           <b>Courses Taken</b>
           <div 
             className={`expand-button ${expanded ? 'expanded' : ''}`}

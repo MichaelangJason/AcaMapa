@@ -7,6 +7,7 @@ export enum CourseTagType {
   REQUIRED = "REQUIRED",
   RESTRICTED = "RESTRICTED",
   TAKEN = "TAKEN",
+  UTILITY = "UTILITY",
 }
 
 export enum ReqTitle {

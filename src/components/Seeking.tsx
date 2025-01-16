@@ -72,7 +72,7 @@ const Seeking = () => {
           transition={{ duration: 0.25 }}
         >
           {futureCourses?.map((course) => (
-            <CourseResult key={course.id} {...course} additionalFn={() => handleAddCourse(course)} />
+            <CourseResult key={course.id} {...course} cb={() => handleAddCourse(course)} />
           ))}
           </motion.div>
         : <div className="seeking-placeholder-box" />}

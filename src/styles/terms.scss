@@ -61,7 +61,7 @@ body {
     width: var(--term-width);
     height: var(--term-height);
     margin-left: 50px;
-    margin-top: 5vh;
+    margin-top: calc(5vh + 50px);
     
     display: flex;
     flex-direction: column;

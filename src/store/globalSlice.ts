@@ -2,6 +2,7 @@ import { Course, CourseMap } from "@/types/course";
 import { DraggingType } from "@/utils/enums";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { log } from "console";
+import { toast } from "react-toastify";
 
 const globalSlice = createSlice({
   name: "global",
@@ -44,6 +45,7 @@ const globalSlice = createSlice({
       if (state.seekingInfo.seekingId && state.seekingInfo.seekingTerm) {
         document.body.style.overflow = 'hidden';
       } else {
+        toast.dismiss();
         document.body.style.overflow = 'auto';
       }
     },

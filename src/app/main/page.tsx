@@ -78,6 +78,7 @@ export default function Main() {
           hideProgressBar={true}
           newestOnTop={false}
           closeOnClick={false}
+          pauseOnHover={false}
           rtl={false}
           draggable
           theme="light"

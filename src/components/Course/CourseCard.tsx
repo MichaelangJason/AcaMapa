@@ -128,6 +128,10 @@ const CourseCard = (props: CourseCardProps) => {
         await new Promise(resolve => setTimeout(resolve, 30));
       }
       dispatch(setSeekingInfo({ seekingId: courseId, seekingTerm: termId })); // set to seeking state
+      // console.log("toast id", toast.info(`Seeking ${courseId} in ${termId}`, {
+      //   position: "top-center",
+      //   autoClose: false
+      // }));
 
       const body = document.body;
       const sidebar = document.getElementById("sidebar");

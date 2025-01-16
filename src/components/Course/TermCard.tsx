@@ -25,6 +25,7 @@ const TermCard = (props: TermCardProps) => {
   let courseIds = useSelector((state: RootState) => state.terms.data[termId].courseIds);
   const { seekingId, seekingTerm } = useSelector((state: RootState) => state.global.seekingInfo);
   const getMaskTop = () => {
+    if (typeof document === "undefined") return 0;
     const termBody = document.getElementById(termId)?.querySelector(".term-body");
     if (!termBody) return 0;
     return termBody.scrollTop;
@@ -102,6 +103,7 @@ const TermCard = (props: TermCardProps) => {
     e.preventDefault();
     if (isSeekingSelf) dispatch(setSeekingInfo({})); // clear seeking info
     dispatch(deleteTerm(termId));
+    toast.success(`Term ${index + 1} deleted`);
   }
 
   return (
