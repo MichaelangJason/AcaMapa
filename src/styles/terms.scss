@@ -25,7 +25,7 @@ body {
   position: relative;
 
   height: 100%;
-  padding: 0px 50px 0px 0px;
+  padding: var(--terms-padding);
   
   display: flex;
   flex-direction: row;
@@ -59,9 +59,8 @@ body {
     position: relative;
     
     width: var(--term-width);
-    height: var(--term-height);
-    margin-left: 50px;
-    margin-top: calc(5vh + 50px);
+    height: 100%;
+    margin-left: var(--term-margin-left);
     
     display: flex;
     flex-direction: column;

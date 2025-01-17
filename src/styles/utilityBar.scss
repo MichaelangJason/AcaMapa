@@ -3,6 +3,7 @@
   width: calc(100vw - var(--sidebar-width));
   left: var(--sidebar-width);
   height: var(--utility-bar-height);
+  top: 0;
 
   display: flex;
   justify-content: flex-start;

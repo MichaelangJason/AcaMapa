@@ -3,7 +3,7 @@ import { TermMap } from "@/types/term";
 import { TermId } from "@/types/term";
 import { GroupType } from "@/utils/enums";
 import { IGroup } from "@/types/course";
-
+import FlexSearch from "flexsearch";
 export const isSatisfied = (
   {prerequisites, restrictions, corequisites, courseTaken, terms, termId, initCourses}: {
     prerequisites: IGroup,
@@ -408,4 +408,19 @@ export const smoothScrollTo = ({
     isCancelled = true;
     cancelAnimationFrame(animationFrame);
   };
+}
+
+export const processQuery = (query: FlexSearch.SimpleDocumentSearchResultSetUnit[]) => {
+  const result = [] as Course[];
+  const uniqueResult = new Set<string>();
+
+  query.flatMap(i => i.result).forEach(r => {
+    const course = (r as unknown as {doc: Course, id: string}).doc;
+    if (!uniqueResult.has(course.id)) {
+      result.push(course);
+      uniqueResult.add(course.id);
+    }
+  })
+
+  return result;
 }

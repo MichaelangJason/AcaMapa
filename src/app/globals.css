@@ -5,21 +5,36 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  /* sidebar */
   --sidebar-width: 300px;
   --sidebar-background: #83A4C9;
+
+  /* utility bar */
+  --utility-bar-height: 45px;
+  --utility-bar-course-tag-bg-color: #6c6c6c;
+
+  /* terms */
+  --dragging-over-term-body-bg-color: #ffffff8d;
+  --terms-padding-bottom: 30px;
+  --terms-padding-right: 50px;
+  --terms-padding-top: calc(var(--utility-bar-height) + var(--terms-padding-bottom));
+  --terms-padding: var(--terms-padding-top) var(--terms-padding-right) var(--terms-padding-bottom) 0px;
+
+  /* term */
   --term-width: 300px;
   --term-height: calc(90vh - 50px);
   --term-border-color: #CFCFCF;
   --term-topbottom-color: #CFCFCF;
   --term-body-bg-color: #ffffffe9;
   --term-topbottom-height: 40px;
+  --term-topbottom-margin: calc(5vh + 50px);
+  --term-margin-left: 40px;
+
   --border-radius: 15px;
   /* --dragging-bg-color: #50dbee74; */
   --term-topbottom-color-hover: #acd78ac1;
   --dragging-over-bg-color: #1a7b8837;
-
-  /* terms */
-  --dragging-over-term-body-bg-color: #ffffff8d;
 
   /* course */
   --course-search-bg-color: #FFF;
@@ -52,9 +67,6 @@
   /* course expand */
   --course-expand-color: var(--course-tag-default-bg-color);
 
-  /* utility bar */
-  --utility-bar-height: 45px;
-  --utility-bar-course-tag-bg-color: #6c6c6c;
 }
 
 /* @media (prefers-color-scheme: dark) {

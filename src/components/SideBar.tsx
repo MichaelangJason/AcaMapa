@@ -12,7 +12,7 @@ import { RootState } from "@/store"
 import CourseTag from "./Course/CourseTag"
 import { CourseTagType } from "@/utils/enums"
 import { setAddingCourseId, setInitCourses, setSearchInput } from "@/store/globalSlice"
-
+import { processQuery } from "@/utils"
 const CourseTagGroup = (props: { courseTaken: CourseCode[], prefix: string }) => {
   const { courseTaken, prefix } = props;
 
@@ -50,13 +50,13 @@ const SideBar = () => {
   // flexsearch
   const index = useMemo(() => {
     const index = new FlexSearch.Document<Course>({
-      tokenize: 'full',
+      // tokenize: 'full',
       document: {
         id: 'id',
         index: [
           { 
             field: 'id',
-            tokenize: 'forward',
+            tokenize: 'reverse',
             resolution: 9,
             encode: (str: string) => {
               const exact = str.toLowerCase();
@@ -66,7 +66,7 @@ const SideBar = () => {
           },
           { 
             field: 'name',
-            tokenize: 'forward',
+            tokenize: 'reverse',
             resolution: 9,
             encode: (str: string) => {
               const exact = str.toLowerCase();
@@ -96,21 +96,6 @@ const SideBar = () => {
       }
   
     return (await response.json()) as Course[]
-  }
-
-  const processQuery = (query: FlexSearch.SimpleDocumentSearchResultSetUnit[]) => {
-    const result = [] as Course[];
-    const uniqueResult = new Set<string>();
-
-    query.flatMap(i => i.result).forEach(r => {
-      const course = (r as unknown as {doc: Course, id: string}).doc;
-      if (!uniqueResult.has(course.id)) {
-        result.push(course);
-        uniqueResult.add(course.id);
-      }
-    })
-
-    return result;
   }
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -179,6 +164,7 @@ const SideBar = () => {
           error: 'Failed to initialize'
         }
       )
+      console.log('Courses size:', JSON.stringify(courses).length / 1024, 'KB');
       console.log("courses fetched")
       dispatch(setInitCourses(courses || []))
       setIsLoading(false)
