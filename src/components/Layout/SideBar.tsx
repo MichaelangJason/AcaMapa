@@ -1,55 +1,30 @@
-import { Course, CourseCode } from "@/types/course"
+import { Course } from "@/types/course"
 import { debounce } from "@/utils/requests"
-import { useEffect, useState, useCallback, useMemo, useRef } from "react"
+import { useEffect, useState, useCallback, useMemo, useRef, ChangeEvent } from "react"
 import Image  from "next/image"
-import { CourseResult } from "./Course/CourseResult"
-import React from "react"
+import { CourseResult } from "@/components/Course"
 import { toast } from "react-toastify"
 import FlexSearch from "flexsearch"
 import "@/styles/sidebar.scss"
 import { useDispatch, useSelector } from "react-redux"
 import { RootState } from "@/store"
-import CourseTag from "./Course/CourseTag"
-import { CourseTagType } from "@/utils/enums"
 import { setAddingCourseId, setInitCourses, setSearchInput } from "@/store/globalSlice"
 import { processQuery } from "@/utils"
-const CourseTagGroup = (props: { courseTaken: CourseCode[], prefix: string }) => {
-  const { courseTaken, prefix } = props;
-
-  return (
-    <div className="course-taken-group">
-      <div className="course-taken-group-header">
-        {prefix}
-      </div>
-      <div className="course-taken-group-body">
-        {courseTaken.map(course => 
-          <CourseTag 
-          key={course} 
-          courseId={course} 
-          type={CourseTagType.TAKEN} 
-          itExists={true}
-          isMoving={false} 
-          />
-        )}
-      </div>
-    </div>
-  )
-}
+import CourseTaken from "./CourseTaken"
 
 const SideBar = () => {
-  const input = useSelector((state: RootState) => state.global.searchInput);
-  const courses = useSelector((state: RootState) => state.global.initCourses);
-  const [isLoading, setIsLoading] = useState(true)
-  const [results, setResults] = useState<Course[]>([])
-  const [expanded, setExpanded] = useState(false)
-  const dispatch = useDispatch()
-  const courseTaken = useSelector((state: RootState) => state.courseTaken);
-  const addingCourseId = useSelector((state: RootState) => state.global.addingCourseId);
+  const dispatch = useDispatch() // for redux state manipulations
+  const input = useSelector((state: RootState) => state.global.searchInput); // search input
+  const courses = useSelector((state: RootState) => state.global.initCourses); // TODO switch to api call
+  const [isLoading, setIsLoading] = useState(true) // initial loading state
+  const [results, setResults] = useState<Course[]>([]) // search results
+  const addingCourseId = useSelector((state: RootState) => state.global.addingCourseId); // for highlighting purpose
+  /* infinite scroll*/
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const resultContainerRef = useRef<HTMLDivElement>(null);
 
-  // flexsearch
+  // TODO: switch to server based api call for better search
   const index = useMemo(() => {
     const index = new FlexSearch.Document<Course>({
       // tokenize: 'full',
@@ -77,7 +52,7 @@ const SideBar = () => {
             }
           }
         ],
-        // @ts-ignore, some typing error happened here
+        // @ts-expect-error, some ignorable typing error happened here
         store: ['id', 'name', 'credits']
       }
     })
@@ -87,9 +62,6 @@ const SideBar = () => {
     })
     return index
   }, [courses])
-
-  // filter course taken
-  const nonEmptyCourseTaken = Object.keys(courseTaken).filter(prefix => courseTaken[prefix].length > 0);
 
   const getCourses = async () => {      
     const response = await fetch('/api/courses')
@@ -136,14 +108,14 @@ const SideBar = () => {
     }
   }
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (addingCourseId) {
       dispatch(setAddingCourseId(null));
     }
     dispatch(setSearchInput(e.target.value)); // need it for seeking
   }
 
-  // input
+  // trigger search from input change
   useEffect(() => {
     if (!input) {
       setResults([]);
@@ -172,6 +144,7 @@ const SideBar = () => {
       setIsLoading(false)
     }
     fetchCourses()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // Add intersection observer to detect when user scrolls near bottom
@@ -237,35 +210,7 @@ const SideBar = () => {
         )}
         {results.length > 0 && hasMore && <div className="loading">Loading more...</div>}
       </div>
-      <div className="course-taken-container">
-        <div 
-          className="course-taken-header"
-          onClick={() => setExpanded(!expanded)}
-        > 
-          <b>Courses Taken</b>
-          <div 
-            className={`expand-button ${expanded ? 'expanded' : ''}`}
-            onClick={() => setExpanded(!expanded)}
-          >
-            <Image src="/expand-single.svg" alt="expand" width={15} height={15} />
-        </div>
-        </div>
-        {expanded 
-          ? nonEmptyCourseTaken.length > 0
-            ? <div className="course-taken-list">
-                {nonEmptyCourseTaken.map((prefix, index) => (
-                  <CourseTagGroup 
-                    key={index} 
-                    courseTaken={courseTaken[prefix]} 
-                    prefix={prefix}
-                  />
-                ))}
-              </div>
-            : <div className="course-taken-empty">
-                no courses taken
-              </div>
-          : null}
-      </div>
+      <CourseTaken />
     </div>
   )
 }

@@ -80,7 +80,7 @@ const ReqGroup = (props: { group: IGroup, termId: TermId, isPresent: Map<CourseC
   }
 
   const CreditGroup = (props: { group: IGroup, elemGap: number, direction: 'row' | 'column'}) => {
-    const { group, elemGap, direction } = props;
+    const { group } = props;
     const [required, scopes, ...prefixes] = group.inner as string[];
     const levels = scopes.split("").map(l => parseInt(l));
     const context = useSelector((state: RootState) => {

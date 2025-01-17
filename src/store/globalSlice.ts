@@ -1,7 +1,6 @@
-import { Course, CourseMap } from "@/types/course";
+import { Course } from "@/types/course";
 import { DraggingType } from "@/utils/enums";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { toast } from "react-toastify";
 
 const globalSlice = createSlice({
   name: "global",
@@ -18,6 +17,8 @@ const globalSlice = createSlice({
     searchInput: '' as string,
     isTutorialModalOpen: false as boolean,
     isAboutModalOpen: false as boolean,
+    isSideBarExpanded: true as boolean,
+    isCourseTakenExpanded: false as boolean,
   },
   reducers: {
     setDraggingType: (state, action: PayloadAction<DraggingType | null>) => {
@@ -41,12 +42,11 @@ const globalSlice = createSlice({
       if (!isReadyToShow) { // prepare seeking info
         state.seekingInfo.seekingId = seekingId;
         state.seekingInfo.seekingTerm = seekingTerm;
-      } 
+      }
 
       if (state.seekingInfo.seekingId && state.seekingInfo.seekingTerm) {
         document.body.style.overflow = 'hidden';
       } else {
-        toast.dismiss();
         document.body.style.overflow = 'auto';
       }
     },
@@ -58,6 +58,12 @@ const globalSlice = createSlice({
     },
     setIsAboutModalOpen: (state, action: PayloadAction<boolean>) => {
       state.isAboutModalOpen = action.payload;
+    },
+    setIsSideBarExpanded: (state, action: PayloadAction<boolean>) => {
+      state.isSideBarExpanded = action.payload;
+    },
+    setIsCourseTakenExpanded: (state, action: PayloadAction<boolean>) => {
+      state.isCourseTakenExpanded = action.payload;
     },
   },
 });
@@ -71,6 +77,8 @@ export const {
   setSearchInput,
   setIsTutorialModalOpen,
   setIsAboutModalOpen,
+  setIsSideBarExpanded,
+  setIsCourseTakenExpanded,
 } = globalSlice.actions;
 
 export default globalSlice.reducer;

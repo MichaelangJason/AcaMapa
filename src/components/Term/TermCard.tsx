@@ -7,7 +7,7 @@ import { memo, useCallback } from "react";
 import { DraggingType } from "@/utils/enums";
 import { setAddingCourseId, setSeekingInfo } from "@/store/globalSlice";
 import { toast } from "react-toastify";
-import CourseCard from "./CourseCard";
+import { CourseCard } from "@/components/Course";
 import { getCourse } from "@/utils/requests";
 import { addCourseToTerm, deleteTerm } from "@/store/termSlice";
 import { addCourse, setCourseMounted } from "@/store/courseSlice";

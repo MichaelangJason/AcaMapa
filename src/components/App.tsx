@@ -2,26 +2,20 @@
 
 import store from "@/store"
 import { Provider } from "react-redux"
-import GlobalKeyPressListener from "@/components/GlobalKeyPressListener";
-import SideBar from "@/components/SideBar";
-import Terms from "@/components/Terms";
+import { KeyPressListener } from "@/components/Common";
+import { SideBar } from "@/components/Layout";
+import { Terms } from "@/components/Term";
 import { setDroppableId } from "@/store/globalSlice";
 import { setDraggingType } from "@/store/globalSlice";
 import { deleteTerm, moveCourse, moveTerm } from "@/store/termSlice";
 import { DraggingType } from "@/utils/enums";
 import { DragDropContext, DragStart, DragUpdate, DropResult } from "@hello-pangea/dnd";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { Flip, ToastContainer } from "react-toastify";
-// import { RootState } from "@/store";
-import { Index } from "flexsearch";
-import TutorialModal from "@/components/Modal/TutorialModal";
-import AboutModal from "@/components/Modal/AboutModal";
+import { TutorialModal, AboutModal } from "@/components/Modal";
 
-const App = (props: {
-  coursesIndex?: Index
-}) => {
+const App = () => {
   const dispatch = useDispatch();
-  // const { seekingId, seekingTerm } = useSelector((state: RootState) => state.global.seekingInfo);
 
   const handleDragStart = (start: DragStart) => {
     dispatch(setDraggingType(start.type as DraggingType));
@@ -78,7 +72,7 @@ const App = (props: {
       >
         <SideBar />
         <Terms />
-        <GlobalKeyPressListener />
+        <KeyPressListener />
         <ToastContainer
           position="bottom-right"
           autoClose={5000}
@@ -93,17 +87,19 @@ const App = (props: {
           stacked
         />
       </DragDropContext>
-      <GlobalKeyPressListener />
+      <KeyPressListener />
       <TutorialModal />
       <AboutModal />
     </>
   );
 }
 
-const Wrapper = (props: {
-  coursesIndex?: Index
-}) => {
-  return <Provider store={store}><App coursesIndex={props.coursesIndex} /></Provider>
+const Wrapper = () => {
+  return (
+    <Provider store={store}>
+      <App/>
+    </Provider>
+  )
 }
 
 export default Wrapper;

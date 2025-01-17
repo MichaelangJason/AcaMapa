@@ -1,17 +1,17 @@
 import '@/styles/utilityBar.scss';
-import CourseTag from './Course/CourseTag';
+import { CourseTag } from "@/components/Course";
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import { useMemo } from 'react';
 import { CourseTagType } from '@/utils/enums';
 import Image from 'next/image';
-import { useDispatch } from 'react-redux';
+import { useDispatch, shallowEqual } from 'react-redux';
 import { setIsTutorialModalOpen, setIsAboutModalOpen } from '@/store/globalSlice';
 
 const UtilityBar = () => {
-  const inTermCourseIds = useSelector((state: RootState) => state.terms.inTermCourseIds) || [];
-  const courseTaken = useSelector((state: RootState) => state.courseTaken) || [];
-  const initialCourses = useSelector((state: RootState) => state.global.initCourses) || [];
+  const inTermCourseIds = useSelector((state: RootState) => state.terms.inTermCourseIds || [], shallowEqual);
+  const courseTaken = useSelector((state: RootState) => state.courseTaken || [], shallowEqual);
+  const initialCourses = useSelector((state: RootState) => state.global.initCourses || [], shallowEqual);
   const dispatch = useDispatch();
 
   const toggleTutorialModal = () => {

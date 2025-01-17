@@ -63,7 +63,7 @@ const CourseCard = (props: CourseCardProps) => {
   const { seekingId, seekingTerm } = useSelector((state: RootState) => state.global.seekingInfo);
   const isSeeking = seekingId !== undefined && seekingTerm !== undefined;
   const isSeekingSelf = seekingId === courseId && seekingTerm === termId;
-  const termIdx = useSelector((state: RootState) => state.terms.order.indexOf(termId));
+  // const termIdx = useSelector((state: RootState) => state.terms.order.indexOf(termId));
   // const [isMoving, setIsMoving] = useState(isMounted); // for styling during drag
 
   const handleRemoveCourse = () => {
@@ -137,7 +137,7 @@ const CourseCard = (props: CourseCardProps) => {
       const sidebar = document.getElementById("sidebar");
       const term = document.getElementById(termId);
       const course = document.getElementById(courseId);
-      const termBody = term?.querySelector(".term-body")!;
+      const termBody = term?.querySelector(".term-body");
       
       const termComputedStyle = window.getComputedStyle(term!);
       const courseCardComputedStyle = window.getComputedStyle(course!);

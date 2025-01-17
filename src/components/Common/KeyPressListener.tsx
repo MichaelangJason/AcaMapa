@@ -3,7 +3,7 @@ import { setAddingCourseId, setSeekingInfo } from "@/store/globalSlice";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 
-export const GlobalKeyPressListener = () => {
+const KeyPressListener = () => {
   const dispatch = useDispatch();
 
   const handleKeyDown = (event: KeyboardEvent) => {
@@ -22,4 +22,4 @@ export const GlobalKeyPressListener = () => {
   return null;
 }
 
-export default GlobalKeyPressListener;
+export default KeyPressListener;

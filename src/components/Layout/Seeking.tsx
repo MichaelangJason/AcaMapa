@@ -1,7 +1,7 @@
 import { RootState } from "@/store";
 import { useEffect, useMemo, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { CourseResult } from "@/components/Course/CourseResult";
+import { CourseResult } from "@/components/Course";
 import { setSearchInput, setSeekingInfo } from "@/store/globalSlice";
 import { Course } from "@/types/course";
 import { motion } from "motion/react";
@@ -16,7 +16,8 @@ const useSeeking = (seekingId: string | null) => {
     const course = courses[seekingId];
     const { futureCourses } = course;
     return initCourses.filter((course) => futureCourses!.includes(course.id));
-  }, [seekingId]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [seekingId]); // no need change for courses/initCourses change
 }
 
 const Seeking = () => {
@@ -28,8 +29,6 @@ const Seeking = () => {
 
   const futureCourses = useSeeking(seekingId!);
   const isSeeking = !!futureCourses;
-  if (!isSeeking) return null;
-
   const dispatch = useDispatch();
 
   const handleAddCourse = (course: Course) => {
@@ -60,9 +59,10 @@ const Seeking = () => {
     setTop(course.getBoundingClientRect().top - marginTop - SHADOW_HEIGHT);
     setIsPositioned(true);
     
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isReadyToShow]);
 
-
+  if (!isSeeking) return null;
 
   return (
     <>

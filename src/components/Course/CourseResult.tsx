@@ -67,7 +67,7 @@ const markPartialMatch = (source: string, target: string | undefined) => {
   }
 
   // Build result
-  let result = [] as ReactNode[];
+  const result = [] as ReactNode[];
   let lastPos = 0;
 
   originalPositions.forEach(([start, end]) => {
@@ -85,7 +85,7 @@ const markPartialMatch = (source: string, target: string | undefined) => {
   return <>{result.map((r, index) => <span key={index}>{r}</span>)}</>;
 }
 
-export const CourseResult = (props: CourseResultProps) => {
+const CourseResult = (props: CourseResultProps) => {
   const { id, name, credits, cb, partialMatch } = props;
   const dispatch = useDispatch();
   const addingCourseId = useSelector((state: RootState) => state.global.addingCourseId);
@@ -137,3 +137,5 @@ export const CourseResult = (props: CourseResultProps) => {
     </div>
   );
 };
+
+export default CourseResult;
