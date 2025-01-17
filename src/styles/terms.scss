@@ -183,7 +183,7 @@ body {
 
       &:hover {
         opacity: 1;
-        background-color: var(--sidebar-background);
+        background-color: var(--term-add-course-mask-hover-color);
       }
     }
   }
@@ -215,10 +215,10 @@ body {
 
   .seeking-container {
     position: relative;
-    width: calc(var(--term-width) - 10px);
+    width: calc(var(--course-card-width) + 6px);
     height: fit-content;
-    margin-left: 50px;
-    padding-bottom: 10px;
+    margin-left: var(--term-margin-left);
+    padding-bottom: var(--term-margin-bottom);
     z-index: 1000;
 
     display: flex;

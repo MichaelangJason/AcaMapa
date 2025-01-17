@@ -49,11 +49,14 @@ const Seeking = () => {
       dispatch(setSeekingInfo({ }));
       return;
     };
-    
+    const computedStyle = window.getComputedStyle(document.documentElement);
     const courseRect = course.getBoundingClientRect();
     const termBodyRect = termBody.getBoundingClientRect();
+    const utilityBarHeight = parseInt(computedStyle.getPropertyValue('--utility-bar-height'));
+    const marginTop = parseInt(computedStyle.getPropertyValue('--terms-padding-bottom')) + utilityBarHeight;
+    
     setMaxHeight(termBodyRect.bottom - courseRect.top);
-    setTop(course.getBoundingClientRect().top);
+    setTop(course.getBoundingClientRect().top - marginTop);
     setIsPositioned(true);
     
   }, [isReadyToShow]);

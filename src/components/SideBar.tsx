@@ -174,6 +174,9 @@ const SideBar = () => {
 
   return (
     <div className="sidebar" id="sidebar">
+      <div className="sidebar-header">
+        <Image src="/mcgill-logo.png" alt="logo" width={210} height={210} />
+      </div>
       <div className="search-bar">
         <input 
           type="text" 

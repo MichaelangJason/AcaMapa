@@ -11,9 +11,21 @@
   flex-shrink: 0;
   align-items: center;
   
-  background-color: var(--term-topbottom-color);
+  background-color: var(--sidebar-bg-color);
   box-shadow: 3px 0px 10px 0px rgba(149, 149, 149, 0.25);
   overflow-y: hidden;
+
+  .sidebar-header {
+    position: relative;
+    width: 75%;
+    height: fit-content;
+    padding-bottom: 5px;
+
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+
+  }
 
   .search-bar {
     position: relative;

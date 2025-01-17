@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import { useMemo } from 'react';
 import { CourseTagType } from '@/utils/enums';
+import Image from 'next/image';
 
 const UtilityBar = () => {
   const inTermCourseIds = useSelector((state: RootState) => state.terms.inTermCourseIds) || [];
@@ -63,6 +64,17 @@ const UtilityBar = () => {
           }}
       />
       ))}
+      <div className="flex-grow"/>
+      <div className="utility-bar-link">Tutorial</div>
+      <div className="utility-bar-link">About</div>
+      <Image 
+        src="/github-mark.svg" 
+        alt="github" 
+        width={20} 
+        height={20} 
+        style={{ cursor: 'pointer', justifySelf: 'flex-end' }} 
+        onClick={() => window.open('https://github.com/MichaelangJason/Course-Planner', '_blank')}
+      />
     </div>
   )
 }

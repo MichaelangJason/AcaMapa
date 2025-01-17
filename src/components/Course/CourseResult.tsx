@@ -75,7 +75,7 @@ const markPartialMatch = (source: string, target: string | undefined) => {
     const match = source.slice(start, end);
 
     if (before) result.push(before);
-    result.push(<mark style={{backgroundColor: "lightgrey"}}>{match}</mark>); 
+    result.push(<mark style={{backgroundColor: "var(--sidebar-result-hightlight-bg-color)"}}>{match}</mark>); 
     lastPos = end;
   });
 
