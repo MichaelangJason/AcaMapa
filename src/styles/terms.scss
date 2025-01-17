@@ -216,9 +216,10 @@ body {
   .seeking-container {
     position: relative;
     width: calc(var(--course-card-width) + 6px);
-    height: fit-content;
+    height: calc(fit-content + 10px);
     margin-left: var(--term-margin-left);
     padding-bottom: var(--term-margin-bottom);
+    padding-top: 10px;
     z-index: 1000;
 
     display: flex;
@@ -226,7 +227,7 @@ body {
     align-items: center;
     gap: 10px;
 
-    border-radius: var(--border-radius);
+    // border-radius: var(--border-radius);
 
     overflow-y: scroll;
     scrollbar-width: thin;

@@ -1,7 +1,6 @@
 import { Course, CourseMap } from "@/types/course";
 import { DraggingType } from "@/utils/enums";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { log } from "console";
 import { toast } from "react-toastify";
 
 const globalSlice = createSlice({
@@ -17,6 +16,8 @@ const globalSlice = createSlice({
       isReadyToShow: undefined as boolean | undefined,
     },
     searchInput: '' as string,
+    isTutorialModalOpen: false as boolean,
+    isAboutModalOpen: false as boolean,
   },
   reducers: {
     setDraggingType: (state, action: PayloadAction<DraggingType | null>) => {
@@ -52,9 +53,24 @@ const globalSlice = createSlice({
     setSearchInput: (state, action: PayloadAction<string>) => {
       state.searchInput = action.payload;
     },
+    setIsTutorialModalOpen: (state, action: PayloadAction<boolean>) => {
+      state.isTutorialModalOpen = action.payload;
+    },
+    setIsAboutModalOpen: (state, action: PayloadAction<boolean>) => {
+      state.isAboutModalOpen = action.payload;
+    },
   },
 });
 
-export const { setDraggingType, setAddingCourseId, setDroppableId, setInitCourses, setSeekingInfo, setSearchInput } = globalSlice.actions;
+export const { 
+  setDraggingType, 
+  setAddingCourseId, 
+  setDroppableId, 
+  setInitCourses, 
+  setSeekingInfo, 
+  setSearchInput,
+  setIsTutorialModalOpen,
+  setIsAboutModalOpen,
+} = globalSlice.actions;
 
 export default globalSlice.reducer;

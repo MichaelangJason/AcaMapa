@@ -5,11 +5,22 @@ import { RootState } from '@/store';
 import { useMemo } from 'react';
 import { CourseTagType } from '@/utils/enums';
 import Image from 'next/image';
+import { useDispatch } from 'react-redux';
+import { setIsTutorialModalOpen, setIsAboutModalOpen } from '@/store/globalSlice';
 
 const UtilityBar = () => {
   const inTermCourseIds = useSelector((state: RootState) => state.terms.inTermCourseIds) || [];
   const courseTaken = useSelector((state: RootState) => state.courseTaken) || [];
   const initialCourses = useSelector((state: RootState) => state.global.initCourses) || [];
+  const dispatch = useDispatch();
+
+  const toggleTutorialModal = () => {
+    dispatch(setIsTutorialModalOpen(true));
+  }
+
+  const toggleAboutModal = () => {
+    dispatch(setIsAboutModalOpen(true));
+  }
 
   const inTermCredits = useMemo(() => {
     return initialCourses.reduce((acc, course) => {
@@ -33,8 +44,8 @@ const UtilityBar = () => {
   const totalCredits = inTermCredits + takenCredits;
   const totalCreditsString = "Total Credits: " + totalCredits + " (" + inTermCredits + " in term, " + takenCredits + " taken)";
 
-  const takenCourses = Object.values(courseTaken).flat();
-  const totalCourses = inTermCourseIds.length + takenCourses.length;
+  // const takenCourses = Object.values(courseTaken).flat();
+  // const totalCourses = inTermCourseIds.length + takenCourses.length;
   const totalCoursesString = "Total Courses Planned: " + inTermCourseIds.length
 
   const info = [
@@ -65,8 +76,8 @@ const UtilityBar = () => {
       />
       ))}
       <div className="flex-grow"/>
-      <div className="utility-bar-link">Tutorial</div>
-      <div className="utility-bar-link">About</div>
+      <div className="utility-bar-link" onClick={toggleTutorialModal}>Tutorial</div>
+      <div className="utility-bar-link" onClick={toggleAboutModal}>About</div>
       <Image 
         src="/github-mark.svg" 
         alt="github" 

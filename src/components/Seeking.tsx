@@ -54,9 +54,10 @@ const Seeking = () => {
     const termBodyRect = termBody.getBoundingClientRect();
     const utilityBarHeight = parseInt(computedStyle.getPropertyValue('--utility-bar-height'));
     const marginTop = parseInt(computedStyle.getPropertyValue('--terms-padding-bottom')) + utilityBarHeight;
-    
+    const SHADOW_HEIGHT = 10;
+
     setMaxHeight(termBodyRect.bottom - courseRect.top);
-    setTop(course.getBoundingClientRect().top - marginTop);
+    setTop(course.getBoundingClientRect().top - marginTop - SHADOW_HEIGHT);
     setIsPositioned(true);
     
   }, [isReadyToShow]);

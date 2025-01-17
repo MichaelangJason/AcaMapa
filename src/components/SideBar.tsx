@@ -1,6 +1,6 @@
 import { Course, CourseCode } from "@/types/course"
 import { debounce } from "@/utils/requests"
-import { useEffect, useState, useCallback, useMemo } from "react"
+import { useEffect, useState, useCallback, useMemo, useRef } from "react"
 import Image  from "next/image"
 import { CourseResult } from "./Course/CourseResult"
 import React from "react"
@@ -46,7 +46,9 @@ const SideBar = () => {
   const courseTaken = useSelector((state: RootState) => state.courseTaken);
   const addingCourseId = useSelector((state: RootState) => state.global.addingCourseId);
   const [page, setPage] = useState(1);
-  
+  const [hasMore, setHasMore] = useState(true);
+  const resultContainerRef = useRef<HTMLDivElement>(null);
+
   // flexsearch
   const index = useMemo(() => {
     const index = new FlexSearch.Document<Course>({
@@ -172,6 +174,36 @@ const SideBar = () => {
     fetchCourses()
   }, [])
 
+  // Add intersection observer to detect when user scrolls near bottom
+  useEffect(() => {
+    if (!resultContainerRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const first = entries[0];
+        if (first.isIntersecting && hasMore) {
+          setPage((prev) => prev + 1);
+        }
+      },
+      { threshold: 0.5 }
+    );
+
+    const loadingTrigger = document.createElement('div');
+    loadingTrigger.id = 'loading-trigger';
+    resultContainerRef.current.appendChild(loadingTrigger);
+    observer.observe(loadingTrigger);
+
+    return () => {
+      observer.disconnect();
+      loadingTrigger.remove();
+    };
+  }, [hasMore]);
+
+  // Update hasMore when results change
+  useEffect(() => {
+    setHasMore(page * 10 < results.length);
+  }, [results, page]);
+
   return (
     <div className="sidebar" id="sidebar">
       <div className="sidebar-header">
@@ -195,8 +227,15 @@ const SideBar = () => {
           onClick={handleSearch}
         />
       </div>
-      <div className="result-container">
-        {results.slice((page - 1) * 10, page * 10).map(course => <CourseResult key={course.id} {...course} partialMatch={input} />)}
+      <div className="result-container" ref={resultContainerRef}>
+        {results.slice(0, page * 10).map(course => 
+          <CourseResult 
+            key={course.id} 
+            {...course} 
+            partialMatch={input} 
+          />
+        )}
+        {results.length > 0 && hasMore && <div className="loading">Loading more...</div>}
       </div>
       <div className="course-taken-container">
         <div 

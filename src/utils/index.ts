@@ -33,12 +33,23 @@ export const isSatisfied = (
     if (group.type === GroupType.EMPTY) return true;
     const flatContext = context.flat();
     const multiTermPattern = /[A-Z0-9]{4}(( )*|-)\d{3}([A-Z]\d)/i
-    if (group.type === GroupType.SINGLE) return flatContext.includes(group.inner[0] as string); // guaranteed to be a string
+    
+    if (group.type === GroupType.SINGLE) { // guaranteed to be a string
+      const courseId = group.inner[0] as string
+      const isMultiTerm = courseId.match(multiTermPattern);
+
+      if (isMultiTerm) {
+        return prevTerm.includes(courseId);
+      }
+      return flatContext.includes(courseId);
+    }
   
     if (group.type === GroupType.AND) {
       for (const i of group.inner) {
-        if (typeof i === "string") { 
-          if (!flatContext.includes(i)) return false;
+        if (typeof i === "string") {
+          const isMultiTerm = i.match(multiTermPattern);
+          if (isMultiTerm && !prevTerm.includes(i)) return false;
+          else if (!flatContext.includes(i)) return false;
         } else {
           if (!isGroupSatisfied(i, context)) return false;
         }
