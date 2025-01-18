@@ -3,7 +3,7 @@ import { TermMap } from "@/types/term";
 import { TermId } from "@/types/term";
 import { GroupType } from "@/utils/enums";
 import { IGroup } from "@/types/course";
-
+import FlexSearch from "flexsearch";
 export const isSatisfied = (
   {prerequisites, restrictions, corequisites, courseTaken, terms, termId, initCourses}: {
     prerequisites: IGroup,
@@ -33,12 +33,23 @@ export const isSatisfied = (
     if (group.type === GroupType.EMPTY) return true;
     const flatContext = context.flat();
     const multiTermPattern = /[A-Z0-9]{4}(( )*|-)\d{3}([A-Z]\d)/i
-    if (group.type === GroupType.SINGLE) return flatContext.includes(group.inner[0] as string); // guaranteed to be a string
+    
+    if (group.type === GroupType.SINGLE) { // guaranteed to be a string
+      const courseId = group.inner[0] as string
+      const isMultiTerm = courseId.match(multiTermPattern);
+
+      if (isMultiTerm) {
+        return prevTerm.includes(courseId);
+      }
+      return flatContext.includes(courseId);
+    }
   
     if (group.type === GroupType.AND) {
       for (const i of group.inner) {
-        if (typeof i === "string") { 
-          if (!flatContext.includes(i)) return false;
+        if (typeof i === "string") {
+          const isMultiTerm = i.match(multiTermPattern);
+          if (isMultiTerm && !prevTerm.includes(i)) return false;
+          else if (!flatContext.includes(i)) return false;
         } else {
           if (!isGroupSatisfied(i, context)) return false;
         }
@@ -408,4 +419,19 @@ export const smoothScrollTo = ({
     isCancelled = true;
     cancelAnimationFrame(animationFrame);
   };
+}
+
+export const processQuery = (query: FlexSearch.SimpleDocumentSearchResultSetUnit[]) => {
+  const result = [] as Course[];
+  const uniqueResult = new Set<string>();
+
+  query.flatMap(i => i.result).forEach(r => {
+    const course = (r as unknown as {doc: Course, id: string}).doc;
+    if (!uniqueResult.has(course.id)) {
+      result.push(course);
+      uniqueResult.add(course.id);
+    }
+  })
+
+  return result;
 }

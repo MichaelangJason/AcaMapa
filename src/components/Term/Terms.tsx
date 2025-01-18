@@ -1,5 +1,5 @@
 import { useSelector } from "react-redux";
-import TermCard from "./Course/TermCard";
+import TermCard from "./TermCard";
 import Image from "next/image";
 import { RootState } from "@/store";
 import { TermId } from "@/types/term";
@@ -9,9 +9,9 @@ import { addTerm } from "@/store/termSlice";
 import "@/styles/terms.scss";
 import { DraggingType } from "@/utils/enums";
 import { useEffect } from "react";
-import Seeking from "./Seeking";
+
 import { setSeekingInfo } from "@/store/globalSlice";
-import UtilityBar from "./UtilityBar";
+import { UtilityBar, Seeking } from "@/components/Layout";
 
 const Terms = () => {
   const order = useSelector((state: RootState) => state.terms.order);
@@ -20,6 +20,7 @@ const Terms = () => {
   );
   const { seekingId,seekingTerm } = useSelector((state: RootState) => state.global.seekingInfo);
   const isSeeking = seekingId !== undefined && seekingTerm !== undefined;
+  const isSideBarExpanded = useSelector((state: RootState) => state.global.isSideBarExpanded);
 
   const dispatch = useDispatch();
 
@@ -73,7 +74,7 @@ const Terms = () => {
             /> */}
             <UtilityBar />
             {isSeeking && <div className="seeking-mask" onClick={handleSeekingMaskClick}/>}
-            <div className="terms-placeholder-box"/>
+            <div className={`terms-placeholder-box ${isSideBarExpanded ? '' : 'folded'}`}/>
             {order.flatMap((termId: TermId, index: number) => {
               return [
                 <TermCard key={termId} termId={termId} index={index} />,

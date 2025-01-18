@@ -25,7 +25,7 @@ body {
   position: relative;
 
   height: 100%;
-  padding: 0px 50px 0px 0px;
+  padding: var(--terms-padding);
   
   display: flex;
   flex-direction: row;
@@ -53,15 +53,20 @@ body {
   .terms-placeholder-box {
     width: var(--sidebar-width);
     flex-shrink: 0;
+
+    transition: width 0.3s ease-in-out;
+
+    &.folded {
+      width: 0;
+    }
   }
 
   .term {
     position: relative;
     
     width: var(--term-width);
-    height: var(--term-height);
-    margin-left: 50px;
-    margin-top: calc(5vh + 50px);
+    height: 100%;
+    margin-left: var(--term-margin-left);
     
     display: flex;
     flex-direction: column;
@@ -184,7 +189,7 @@ body {
 
       &:hover {
         opacity: 1;
-        background-color: var(--sidebar-background);
+        background-color: var(--term-add-course-mask-hover-color);
       }
     }
   }
@@ -216,10 +221,11 @@ body {
 
   .seeking-container {
     position: relative;
-    width: calc(var(--term-width) - 10px);
-    height: fit-content;
-    margin-left: 50px;
-    padding-bottom: 10px;
+    width: calc(var(--course-card-width) + 6px);
+    height: calc(fit-content + 10px);
+    margin-left: var(--term-margin-left);
+    padding-bottom: var(--term-margin-bottom);
+    padding-top: 10px;
     z-index: 1000;
 
     display: flex;
@@ -227,7 +233,7 @@ body {
     align-items: center;
     gap: 10px;
 
-    border-radius: var(--border-radius);
+    // border-radius: var(--border-radius);
 
     overflow-y: scroll;
     scrollbar-width: thin;

@@ -8,7 +8,6 @@ const DOMAIN = "https://www.mcgill.ca";
 const ECALENDAR_URL = DOMAIN + "/study/ACADEMIC_YEAR/courses/search?page=PAGE_NUMBER";
 const COURSE_URL = DOMAIN + "/study/ACADEMIC_YEAR/courses/COURSE_ID";
 const TITLE_REGEX = /^(?<title>.*?)(?:\s+\((?<cr>[^()]*credit(s?))\))?$/;
-const SLEEP_TIME = 100;
 
 const crawl = async <T>(url: string, parse: (html: string) => T) => {
   const response = await fetch(url);

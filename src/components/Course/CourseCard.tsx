@@ -63,7 +63,8 @@ const CourseCard = (props: CourseCardProps) => {
   const { seekingId, seekingTerm } = useSelector((state: RootState) => state.global.seekingInfo);
   const isSeeking = seekingId !== undefined && seekingTerm !== undefined;
   const isSeekingSelf = seekingId === courseId && seekingTerm === termId;
-  const termIdx = useSelector((state: RootState) => state.terms.order.indexOf(termId));
+  const isSideBarExpanded = useSelector((state: RootState) => state.global.isSideBarExpanded);
+  // const termIdx = useSelector((state: RootState) => state.terms.order.indexOf(termId));
   // const [isMoving, setIsMoving] = useState(isMounted); // for styling during drag
 
   const handleRemoveCourse = () => {
@@ -137,26 +138,31 @@ const CourseCard = (props: CourseCardProps) => {
       const sidebar = document.getElementById("sidebar");
       const term = document.getElementById(termId);
       const course = document.getElementById(courseId);
+      const termBody = term?.querySelector(".term-body");
       
-      const MARGIN_WIDTH = 50;
-      const MARGIN_HEIGHT = 9; // a buffer to make sure the course is visible
-
+      const termComputedStyle = window.getComputedStyle(term!);
+      const courseCardComputedStyle = window.getComputedStyle(course!);
+      const MARGIN_LEFT = parseInt(termComputedStyle.getPropertyValue('margin-left'));
+      const MARGIN_HEIGHT = parseInt(termComputedStyle.getPropertyValue('margin-top')); // a buffer to make sure the course is visible
+      const COURSE_CARD_GAP = parseInt(courseCardComputedStyle.getPropertyValue('margin-top'));
+      const TOLERANCE = 5;
+      // console.log("COURSE_CARD_GAP", COURSE_CARD_GAP);
       
-      if (!term || !course || !body || !sidebar) return;
-      const termBody = term!.querySelector(".term-body")!;
+      if (!term || !termBody || !course || !body || !sidebar) return;
       
       const sidebarRect = sidebar.getBoundingClientRect();
-      const bodyRect = body.getBoundingClientRect();
+      // const bodyRect = body.getBoundingClientRect();
       const termRect = term.getBoundingClientRect();
       const termBodyRect = termBody.getBoundingClientRect();
       const courseRect = course.getBoundingClientRect();
       
+      const sidebarWidth = isSideBarExpanded ? sidebarRect.width : 0;
       // scroll course into view if needed
-      const isCutOffAtTop = courseRect.top < termBodyRect.top;
-      const isCutOffAtBottom = courseRect.bottom > termBodyRect.bottom;
+      const isCutOffAtTop = courseRect.top < termBodyRect.top + COURSE_CARD_GAP - TOLERANCE;
+      const isCutOffAtBottom = courseRect.bottom > termBodyRect.bottom - COURSE_CARD_GAP + TOLERANCE;
       // scroll term into view if needed
-      const isCutOffAtLeft = termRect.left < sidebarRect.right;
-      const isCutOffAtRight = termRect.right > (window.innerWidth - termRect.width - 2*MARGIN_WIDTH);
+      const isCutOffAtLeft = termRect.left < sidebarWidth;
+      const isCutOffAtRight = termRect.right > (window.innerWidth - termRect.width - 2 * MARGIN_LEFT);
 
       // simply showing case
       if (!isCutOffAtTop && !isCutOffAtBottom && !isCutOffAtLeft && !isCutOffAtRight) {
@@ -170,22 +176,22 @@ const CourseCard = (props: CourseCardProps) => {
       const isScrollWindow = isCutOffAtLeft || isCutOffAtRight;
 
       if (isScrollWindow) {
-        console.log("is cutting off at: ", isCutOffAtLeft ? "left" : "right");
+        // console.log("is cutting off at: ", isCutOffAtLeft ? "left" : "right");
         const scrollOffset = isCutOffAtLeft
-          ? termRect.left - sidebarRect.right - MARGIN_WIDTH
-          : termRect.right - window.innerWidth + termRect.width + 2*MARGIN_WIDTH;
+          ? termRect.left - sidebarWidth - MARGIN_LEFT
+          : termRect.right - window.innerWidth + termRect.width + MARGIN_LEFT;
 
-        console.log("termRect.left", termRect.left);
-        console.log("sidebarRect.right", sidebarRect.right);
-        console.log("marginWidth", MARGIN_WIDTH);
-        console.log("bodyRect.right", bodyRect.right);
+        // console.log("termRect.left", termRect.left);
+        // console.log("sidebarRect.right", sidebarRect.right);
+        // console.log("marginWidth", MARGIN_LEFT);
+        // console.log("bodyRect.right", bodyRect.right);
         
         const scrollLeft = window.scrollX || document.documentElement.scrollLeft || document.body.scrollLeft;
         const targetX = scrollLeft + scrollOffset;
 
-        console.log('document.documentElement.scrollLeft', document.documentElement.scrollLeft);
-        console.log('scrollOffset', scrollOffset);
-        console.log('targetX', targetX);
+        // console.log('document.documentElement.scrollLeft', document.documentElement.scrollLeft);
+        // console.log('scrollOffset', scrollOffset);
+        // console.log('targetX', targetX);
         // Calculate duration based on horizontal distance
         const distance = Math.abs(targetX - window.scrollX);
         const duration = Math.min(Math.max(distance / 2, 300), 1000);
@@ -196,7 +202,7 @@ const CourseCard = (props: CourseCardProps) => {
           targetX,
           duration,
           onComplete: () => {
-            console.log('Window scroll completed');
+            // console.log('Window scroll completed');
 
             if (!isScrollTerm) {
               dispatch(setSeekingInfo({ isReadyToShow: true }));
@@ -208,8 +214,8 @@ const CourseCard = (props: CourseCardProps) => {
 
       if (isScrollTerm) {
         const scrollOffset = isCutOffAtTop 
-          ? courseRect.top - termBodyRect.top - MARGIN_HEIGHT
-          : courseRect.bottom - termBodyRect.bottom + MARGIN_HEIGHT;
+          ? courseRect.top - termBodyRect.top - MARGIN_HEIGHT - COURSE_CARD_GAP
+          : courseRect.bottom - termBodyRect.bottom + MARGIN_HEIGHT + COURSE_CARD_GAP;
 
         const targetY = Math.max(0, Math.min(
           termBody.scrollTop + scrollOffset, 
@@ -225,7 +231,7 @@ const CourseCard = (props: CourseCardProps) => {
           targetY,
           duration,
           onComplete: () => {
-            console.log('Term scroll completed');
+            // console.log('Term scroll completed');
             setTimeout(() => {
               dispatch(setSeekingInfo({ isReadyToShow: true }));
             }, 100);

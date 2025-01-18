@@ -1,8 +1,6 @@
-import { Course, CourseMap } from "@/types/course";
+import { Course } from "@/types/course";
 import { DraggingType } from "@/utils/enums";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { log } from "console";
-import { toast } from "react-toastify";
 
 const globalSlice = createSlice({
   name: "global",
@@ -17,6 +15,11 @@ const globalSlice = createSlice({
       isReadyToShow: undefined as boolean | undefined,
     },
     searchInput: '' as string,
+    isTutorialModalOpen: false as boolean,
+    isAboutModalOpen: false as boolean,
+    isSideBarExpanded: true as boolean,
+    isCourseTakenExpanded: false as boolean,
+    isInitialized: false as boolean,
   },
   reducers: {
     setDraggingType: (state, action: PayloadAction<DraggingType | null>) => {
@@ -40,21 +43,47 @@ const globalSlice = createSlice({
       if (!isReadyToShow) { // prepare seeking info
         state.seekingInfo.seekingId = seekingId;
         state.seekingInfo.seekingTerm = seekingTerm;
-      } 
+      }
 
       if (state.seekingInfo.seekingId && state.seekingInfo.seekingTerm) {
         document.body.style.overflow = 'hidden';
       } else {
-        toast.dismiss();
         document.body.style.overflow = 'auto';
       }
     },
     setSearchInput: (state, action: PayloadAction<string>) => {
       state.searchInput = action.payload;
     },
+    setIsTutorialModalOpen: (state, action: PayloadAction<boolean>) => {
+      state.isTutorialModalOpen = action.payload;
+    },
+    setIsAboutModalOpen: (state, action: PayloadAction<boolean>) => {
+      state.isAboutModalOpen = action.payload;
+    },
+    setIsSideBarExpanded: (state, action: PayloadAction<boolean>) => {
+      state.isSideBarExpanded = action.payload;
+    },
+    setIsCourseTakenExpanded: (state, action: PayloadAction<boolean>) => {
+      state.isCourseTakenExpanded = action.payload;
+    },
+    setIsInitialized: (state, action: PayloadAction<boolean>) => {
+      state.isInitialized = action.payload;
+    },
   },
 });
 
-export const { setDraggingType, setAddingCourseId, setDroppableId, setInitCourses, setSeekingInfo, setSearchInput } = globalSlice.actions;
+export const { 
+  setDraggingType, 
+  setAddingCourseId, 
+  setDroppableId, 
+  setInitCourses, 
+  setSeekingInfo, 
+  setSearchInput,
+  setIsTutorialModalOpen,
+  setIsAboutModalOpen,
+  setIsSideBarExpanded,
+  setIsCourseTakenExpanded,
+  setIsInitialized,
+} = globalSlice.actions;
 
 export default globalSlice.reducer;

@@ -1,14 +1,27 @@
 import '@/styles/utilityBar.scss';
-import CourseTag from './Course/CourseTag';
+import { CourseTag } from "@/components/Course";
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import { useMemo } from 'react';
 import { CourseTagType } from '@/utils/enums';
+import Image from 'next/image';
+import { useDispatch, shallowEqual } from 'react-redux';
+import { setIsTutorialModalOpen, setIsAboutModalOpen } from '@/store/globalSlice';
 
 const UtilityBar = () => {
-  const inTermCourseIds = useSelector((state: RootState) => state.terms.inTermCourseIds) || [];
-  const courseTaken = useSelector((state: RootState) => state.courseTaken) || [];
-  const initialCourses = useSelector((state: RootState) => state.global.initCourses) || [];
+  const inTermCourseIds = useSelector((state: RootState) => state.terms.inTermCourseIds || [], shallowEqual);
+  const courseTaken = useSelector((state: RootState) => state.courseTaken || [], shallowEqual);
+  const initialCourses = useSelector((state: RootState) => state.global.initCourses || [], shallowEqual);
+  const isSideBarExpanded = useSelector((state: RootState) => state.global.isSideBarExpanded);
+  const dispatch = useDispatch();
+
+  const toggleTutorialModal = () => {
+    dispatch(setIsTutorialModalOpen(true));
+  }
+
+  const toggleAboutModal = () => {
+    dispatch(setIsAboutModalOpen(true));
+  }
 
   const inTermCredits = useMemo(() => {
     return initialCourses.reduce((acc, course) => {
@@ -32,8 +45,8 @@ const UtilityBar = () => {
   const totalCredits = inTermCredits + takenCredits;
   const totalCreditsString = "Total Credits: " + totalCredits + " (" + inTermCredits + " in term, " + takenCredits + " taken)";
 
-  const takenCourses = Object.values(courseTaken).flat();
-  const totalCourses = inTermCourseIds.length + takenCourses.length;
+  // const takenCourses = Object.values(courseTaken).flat();
+  // const totalCourses = inTermCourseIds.length + takenCourses.length;
   const totalCoursesString = "Total Courses Planned: " + inTermCourseIds.length
 
   const info = [
@@ -42,7 +55,7 @@ const UtilityBar = () => {
   ]
 
   return (
-    <div className="utility-bar">
+    <div className={`utility-bar ${isSideBarExpanded ? '' : 'full'}`}>
       {info.map((info, index) => (
         <CourseTag 
           key={index}
@@ -63,6 +76,17 @@ const UtilityBar = () => {
           }}
       />
       ))}
+      <div className="flex-grow"/>
+      <div className="utility-bar-link" onClick={toggleTutorialModal}>Tutorial</div>
+      <div className="utility-bar-link" onClick={toggleAboutModal}>About</div>
+      <Image 
+        src="/github-mark.svg" 
+        alt="github" 
+        width={20} 
+        height={20} 
+        style={{ cursor: 'pointer', justifySelf: 'flex-end' }} 
+        onClick={() => window.open('https://github.com/MichaelangJason/Course-Planner', '_blank')}
+      />
     </div>
   )
 }
