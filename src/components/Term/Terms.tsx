@@ -5,12 +5,12 @@ import { RootState } from "@/store";
 import { TermId } from "@/types/term";
 import { Droppable } from "@hello-pangea/dnd";
 import { useDispatch } from "react-redux";
-import { addTerm } from "@/store/termSlice";
+import { addTerm } from "@/store/slices/termSlice";
 import "@/styles/terms.scss";
 import { DraggingType } from "@/utils/enums";
 import { useEffect } from "react";
 
-import { setSeekingInfo } from "@/store/globalSlice";
+import { setSeekingInfo } from "@/store/slices/globalSlice";
 import { UtilityBar, Seeking } from "@/components/Layout";
 
 const Terms = () => {
@@ -36,16 +36,16 @@ const Terms = () => {
     dispatch(addTerm());
     // Scroll to rightmost after adding term
     setTimeout(() => {
-      const body = document.documentElement;
-      const scrollWidth = Math.max(
-        body.scrollWidth - window.innerWidth,
-        0
-      );
-      window.scrollTo({
-        left: scrollWidth,
-        behavior: 'smooth'
-      });
-    }, 50);
+    const body = document.documentElement;
+    const scrollWidth = Math.max(
+      body.scrollWidth - window.innerWidth,
+      0
+    );
+    window.scrollTo({
+      left: scrollWidth,
+      behavior: 'smooth'
+    });
+  }, 50);
   }
 
   const handleSeekingMaskClick = () => {

@@ -6,7 +6,7 @@ import { useMemo } from 'react';
 import { CourseTagType } from '@/utils/enums';
 import Image from 'next/image';
 import { useDispatch, shallowEqual } from 'react-redux';
-import { setIsTutorialModalOpen, setIsAboutModalOpen } from '@/store/globalSlice';
+import { setIsTutorialModalOpen, setIsAboutModalOpen } from '@/store/slices/globalSlice';
 
 const UtilityBar = () => {
   const inTermCourseIds = useSelector((state: RootState) => state.terms.inTermCourseIds || [], shallowEqual);

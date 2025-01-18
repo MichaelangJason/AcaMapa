@@ -5,14 +5,15 @@ import { Provider } from "react-redux"
 import { KeyPressListener } from "@/components/Common";
 import { SideBar } from "@/components/Layout";
 import { Terms } from "@/components/Term";
-import { setDroppableId } from "@/store/globalSlice";
-import { setDraggingType } from "@/store/globalSlice";
-import { deleteTerm, moveCourse, moveTerm } from "@/store/termSlice";
+import { setDroppableId } from "@/store/slices/globalSlice";
+import { setDraggingType } from "@/store/slices/globalSlice";
+import { deleteTerm, moveCourse, moveTerm } from "@/store/slices/termSlice";
 import { DraggingType } from "@/utils/enums";
 import { DragDropContext, DragStart, DragUpdate, DropResult } from "@hello-pangea/dnd";
 import { useDispatch } from "react-redux";
 import { Flip, ToastContainer } from "react-toastify";
 import { TutorialModal, AboutModal } from "@/components/Modal";
+import Tooltips from "./Common/Tooltips";
 
 const App = () => {
   const dispatch = useDispatch();
@@ -88,6 +89,7 @@ const App = () => {
         />
       </DragDropContext>
       <KeyPressListener />
+      <Tooltips />
       <TutorialModal />
       <AboutModal />
     </>

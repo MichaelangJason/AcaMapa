@@ -1,5 +1,5 @@
 import { RootState } from "@/store";
-import { setIsTutorialModalOpen } from "@/store/globalSlice";
+import { setIsTutorialModalOpen } from "@/store/slices/globalSlice";
 import Modal from "react-modal";
 import { useDispatch, useSelector } from "react-redux";
 import '@/styles/modals.scss';

@@ -5,12 +5,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { memo, useCallback } from "react";
 import { DraggingType } from "@/utils/enums";
-import { setAddingCourseId, setSeekingInfo } from "@/store/globalSlice";
+import { setAddingCourseId, setSeekingInfo } from "@/store/slices/globalSlice";
 import { toast } from "react-toastify";
 import { CourseCard } from "@/components/Course";
 import { getCourse } from "@/utils/requests";
-import { addCourseToTerm, deleteTerm } from "@/store/termSlice";
-import { addCourse, setCourseMounted } from "@/store/courseSlice";
+import { addCourseToTerm, deleteTerm } from "@/store/slices/termSlice";
+import { addCourse, setCourseMounted } from "@/store/slices/courseSlice";
 import store from "@/store";
 import { Course } from "@/types/course";
 import "@/styles/terms.scss"
@@ -121,7 +121,7 @@ const TermCard = (props: TermCardProps) => {
             {...provided.dragHandleProps}
           >
             <div >Term {index + 1}</div>
-            <Image className="delete" src="delete.svg" alt="delete" width={20} height={20} onClick={handleDeleteTerm}/>
+            <Image className="delete-icon" src="delete.svg" alt="delete" width={20} height={20} onClick={handleDeleteTerm}/>
           </div>
           {/* droppable for courses */}
           <Droppable droppableId={termId} type={DraggingType.COURSE}>

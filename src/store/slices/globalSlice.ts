@@ -63,8 +63,14 @@ const globalSlice = createSlice({
     setIsSideBarExpanded: (state, action: PayloadAction<boolean>) => {
       state.isSideBarExpanded = action.payload;
     },
+    toggleSideBarExpanded: (state) => {
+      state.isSideBarExpanded = !state.isSideBarExpanded;
+    },
     setIsCourseTakenExpanded: (state, action: PayloadAction<boolean>) => {
       state.isCourseTakenExpanded = action.payload;
+    },
+    toggleCourseTakenExpanded: (state) => {
+      state.isCourseTakenExpanded = !state.isCourseTakenExpanded;
     },
     setIsInitialized: (state, action: PayloadAction<boolean>) => {
       state.isInitialized = action.payload;
@@ -82,7 +88,9 @@ export const {
   setIsTutorialModalOpen,
   setIsAboutModalOpen,
   setIsSideBarExpanded,
+  toggleSideBarExpanded,
   setIsCourseTakenExpanded,
+  toggleCourseTakenExpanded,
   setIsInitialized,
 } = globalSlice.actions;
 

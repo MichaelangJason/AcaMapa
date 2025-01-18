@@ -8,7 +8,7 @@ import FlexSearch from "flexsearch"
 import "@/styles/sidebar.scss"
 import { useDispatch, useSelector } from "react-redux"
 import { RootState } from "@/store"
-import { setAddingCourseId, setInitCourses, setIsInitialized, setIsSideBarExpanded, setSearchInput } from "@/store/globalSlice"
+import { setAddingCourseId, setInitCourses, setIsInitialized, setIsSideBarExpanded, setSearchInput } from "@/store/slices/globalSlice"
 import { processQuery } from "@/utils"
 import CourseTaken from "./CourseTaken"
 
@@ -193,6 +193,7 @@ const SideBar = () => {
         </div>
         <div className="search-bar">
           <input 
+            id="search-input"
             type="text" 
             value={input} 
             onChange={handleInputChange} 

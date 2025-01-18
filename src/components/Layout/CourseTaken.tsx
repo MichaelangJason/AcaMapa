@@ -4,7 +4,7 @@ import { CourseCode } from "@/types/course";
 import { CourseTagType } from "@/utils/enums";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
-import { setIsCourseTakenExpanded } from "@/store/globalSlice";
+import { setIsCourseTakenExpanded } from "@/store/slices/globalSlice";
 import Image from "next/image";
 
 const CourseTagGroup = (props: { courseTaken: CourseCode[], prefix: string }) => {

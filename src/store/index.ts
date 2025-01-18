@@ -1,9 +1,9 @@
 import { configureStore } from '@reduxjs/toolkit'
-import courseSlice from './courseSlice'
-import termSlice from './termSlice'
-import globalSlice from './globalSlice'
+import courseSlice from './slices/courseSlice'
+import termSlice from './slices/termSlice'
+import globalSlice from './slices/globalSlice'
 import { enableMapSet } from 'immer'
-import courseTakenSlice from './courseTakenSlice'
+import courseTakenSlice from './slices/courseTakenSlice'
 
 enableMapSet();
 
