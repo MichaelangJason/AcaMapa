@@ -63,6 +63,7 @@ const CourseCard = (props: CourseCardProps) => {
   const { seekingId, seekingTerm } = useSelector((state: RootState) => state.global.seekingInfo);
   const isSeeking = seekingId !== undefined && seekingTerm !== undefined;
   const isSeekingSelf = seekingId === courseId && seekingTerm === termId;
+  const isSideBarExpanded = useSelector((state: RootState) => state.global.isSideBarExpanded);
   // const termIdx = useSelector((state: RootState) => state.terms.order.indexOf(termId));
   // const [isMoving, setIsMoving] = useState(isMounted); // for styling during drag
 
@@ -144,12 +145,10 @@ const CourseCard = (props: CourseCardProps) => {
       const MARGIN_LEFT = parseInt(termComputedStyle.getPropertyValue('margin-left'));
       const MARGIN_HEIGHT = parseInt(termComputedStyle.getPropertyValue('margin-top')); // a buffer to make sure the course is visible
       const COURSE_CARD_GAP = parseInt(courseCardComputedStyle.getPropertyValue('margin-top'));
-      console.log("COURSE_CARD_GAP", COURSE_CARD_GAP);
-      
+      const TOLERANCE = 5;
+      // console.log("COURSE_CARD_GAP", COURSE_CARD_GAP);
       
       if (!term || !termBody || !course || !body || !sidebar) return;
-
-
       
       const sidebarRect = sidebar.getBoundingClientRect();
       // const bodyRect = body.getBoundingClientRect();
@@ -157,11 +156,12 @@ const CourseCard = (props: CourseCardProps) => {
       const termBodyRect = termBody.getBoundingClientRect();
       const courseRect = course.getBoundingClientRect();
       
+      const sidebarWidth = isSideBarExpanded ? sidebarRect.width : 0;
       // scroll course into view if needed
-      const isCutOffAtTop = courseRect.top < termBodyRect.top + COURSE_CARD_GAP;
-      const isCutOffAtBottom = courseRect.bottom > termBodyRect.bottom - COURSE_CARD_GAP;
+      const isCutOffAtTop = courseRect.top < termBodyRect.top + COURSE_CARD_GAP - TOLERANCE;
+      const isCutOffAtBottom = courseRect.bottom > termBodyRect.bottom - COURSE_CARD_GAP + TOLERANCE;
       // scroll term into view if needed
-      const isCutOffAtLeft = termRect.left < sidebarRect.right;
+      const isCutOffAtLeft = termRect.left < sidebarWidth;
       const isCutOffAtRight = termRect.right > (window.innerWidth - termRect.width - 2 * MARGIN_LEFT);
 
       // simply showing case
@@ -176,9 +176,9 @@ const CourseCard = (props: CourseCardProps) => {
       const isScrollWindow = isCutOffAtLeft || isCutOffAtRight;
 
       if (isScrollWindow) {
-        console.log("is cutting off at: ", isCutOffAtLeft ? "left" : "right");
+        // console.log("is cutting off at: ", isCutOffAtLeft ? "left" : "right");
         const scrollOffset = isCutOffAtLeft
-          ? termRect.left - sidebarRect.right - MARGIN_LEFT
+          ? termRect.left - sidebarWidth - MARGIN_LEFT
           : termRect.right - window.innerWidth + termRect.width + MARGIN_LEFT;
 
         // console.log("termRect.left", termRect.left);

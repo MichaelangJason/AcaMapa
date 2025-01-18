@@ -1,21 +1,22 @@
 .utility-bar {
   position: fixed;
-  width: calc(100vw - var(--sidebar-width));
-  left: var(--sidebar-width);
+  width: 100vw;
   min-height: var(--utility-bar-height);
   height: fit-content;
   top: 0;
   z-index: 210;
-
+  
   display: flex;
   flex-direction: row;
   justify-content: start;
   align-items: center;
   gap: 10px;
   padding: 0px 10px;
+  padding-left: calc(var(--sidebar-width) + 10px);
 
   background-color: var(--term-topbottom-color);
   overflow-x: scroll;
+  transition: padding-left 0.3s ease-in-out;
 
   scrollbar-width: none;  /* Firefox */
   -ms-overflow-style: none;  /* IE and Edge */
@@ -32,6 +33,10 @@
     cursor: pointer;
     font-weight: bold;
     text-decoration: underline;
+  }
+
+  &.full {
+    padding-left: 10px;
   }
 
 }

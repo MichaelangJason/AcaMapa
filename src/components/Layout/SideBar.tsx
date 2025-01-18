@@ -8,7 +8,7 @@ import FlexSearch from "flexsearch"
 import "@/styles/sidebar.scss"
 import { useDispatch, useSelector } from "react-redux"
 import { RootState } from "@/store"
-import { setAddingCourseId, setInitCourses, setSearchInput } from "@/store/globalSlice"
+import { setAddingCourseId, setInitCourses, setIsInitialized, setIsSideBarExpanded, setSearchInput } from "@/store/globalSlice"
 import { processQuery } from "@/utils"
 import CourseTaken from "./CourseTaken"
 
@@ -16,9 +16,10 @@ const SideBar = () => {
   const dispatch = useDispatch() // for redux state manipulations
   const input = useSelector((state: RootState) => state.global.searchInput); // search input
   const courses = useSelector((state: RootState) => state.global.initCourses); // TODO switch to api call
-  const [isLoading, setIsLoading] = useState(true) // initial loading state
+  const isInitialized = useSelector((state: RootState) => state.global.isInitialized); // initial loading state
   const [results, setResults] = useState<Course[]>([]) // search results
   const addingCourseId = useSelector((state: RootState) => state.global.addingCourseId); // for highlighting purpose
+  const isSideBarExpanded = useSelector((state: RootState) => state.global.isSideBarExpanded);
   /* infinite scroll*/
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -63,15 +64,6 @@ const SideBar = () => {
     return index
   }, [courses])
 
-  const getCourses = async () => {      
-    const response = await fetch('/api/courses')
-    if (!response.ok) {
-        throw new Error('Failed to fetch courses')
-      }
-  
-    return (await response.json()) as Course[]
-  }
-
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedSearch = useCallback(
     debounce(async (input: string) => {
@@ -115,6 +107,10 @@ const SideBar = () => {
     dispatch(setSearchInput(e.target.value)); // need it for seeking
   }
 
+  const handleSideBarToggle = () => {
+    dispatch(setIsSideBarExpanded(!isSideBarExpanded));
+  }
+
   // trigger search from input change
   useEffect(() => {
     if (!input) {
@@ -129,6 +125,15 @@ const SideBar = () => {
 
   // initializes the search results
   useEffect(() => {
+    const getCourses = async () => {      
+      const response = await fetch('/api/courses')
+      if (!response.ok) {
+          throw new Error('Failed to fetch courses')
+        }
+    
+      return (await response.json()) as Course[]
+    }
+    
     const fetchCourses = async () => {
       const courses = await toast.promise(
         getCourses(), 
@@ -141,7 +146,7 @@ const SideBar = () => {
       console.log('Courses size:', JSON.stringify(courses).length / 1024, 'KB');
       console.log("courses fetched")
       dispatch(setInitCourses(courses || []))
-      setIsLoading(false)
+      dispatch(setIsInitialized(true))
     }
     fetchCourses()
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -178,40 +183,45 @@ const SideBar = () => {
   }, [results, page]);
 
   return (
-    <div className="sidebar" id="sidebar">
-      <div className="sidebar-header">
-        <Image src="/mcgill-logo.png" alt="logo" width={210} height={210} />
+    <>
+      <div className={`sidebar-toggle ${isSideBarExpanded ? '' : 'folded'}`} onClick={handleSideBarToggle}>
+        <Image src="/expand.svg" alt="sidebar-toggle" width={10} height={10} className={(isSideBarExpanded ? '' : 'icon-folded')} />
       </div>
-      <div className="search-bar">
-        <input 
-          type="text" 
-          value={input} 
-          onChange={handleInputChange} 
-          onKeyDown={handleSearch} 
-          placeholder="course code or name"
-          disabled={isLoading}
-        />
-        <Image 
-          src="/search.svg" 
-          alt="search" 
-          width={20} 
-          height={20} 
-          className="search-icon"
-          onClick={handleSearch}
-        />
-      </div>
-      <div className="result-container" ref={resultContainerRef}>
-        {results.slice(0, page * 10).map(course => 
-          <CourseResult 
-            key={course.id} 
-            {...course} 
-            partialMatch={input} 
+      <div className={`sidebar ${isSideBarExpanded ? '' : 'folded'}`} id="sidebar">
+        <div className="sidebar-header">
+          <Image src="/mcgill-logo.png" alt="logo" width={210} height={50} />
+        </div>
+        <div className="search-bar">
+          <input 
+            type="text" 
+            value={input} 
+            onChange={handleInputChange} 
+            onKeyDown={handleSearch} 
+            placeholder="course code or name"
+            disabled={!isInitialized}
           />
-        )}
-        {results.length > 0 && hasMore && <div className="loading">Loading more...</div>}
+          <Image 
+            src="/search.svg" 
+            alt="search" 
+            width={20} 
+            height={20} 
+            className="search-icon"
+            onClick={handleSearch}
+          />
+        </div>
+        <div className="result-container" ref={resultContainerRef}>
+          {results.slice(0, page * 10).map(course => 
+            <CourseResult 
+              key={course.id} 
+              {...course} 
+              partialMatch={input} 
+            />
+          )}
+          {results.length > 0 && hasMore && <div className="loading">Loading more...</div>}
+        </div>
+        <CourseTaken />
       </div>
-      <CourseTaken />
-    </div>
+    </>
   )
 }
 

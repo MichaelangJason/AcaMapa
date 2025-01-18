@@ -26,6 +26,8 @@ const Seeking = () => {
   const [top, setTop] = useState<number>(0);
   const [maxHeight, setMaxHeight] = useState<number>(0);
   const [isPositioned, setIsPositioned] = useState(false);
+  const courseCardWidth = window.getComputedStyle(document.documentElement).getPropertyValue('--course-card-width');
+  const placeholderWidth = parseInt(courseCardWidth) + 6;
 
   const futureCourses = useSeeking(seekingId!);
   const isSeeking = !!futureCourses;
@@ -68,6 +70,7 @@ const Seeking = () => {
     <>
       {isReadyToShow && isPositioned 
         ? <motion.div 
+          key="seeking-container"
           id="seeking" 
           className="seeking-container" 
           style={{ top, maxHeight }}
@@ -79,7 +82,14 @@ const Seeking = () => {
             <CourseResult key={course.id} {...course} cb={() => handleAddCourse(course)} />
           ))}
           </motion.div>
-        : <div className="seeking-placeholder-box" />}
+        : <motion.div
+            key="seeking-placeholder-box"
+            className="seeking-placeholder-box"
+            initial={{ width: 0 }}
+            animate={{ width: placeholderWidth }}
+            exit={{ width: 0 }}
+            transition={{ duration: 0.25 }}
+          />}
     </>
   )
     

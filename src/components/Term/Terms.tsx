@@ -20,6 +20,7 @@ const Terms = () => {
   );
   const { seekingId,seekingTerm } = useSelector((state: RootState) => state.global.seekingInfo);
   const isSeeking = seekingId !== undefined && seekingTerm !== undefined;
+  const isSideBarExpanded = useSelector((state: RootState) => state.global.isSideBarExpanded);
 
   const dispatch = useDispatch();
 
@@ -73,7 +74,7 @@ const Terms = () => {
             /> */}
             <UtilityBar />
             {isSeeking && <div className="seeking-mask" onClick={handleSeekingMaskClick}/>}
-            <div className="terms-placeholder-box"/>
+            <div className={`terms-placeholder-box ${isSideBarExpanded ? '' : 'folded'}`}/>
             {order.flatMap((termId: TermId, index: number) => {
               return [
                 <TermCard key={termId} termId={termId} index={index} />,

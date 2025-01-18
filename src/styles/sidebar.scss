@@ -1,7 +1,7 @@
 .sidebar {
   position: fixed;
+  left: 0;
   z-index: 220;
-  
   height: 100vh;
   width: var(--sidebar-width);
   padding: 20px 0px 20px 0px;
@@ -14,6 +14,12 @@
   background-color: var(--sidebar-bg-color);
   box-shadow: 3px 0px 10px 0px rgba(149, 149, 149, 0.25);
   overflow-y: hidden;
+  
+  transition: left 0.3s ease-in-out;
+
+  &.folded {
+    left: calc(-1 * var(--sidebar-width));
+  }
 
   .sidebar-header {
     position: relative;
@@ -202,6 +208,35 @@
   }
   100% {
     box-shadow: 0 0 10px 2px rgba(255, 215, 0, 0.8);
+  }
+}
+
+.sidebar-toggle {
+  position: fixed;
+  left: var(--sidebar-width);
+  height: 100vh;
+  width: fit-content;
+  z-index: 290;
+  padding-left: 5px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  opacity: 0.15;
+  transition: opacity 0.1s ease-in-out, left 0.3s ease-in-out;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.4;
+  }
+
+  &.folded {
+    left: 0;
+  }
+
+  .icon-folded {
+    transform: rotate(180deg);
   }
 }
 

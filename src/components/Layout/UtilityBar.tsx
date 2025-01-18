@@ -12,6 +12,7 @@ const UtilityBar = () => {
   const inTermCourseIds = useSelector((state: RootState) => state.terms.inTermCourseIds || [], shallowEqual);
   const courseTaken = useSelector((state: RootState) => state.courseTaken || [], shallowEqual);
   const initialCourses = useSelector((state: RootState) => state.global.initCourses || [], shallowEqual);
+  const isSideBarExpanded = useSelector((state: RootState) => state.global.isSideBarExpanded);
   const dispatch = useDispatch();
 
   const toggleTutorialModal = () => {
@@ -54,7 +55,7 @@ const UtilityBar = () => {
   ]
 
   return (
-    <div className="utility-bar">
+    <div className={`utility-bar ${isSideBarExpanded ? '' : 'full'}`}>
       {info.map((info, index) => (
         <CourseTag 
           key={index}

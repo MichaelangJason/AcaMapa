@@ -19,6 +19,7 @@ const globalSlice = createSlice({
     isAboutModalOpen: false as boolean,
     isSideBarExpanded: true as boolean,
     isCourseTakenExpanded: false as boolean,
+    isInitialized: false as boolean,
   },
   reducers: {
     setDraggingType: (state, action: PayloadAction<DraggingType | null>) => {
@@ -65,6 +66,9 @@ const globalSlice = createSlice({
     setIsCourseTakenExpanded: (state, action: PayloadAction<boolean>) => {
       state.isCourseTakenExpanded = action.payload;
     },
+    setIsInitialized: (state, action: PayloadAction<boolean>) => {
+      state.isInitialized = action.payload;
+    },
   },
 });
 
@@ -79,6 +83,7 @@ export const {
   setIsAboutModalOpen,
   setIsSideBarExpanded,
   setIsCourseTakenExpanded,
+  setIsInitialized,
 } = globalSlice.actions;
 
 export default globalSlice.reducer;

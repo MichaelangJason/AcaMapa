@@ -53,6 +53,12 @@ body {
   .terms-placeholder-box {
     width: var(--sidebar-width);
     flex-shrink: 0;
+
+    transition: width 0.3s ease-in-out;
+
+    &.folded {
+      width: 0;
+    }
   }
 
   .term {
