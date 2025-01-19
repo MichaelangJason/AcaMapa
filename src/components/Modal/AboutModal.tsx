@@ -2,7 +2,7 @@ import Modal from "react-modal";
 import { RootState } from "@/store";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
-import { setIsAboutModalOpen } from "@/store/globalSlice";
+import { setIsAboutModalOpen } from "@/store/slices/globalSlice";
 import '@/styles/modals.scss';
 import { motion } from "motion/react";
 Modal.setAppElement('body');

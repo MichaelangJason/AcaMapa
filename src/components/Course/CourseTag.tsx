@@ -1,5 +1,5 @@
 
-import { addCourseTaken, removeCourseTaken } from "@/store/courseTakenSlice";
+import { addCourseTaken, removeCourseTaken } from "@/store/slices/courseTakenSlice";
 import { CourseTagType } from "@/utils/enums";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";

@@ -92,7 +92,7 @@ body {
     cursor: grab;
     transition: background-color 0.3s ease;
 
-    &:hover:not(:has(.delete:hover)):not(.seeking) {
+    &:hover:not(:has(.delete-icon:hover)):not(.seeking) {
       background-color: var(--term-topbottom-color-hover);
     }
 
@@ -105,7 +105,7 @@ body {
       background-color: var(--term-topbottom-color-hover);
     }
 
-    .delete {
+    .delete-icon {
       position: absolute;
       right: 10px;
       top: 50%;

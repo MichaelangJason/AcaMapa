@@ -5,13 +5,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { memo, useCallback } from "react";
 import { DraggingType } from "@/utils/enums";
-import { setAddingCourseId, setSeekingInfo } from "@/store/globalSlice";
+import { setAddingCourseId, setSeekingInfo } from "@/store/slices/globalSlice";
 import { toast } from "react-toastify";
 import { CourseCard } from "@/components/Course";
 import { getCourse } from "@/utils/requests";
-import { addCourseToTerm, deleteTerm } from "@/store/termSlice";
-import { addCourse, setCourseMounted } from "@/store/courseSlice";
-import store from "@/store";
+import { addCourseToTerm, deleteTerm } from "@/store/slices/termSlice";
+import { addCourse, setCourseMounted } from "@/store/slices/courseSlice";
 import { Course } from "@/types/course";
 import "@/styles/terms.scss"
 import Image from "next/image";
@@ -51,26 +50,24 @@ const TermCard = (props: TermCardProps) => {
   const dispatch = useDispatch();
   const addingCourseId = useSelector((state: RootState) => state.global.addingCourseId);
   const isAddingCourse = addingCourseId !== null;
+  const inTermCourseIds = useSelector((state: RootState) => state.terms.inTermCourseIds);
+  const existingAddingCourse = useSelector((state: RootState) => addingCourseId ? state.courses[addingCourseId] : null)
 
   const handleAddCourse = useCallback(async () => {
-    const state = store.getState();
-    const terms = state.terms;
-    const inTermCourseIds = terms.inTermCourseIds;
-
     // check if course exists in any term
     if (inTermCourseIds.includes(addingCourseId!)) {
-      const index = terms.order.findIndex((termId: TermId) => terms.data[termId].courseIds.includes(addingCourseId!));
-      toast.error(`${addingCourseId} already in term ${index+1}`);
+
+      toast.error(`Cannot add duplicate ${addingCourseId}`);
       dispatch(setAddingCourseId(null));
       return;
     }
     
     dispatch(setAddingCourseId(null));
 
-    /// for animation purposes, delay adding course
+    // for animation purposes, delay adding course
     setTimeout(async () => {
-      let course: Course | null = state.courses[addingCourseId!];
-      // else fetch from api
+      let course: Course | null = existingAddingCourse;
+
       if (!course) {
         course = await toast.promise(
           getCourse(addingCourseId!),
@@ -96,7 +93,7 @@ const TermCard = (props: TermCardProps) => {
         }
       }, 100);
 
-  }, [index, termId, addingCourseId, dispatch]);
+  }, [index, termId, addingCourseId, dispatch, inTermCourseIds, existingAddingCourse]);
 
   const handleDeleteTerm = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
@@ -121,7 +118,7 @@ const TermCard = (props: TermCardProps) => {
             {...provided.dragHandleProps}
           >
             <div >Term {index + 1}</div>
-            <Image className="delete" src="delete.svg" alt="delete" width={20} height={20} onClick={handleDeleteTerm}/>
+            <Image className="delete-icon" src="delete.svg" alt="delete" width={20} height={20} onClick={handleDeleteTerm}/>
           </div>
           {/* droppable for courses */}
           <Droppable droppableId={termId} type={DraggingType.COURSE}>

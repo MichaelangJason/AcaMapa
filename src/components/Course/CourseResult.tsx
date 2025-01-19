@@ -1,5 +1,5 @@
 import { RootState } from "@/store";
-import { setAddingCourseId } from "@/store/globalSlice";
+import { setAddingCourseId } from "@/store/slices/globalSlice";
 import "@/styles/course.scss"
 import { useDispatch, useSelector } from "react-redux";
 import Image from "next/image";

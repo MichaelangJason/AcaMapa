@@ -4,17 +4,18 @@ import "@/styles/course.scss";
 import Image from "next/image";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store";
-import { deleteCourseFromTerm } from "@/store/termSlice";
+import { deleteCourseFromTerm } from "@/store/slices/termSlice";
 import { toast } from "react-toastify";
 import { IGroup } from "@/types/course";
 import { isSatisfied, parseGroup } from "@/utils";
 import { ReqTitle } from "@/utils/enums";
 import PreCoReq from "./PreCoReq";
 import OtherReq from "./OtherReq";
-import { setCourseExpanded, setCourseMounted } from "@/store/courseSlice";
+import { setCourseExpanded, setCourseMounted } from "@/store/slices/courseSlice";
 import "@/styles/course.scss";
-import { setSeekingInfo } from "@/store/globalSlice";
+import { setSeekingInfo } from "@/store/slices/globalSlice";
 import { smoothScrollTo } from "@/utils";
+
 export interface CourseCardProps {
   termId: string;
   courseId: string;
@@ -241,14 +242,6 @@ const CourseCard = (props: CourseCardProps) => {
     }
   }
 
-  // remove moving class after 100ms for animation
-  // useEffect(() => {
-  //   const timer = setTimeout(() => {
-  //     setIsMoving(false);
-  //   }, 100);
-  //   return () => clearTimeout(timer);
-  // }, []);
-
   return (
     <Draggable draggableId={courseId} index={index} isDragDisabled={isSeeking}>
       {(provided, snapshot) => {
@@ -305,7 +298,7 @@ const CourseCard = (props: CourseCardProps) => {
                 alt="Delete Course"
                 width={10}
                 height={10}
-                className="delete"
+                className="delete-icon"
               />
             </div>
           </div>

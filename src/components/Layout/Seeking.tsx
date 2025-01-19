@@ -2,7 +2,7 @@ import { RootState } from "@/store";
 import { useEffect, useMemo, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { CourseResult } from "@/components/Course";
-import { setSearchInput, setSeekingInfo } from "@/store/globalSlice";
+import { setSearchInput, setSeekingInfo } from "@/store/slices/globalSlice";
 import { Course } from "@/types/course";
 import { motion } from "motion/react";
 

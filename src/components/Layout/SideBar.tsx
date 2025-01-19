@@ -8,14 +8,14 @@ import FlexSearch from "flexsearch"
 import "@/styles/sidebar.scss"
 import { useDispatch, useSelector } from "react-redux"
 import { RootState } from "@/store"
-import { setAddingCourseId, setInitCourses, setIsInitialized, setIsSideBarExpanded, setSearchInput } from "@/store/globalSlice"
+import { setAddingCourseId, setIsSideBarExpanded, setSearchInput } from "@/store/slices/globalSlice"
 import { processQuery } from "@/utils"
 import CourseTaken from "./CourseTaken"
 
 const SideBar = () => {
   const dispatch = useDispatch() // for redux state manipulations
   const input = useSelector((state: RootState) => state.global.searchInput); // search input
-  const courses = useSelector((state: RootState) => state.global.initCourses); // TODO switch to api call
+  const courses = useSelector((state: RootState) => state.global.initCourses); // TODO switch to api call?
   const isInitialized = useSelector((state: RootState) => state.global.isInitialized); // initial loading state
   const [results, setResults] = useState<Course[]>([]) // search results
   const addingCourseId = useSelector((state: RootState) => state.global.addingCourseId); // for highlighting purpose
@@ -25,7 +25,7 @@ const SideBar = () => {
   const [hasMore, setHasMore] = useState(true);
   const resultContainerRef = useRef<HTMLDivElement>(null);
 
-  // TODO: switch to server based api call for better search
+  // TODO: switch to server based api call for better search?
   const index = useMemo(() => {
     const index = new FlexSearch.Document<Course>({
       // tokenize: 'full',
@@ -123,35 +123,6 @@ const SideBar = () => {
       });
   }, [input, debouncedSearch])
 
-  // initializes the search results
-  useEffect(() => {
-    const getCourses = async () => {      
-      const response = await fetch('/api/courses')
-      if (!response.ok) {
-          throw new Error('Failed to fetch courses')
-        }
-    
-      return (await response.json()) as Course[]
-    }
-    
-    const fetchCourses = async () => {
-      const courses = await toast.promise(
-        getCourses(), 
-        {
-          pending: 'Initializing...',
-          success: 'Initialization complete',
-          error: 'Failed to initialize'
-        }
-      )
-      console.log('Courses size:', JSON.stringify(courses).length / 1024, 'KB');
-      console.log("courses fetched")
-      dispatch(setInitCourses(courses || []))
-      dispatch(setIsInitialized(true))
-    }
-    fetchCourses()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
   // Add intersection observer to detect when user scrolls near bottom
   useEffect(() => {
     if (!resultContainerRef.current) return;
@@ -193,6 +164,7 @@ const SideBar = () => {
         </div>
         <div className="search-bar">
           <input 
+            id="search-input"
             type="text" 
             value={input} 
             onChange={handleInputChange} 
