@@ -5,7 +5,8 @@ import { unstable_cache as nextCache } from "next/cache";
 
 const getInitCourses = nextCache(
   async () => {
-    const response = await fetch('http://localhost:3000/api/courses')
+    const domain = process.env.DOMAIN!;
+    const response = await fetch(domain + '/api/courses')
     if (!response.ok) {
         throw new Error('Failed to fetch courses')
       }
