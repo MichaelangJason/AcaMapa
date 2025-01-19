@@ -3,8 +3,7 @@ import { TermId, TermMap } from "@/types/term";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
 
-
-const initialState = {
+export const initialState = {
   data: {
     "term-1": {
       id: "term-1",

@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { CourseCode } from "../../types/course";
 
-const initialState: { [key: string]: CourseCode[] } = {}
+export const initialState: { [key: string]: CourseCode[] } = {}
 
 const courseTakenSlice = createSlice({
   name: 'courseTaken',

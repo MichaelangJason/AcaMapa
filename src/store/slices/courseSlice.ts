@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { Course, CourseCode, CourseMap } from '../../types/course'
 
- const initialState: CourseMap = {}
+export const initialState: CourseMap = {}
 
 const courseSlice = createSlice({
   name: 'courses',

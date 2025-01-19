@@ -33,3 +33,12 @@ export const getCourse = async (courseId: string) => {
 
   return data;
 }
+
+export const getInitCourses = async () => {      
+  const response = await fetch('/api/courses')
+  if (!response.ok) {
+      throw new Error('Failed to fetch courses')
+    }
+
+  return (await response.json()) as Course[]
+}

@@ -1,11 +1,11 @@
 'use client'
 
-import store from "@/store"
+import { AppStore, makeStore } from "@/store"
 import { Provider } from "react-redux"
-import { KeyPressListener } from "@/components/Common";
+import { KeyPressListener, ToolTips } from "@/components/Common";
 import { SideBar } from "@/components/Layout";
 import { Terms } from "@/components/Term";
-import { setDroppableId } from "@/store/slices/globalSlice";
+import { setDroppableId, setInitCourses, setIsInitialized } from "@/store/slices/globalSlice";
 import { setDraggingType } from "@/store/slices/globalSlice";
 import { deleteTerm, moveCourse, moveTerm } from "@/store/slices/termSlice";
 import { DraggingType } from "@/utils/enums";
@@ -13,7 +13,8 @@ import { DragDropContext, DragStart, DragUpdate, DropResult } from "@hello-pange
 import { useDispatch } from "react-redux";
 import { Flip, ToastContainer } from "react-toastify";
 import { TutorialModal, AboutModal } from "@/components/Modal";
-import Tooltips from "./Common/Tooltips";
+import { useEffect, useRef } from "react";
+import { Course } from "@/types/course";
 
 const App = () => {
   const dispatch = useDispatch();
@@ -89,16 +90,34 @@ const App = () => {
         />
       </DragDropContext>
       <KeyPressListener />
-      <Tooltips />
+      <ToolTips />
       <TutorialModal />
       <AboutModal />
     </>
   );
 }
 
-const Wrapper = () => {
+const Wrapper = (props: { initCourses: Course[] }) => {
+  const storeRef = useRef<AppStore>(null);
+
+  // only run once
+  if (!storeRef.current) {
+    storeRef.current = makeStore()
+  }
+
+  const isInitialized = storeRef.current.getState().global.isInitialized;
+  const dispatch = storeRef.current.dispatch;
+
+  useEffect(() => {
+    if (!isInitialized) {
+      dispatch(setInitCourses(props.initCourses));
+      dispatch(setIsInitialized(true));
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   return (
-    <Provider store={store}>
+    <Provider store={storeRef.current}>
       <App/>
     </Provider>
   )
