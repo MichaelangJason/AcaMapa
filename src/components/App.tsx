@@ -8,16 +8,17 @@ import { Terms } from "@/components/Term";
 import { setDroppableId, setInitCourses, setIsInitialized } from "@/store/slices/globalSlice";
 import { setDraggingType } from "@/store/slices/globalSlice";
 import { deleteTerm, importTerms, moveCourse, moveTerm } from "@/store/slices/termSlice";
-import { DraggingType } from "@/utils/enums";
+import { DraggingType, LocalStorage } from "@/utils/enums";
 import { DragDropContext, DragStart, DragUpdate, DropResult } from "@hello-pangea/dnd";
 import { useDispatch } from "react-redux";
 import { Flip, toast, ToastContainer } from "react-toastify";
 import { TutorialModal, AboutModal } from "@/components/Modal";
 import { useEffect, useRef } from "react";
 import { Course } from "@/types/course";
-import { isValidTermsState } from "@/utils/typeGuards";
+import { isValidCourseTaken, isValidTermsState } from "@/utils/typeGuards";
 import { addCourses, setCourseMounted } from "@/store/slices/courseSlice";
 import { IRawCourse } from "@/db/schema";
+import { importCourseTaken } from "@/store/slices/courseTakenSlice";
 
 const App = () => {
   const dispatch = useDispatch();
@@ -115,39 +116,51 @@ const Wrapper = (props: { initCourses: IRawCourse[] }) => {
     const initializeData = async () => {
       if (!isInitialized) {
         dispatch(setInitCourses(props.initCourses));
-        dispatch(setIsInitialized(true));
         
-        const savedPlans = localStorage.getItem("terms");
-        if (savedPlans) {
+        const savedPlans = localStorage.getItem(LocalStorage.TERMS);
+        const savedCourseTaken = localStorage.getItem(LocalStorage.COURSE_TAKEN);
+
+        // load back terms
+        if (savedPlans || savedCourseTaken) {
           await toast.promise(
             async () => {
-              const plans = JSON.parse(savedPlans);  
-              if (isValidTermsState(plans) && plans.inTermCourseIds.length > 0) {
-                const response = await fetch('/api/courses', {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json'
-                  },
-                  body: JSON.stringify({ courseIds: plans.inTermCourseIds })
-                })
+              if (savedPlans) {
+                const plans = JSON.parse(savedPlans);  
+                if (isValidTermsState(plans) && plans.inTermCourseIds.length > 0) {
+                  const response = await fetch('/api/courses', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ courseIds: plans.inTermCourseIds })
+                  })
+    
+                  if (!response.ok) throw new Error('fetching course failed')
+                  const coursesData = await response.json() as Course[]
+    
+                  if (!coursesData?.length) {
+                    toast.error("Failed Loading Previous Session")
+                    return;
+                  }
+                
+                  dispatch(addCourses(coursesData));
+                  dispatch(importTerms(plans));
   
-                if (!response.ok) throw new Error('fetching course failed')
-                const coursesData = await response.json() as Course[]
-  
-                if (!coursesData?.length) {
-                  toast.error("Failed Loading Previous Session")
-                  return;
-                }
-              
-                dispatch(addCourses(coursesData));
-                dispatch(importTerms(plans));
-
-                coursesData.forEach(course => {
                   setTimeout(() => {
-                    dispatch(setCourseMounted({ courseId: course.id, isMounted: true}))
+                    coursesData.forEach(course => {
+                      dispatch(setCourseMounted({ courseId: course.id, isMounted: true}))
+                    })
                   }, 300)
-                })
+                }
+
+                if (savedCourseTaken) {
+                  const courseTaken = JSON.parse(savedCourseTaken);
+                  if (isValidCourseTaken(courseTaken) && Object.values(courseTaken).flat().length > 0) {
+                    dispatch(importCourseTaken(courseTaken));
+                  }
+                }
               }
+
             }, {
               pending: 'Loading last state...',
               error: 'Failed to load last state',
@@ -155,6 +168,9 @@ const Wrapper = (props: { initCourses: IRawCourse[] }) => {
             }
           )
         }
+
+        toast.success("Initialized!")
+        dispatch(setIsInitialized(true));
       }
     };
     initializeData();

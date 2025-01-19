@@ -25,3 +25,8 @@ export enum GroupType {
   CREDIT = "CREDIT",
   EMPTY = "EMPTY",
 }
+
+export enum LocalStorage {
+  COURSE_TAKEN = 'courseTaken',
+  TERMS = 'terms'
+}
