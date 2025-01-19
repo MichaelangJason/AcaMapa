@@ -4,6 +4,8 @@ import { TermId } from "@/types/term";
 import { GroupType } from "@/utils/enums";
 import { IGroup } from "@/types/course";
 import FlexSearch from "flexsearch";
+import { IRawCourse } from "@/db/schema";
+
 export const isSatisfied = (
   {prerequisites, restrictions, corequisites, courseTaken, terms, termId, initCourses}: {
     prerequisites: IGroup,
@@ -15,7 +17,7 @@ export const isSatisfied = (
       order: TermId[];
       inTermCourseIds: CourseCode[];
     },
-    initCourses: Course[],
+    initCourses: IRawCourse[],
     termId: string
   }
 ) => {

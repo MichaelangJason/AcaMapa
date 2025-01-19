@@ -1,23 +1,28 @@
 import App from "@/components/App";
-import { Course } from "@/types/course";
-
+import { connectToDatabase, disconnectDatabase } from "@/db";
+import RawCourse, { IRawCourse } from "@/db/schema";
 import { unstable_cache as nextCache } from "next/cache";
 
 const getInitCourses = nextCache(
   async () => {
-    const domain = process.env.DOMAIN!;
-    const response = await fetch(domain + '/api/courses')
-    if (!response.ok) {
-        throw new Error('Failed to fetch courses')
-      }
+    try {
+      await connectToDatabase(process.env.DATABASE_URL!, process.env.DATABASE_NAME!);
+      const courses = await RawCourse.find({}, { _id: 0, id: 1, name: 1, credits: 1 }, { sort: { id: 1 } }).lean();
+      await disconnectDatabase();
 
-    return (await response.json()) as Course[]
+      if (!courses.length) throw new Error("No Courses Error");
+
+      return courses as IRawCourse[]
+    } catch (error) {
+      console.error(error);
+      await disconnectDatabase()
+      throw new Error("Prereder initialization failed")
+    }
   }
 )
 
 export default async function Page() {
   const initCourses = await getInitCourses();
-  // console.log('Exported index data:', coursesIndex);
-  // console.log('Index data keys:', Object.keys(coursesIndex));
+
   return <App initCourses={initCourses}/>
 }

@@ -7,14 +7,17 @@ import { SideBar } from "@/components/Layout";
 import { Terms } from "@/components/Term";
 import { setDroppableId, setInitCourses, setIsInitialized } from "@/store/slices/globalSlice";
 import { setDraggingType } from "@/store/slices/globalSlice";
-import { deleteTerm, moveCourse, moveTerm } from "@/store/slices/termSlice";
+import { deleteTerm, importTerms, moveCourse, moveTerm } from "@/store/slices/termSlice";
 import { DraggingType } from "@/utils/enums";
 import { DragDropContext, DragStart, DragUpdate, DropResult } from "@hello-pangea/dnd";
 import { useDispatch } from "react-redux";
-import { Flip, ToastContainer } from "react-toastify";
+import { Flip, toast, ToastContainer } from "react-toastify";
 import { TutorialModal, AboutModal } from "@/components/Modal";
 import { useEffect, useRef } from "react";
 import { Course } from "@/types/course";
+import { isValidTermsState } from "@/utils/typeGuards";
+import { addCourses, setCourseMounted } from "@/store/slices/courseSlice";
+import { IRawCourse } from "@/db/schema";
 
 const App = () => {
   const dispatch = useDispatch();
@@ -97,7 +100,7 @@ const App = () => {
   );
 }
 
-const Wrapper = (props: { initCourses: Course[] }) => {
+const Wrapper = (props: { initCourses: IRawCourse[] }) => {
   const storeRef = useRef<AppStore>(null);
 
   // only run once
@@ -109,10 +112,52 @@ const Wrapper = (props: { initCourses: Course[] }) => {
   const dispatch = storeRef.current.dispatch;
 
   useEffect(() => {
-    if (!isInitialized) {
-      dispatch(setInitCourses(props.initCourses));
-      dispatch(setIsInitialized(true));
-    }
+    const initializeData = async () => {
+      if (!isInitialized) {
+        dispatch(setInitCourses(props.initCourses));
+        dispatch(setIsInitialized(true));
+        
+        const savedPlans = localStorage.getItem("terms");
+        if (savedPlans) {
+          await toast.promise(
+            async () => {
+              const plans = JSON.parse(savedPlans);  
+              if (isValidTermsState(plans) && plans.inTermCourseIds.length > 0) {
+                const response = await fetch('/api/courses', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({ courseIds: plans.inTermCourseIds })
+                })
+  
+                if (!response.ok) throw new Error('fetching course failed')
+                const coursesData = await response.json() as Course[]
+  
+                if (!coursesData?.length) {
+                  toast.error("Failed Loading Previous Session")
+                  return;
+                }
+              
+                dispatch(addCourses(coursesData));
+                dispatch(importTerms(plans));
+
+                coursesData.forEach(course => {
+                  setTimeout(() => {
+                    dispatch(setCourseMounted({ courseId: course.id, isMounted: true}))
+                  }, 300)
+                })
+              }
+            }, {
+              pending: 'Loading last state...',
+              error: 'Failed to load last state',
+              success: 'Last state restored!',
+            }
+          )
+        }
+      }
+    };
+    initializeData();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

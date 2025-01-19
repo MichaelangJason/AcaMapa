@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
 
+import { IRawCourse } from "@/db/schema";
 import { Course } from "@/types/course";
 
 export const debounce = <T>(fn: (...args: any[]) => Promise<T>, delay: number) => {
@@ -29,7 +30,7 @@ export const getCourse = async (courseId: string) => {
   if (!courseId) return null;
   const response = await fetch(`/api/courses/${courseId}`);
   if (!response.ok) return null;
-  const data = await response.json() as Course;
+  const data = await response.json() as IRawCourse;
 
   return data;
 }

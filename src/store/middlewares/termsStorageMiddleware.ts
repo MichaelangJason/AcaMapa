@@ -1,12 +1,31 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Middleware, PayloadAction } from "@reduxjs/toolkit";
+import { Middleware, Dispatch, MiddlewareAPI } from "@reduxjs/toolkit";
+import { termSlice } from '../slices/termSlice'
+import { RootState } from "..";
+import { toast } from "react-toastify";
 
-const termsStorageMiddleware: Middleware = store => next => action => {
-    const result = next(action);
-    console.log("termsStorageMiddleware next returned: " + result)
+type TermAction = ReturnType<typeof termSlice.actions[keyof typeof termSlice.actions]>
 
-    // store terms to localStorage
-    if ((action as PayloadAction).type.startsWith('terms')) {
-      const terms = store.getState()
-    }
+// custom type guard
+const isTermActions = (action: unknown): action is TermAction => {
+  return (action as TermAction)?.type.startsWith('terms')
 }
+
+const termsStorageMiddleware: Middleware = (store: MiddlewareAPI<Dispatch<TermAction>, RootState>) => next => action => {
+
+  const result = next(action);
+
+  if (isTermActions(action)) {
+    console.log("is Term action: " + action.type);
+    const curr = store.getState().terms;
+    try {
+      localStorage.setItem("terms", JSON.stringify(curr));
+    } catch (error) {
+      toast.error("Saving Failed")
+    }
+  }
+
+  return result;
+}
+
+export default termsStorageMiddleware;

@@ -11,6 +11,7 @@ import { RootState } from "@/store"
 import { setAddingCourseId, setIsSideBarExpanded, setSearchInput } from "@/store/slices/globalSlice"
 import { processQuery } from "@/utils"
 import CourseTaken from "./CourseTaken"
+import { IRawCourse } from "@/db/schema"
 
 const SideBar = () => {
   const dispatch = useDispatch() // for redux state manipulations
@@ -27,7 +28,7 @@ const SideBar = () => {
 
   // TODO: switch to server based api call for better search?
   const index = useMemo(() => {
-    const index = new FlexSearch.Document<Course>({
+    const index = new FlexSearch.Document<IRawCourse>({
       // tokenize: 'full',
       document: {
         id: 'id',

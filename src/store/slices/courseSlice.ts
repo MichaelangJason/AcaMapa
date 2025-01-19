@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { Course, CourseCode, CourseMap } from '../../types/course'
+import { CourseCode, CourseMap } from '../../types/course'
+import { IRawCourse } from '@/db/schema'
 
 export const initialState: CourseMap = {}
 
@@ -7,14 +8,14 @@ const courseSlice = createSlice({
   name: 'courses',
   initialState,
   reducers: {
-    addCourse: (state, action: PayloadAction<Course>) => {
+    addCourse: (state, action: PayloadAction<IRawCourse>) => {
       state[action.payload.id] = {
         ...action.payload,
         isExpanded: true,
         isMounted: false,
       }
     },
-    addCourses: (state, action: PayloadAction<Course[]>) => {
+    addCourses: (state, action: PayloadAction<IRawCourse[]>) => {
       action.payload.forEach((course) => {
         state[course.id] = {
           ...course,
