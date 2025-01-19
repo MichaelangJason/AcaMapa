@@ -1,4 +1,4 @@
-import { Course } from "@/types/course";
+import { IRawCourse } from "@/db/schema";
 import { DraggingType } from "@/utils/enums";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
@@ -6,7 +6,7 @@ export const initialState = {
   draggingType: null as DraggingType | null,
   addingCourseId: null as string | null,
   droppableId: null as string | null,
-  initCourses: [] as Course[],
+  initCourses: [] as IRawCourse[],
   seekingInfo: {
     seekingId: undefined as string | undefined,
     seekingTerm: undefined as string | undefined,
@@ -33,7 +33,7 @@ const globalSlice = createSlice({
     setDroppableId: (state, action: PayloadAction<string | null>) => {
       state.droppableId = action.payload;
     },
-    setInitCourses: (state, action: PayloadAction<Course[]>) => {
+    setInitCourses: (state, action: PayloadAction<IRawCourse[]>) => {
       action.payload.forEach((course) => { // avoid mutating passed in array
         state.initCourses.push(course);
       });

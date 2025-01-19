@@ -14,7 +14,7 @@ export const initialState = {
   inTermCourseIds: [] as CourseCode[],
 }
 
-const termSlice = createSlice({
+export const termSlice = createSlice({
   name: 'terms',
   initialState,
   reducers: {
@@ -25,6 +25,12 @@ const termSlice = createSlice({
         id,
         courseIds: [],
       }
+    },
+    importTerms: (state, action: PayloadAction<typeof initialState>) => {
+      const { data, order, inTermCourseIds } = action.payload;
+      state.data = data;
+      state.order = order;
+      state.inTermCourseIds = inTermCourseIds;
     },
     deleteTerm: (state, action: PayloadAction<TermId>) => {
       const termId = action.payload
@@ -81,5 +87,13 @@ const termSlice = createSlice({
   },
 })
 
-export const { addTerm, deleteTerm, moveTerm, addCourseToTerm, deleteCourseFromTerm, moveCourse } = termSlice.actions
+export const { 
+  addTerm, 
+  deleteTerm, 
+  moveTerm, 
+  addCourseToTerm, 
+  deleteCourseFromTerm, 
+  moveCourse,
+  importTerms
+} = termSlice.actions
 export default termSlice.reducer

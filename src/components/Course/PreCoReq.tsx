@@ -1,4 +1,4 @@
-import { CourseCode, IGroup } from "@/types/course";
+import { Course, CourseCode, IGroup } from "@/types/course";
 import { TermId } from "@/types/term";
 import { memo } from "react";
 import { useSelector } from "react-redux";
@@ -94,7 +94,7 @@ const ReqGroup = (props: { group: IGroup, termId: TermId, isPresent: Map<CourseC
           .slice(0, state.terms.order.indexOf(termId))
           .flatMap(termId => state.terms.data[termId].courseIds)
           .map(id => state.courses[id])
-          .concat(courseTaken);
+          .concat(courseTaken as Course[]);
       });
 
     const creditMap = context.reduce((acc, course) => {

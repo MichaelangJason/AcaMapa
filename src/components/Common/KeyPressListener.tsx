@@ -19,7 +19,7 @@ const KeyPressListener = () => {
       return;
     }
 
-    const key = event.key.toLowerCase();
+    const key = event.key?.toLowerCase();
 
     if (key === "escape") {
       dispatch(setAddingCourseId(null));

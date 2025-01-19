@@ -11,9 +11,9 @@ import { CourseCard } from "@/components/Course";
 import { getCourse } from "@/utils/requests";
 import { addCourseToTerm, deleteTerm } from "@/store/slices/termSlice";
 import { addCourse, setCourseMounted } from "@/store/slices/courseSlice";
-import { Course } from "@/types/course";
 import "@/styles/terms.scss"
 import Image from "next/image";
+import { IRawCourse } from "@/db/schema";
 export interface TermCardProps {
   termId: TermId;
   index: number;
@@ -66,7 +66,7 @@ const TermCard = (props: TermCardProps) => {
 
     // for animation purposes, delay adding course
     setTimeout(async () => {
-      let course: Course | null = existingAddingCourse;
+      let course: IRawCourse | null = existingAddingCourse;
 
       if (!course) {
         course = await toast.promise(
