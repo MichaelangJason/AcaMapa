@@ -8,16 +8,17 @@ import { Terms } from "@/components/Term";
 import { setDroppableId, setInitCourses, setIsInitialized } from "@/store/slices/globalSlice";
 import { setDraggingType } from "@/store/slices/globalSlice";
 import { deleteTerm, importTerms, moveCourse, moveTerm } from "@/store/slices/termSlice";
-import { DraggingType } from "@/utils/enums";
+import { DraggingType, LocalStorage } from "@/utils/enums";
 import { DragDropContext, DragStart, DragUpdate, DropResult } from "@hello-pangea/dnd";
 import { useDispatch } from "react-redux";
 import { Flip, toast, ToastContainer } from "react-toastify";
 import { TutorialModal, AboutModal } from "@/components/Modal";
 import { useEffect, useRef } from "react";
 import { Course } from "@/types/course";
-import { isValidTermsState } from "@/utils/typeGuards";
+import { isValidCourseTaken, isValidTermsState } from "@/utils/typeGuards";
 import { addCourses, setCourseMounted } from "@/store/slices/courseSlice";
 import { IRawCourse } from "@/db/schema";
+import { importCourseTaken } from "@/store/slices/courseTakenSlice";
 
 const App = () => {
   const dispatch = useDispatch();
@@ -113,14 +114,18 @@ const Wrapper = (props: { initCourses: IRawCourse[] }) => {
 
   useEffect(() => {
     const initializeData = async () => {
-      if (!isInitialized) {
-        dispatch(setInitCourses(props.initCourses));
-        dispatch(setIsInitialized(true));
-        
-        const savedPlans = localStorage.getItem("terms");
-        if (savedPlans) {
-          await toast.promise(
-            async () => {
+      if (isInitialized) return;
+
+      dispatch(setInitCourses(props.initCourses));
+      
+      const savedPlans = localStorage.getItem(LocalStorage.TERMS);
+      const savedCourseTaken = localStorage.getItem(LocalStorage.COURSE_TAKEN);
+
+      // load back terms
+      if (savedPlans || savedCourseTaken) {
+        await toast.promise(
+          async () => {
+            if (savedPlans) {
               const plans = JSON.parse(savedPlans);  
               if (isValidTermsState(plans) && plans.inTermCourseIds.length > 0) {
                 const response = await fetch('/api/courses', {
@@ -142,20 +147,32 @@ const Wrapper = (props: { initCourses: IRawCourse[] }) => {
                 dispatch(addCourses(coursesData));
                 dispatch(importTerms(plans));
 
-                coursesData.forEach(course => {
-                  setTimeout(() => {
+                setTimeout(() => {
+                  coursesData.forEach(course => {
                     dispatch(setCourseMounted({ courseId: course.id, isMounted: true}))
-                  }, 300)
-                })
+                  })
+                }, 300)
               }
-            }, {
-              pending: 'Loading last state...',
-              error: 'Failed to load last state',
-              success: 'Last state restored!',
+
+              if (savedCourseTaken) {
+                const courseTaken = JSON.parse(savedCourseTaken);
+                if (isValidCourseTaken(courseTaken) && Object.values(courseTaken).flat().length > 0) {
+                  dispatch(importCourseTaken(courseTaken));
+                }
+              }
             }
-          )
-        }
+
+          }, {
+            pending: 'Loading last state...',
+            error: 'Failed to load last state',
+            success: 'Last state restored!',
+          }
+        )
       }
+
+      toast.success("Initialized!")
+      document.body.style.overflow = 'scroll'
+      dispatch(setIsInitialized(true));
     };
     initializeData();
   // eslint-disable-next-line react-hooks/exhaustive-deps

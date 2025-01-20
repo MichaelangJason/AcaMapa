@@ -90,6 +90,10 @@
 
     mask-image: linear-gradient(to bottom, transparent, black 2%, black 98%, transparent);
     -webkit-mask-image: linear-gradient(to bottom, transparent, black 2%, black 98%, transparent); /* 兼容 Webkit 浏览器 */
+
+    &.initializing {
+      overflow: hidden;
+    }
   }
 
   .course-taken-container {

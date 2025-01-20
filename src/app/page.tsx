@@ -7,7 +7,7 @@ const getInitCourses = nextCache(
   async () => {
     try {
       await connectToDatabase(process.env.DATABASE_URL!, process.env.DATABASE_NAME!);
-      const courses = await RawCourse.find({}, { _id: 0, id: 1, name: 1, credits: 1 }, { sort: { id: 1 } }).lean();
+      const courses = await RawCourse.find({ }, { _id: 0, id: 1, name: 1, credits: 1 }, { sort: { id: 1 } }).lean();
       await disconnectDatabase();
 
       if (!courses.length) throw new Error("No Courses Error");

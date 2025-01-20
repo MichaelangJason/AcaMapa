@@ -71,6 +71,8 @@
   /* course expand */
   --course-expand-color: var(--course-tag-default-bg-color);
 
+  /* skeleton */
+  --result-card-skeleton-width: 200px;
 }
 
 /* @media (prefers-color-scheme: dark) {
@@ -89,4 +91,5 @@ body {
   width: 100vw;
   display: flex;
   flex-direction: row;
+  overflow: hidden;
 }

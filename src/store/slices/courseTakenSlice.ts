@@ -3,7 +3,7 @@ import { CourseCode } from "../../types/course";
 
 export const initialState: { [key: string]: CourseCode[] } = {}
 
-const courseTakenSlice = createSlice({
+export const courseTakenSlice = createSlice({
   name: 'courseTaken',
   initialState,
   reducers: {
@@ -20,6 +20,12 @@ const courseTakenSlice = createSlice({
       state[prefix].push(action.payload)
       state[prefix].sort()
     },
+    importCourseTaken: (state, action: PayloadAction<typeof initialState>) => {
+      Object.entries(action.payload).forEach(([prefix, courseIds]) => {
+        state[prefix] = courseIds
+        state[prefix].sort();
+      })
+    },
     removeCourseTaken: (state, action: PayloadAction<CourseCode>) => {
       const prefix = action.payload.split(' ')[0]
       if (!state[prefix] || state[prefix].length === 0) {
@@ -30,5 +36,5 @@ const courseTakenSlice = createSlice({
   }
 })
 
-export const { addCourseTaken, removeCourseTaken } = courseTakenSlice.actions
+export const { addCourseTaken, importCourseTaken, removeCourseTaken } = courseTakenSlice.actions
 export default courseTakenSlice.reducer

@@ -88,7 +88,7 @@
       transform: translateY(-50%);
       transition: opacity 0.2s ease-in-out;
 
-      &:hover {
+      &:not(.disabled):hover {
         opacity: 1;
       }
     }
