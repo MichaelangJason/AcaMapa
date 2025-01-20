@@ -91,7 +91,14 @@
       &:not(.disabled):hover {
         opacity: 1;
       }
+
+      &.disabled {
+        opacity: 0.1;
+        cursor: not-allowed;
+      }
     }
+
+ 
 
     &.in-term {
       margin-right: -10px;

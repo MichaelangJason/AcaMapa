@@ -20,7 +20,7 @@ const CourseResultSkeleton = () => {
           <Skeleton width={width} />
         </div>
       </div>
-      <div className="course-button-container in-search disabled" style={{ cursor: 'default' }}>
+      <div className="course-button-container in-search disabled">
           <Image 
             src="/cross.svg" 
             alt="Add Course" 
