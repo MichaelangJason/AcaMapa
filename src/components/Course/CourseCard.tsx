@@ -276,7 +276,7 @@ const CourseCard = (props: CourseCardProps) => {
               />
             </div>
             <div 
-              className={`hot-zone ${snapshot.isDragging ? "disabled" : ""}`}
+              className={`hot-zone ${snapshot.isDragging || !hasSubsection ? "disabled" : ""}`}
               onClick={handleExpand}
               title={hasSubsection ? "Expand" : "No Subsection"}
             >
@@ -285,7 +285,7 @@ const CourseCard = (props: CourseCardProps) => {
                 alt="Expand"
                 width={12}
                 height={12}
-                className={`expand-icon ${isExpanded ? "expanded" : ""}`}
+                className={`expand-icon ${isExpanded && hasSubsection ? "expanded" : ""}`}
                 style={{ height: 'auto' }}
               />
             </div>
@@ -341,7 +341,6 @@ const CourseCard = (props: CourseCardProps) => {
             title={ReqTitle.NOTES}
             isMoving={snapshot.isDragging}
           />}
-          {isExpanded && !hasSubsection && <div className="no-subsection">No Subsection</div>}
         </div>
       )}}
     </Draggable>
