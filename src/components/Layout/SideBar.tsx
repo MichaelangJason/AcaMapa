@@ -36,7 +36,7 @@ const SideBar = () => {
         index: [
           { 
             field: 'id',
-            tokenize: 'reverse',
+            tokenize: 'full',
             resolution: 9,
             encode: (str: string) => {
               const exact = str.toLowerCase();
@@ -46,13 +46,13 @@ const SideBar = () => {
           },
           { 
             field: 'name',
-            tokenize: 'reverse',
+            tokenize: 'full',
             resolution: 9,
-            encode: (str: string) => {
-              const exact = str.toLowerCase();
-              const noSpace = str.toLowerCase().replace(/\s+/g, '');
-              return [exact, noSpace];
-            }
+            // encode: (str: string) => {
+            //   const exact = str.toLowerCase();
+            //   const noSpace = str.toLowerCase().replace(/\s+/g, '');
+            //   return [exact, noSpace];
+            // }
           }
         ],
         // @ts-expect-error, some ignorable typing error happened here
