@@ -114,64 +114,65 @@ const Wrapper = (props: { initCourses: IRawCourse[] }) => {
 
   useEffect(() => {
     const initializeData = async () => {
-      if (!isInitialized) {
-        dispatch(setInitCourses(props.initCourses));
-        
-        const savedPlans = localStorage.getItem(LocalStorage.TERMS);
-        const savedCourseTaken = localStorage.getItem(LocalStorage.COURSE_TAKEN);
+      if (isInitialized) return;
 
-        // load back terms
-        if (savedPlans || savedCourseTaken) {
-          await toast.promise(
-            async () => {
-              if (savedPlans) {
-                const plans = JSON.parse(savedPlans);  
-                if (isValidTermsState(plans) && plans.inTermCourseIds.length > 0) {
-                  const response = await fetch('/api/courses', {
-                    method: 'POST',
-                    headers: {
-                      'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ courseIds: plans.inTermCourseIds })
-                  })
-    
-                  if (!response.ok) throw new Error('fetching course failed')
-                  const coursesData = await response.json() as Course[]
-    
-                  if (!coursesData?.length) {
-                    toast.error("Failed Loading Previous Session")
-                    return;
-                  }
-                
-                  dispatch(addCourses(coursesData));
-                  dispatch(importTerms(plans));
+      dispatch(setInitCourses(props.initCourses));
+      
+      const savedPlans = localStorage.getItem(LocalStorage.TERMS);
+      const savedCourseTaken = localStorage.getItem(LocalStorage.COURSE_TAKEN);
+
+      // load back terms
+      if (savedPlans || savedCourseTaken) {
+        await toast.promise(
+          async () => {
+            if (savedPlans) {
+              const plans = JSON.parse(savedPlans);  
+              if (isValidTermsState(plans) && plans.inTermCourseIds.length > 0) {
+                const response = await fetch('/api/courses', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({ courseIds: plans.inTermCourseIds })
+                })
   
-                  setTimeout(() => {
-                    coursesData.forEach(course => {
-                      dispatch(setCourseMounted({ courseId: course.id, isMounted: true}))
-                    })
-                  }, 300)
+                if (!response.ok) throw new Error('fetching course failed')
+                const coursesData = await response.json() as Course[]
+  
+                if (!coursesData?.length) {
+                  toast.error("Failed Loading Previous Session")
+                  return;
                 }
+              
+                dispatch(addCourses(coursesData));
+                dispatch(importTerms(plans));
 
-                if (savedCourseTaken) {
-                  const courseTaken = JSON.parse(savedCourseTaken);
-                  if (isValidCourseTaken(courseTaken) && Object.values(courseTaken).flat().length > 0) {
-                    dispatch(importCourseTaken(courseTaken));
-                  }
-                }
+                setTimeout(() => {
+                  coursesData.forEach(course => {
+                    dispatch(setCourseMounted({ courseId: course.id, isMounted: true}))
+                  })
+                }, 300)
               }
 
-            }, {
-              pending: 'Loading last state...',
-              error: 'Failed to load last state',
-              success: 'Last state restored!',
+              if (savedCourseTaken) {
+                const courseTaken = JSON.parse(savedCourseTaken);
+                if (isValidCourseTaken(courseTaken) && Object.values(courseTaken).flat().length > 0) {
+                  dispatch(importCourseTaken(courseTaken));
+                }
+              }
             }
-          )
-        }
 
-        toast.success("Initialized!")
-        dispatch(setIsInitialized(true));
+          }, {
+            pending: 'Loading last state...',
+            error: 'Failed to load last state',
+            success: 'Last state restored!',
+          }
+        )
       }
+
+      toast.success("Initialized!")
+      document.body.style.overflow = 'scroll'
+      dispatch(setIsInitialized(true));
     };
     initializeData();
   // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -286,6 +286,7 @@ const CourseCard = (props: CourseCardProps) => {
                 width={12}
                 height={12}
                 className={`expand-icon ${isExpanded ? "expanded" : ""}`}
+                style={{ height: 'auto' }}
               />
             </div>
             <div 

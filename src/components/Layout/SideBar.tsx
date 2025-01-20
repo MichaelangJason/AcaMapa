@@ -1,4 +1,3 @@
-import { Course } from "@/types/course"
 import { debounce } from "@/utils/requests"
 import { useEffect, useState, useCallback, useMemo, useRef, ChangeEvent } from "react"
 import Image  from "next/image"
@@ -12,18 +11,20 @@ import { setAddingCourseId, setIsSideBarExpanded, setSearchInput } from "@/store
 import { processQuery } from "@/utils"
 import CourseTaken from "./CourseTaken"
 import { IRawCourse } from "@/db/schema"
+import { CourseResultSkeleton } from "@/components/Skeleton"
+import { Constants } from "@/utils/enums"
 
 const SideBar = () => {
   const dispatch = useDispatch() // for redux state manipulations
   const input = useSelector((state: RootState) => state.global.searchInput); // search input
   const courses = useSelector((state: RootState) => state.global.initCourses); // TODO switch to api call?
   const isInitialized = useSelector((state: RootState) => state.global.isInitialized); // initial loading state
-  const [results, setResults] = useState<Course[]>([]) // search results
+  const [results, setResults] = useState<IRawCourse[]>(courses) // search results
   const addingCourseId = useSelector((state: RootState) => state.global.addingCourseId); // for highlighting purpose
   const isSideBarExpanded = useSelector((state: RootState) => state.global.isSideBarExpanded);
   /* infinite scroll*/
   const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
+  const [hasMore, setHasMore] = useState(false);
   const resultContainerRef = useRef<HTMLDivElement>(null);
 
   // TODO: switch to server based api call for better search?
@@ -82,7 +83,7 @@ const SideBar = () => {
   // search icon callback
   const handleSearch = async (e: any) => {
     if (!input) {
-      setResults([]);
+      setResults(courses);
       return;
     }
     if (e.key && e.key !== "Enter") {
@@ -97,7 +98,7 @@ const SideBar = () => {
     } catch (error) {
       console.error('Search error:', error);
       toast.error('Search failed');
-      setResults([]);
+      setResults(courses);
     }
   }
 
@@ -115,16 +116,16 @@ const SideBar = () => {
   // trigger search from input change
   useEffect(() => {
     if (!input) {
-      setResults([]);
+      setResults(courses);
       return;
     }
     debouncedSearch(input)
       .then((courses) => {
         setResults(courses);
       });
-  }, [input, debouncedSearch])
+  }, [input, debouncedSearch, courses])
 
-  // Add intersection observer to detect when user scrolls near bottom
+  // Simplified intersection observer setup
   useEffect(() => {
     if (!resultContainerRef.current) return;
 
@@ -138,14 +139,13 @@ const SideBar = () => {
       { threshold: 0.5 }
     );
 
-    const loadingTrigger = document.createElement('div');
-    loadingTrigger.id = 'loading-trigger';
-    resultContainerRef.current.appendChild(loadingTrigger);
-    observer.observe(loadingTrigger);
+    const loadingTrigger = document.getElementById('loading-trigger');
+    if (loadingTrigger) {
+      observer.observe(loadingTrigger);
+    }
 
     return () => {
       observer.disconnect();
-      loadingTrigger.remove();
     };
   }, [hasMore]);
 
@@ -157,11 +157,17 @@ const SideBar = () => {
   return (
     <>
       <div className={`sidebar-toggle ${isSideBarExpanded ? '' : 'folded'}`} onClick={handleSideBarToggle}>
-        <Image src="/expand.svg" alt="sidebar-toggle" width={10} height={10} className={(isSideBarExpanded ? '' : 'icon-folded')} />
+        <Image 
+          src="/expand.svg" 
+          alt="sidebar-toggle" 
+          width={10} 
+          height={10}
+          className={(isSideBarExpanded ? '' : 'icon-folded')} 
+        />
       </div>
       <div className={`sidebar ${isSideBarExpanded ? '' : 'folded'}`} id="sidebar">
         <div className="sidebar-header">
-          <Image src="/mcgill-logo.png" alt="logo" width={210} height={50} />
+          <Image src="/mcgill-logo.png" alt="logo" width={210} height={50} priority={true}/>
         </div>
         <div className="search-bar">
           <input 
@@ -182,15 +188,18 @@ const SideBar = () => {
             onClick={handleSearch}
           />
         </div>
-        <div className="result-container" ref={resultContainerRef}>
-          {results.slice(0, page * 10).map(course => 
-            <CourseResult 
-              key={course.id} 
-              {...course} 
-              partialMatch={input} 
-            />
-          )}
-          {results.length > 0 && hasMore && <div className="loading">Loading more...</div>}
+        <div className={`result-container ${isInitialized ? '' : 'initializing'}`} ref={resultContainerRef}>
+          {isInitialized 
+            ? results.slice(0, page * 10).map(course => 
+                <CourseResult 
+                  key={course.id} 
+                  {...course} 
+                  partialMatch={input} 
+                />
+              )
+            : Array(Constants.MOCK_RESULT_N).fill(null).map((_, idx) => <CourseResultSkeleton key={"mock"+idx}/>)}
+          <div id="loading-trigger" />
+          {isInitialized && results.length > 0 && hasMore && <div className="loading">Loading more...</div>}
         </div>
         <CourseTaken />
       </div>

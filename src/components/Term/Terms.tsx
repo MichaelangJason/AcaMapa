@@ -7,11 +7,12 @@ import { Droppable } from "@hello-pangea/dnd";
 import { useDispatch } from "react-redux";
 import { addTerm } from "@/store/slices/termSlice";
 import "@/styles/terms.scss";
-import { DraggingType } from "@/utils/enums";
+import { Constants, DraggingType } from "@/utils/enums";
 import { useEffect } from "react";
-
 import { setSeekingInfo } from "@/store/slices/globalSlice";
 import { UtilityBar, Seeking } from "@/components/Layout";
+import { TermCardSkeleton } from "../Skeleton";
+import { getTermCardConfig } from "@/utils/skeleton";
 
 const Terms = () => {
   const order = useSelector((state: RootState) => state.terms.order);
@@ -21,6 +22,7 @@ const Terms = () => {
   const { seekingId,seekingTerm } = useSelector((state: RootState) => state.global.seekingInfo);
   const isSeeking = seekingId !== undefined && seekingTerm !== undefined;
   const isSideBarExpanded = useSelector((state: RootState) => state.global.isSideBarExpanded);
+  const isInitialized = useSelector((state: RootState) => state.global.isInitialized)
 
   const dispatch = useDispatch();
 
@@ -75,12 +77,17 @@ const Terms = () => {
             <UtilityBar />
             {isSeeking && <div className="seeking-mask" onClick={handleSeekingMaskClick}/>}
             <div className={`terms-placeholder-box ${isSideBarExpanded ? '' : 'folded'}`}/>
-            {order.flatMap((termId: TermId, index: number) => {
-              return [
-                <TermCard key={termId} termId={termId} index={index} />,
-                seekingTerm === termId && <Seeking key={"seeking-" + termId} />
-              ]
-            })}
+            {isInitialized 
+              ? order.flatMap((termId: TermId, index: number) => {
+                return [
+                  <TermCard key={termId} termId={termId} index={index} />,
+                  seekingTerm === termId && <Seeking key={"seeking-" + termId} />
+                ]
+              }) 
+              : Array(Constants.MOCK_NUM_TERMS).fill(null).map((_, idx) => {
+                  const mockConfig = getTermCardConfig();
+                  return (<TermCardSkeleton key={'mock-term-card-'+idx} coursesConfig={mockConfig}/>)
+              })}
             {provided.placeholder}
           </div>
         )}

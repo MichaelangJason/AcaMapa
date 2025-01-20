@@ -14,6 +14,7 @@ import { addCourse, setCourseMounted } from "@/store/slices/courseSlice";
 import "@/styles/terms.scss"
 import Image from "next/image";
 import { IRawCourse } from "@/db/schema";
+
 export interface TermCardProps {
   termId: TermId;
   index: number;
@@ -21,18 +22,10 @@ export interface TermCardProps {
 
 const TermCard = (props: TermCardProps) => {
   const { termId, index } = props;
-  let courseIds = useSelector((state: RootState) => state.terms.data[termId].courseIds);
+  const courseIds = useSelector((state: RootState) => state.terms.data[termId].courseIds || []);
   const { seekingId, seekingTerm } = useSelector((state: RootState) => state.global.seekingInfo);
-  const getMaskTop = () => {
-    if (typeof document === "undefined") return 0;
-    const termBody = document.getElementById(termId)?.querySelector(".term-body");
-    if (!termBody) return 0;
-    return termBody.scrollTop;
-  }
-
   const isSeeking = seekingId !== undefined && seekingTerm !== undefined;
   const isSeekingSelf = isSeeking && seekingTerm === termId;
-
   const credits = useSelector((state: RootState) => 
     courseIds.reduce((acc, courseId) => {
       if (!(courseId in state.courses)) {
@@ -42,10 +35,6 @@ const TermCard = (props: TermCardProps) => {
       return acc + (credits < 0 ? 0 : credits);
     }, 0)
   )
-
-  if (!courseIds) {
-    courseIds = [];
-  }
 
   const dispatch = useDispatch();
   const addingCourseId = useSelector((state: RootState) => state.global.addingCourseId);
@@ -101,6 +90,13 @@ const TermCard = (props: TermCardProps) => {
     if (isSeekingSelf) dispatch(setSeekingInfo({})); // clear seeking info
     dispatch(deleteTerm(termId));
     toast.success(`Term ${index + 1} deleted`);
+  }
+
+  const getMaskTop = () => {
+    if (typeof document === "undefined") return 0;
+    const termBody = document.getElementById(termId)?.querySelector(".term-body");
+    if (!termBody) return 0;
+    return termBody.scrollTop;
   }
 
   return (
