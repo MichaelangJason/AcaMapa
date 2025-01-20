@@ -35,7 +35,7 @@ const UtilityBar = () => {
   const takenCredits = useMemo(() => {
     const courseIds = Object.values(courseTaken).flat()
     return initialCourses.reduce((acc, course) => {
-      if (courseIds.includes(course.id)) {
+      if (course.credits > 0 &&courseIds.includes(course.id)) {
         return acc + course.credits;
       }
       return acc;

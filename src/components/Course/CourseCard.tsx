@@ -85,6 +85,7 @@ const CourseCard = (props: CourseCardProps) => {
     const academicYear = process.env.NEXT_PUBLIC_ACADEMIC_YEAR;
     const endpoint = process.env.NEXT_PUBLIC_SCHOOL_ENDPOINT?.replace(/ACADEMIC_YEAR/i, academicYear || "");
     const id = courseId.replace(" ", "-").toLowerCase();
+    console.log("id", `${domain}${endpoint}${id}`);
     window.open(`${domain}${endpoint}${id}`, "_blank");
   }
 
