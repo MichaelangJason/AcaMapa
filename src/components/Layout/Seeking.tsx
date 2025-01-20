@@ -56,7 +56,8 @@ const Seeking = () => {
     const utilityBarHeight = parseInt(computedStyle.getPropertyValue('--utility-bar-height'));
     const marginTop = parseInt(computedStyle.getPropertyValue('--terms-padding-bottom')) + utilityBarHeight;
     const SHADOW_HEIGHT = 10;
-    setMaxHeight(termBodyRect.bottom - courseRect.top);
+
+    setMaxHeight(termBodyRect.bottom - courseRect.top + SHADOW_HEIGHT);
     setTop(course.getBoundingClientRect().top - marginTop - SHADOW_HEIGHT);
     setIsPositioned(true);
     
@@ -71,15 +72,17 @@ const Seeking = () => {
         ? <motion.div 
             key="seeking-container"
             id="seeking" 
-            className="seeking-container" 
-            style={{ top, maxHeight }}
+            style={{ top, position: 'relative', height: 'fit-content', zIndex: 1000 }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.25 }}
           >
-            {futureCourses?.map((course) => (
-              <CourseResult key={course.id} {...course} cb={() => handleAddCourse(course)} />
-            ))}
+            <div className="seeking-title">Subsequent Courses:</div>
+            <div className="seeking-container" style={{ maxHeight }}>
+              {futureCourses?.map((course) => (
+                <CourseResult key={course.id} {...course} cb={() => handleAddCourse(course)} />
+              ))}
+            </div>
           </motion.div>
         : <motion.div
             key="seeking-placeholder-box"

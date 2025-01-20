@@ -222,16 +222,17 @@ body {
   .seeking-container {
     position: relative;
     width: calc(var(--course-card-width) + 6px);
-    height: calc(fit-content + 10px);
+    height: fit-content;
     margin-left: var(--term-margin-left);
     padding-bottom: var(--term-margin-bottom);
-    padding-top: 10px;
-    z-index: 1000;
+    // padding-top: 10px;
 
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
 
     // border-radius: var(--border-radius);
 
@@ -251,12 +252,13 @@ body {
   }
 
   .seeking-title {
-    position: fixed;
+    position: absolute;
     content: "Subsequent Courses:";
-    width: 100%;
+    width: fit-content;
     height: 20px;
-    left: 0;
     z-index: 1000;
+    top: -20px;
+    left: var(--term-margin-left);
 
     color: white;
     font-size: 12px;
