@@ -2,7 +2,7 @@ import '@/styles/globals.css'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'McGill Course Planner',
+  title: 'Course Planner',
   description: 'An AI-powered course planner with basic ',
 }
 
