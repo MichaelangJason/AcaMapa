@@ -1,12 +1,13 @@
 import { Course, CourseCode, IGroup } from "@/types/course";
 import { TermId } from "@/types/term";
-import { memo } from "react";
+import { memo, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 import CourseTag from "./CourseTag";
 import { CourseTagType, GroupType, ReqTitle } from "@/utils/enums";
 import "@/styles/course.scss"
 import { findCourseIds, parseGroup } from "@/utils";
+import { createSelector } from '@reduxjs/toolkit';
 
 interface PreCoReqProps {
   parsed: string;
@@ -72,7 +73,6 @@ const ReqGroup = (props: { group: IGroup, termId: TermId, isPresent: Map<CourseC
             itExists={isPresent.get(id) || false} 
             key={`pair-${index}`} 
             isMoving={isMoving} 
-            disabled={true}
           />
         ))}
       </div>
@@ -83,19 +83,30 @@ const ReqGroup = (props: { group: IGroup, termId: TermId, isPresent: Map<CourseC
     const { group } = props;
     const [required, scopes, ...prefixes] = group.inner as string[];
     const levels = scopes.split("").map(l => parseInt(l));
-    const context = useSelector((state: RootState) => {
-        // overhead considered, these are rare cases
-        const courseTaken = Object.values(state.courseTaken)
-          .flat()
-          .map(id => state.global.initCourses.find(course => course.id === id))
-          .filter(course => course !== undefined);
-      
-        return state.terms.order
-          .slice(0, state.terms.order.indexOf(termId))
-          .flatMap(termId => state.terms.data[termId].courseIds)
-          .map(id => state.courses[id])
-          .concat(courseTaken as Course[]);
-      });
+
+    // Create memoized selector
+    const selectContext = useMemo(() => 
+      createSelector(
+        [(state: RootState) => state.courseTaken,
+         (state: RootState) => state.global.initCourses,
+         (state: RootState) => state.terms,
+         (state: RootState) => state.courses],
+        (courseTaken, initCourses, terms, courses) => {
+          // OPTIMIZE: avoid iterating over all courses
+          const takenCourses = Object.values(courseTaken)
+            .flat()
+            .map(id => initCourses.find(course => course.id === id))
+            .filter((course): course is Course => course !== undefined);
+          
+          return terms.order
+            .slice(0, terms.order.indexOf(termId))
+            .flatMap(termId => terms.data[termId].courseIds)
+            .map(id => courses[id])
+            .concat(takenCourses);
+        }
+      ), []);
+
+    const context = useSelector(selectContext);
 
     const creditMap = context.reduce((acc, course) => {
       const [prefix, code] = course.id.split(' ');
@@ -106,11 +117,15 @@ const ReqGroup = (props: { group: IGroup, termId: TermId, isPresent: Map<CourseC
       return acc;
     }, {} as Record<string, number>);
 
+    // console.log(creditMap);
+
     prefixes.forEach(prefix => {
       if (creditMap[prefix] === undefined) {
         creditMap[prefix] = 0;
       }
     })
+
+    // console.log(prefixes);
 
     const levelString = levels[0] === 0 
       ? '-ANY'
@@ -118,7 +133,7 @@ const ReqGroup = (props: { group: IGroup, termId: TermId, isPresent: Map<CourseC
         ? '>=' + levels[0] + 'XX'
         : '-' + levels[0] + 'XX';
 
-    const totalCredits = Object.values(creditMap).reduce((acc, curr) => acc + curr, 0);
+    const totalCredits = Object.entries(creditMap).reduce((acc, [prefix, credits]) => prefixes.includes(prefix) ? acc + credits : acc, 0);
     const requiredCredits = parseInt(required) || 3;
     
     return (
