@@ -3,18 +3,18 @@ import { memo, useMemo, useState } from "react";
 import "@/styles/course.scss";
 import Image from "next/image";
 import { useDispatch, useSelector } from "react-redux";
+import { createSelector } from "@reduxjs/toolkit";
 import { RootState } from "@/store";
 import { deleteCourseFromTerm } from "@/store/slices/termSlice";
 import { toast } from "react-toastify";
 import { IGroup } from "@/types/course";
-import { isSatisfied, parseGroup } from "@/utils";
+import { isSatisfied, parseGroup, smoothScrollTo} from "@/utils";
 import { ReqTitle } from "@/utils/enums";
 import PreCoReq from "./PreCoReq";
 import OtherReq from "./OtherReq";
 import { setCourseExpanded, setCourseMounted } from "@/store/slices/courseSlice";
 import "@/styles/course.scss";
 import { setSeekingInfo } from "@/store/slices/globalSlice";
-import { smoothScrollTo } from "@/utils";
 
 export interface CourseCardProps {
   termId: string;
@@ -23,24 +23,26 @@ export interface CourseCardProps {
 }
 
 const useIsSatisfied = (termId: string, prerequisites: IGroup, restrictions: IGroup, corequisites: IGroup) => {
-  const terms = useSelector((state: RootState) => state.terms);
-  const courseTaken = useSelector((state: RootState) => state.courseTaken);
-  const initCourses = useSelector((state: RootState) => state.global.initCourses);
+  const selectSatisfiedInputs = useMemo(() => 
+    createSelector(
+      [(state: RootState) => state.terms,
+       (state: RootState) => state.courseTaken,
+       (state: RootState) => state.global.initCourses],
+      (terms, courseTaken, initCourses) => ({
+        prerequisites, 
+        restrictions, 
+        corequisites, 
+        courseTaken: Object.values(courseTaken).flat(), 
+        terms, 
+        termId, 
+        initCourses
+      })
+    ), [termId, prerequisites, restrictions, corequisites]);
+
+  const inputs = useSelector(selectSatisfiedInputs);
   
-  return useMemo(() => {
-    
-    return isSatisfied({
-      prerequisites, 
-      restrictions, 
-      corequisites, 
-      courseTaken: Object.values(courseTaken).flat(), 
-      terms, 
-      termId, 
-      initCourses
-    });
-  },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [terms, termId, courseTaken]
+  return useMemo(() => isSatisfied(inputs),
+    [inputs]
   );
 }
 
