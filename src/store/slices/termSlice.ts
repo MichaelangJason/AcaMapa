@@ -7,6 +7,7 @@ export const initialState = {
   data: {
     "term-1": {
       id: "term-1",
+      name: "Term 1",
       courseIds: [],
     },
   } as TermMap,
@@ -23,6 +24,7 @@ export const termSlice = createSlice({
       state.order.push(id)
       state.data[id] = {
         id,
+        name: "Term " + state.order.length,
         courseIds: [],
       }
     },

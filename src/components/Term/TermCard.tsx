@@ -22,7 +22,9 @@ export interface TermCardProps {
 
 const TermCard = (props: TermCardProps) => {
   const { termId, index } = props;
-  const courseIds = useSelector((state: RootState) => state.terms.data[termId].courseIds || []);
+  const termData = useSelector((state: RootState) => state.terms.data[termId]);
+  const courseIds = termData.courseIds || [];
+  const termName = termData.name || `Term ${index + 1}`;
   const { seekingId, seekingTerm } = useSelector((state: RootState) => state.global.seekingInfo);
   const isSeeking = seekingId !== undefined && seekingTerm !== undefined;
   const isSeekingSelf = isSeeking && seekingTerm === termId;
@@ -113,7 +115,7 @@ const TermCard = (props: TermCardProps) => {
             className={`term-header ${snapshot.isDragging ? "dragging" : ""} ${isSeeking ? "seeking" : ""}`} 
             {...provided.dragHandleProps}
           >
-            <div >Term {index + 1}</div>
+            <div className="term-name">{termName}</div>
             <Image className="delete-icon" src="delete.svg" alt="delete" width={20} height={20} onClick={handleDeleteTerm}/>
           </div>
           {/* droppable for courses */}
