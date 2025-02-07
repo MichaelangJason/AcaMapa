@@ -7,6 +7,7 @@ import { CourseTagType } from '@/utils/enums';
 import Image from 'next/image';
 import { useDispatch, shallowEqual } from 'react-redux';
 import { setIsTutorialModalOpen, setIsAboutModalOpen } from '@/store/slices/globalSlice';
+import DropdownMenu from './DropdownMenu';
 
 const UtilityBar = () => {
   const inTermCourseIds = useSelector((state: RootState) => state.terms.inTermCourseIds || [], shallowEqual);
@@ -56,6 +57,8 @@ const UtilityBar = () => {
 
   return (
     <div className={`utility-bar ${isSideBarExpanded ? '' : 'full'}`}>
+      <DropdownMenu />
+      
       {info.map((info, index) => (
         <CourseTag 
           key={index}

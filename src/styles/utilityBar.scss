@@ -25,6 +25,22 @@
     display: none; /* Chrome, Safari and Opera */
   }
 
+  & * {
+    flex-shrink: 0;
+  }
+
+  .hamburger-button {
+    width: 20px;
+    height: 20px;
+    opacity: 0.5;
+    cursor: pointer;
+    transition: opacity 0.15s ease-in-out;
+    
+    &:hover {
+      opacity: 1;
+    }
+  }
+
   .utility-bar-link {
     margin-right: 10px;
 

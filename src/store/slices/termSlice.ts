@@ -41,6 +41,12 @@ export const termSlice = createSlice({
       state.inTermCourseIds = state.inTermCourseIds.filter((id) => !courseIds.includes(id))
       delete state.data[termId]
     },
+    deleteMultipleTerms: (state, action: PayloadAction<TermId[]>) => {
+      const termIds = action.payload
+      termIds.forEach((id) => {
+        delete state.data[id]
+      })
+    },
     moveTerm: (state, action: PayloadAction<{sourceIdx: number; destinationIdx: number}>) => {
       const { sourceIdx, destinationIdx } = action.payload
       const item = state.order[sourceIdx]
@@ -85,6 +91,27 @@ export const termSlice = createSlice({
      
       sourceTerm.courseIds.splice(sourceIdx, 1)
       destinationTerm.courseIds.splice(destinationIdx, 0, courseId)
+    },
+    setTermOrder: (state, action: PayloadAction<TermId[]>) => {
+      // all term should exists in the state
+      const newOrder = action.payload
+      const newInTermCourseIds = [] as CourseCode[]
+      newOrder.forEach((id) => {
+        if (!state.data[id]) {
+          toast.error(`${id} does not exist`)
+          return;
+        }
+        newInTermCourseIds.push(...state.data[id].courseIds)
+      })
+
+      state.order = newOrder
+      state.inTermCourseIds = newInTermCourseIds
+    },
+    setTermsData: (state, action: PayloadAction<TermMap>) => {
+      state.data = action.payload;
+      // will be set in the middleware
+      state.order = []
+      state.inTermCourseIds = []
     }
   },
 })
@@ -92,10 +119,13 @@ export const termSlice = createSlice({
 export const { 
   addTerm, 
   deleteTerm, 
+  deleteMultipleTerms,
   moveTerm, 
   addCourseToTerm, 
   deleteCourseFromTerm, 
   moveCourse,
-  importTerms
+  importTerms,
+  setTermsData,
+  setTermOrder
 } = termSlice.actions
 export default termSlice.reducer

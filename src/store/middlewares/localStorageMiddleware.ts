@@ -1,19 +1,8 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { createListenerMiddleware } from "@reduxjs/toolkit";
-import type { termSlice } from '../slices/termSlice'
-import type { courseTakenSlice } from '../slices/courseTakenSlice'
 import { AppDispatch, RootState } from "..";
 import { toast } from "react-toastify";
 import { LocalStorage } from "@/utils/enums";
-
-// custom type guard
-const isTermActions = (action: unknown): action is TermAction => {
-  return (action as TermAction)?.type.startsWith('terms')
-}
-const isCourseTakenAction = (action: unknown): action is CourseTakenAction => {
-  return (action as CourseTakenAction)?.type.startsWith('courseTaken');
-}
-
+import { isTermActions, isCourseTakenAction, isPlanActions } from "@/utils/typeGuards";
 
 const listenerMiddleware = createListenerMiddleware();
 const startListening = listenerMiddleware.startListening.withTypes<
@@ -21,56 +10,25 @@ const startListening = listenerMiddleware.startListening.withTypes<
   AppDispatch
 >();
 
+// update term data
 startListening({
   predicate: (action) => {
-    return isTermActions(action);
+    // there are not many overhead here, so lets keep this simple
+    return isTermActions(action) || isCourseTakenAction(action) || isPlanActions(action);
   },
-  effect: (action, listenerApi) => {
-    const curr = listenerApi.getState().terms;
+  effect: (_, listenerApi) => {
+    // only store term data here
+    const termData = listenerApi.getState().terms.data;
+    const planData = listenerApi.getState().plans;
+
     try {
-      localStorage.setItem(LocalStorage.TERMS, JSON.stringify(curr));
+      localStorage.setItem(LocalStorage.TERMS, JSON.stringify(termData));
+      localStorage.setItem(LocalStorage.PLANS, JSON.stringify(planData));
     } catch (error) {
+      console.error(error);
       toast.error("Saving Failed")
     }
   }
 })
-
-startListening({
-  predicate: (action) => {
-    return isCourseTakenAction(action);
-  },
-  effect: (action, listenerApi) => {
-    const curr = listenerApi.getState().courseTaken;
-    try {
-      localStorage.setItem(LocalStorage.COURSE_TAKEN, JSON.stringify(curr));
-    } catch (error) {
-      toast.error("Saving Failed")
-    }
-  }
-})
-
-type TermAction = ReturnType<typeof termSlice.actions[keyof typeof termSlice.actions]>
-type CourseTakenAction = ReturnType<typeof courseTakenSlice.actions[keyof typeof courseTakenSlice.actions]>
-
-/**
- * traditional middleware, 
- */
-// const localStorageMiddleware: Middleware = (store: MiddlewareAPI<Dispatch<TermAction>, RootState>) => next => action => {
-
-//   const result = next(action);
-//   try {
-//     if (isTermActions(action)) {
-//       const curr = store.getState().terms;
-//       localStorage.setItem(LocalStorage.TERMS, JSON.stringify(curr));
-//     } else if (isCourseTakenAction(action)) {
-//       const curr = store.getState().courseTaken;
-//       localStorage.setItem(LocalStorage.COURSE_TAKEN, JSON.stringify(curr));
-//     }
-//   } catch (error) {
-//     toast.error("Saving Failed")
-//   }
-
-//   return result;
-// }
 
 export default listenerMiddleware.middleware;

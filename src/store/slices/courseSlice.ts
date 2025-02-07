@@ -15,12 +15,12 @@ const courseSlice = createSlice({
         isMounted: false,
       }
     },
-    addCourses: (state, action: PayloadAction<IRawCourse[]>) => {
+    setCoursesData: (state, action: PayloadAction<IRawCourse[]>) => {
       action.payload.forEach((course) => {
         state[course.id] = {
           ...course,
           isExpanded: true,
-          isMounted: false,
+          isMounted: true,
         }
       })
     },
@@ -36,5 +36,5 @@ const courseSlice = createSlice({
   },
 })
 
-export const { addCourse, addCourses, deleteCourse, setCourseExpanded, setCourseMounted } = courseSlice.actions
+export const { addCourse, setCoursesData, deleteCourse, setCourseExpanded, setCourseMounted } = courseSlice.actions
 export default courseSlice.reducer

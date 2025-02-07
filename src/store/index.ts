@@ -1,7 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit'
 import { enableMapSet } from 'immer'
-import { courseReducer, courseTakenReducer, globalReducer, termsReducer } from './slices';
-import { errorMiddleware, localStorageMiddleware } from './middlewares';
+import { courseReducer, courseTakenReducer, globalReducer, termsReducer, planReducer } from './slices';
+import { errorMiddleware, localStorageMiddleware, planSyncMiddleware } from './middlewares';
 
 enableMapSet();
 
@@ -12,12 +12,14 @@ export const makeStore = () => {
       courses: courseReducer,
       terms: termsReducer,
       global: globalReducer,
-      courseTaken: courseTakenReducer
+      courseTaken: courseTakenReducer,
+      plans: planReducer,
     },
     middleware: (getDefaultMiddleware) => 
       getDefaultMiddleware()
         .prepend(errorMiddleware)
-        .concat(localStorageMiddleware)
+        .concat(localStorageMiddleware) // update at return
+        .concat(planSyncMiddleware)
   })
 }
 

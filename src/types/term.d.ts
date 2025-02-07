@@ -16,5 +16,6 @@ export interface PlanMap {
     id: PlanId;
     name: string;
     termIds: TermId[];
+    courseTaken: CourseCode[];
   };
 }

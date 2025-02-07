@@ -28,7 +28,8 @@ export enum GroupType {
 
 export enum LocalStorage {
   COURSE_TAKEN = 'courseTaken',
-  TERMS = 'terms'
+  TERMS = 'terms',
+  PLANS = 'plans',
 }
 
 export enum Constants {
