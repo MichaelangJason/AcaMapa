@@ -3,13 +3,9 @@
   width: fit-content;
   height: fit-content;
   background-color: #fff;
-  padding: 10px;
   border-radius: 5px;
   box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
-
-  & * {
-    cursor: pointer;
-  }
+  padding: 10px 0px;
 
   .dropdown-menu-trigger {
     flex-shrink: 0;
@@ -20,13 +16,19 @@
     font-weight: 600;
     color: #666;
     margin-bottom: 5px;
+    margin-left: 10px;
   }
 
   .dropdown-menu-item {
     display: flex;
+    margin: 0px 10px;
     flex-direction: row;
     align-items: center;
-    justify-content: space-between;
+    cursor: pointer;
+
+    &[data-highlighted="false"] {
+      background-color: #f0f0f0;
+    }
   }
 
   .dropdown-menu-separator {
@@ -38,4 +40,11 @@
   .dropdown-menu-arrow {
     fill: #fff;
   }
+}
+
+.dropdown-menu-dragging {
+  display: flex;
+  margin: 0px 10px;
+  flex-direction: row;
+  align-items: center;
 }

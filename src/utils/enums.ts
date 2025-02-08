@@ -1,6 +1,7 @@
 export enum DraggingType {
   TERM = "TERM",
   COURSE = "COURSE",
+  PLAN = "PLAN",
 }
 
 export enum CourseTagType {

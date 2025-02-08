@@ -10,7 +10,7 @@ import "@/styles/terms.scss";
 import { Constants, DraggingType } from "@/utils/enums";
 import { useEffect } from "react";
 import { setSeekingInfo } from "@/store/slices/globalSlice";
-import { UtilityBar, Seeking } from "@/components/Layout";
+import { Seeking } from "@/components/Layout";
 import { TermCardSkeleton } from "../Skeleton";
 import { getTermCardConfig } from "@/utils/skeleton";
 
@@ -74,7 +74,6 @@ const Terms = () => {
                 height: "auto"
               }}
             /> */}
-            <UtilityBar />
             {isSeeking && <div className="seeking-mask" onClick={handleSeekingMaskClick}/>}
             <div className={`terms-placeholder-box ${isSideBarExpanded ? '' : 'folded'}`}/>
             {isInitialized 

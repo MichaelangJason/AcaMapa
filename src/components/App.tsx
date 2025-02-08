@@ -3,7 +3,7 @@
 import { AppStore, makeStore } from "@/store"
 import { Provider } from "react-redux"
 import { KeyPressListener, ToolTips } from "@/components/Common";
-import { SideBar } from "@/components/Layout";
+import { SideBar, UtilityBar } from "@/components/Layout";
 import { Terms } from "@/components/Term";
 import { setDroppableId, setInitCourses, setIsInitialized, setDraggingType } from "@/store/slices/globalSlice";
 import { deleteTerm, moveCourse, moveTerm, setTermsData } from "@/store/slices/termSlice";
@@ -15,7 +15,7 @@ import { TutorialModal, AboutModal } from "@/components/Modal";
 import { useEffect, useRef } from "react";
 import { IRawCourse } from "@/db/schema";
 import { isValidPlanState, isValidTermData } from "@/utils/typeGuards";
-import { setPlans } from "@/store/slices/planSlice";
+import { movePlan, setPlans } from "@/store/slices/planSlice";
 import { Course } from "@/types/course";
 import { setCoursesData } from "@/store/slices/courseSlice";
 
@@ -56,7 +56,10 @@ const App = () => {
       return;
     }
     if (type === DraggingType.TERM) {
-      dispatch(moveTerm({ sourceIdx: source.index, destinationIdx: destination.index }));
+      dispatch(moveTerm({ 
+        sourceIdx: source.index, 
+        destinationIdx: destination.index 
+      }));
     }
     if (type === DraggingType.COURSE) {
       dispatch(moveCourse({
@@ -65,6 +68,12 @@ const App = () => {
         destinationIdx: destination.index, 
         sourceTermId: source.droppableId, 
         destinationTermId: destination.droppableId 
+      }));
+    }
+    if (type === DraggingType.PLAN) {
+      dispatch(movePlan({
+        sourceIdx: source.index,
+        destinationIdx: destination.index,
       }));
     }
   }
@@ -76,6 +85,7 @@ const App = () => {
         onDragEnd={handleDragEnd}
         onDragUpdate={handleDragUpdate}
       >
+        <UtilityBar />
         <SideBar />
         <Terms />
         <KeyPressListener />
@@ -148,6 +158,8 @@ const Wrapper = (props: { initCourses: IRawCourse[] }) => {
             })
 
             if (!courses.ok) {
+              console.error(courses);
+              console.error(courses.status);
               throw new Error("Failed to fetch courses");
             }
 
