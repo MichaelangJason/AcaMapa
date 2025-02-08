@@ -19,8 +19,12 @@ export const GET = async () => {
 export const POST = async (req: Request) => {
   const { courseIds } = await req.json();
 
-  if (!courseIds?.length) {
-    return NextResponse.json({ error: "No course ids provided" }, { status: 400 });
+  if (!courseIds) {
+    return NextResponse.json({ error: "Course ids are required" }, { status: 400 });
+  }
+
+  if (courseIds.length === 0) {
+    return NextResponse.json([], { status: 200 });
   }
 
   try {
