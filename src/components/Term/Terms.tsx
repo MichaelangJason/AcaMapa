@@ -36,18 +36,6 @@ const Terms = () => {
 
   const handleAddTerm = () => {
     dispatch(addTerm());
-    // Scroll to rightmost after adding term
-    setTimeout(() => {
-    const body = document.documentElement;
-    const scrollWidth = Math.max(
-      body.scrollWidth - window.innerWidth,
-      0
-    );
-    window.scrollTo({
-      left: scrollWidth,
-      behavior: 'smooth'
-    });
-  }, 50);
   }
 
   const handleSeekingMaskClick = () => {

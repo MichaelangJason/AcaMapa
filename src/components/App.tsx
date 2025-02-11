@@ -5,7 +5,7 @@ import { Provider } from "react-redux"
 import { KeyPressListener, ToolTips } from "@/components/Common";
 import { SideBar, UtilityBar } from "@/components/Layout";
 import { Terms } from "@/components/Term";
-import { setDroppableId, setInitCourses, setIsInitialized, setDraggingType } from "@/store/slices/globalSlice";
+import { setDroppableId, setInitCourses, setIsInitialized, setDraggingType, setIsDragging } from "@/store/slices/globalSlice";
 import { deleteTerm, moveCourse, moveTerm, setTermsData } from "@/store/slices/termSlice";
 import { DraggingType, LocalStorage } from "@/utils/enums";
 import { DragDropContext, DragStart, DragUpdate, DropResult } from "@hello-pangea/dnd";
@@ -26,6 +26,7 @@ const App = () => {
   const handleDragStart = (start: DragStart) => {
     dispatch(setDraggingType(start.type as DraggingType));
     dispatch(setDroppableId(start.source.droppableId));
+    dispatch(setIsDragging(true));
   }
 
   const handleDragUpdate = (update: DragUpdate) => {
@@ -45,6 +46,7 @@ const App = () => {
     const { destination, source, draggableId, type } = result;
     dispatch(setDraggingType(null));
     dispatch(setDroppableId(null));
+    dispatch(setIsDragging(false));
     if (!destination) return;
     if (
       destination.droppableId === source.droppableId &&

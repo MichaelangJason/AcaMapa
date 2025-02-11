@@ -37,10 +37,7 @@ export const planSlice = createSlice({
       state.data[action.payload.planId].courseTaken = action.payload.courseTaken;
     },
     removePlan: (state, action: PayloadAction<PlanId>) => {
-      const index = state.order.indexOf(action.payload);
-      if (index !== -1) {
-        state.order.splice(index, 1);
-      }
+      state.order = state.order.filter(id => id !== action.payload);
       delete state.data[action.payload];
     },
     setCurrentPlanId: (state, action: PayloadAction<PlanId>) => {
@@ -52,10 +49,8 @@ export const planSlice = createSlice({
     movePlan: (state, action: PayloadAction<{sourceIdx: number; destinationIdx: number}>) => {
       const { sourceIdx, destinationIdx } = action.payload
       const item = state.order[sourceIdx]
-      const newOrder = [...state.order]
-      newOrder.splice(sourceIdx, 1)
-      newOrder.splice(destinationIdx, 0, item)
-      state.order = newOrder
+      state.order.splice(sourceIdx, 1)
+      state.order.splice(destinationIdx, 0, item)
     },
     setPlans: (state, action: PayloadAction<typeof initialState>) => {
       state.data = action.payload.data;

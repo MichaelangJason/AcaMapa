@@ -105,8 +105,6 @@ export const isSatisfied = (
   return prereqSatisfied && restrictionSatisfied && coreqSatisfied;
 }
 
-
-
 export const splitCourseIds = (val: string[]) => {
   const pattern = /^[a-zA-Z]{4} \d{3}([djnDJN][1-3])?$/;
   
@@ -436,4 +434,11 @@ export const processQuery = (query: FlexSearch.SimpleDocumentSearchResultSetUnit
   })
 
   return result;
+}
+
+export const getShortcutByDevice = (key: string) => {
+  if (typeof window !== "undefined") {
+    return window.navigator.userAgent.includes("Mac") ? `Cmd + ${key}` : `Ctrl + ${key}`;
+  }
+  return `Ctrl + ${key}`;
 }

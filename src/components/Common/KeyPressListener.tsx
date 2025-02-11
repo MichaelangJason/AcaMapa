@@ -1,7 +1,8 @@
-import { setAddingCourseId, setIsSideBarExpanded, setSeekingInfo, toggleCourseTakenExpanded, toggleSideBarExpanded } from "@/store/slices/globalSlice";
+import { setAddingCourseId, setIsSideBarExpanded, setSeekingInfo, toggleCourseTakenExpanded, toggleUtilityDropdownMenuOpen, toggleSideBarExpanded } from "@/store/slices/globalSlice";
 import { useEffect, useCallback } from "react";
 import { useDispatch } from "react-redux";
 import { addTerm } from "@/store/slices/termSlice";
+import { addPlan } from "@/store/slices/planSlice";
 
 
 const KeyPressListener = () => {
@@ -52,6 +53,12 @@ const KeyPressListener = () => {
       } else if (key === 'l') { // toggle course taken
         event.preventDefault();
         dispatch(toggleCourseTakenExpanded());
+      } else if (key === 'p') { // add plan
+        event.preventDefault();
+        dispatch(addPlan());
+      } else if (key === 'm') { // toggle dropdown menu
+        event.preventDefault();
+        dispatch(toggleUtilityDropdownMenuOpen());
       }
     }
   }, [dispatch]);

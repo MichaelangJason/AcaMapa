@@ -1,6 +1,6 @@
 import { Middleware, Dispatch, MiddlewareAPI } from "@reduxjs/toolkit";
 import { RootState } from "..";
-import { setPlanTermIds, planSlice, setCurrentPlanId, setPlanCourseTaken } from '../slices/planSlice';
+import { setPlanTermIds, planSlice, setCurrentPlanId, setPlanCourseTaken, addPlan } from '../slices/planSlice';
 import { deleteMultipleTerms, termSlice, addTerm, setTermOrder } from '../slices/termSlice';
 import { courseTakenSlice, setCourseTaken } from "../slices/courseTakenSlice";
 import { PlanAction, TermAction, CourseTakenAction } from "@/types/actions";
@@ -26,12 +26,23 @@ const planSyncMiddleware: Middleware =
 
         case planSlice.actions.removePlan.type: {
           const planId = action.payload;
-          const termIds = store.getState().plans.data[planId].termIds;
+          let state = store.getState();
+          const termIds = state.plans.data[planId].termIds;
+          const isCurrentPlan = state.plans.currentPlanId === planId;
 
           // delete the plan
           const response = next(action);
 
           store.dispatch(deleteMultipleTerms(termIds));
+          
+          state = store.getState();
+          if (state.plans.order.length === 0) {
+            store.dispatch(addPlan());
+          }
+          state = store.getState();
+          if (isCurrentPlan) {
+            store.dispatch(setCurrentPlanId(state.plans.order[0]));
+          }
           
           return response;
         }
@@ -40,9 +51,9 @@ const planSyncMiddleware: Middleware =
         case planSlice.actions.setCurrentPlanId.type: {
           const response = next(action);
          
-          const planId = store.getState().plans.currentPlanId;
           const state = store.getState();
-          const { termIds, courseTaken} = state.plans.data[planId];
+          const planId = state.plans.currentPlanId;
+          const { termIds, courseTaken } = state.plans.data[planId];
 
           store.dispatch(setTermOrder(termIds));
           store.dispatch(setCourseTaken(courseTaken));
@@ -83,6 +94,7 @@ const planSyncMiddleware: Middleware =
         }
       }
     }
+
     return next(action);
   }
 

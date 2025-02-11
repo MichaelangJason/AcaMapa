@@ -18,6 +18,8 @@ export const initialState = {
   isSideBarExpanded: true as boolean,
   isCourseTakenExpanded: false as boolean,
   isInitialized: false as boolean,
+  isUtilityDropdownMenuOpen: false as boolean,
+  isDragging: false as boolean,
 }
 
 const globalSlice = createSlice({
@@ -64,9 +66,11 @@ const globalSlice = createSlice({
     },
     setIsSideBarExpanded: (state, action: PayloadAction<boolean>) => {
       state.isSideBarExpanded = action.payload;
+      state.isUtilityDropdownMenuOpen = false;
     },
     toggleSideBarExpanded: (state) => {
       state.isSideBarExpanded = !state.isSideBarExpanded;
+      state.isUtilityDropdownMenuOpen = false;
     },
     setIsCourseTakenExpanded: (state, action: PayloadAction<boolean>) => {
       state.isCourseTakenExpanded = action.payload;
@@ -76,6 +80,15 @@ const globalSlice = createSlice({
     },
     setIsInitialized: (state, action: PayloadAction<boolean>) => {
       state.isInitialized = action.payload;
+    },
+    setIsUtilityDropdownMenuOpen: (state, action: PayloadAction<boolean>) => {
+      state.isUtilityDropdownMenuOpen = action.payload;
+    },
+    toggleUtilityDropdownMenuOpen: (state) => {
+      state.isUtilityDropdownMenuOpen = !state.isUtilityDropdownMenuOpen;
+    },
+    setIsDragging: (state, action: PayloadAction<boolean>) => {
+      state.isDragging = action.payload;
     },
   },
 });
@@ -94,6 +107,9 @@ export const {
   setIsCourseTakenExpanded,
   toggleCourseTakenExpanded,
   setIsInitialized,
+  setIsUtilityDropdownMenuOpen,
+  toggleUtilityDropdownMenuOpen,
+  setIsDragging,
 } = globalSlice.actions;
 
 export default globalSlice.reducer;

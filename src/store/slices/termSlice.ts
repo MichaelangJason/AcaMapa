@@ -50,10 +50,8 @@ export const termSlice = createSlice({
     moveTerm: (state, action: PayloadAction<{sourceIdx: number; destinationIdx: number}>) => {
       const { sourceIdx, destinationIdx } = action.payload
       const item = state.order[sourceIdx]
-      const newOrder = [...state.order]
-      newOrder.splice(sourceIdx, 1)
-      newOrder.splice(destinationIdx, 0, item)
-      state.order = newOrder
+      state.order.splice(sourceIdx, 1)
+      state.order.splice(destinationIdx, 0, item)
     },
     addCourseToTerm: (state, action: PayloadAction<{ termId: string; courseId: CourseCode }>) => {
       const { termId, courseId } = action.payload
