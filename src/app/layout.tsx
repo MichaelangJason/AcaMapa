@@ -2,8 +2,8 @@ import '@/styles/globals.css'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Course Planner',
-  description: 'An AI-powered course planner with basic ',
+  title: 'Degree Mapper',
+  description: 'An AI-powered degree planner',
 }
 
 export default function RootLayout({
