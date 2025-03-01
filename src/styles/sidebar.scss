@@ -217,8 +217,9 @@
 
 .sidebar-toggle {
   position: fixed;
-  left: var(--sidebar-width);
-  height: 100vh;
+  left: var(--sidebar-width); 
+  top: 50%;
+
   width: fit-content;
   z-index: 290;
   padding-left: 5px;

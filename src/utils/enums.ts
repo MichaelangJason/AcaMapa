@@ -1,6 +1,7 @@
 export enum DraggingType {
   TERM = "TERM",
   COURSE = "COURSE",
+  PLAN = "PLAN",
 }
 
 export enum CourseTagType {
@@ -28,7 +29,8 @@ export enum GroupType {
 
 export enum LocalStorage {
   COURSE_TAKEN = 'courseTaken',
-  TERMS = 'terms'
+  TERMS = 'terms',
+  PLANS = 'plans',
 }
 
 export enum Constants {

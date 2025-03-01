@@ -1,38 +1,34 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { Middleware, Dispatch, MiddlewareAPI } from "@reduxjs/toolkit";
-import type { termSlice } from '../slices/termSlice'
-import type { courseTakenSlice } from '../slices/courseTakenSlice'
-import { RootState } from "..";
+import { createListenerMiddleware } from "@reduxjs/toolkit";
+import { AppDispatch, RootState } from "..";
 import { toast } from "react-toastify";
 import { LocalStorage } from "@/utils/enums";
+import { isTermActions, isCourseTakenAction, isPlanActions } from "@/utils/typeGuards";
 
-type TermAction = ReturnType<typeof termSlice.actions[keyof typeof termSlice.actions]>
-type CourseTakenAction = ReturnType<typeof courseTakenSlice.actions[keyof typeof courseTakenSlice.actions]>
+const listenerMiddleware = createListenerMiddleware();
+const startListening = listenerMiddleware.startListening.withTypes<
+  RootState,
+  AppDispatch
+>();
 
-// custom type guard
-const isTermActions = (action: unknown): action is TermAction => {
-  return (action as TermAction)?.type.startsWith('terms')
-}
-const isCourseTakenAction = (action: unknown): action is CourseTakenAction => {
-  return (action as CourseTakenAction)?.type.startsWith('courseTaken');
-}
+// update term data
+startListening({
+  predicate: (action) => {
+    // there are not many overhead here, so lets keep this simple
+    return isTermActions(action) || isCourseTakenAction(action) || isPlanActions(action);
+  },
+  effect: (_, listenerApi) => {
+    // only store term data here
+    const termData = listenerApi.getState().terms.data;
+    const planData = listenerApi.getState().plans;
 
-const localStorageMiddleware: Middleware = (store: MiddlewareAPI<Dispatch<TermAction>, RootState>) => next => action => {
-
-  const result = next(action);
-  try {
-    if (isTermActions(action)) {
-      const curr = store.getState().terms;
-      localStorage.setItem(LocalStorage.TERMS, JSON.stringify(curr));
-    } else if (isCourseTakenAction(action)) {
-      const curr = store.getState().courseTaken;
-      localStorage.setItem(LocalStorage.COURSE_TAKEN, JSON.stringify(curr));
+    try {
+      localStorage.setItem(LocalStorage.TERMS, JSON.stringify(termData));
+      localStorage.setItem(LocalStorage.PLANS, JSON.stringify(planData));
+    } catch (error) {
+      console.error(error);
+      toast.error("Saving Failed")
     }
-  } catch (error) {
-    toast.error("Saving Failed")
   }
+})
 
-  return result;
-}
-
-export default localStorageMiddleware;
+export default listenerMiddleware.middleware;

@@ -15,15 +15,21 @@ export const courseTakenSlice = createSlice({
       }
       // check if already exists
       if (state[prefix].includes(action.payload)) {
-        return
+        return;
       }
       state[prefix].push(action.payload)
       state[prefix].sort()
     },
-    importCourseTaken: (state, action: PayloadAction<typeof initialState>) => {
-      Object.entries(action.payload).forEach(([prefix, courseIds]) => {
-        state[prefix] = courseIds
-        state[prefix].sort();
+    setCourseTaken: (state, action: PayloadAction<CourseCode[]>) => {
+      const keys = Object.keys(state)
+      keys.forEach(key => { delete state[key] })
+      
+      action.payload.forEach(course => {
+        const prefix = course.split(' ')[0]
+        if (!state[prefix]) {
+          state[prefix] = []
+        }
+        state[prefix].push(course)
       })
     },
     removeCourseTaken: (state, action: PayloadAction<CourseCode>) => {
@@ -36,5 +42,5 @@ export const courseTakenSlice = createSlice({
   }
 })
 
-export const { addCourseTaken, importCourseTaken, removeCourseTaken } = courseTakenSlice.actions
+export const { addCourseTaken, setCourseTaken, removeCourseTaken } = courseTakenSlice.actions
 export default courseTakenSlice.reducer
