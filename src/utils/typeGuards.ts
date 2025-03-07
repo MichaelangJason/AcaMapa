@@ -1,7 +1,8 @@
 import type { initialState as TermsState } from '@/store/slices/termSlice'
 import type { initialState as CourseTakenState } from '@/store/slices/courseTakenSlice'
 import type { initialState as PlanState } from '@/store/slices/planSlice'
-import { TermAction, CourseTakenAction, PlanAction } from '@/types/actions';
+import type { initialState as AssistantState } from '@/store/slices/assistantSlice'
+import { TermAction, CourseTakenAction, PlanAction, AssistantAction } from '@/types/actions';
 
 export const isValidPlanState = (plans: unknown): plans is typeof PlanState => {
   if (!plans || typeof plans !== 'object') return false;
@@ -16,6 +17,18 @@ export const isValidPlanState = (plans: unknown): plans is typeof PlanState => {
     typeof p.data === 'object' &&
     typeof p.currentPlanId === 'string'
   );
+}
+
+export const isValidAssistantState = (assistant: unknown): assistant is typeof AssistantState => {
+  if (!assistant || typeof assistant !== 'object') return false;
+
+  const a = assistant as typeof AssistantState;
+  
+  return 'threadIds' in a && 
+    'currentThreadId' in a && 
+    Array.isArray(a.threadIds) && 
+    a.threadIds.every(id => typeof id === 'string') && 
+    typeof a.currentThreadId === 'string';
 }
 
 export const isValidTermData = (data: unknown): data is typeof TermsState['data'] => {
@@ -54,4 +67,7 @@ export const isCourseTakenAction = (action: unknown): action is CourseTakenActio
 }
 export const isPlanActions = (action: unknown): action is PlanAction => {
   return (action as PlanAction)?.type.startsWith('plans');
+}
+export const isAssistantAction = (action: unknown): action is AssistantAction => {
+  return (action as AssistantAction)?.type.startsWith('assistant');
 }

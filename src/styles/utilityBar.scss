@@ -13,6 +13,7 @@
   gap: 10px;
   padding: 0px 10px;
   padding-left: calc(var(--sidebar-width) + 10px);
+  padding-right: calc(var(--sidebar-width) + 10px); // for AI assitant
 
   background-color: var(--term-topbottom-color);
   overflow-x: scroll;

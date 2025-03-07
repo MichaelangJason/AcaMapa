@@ -31,6 +31,7 @@ export enum LocalStorage {
   COURSE_TAKEN = 'courseTaken',
   TERMS = 'terms',
   PLANS = 'plans',
+  ASSISTANT = 'assistant',
 }
 
 export enum Constants {
@@ -38,4 +39,16 @@ export enum Constants {
   MOCK_RESULT_WIDTH = 200,
   MOCK_IN_TERM_WIDTH = 160,
   MOCK_NUM_TERMS = 3,
+}
+
+export enum ModalType {
+  TUTORIAL = "TUTORIAL",
+  ABOUT = "ABOUT",
+  RENAME = "RENAME",
+  NONE = "NONE",
+}
+
+export enum MessageType {
+  HUMAN = 'human',
+  AI = 'ai',
 }

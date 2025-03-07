@@ -1,5 +1,5 @@
 import { IRawCourse } from "@/db/schema";
-import { DraggingType } from "@/utils/enums";
+import { DraggingType, ModalType } from "@/utils/enums";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export const initialState = {
@@ -13,9 +13,15 @@ export const initialState = {
     isReadyToShow: undefined as boolean | undefined,
   },
   searchInput: '' as string,
-  isTutorialModalOpen: false as boolean,
-  isAboutModalOpen: false as boolean,
+  assistantInput: '' as string,
+  modalInfo: {
+    isOpen: false as boolean,
+    type: ModalType.NONE,
+    data: '' as string,
+    id: '' as string,
+  },
   isSideBarExpanded: true as boolean,
+  isAssistantExpanded: true as boolean,
   isCourseTakenExpanded: false as boolean,
   isInitialized: false as boolean,
   isUtilityDropdownMenuOpen: false as boolean,
@@ -58,11 +64,8 @@ const globalSlice = createSlice({
     setSearchInput: (state, action: PayloadAction<string>) => {
       state.searchInput = action.payload;
     },
-    setIsTutorialModalOpen: (state, action: PayloadAction<boolean>) => {
-      state.isTutorialModalOpen = action.payload;
-    },
-    setIsAboutModalOpen: (state, action: PayloadAction<boolean>) => {
-      state.isAboutModalOpen = action.payload;
+    setAssistantInput: (state, action: PayloadAction<string>) => {
+      state.assistantInput = action.payload;
     },
     setIsSideBarExpanded: (state, action: PayloadAction<boolean>) => {
       state.isSideBarExpanded = action.payload;
@@ -71,6 +74,12 @@ const globalSlice = createSlice({
     toggleSideBarExpanded: (state) => {
       state.isSideBarExpanded = !state.isSideBarExpanded;
       state.isUtilityDropdownMenuOpen = false;
+    },
+    setIsAssistantExpanded: (state, action: PayloadAction<boolean>) => {
+      state.isAssistantExpanded = action.payload;
+    },
+    toggleAssistantExpanded: (state) => {
+      state.isAssistantExpanded = !state.isAssistantExpanded;
     },
     setIsCourseTakenExpanded: (state, action: PayloadAction<boolean>) => {
       state.isCourseTakenExpanded = action.payload;
@@ -90,6 +99,12 @@ const globalSlice = createSlice({
     setIsDragging: (state, action: PayloadAction<boolean>) => {
       state.isDragging = action.payload;
     },
+    setModalInfo: (state, action: PayloadAction<{ isOpen: boolean, type: ModalType, data: string, id: string }>) => {
+      state.modalInfo = action.payload;
+    },
+    clearModalInfo: (state) => {
+      state.modalInfo = initialState.modalInfo;
+    },
   },
 });
 
@@ -100,16 +115,19 @@ export const {
   setInitCourses, 
   setSeekingInfo, 
   setSearchInput,
-  setIsTutorialModalOpen,
-  setIsAboutModalOpen,
+  setAssistantInput,
   setIsSideBarExpanded,
   toggleSideBarExpanded,
+  setIsAssistantExpanded: setIsAIAssistantExpanded,
+  toggleAssistantExpanded: toggleAIAssistantExpanded,
   setIsCourseTakenExpanded,
   toggleCourseTakenExpanded,
   setIsInitialized,
   setIsUtilityDropdownMenuOpen,
   toggleUtilityDropdownMenuOpen,
   setIsDragging,
+  setModalInfo,
+  clearModalInfo,
 } = globalSlice.actions;
 
 export default globalSlice.reducer;

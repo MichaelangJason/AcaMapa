@@ -4,6 +4,8 @@ export const POST = async (req: NextRequest) => {
   const backendUrl = process.env.AI_BACKEND_URL!;
   const { messages, threadId } = await req.json();
 
+  // console.log(messages, threadId);
+
   const AIResponse = await fetch(backendUrl, {
     method: "POST",
     headers: {
@@ -18,6 +20,7 @@ export const POST = async (req: NextRequest) => {
   }
 
   const reader = AIResponse.body.getReader();
+  // const decoder = new TextDecoder();
 
   const stream = new ReadableStream({
     async start(controller) {
@@ -27,6 +30,7 @@ export const POST = async (req: NextRequest) => {
           controller.close();
           return;
         }
+        // console.log(decoder.decode(value, { stream: true }));
         controller.enqueue(value); // push data to the stream, forward the chunk to client
         read();
       }
