@@ -1,7 +1,7 @@
 import Image  from "next/image"
 import { useDispatch, useSelector } from "react-redux"
 import { RootState } from "@/store"
-import { setIsSideBarExpanded, setAssistantInput } from "@/store/slices/globalSlice"
+import { setAssistantInput } from "@/store/slices/globalSlice"
 import "@/styles/assistant.scss"
 import "@/styles/dropdown.scss"
 import { ChangeEvent, useEffect, useState } from "react"
@@ -29,16 +29,16 @@ const UserMessage = (props: { message: Message }) => {
   )
 }
 
-const FormMessage = <T extends Message>(props: { message: T }) => {
-  return (
-    <article className="form-message">
-      <p>{props.message.content}</p>
-    </article>
-  )
-}
+// const FormMessage = <T extends Message>(props: { message: T }) => {
+//   return (
+//     <article className="form-message">
+//       <p>{props.message.content}</p>
+//     </article>
+//   )
+// }
 
 const History = () => {
-  const [open, setOpen] = useState(false);
+  // const [open, setOpen] = useState(false);
   const threadIds = useSelector((state: RootState) => state.assistant.threadIds);
   const dispatch = useDispatch();
   return (
@@ -83,9 +83,9 @@ const Assistant = () => {
     dispatch(setCurrentThreadId(null));
   }
 
-  const handleAssistantToggle = () => {
-    dispatch(setIsSideBarExpanded(!isAssistantExpanded));
-  }
+  // const handleAssistantToggle = () => {
+  //   dispatch(setIsSideBarExpanded(!isAssistantExpanded));
+  // }
 
   const handleSendMessage = async () => {
     const messages = [assistantInput];
@@ -184,7 +184,7 @@ const Assistant = () => {
     }
 
     fetchConversation();
-  }, [threadId])
+  }, [threadId, dispatch])
 
   return (
     <>
