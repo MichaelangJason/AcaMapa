@@ -3,12 +3,14 @@ import { useDispatch, useSelector } from "react-redux"
 import { RootState } from "@/store"
 import { setIsSideBarExpanded, setAssistantInput } from "@/store/slices/globalSlice"
 import "@/styles/assistant.scss"
+import "@/styles/dropdown.scss"
 import { ChangeEvent, useEffect, useState } from "react"
 import { Message } from "@/types/assistant"
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { addThreadId, setCurrentThreadId } from "@/store/slices/assistantSlice"
 import { MessageType } from "@/utils/enums"
+import * as DM from '@radix-ui/react-dropdown-menu'
 
 
 const AIMessage = (props: { message: Message }) => {
@@ -27,6 +29,43 @@ const UserMessage = (props: { message: Message }) => {
   )
 }
 
+const FormMessage = <T extends Message>(props: { message: T }) => {
+  return (
+    <article className="form-message">
+      <p>{props.message.content}</p>
+    </article>
+  )
+}
+
+const History = () => {
+  const [open, setOpen] = useState(false);
+  const threadIds = useSelector((state: RootState) => state.assistant.threadIds);
+  const dispatch = useDispatch();
+  return (
+    <DM.Root modal={false}>
+      <DM.Trigger className="dropdown-menu-trigger">
+        <Image src="/history.svg" alt="history" width={20} height={20} />
+      </DM.Trigger>
+      <DM.Portal>
+        <DM.Content className="dropdown-menu-content" 
+            align='start' 
+            sideOffset={8} 
+        >
+          {threadIds.map((threadId) => (
+            <DM.Item 
+              className="dropdown-menu-item" 
+              key={threadId} 
+              onClick={() => dispatch(setCurrentThreadId(threadId))}
+            >
+              <p>{threadId}</p>
+            </DM.Item>
+          ))}
+        </DM.Content>
+      </DM.Portal>
+    </DM.Root>
+  )
+}
+
 
 const Assistant = () => {
   const dispatch = useDispatch() // for redux state manipulations
@@ -40,17 +79,20 @@ const Assistant = () => {
     dispatch(setAssistantInput(e.target.value));
   }
 
+  const handleNewThread = () => {
+    dispatch(setCurrentThreadId(null));
+  }
+
   const handleAssistantToggle = () => {
     dispatch(setIsSideBarExpanded(!isAssistantExpanded));
   }
 
   const handleSendMessage = async () => {
     const messages = [assistantInput];
-    dispatch(setAssistantInput(""));
+    dispatch(setAssistantInput("")); // TODO: support for form messages
 
     // append new user message to the conversation
     setConversation((prev) => [...prev, { role: MessageType.HUMAN, content: assistantInput }]);
-
 
     // send message to backend
     const response = await fetch("/api/chat", {
@@ -107,6 +149,7 @@ const Assistant = () => {
           }]);
         } catch (e) {
           console.error(e);
+          console.log("Data: ", eventData);
           break;
         }
       
@@ -116,17 +159,26 @@ const Assistant = () => {
 
   // load the conversation history from the backend
   useEffect(() => {
-    if (!threadId) return;
+    if (!threadId) {
+      setConversation([]);
+      return;
+    };
 
     const fetchConversation = async () => {
       const response = await fetch(`/api/chat/${threadId}`);
-      const data: { messages: Message[], threadId: string } = await response.json();
-  
-      if (!response.ok || !data) {
+      
+      if (!response.ok) {
         console.error("Failed to fetch thread history");
         return;
       }
-  
+      
+      const data: { messages: Message[], threadId: string } = await response.json();
+
+      if (!data.messages || !data.threadId) {
+        console.error("Invalid thread history");
+        return;
+      }
+
       setConversation(data.messages);
       dispatch(setCurrentThreadId(data.threadId));
     }
@@ -136,7 +188,7 @@ const Assistant = () => {
 
   return (
     <>
-      <div className={`assistant-toggle ${isAssistantExpanded ? '' : 'folded'}`} onClick={handleAssistantToggle}>
+      {/* <div className={`assistant-toggle ${isAssistantExpanded ? '' : 'folded'}`} onClick={handleAssistantToggle}>
         <Image 
           src="/expand.svg" 
           alt="sidebar-toggle" 
@@ -144,8 +196,21 @@ const Assistant = () => {
           height={10}
           className={(isAssistantExpanded ? '' : 'icon-folded')} 
         />
-      </div>
+      </div> */}
       <div className={`assistant ${isAssistantExpanded ? '' : 'folded'}`} id="assistant">
+        <div className="options-container">
+          <div className="title">McGill DegreeMapper</div>
+          <div className="placeholder"/>
+          <Image 
+            src="/add.svg" 
+            alt="add" 
+            width={20} 
+            height={20} 
+            style={{ cursor: 'pointer' }} 
+            onClick={handleNewThread}
+          />
+          <History />
+        </div>
         <div className="conversation-container">
           {conversation.map((message, index) => (
             <div key={index}>

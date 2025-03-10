@@ -51,4 +51,5 @@ export enum ModalType {
 export enum MessageType {
   HUMAN = 'human',
   AI = 'ai',
+  FORM = 'form',
 }

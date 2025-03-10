@@ -28,7 +28,7 @@ export const isValidAssistantState = (assistant: unknown): assistant is typeof A
     'currentThreadId' in a && 
     Array.isArray(a.threadIds) && 
     a.threadIds.every(id => typeof id === 'string') && 
-    typeof a.currentThreadId === 'string';
+    (typeof a.currentThreadId === 'string' || a.currentThreadId === null);
 }
 
 export const isValidTermData = (data: unknown): data is typeof TermsState['data'] => {

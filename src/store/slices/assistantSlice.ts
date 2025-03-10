@@ -10,7 +10,9 @@ const assistantSlice = createSlice({
   initialState,
   reducers: {
     addThreadId: (state, action: PayloadAction<string>) => {
-      state.threadIds.push(action.payload)
+      if (!state.threadIds.includes(action.payload)) {
+        state.threadIds.push(action.payload)
+      }
     },
     removeThreadId: (state, action: PayloadAction<string>) => {
       state.threadIds = state.threadIds.filter(id => id !== action.payload)

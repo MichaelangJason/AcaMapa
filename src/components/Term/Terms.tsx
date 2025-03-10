@@ -76,6 +76,7 @@ const Terms = () => {
                   const mockConfig = getTermCardConfig();
                   return (<TermCardSkeleton key={'mock-term-card-'+idx} coursesConfig={mockConfig}/>)
               })}
+            <div className={`terms-placeholder-box ${isAssistantExpanded ? '' : 'folded'}`}/>
             {provided.placeholder}
           </div>
         )}
