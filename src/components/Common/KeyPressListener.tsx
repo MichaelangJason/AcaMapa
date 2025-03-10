@@ -76,7 +76,7 @@ const KeyPressListener = () => {
         dispatch(toggleUtilityDropdownMenuOpen());
       }
     }
-  }, [dispatch]);
+  }, [dispatch, isSeeking]);
 
   useEffect(() => {
     window.removeEventListener("keydown", handleKeyDown);
