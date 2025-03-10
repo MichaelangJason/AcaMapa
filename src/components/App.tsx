@@ -3,7 +3,7 @@
 import { AppStore, makeStore } from "@/store"
 import { Provider } from "react-redux"
 import { KeyPressListener, ToolTips } from "@/components/Common";
-import { GlobalModal, SideBar, UtilityBar, Assistant } from "@/components/Layout";
+import { SideBar, UtilityBar, Assistant } from "@/components/Layout";
 import { Terms } from "@/components/Term";
 import { setDroppableId, setInitCourses, setIsInitialized, setDraggingType, setIsDragging } from "@/store/slices/globalSlice";
 import { deleteTerm, moveCourse, moveTerm, setTermsData } from "@/store/slices/termSlice";
@@ -93,7 +93,7 @@ const App = () => {
         <Terms />
         <KeyPressListener />
         <ToastContainer
-          position="bottom-right"
+          position="bottom-center"
           autoClose={5000}
           hideProgressBar={true}
           newestOnTop={false}
@@ -108,7 +108,6 @@ const App = () => {
       </DragDropContext>
       <KeyPressListener />
       <ToolTips />
-      <GlobalModal />
     </>
   );
 }

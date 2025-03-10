@@ -3,18 +3,20 @@ import { TermId } from "@/types/term";
 import { Draggable, Droppable } from "@hello-pangea/dnd";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store";
-import { memo, useCallback } from "react";
-import { DraggingType } from "@/utils/enums";
+import { memo, useCallback, useState } from "react";
+import { DraggingType, ModalType } from "@/utils/enums";
 import { setAddingCourseId, setSeekingInfo } from "@/store/slices/globalSlice";
 import { toast } from "react-toastify";
 import { CourseCard } from "@/components/Course";
 import { getCourse } from "@/utils/requests";
-import { addCourseToTerm, deleteTerm } from "@/store/slices/termSlice";
+import { addCourseToTerm, deleteTerm, setTermName } from "@/store/slices/termSlice";
 import { addCourse, setCourseMounted } from "@/store/slices/courseSlice";
 import "@/styles/terms.scss"
+import "@/styles/dropdown.scss"
 import Image from "next/image";
 import { IRawCourse } from "@/db/schema";
-
+import * as DM from "@radix-ui/react-dropdown-menu";
+import RenameConfirmModal, { RenameConfirmModalInfo } from "@/components/Layout/RenameConfirmModal";
 export interface TermCardProps {
   termId: TermId;
   index: number;
@@ -43,6 +45,7 @@ const TermCard = (props: TermCardProps) => {
   const isAddingCourse = addingCourseId !== null;
   const inTermCourseIds = useSelector((state: RootState) => state.terms.inTermCourseIds);
   const existingAddingCourse = useSelector((state: RootState) => addingCourseId ? state.courses[addingCourseId] : null)
+  const [modalInfo, setModalInfo] = useState<RenameConfirmModalInfo | undefined>(undefined);
 
   const handleAddCourse = useCallback(async () => {
     // check if course exists in any term
@@ -90,8 +93,36 @@ const TermCard = (props: TermCardProps) => {
     e.stopPropagation();
     e.preventDefault();
     if (isSeekingSelf) dispatch(setSeekingInfo({})); // clear seeking info
-    dispatch(deleteTerm(termId));
-    toast.success(`Term ${index + 1} deleted`);
+    setModalInfo({
+      type: ModalType.DELETE,
+      confirmCb: () => {
+        dispatch(deleteTerm(termId));
+        toast.success(`Term ${index + 1} deleted`);
+      },
+      closeCb: () => {
+        setModalInfo(undefined);
+      },
+      text: termName
+    })
+  }
+
+  const handleRenameTerm = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    e.preventDefault();
+
+    if (isSeekingSelf) dispatch(setSeekingInfo({})); // clear seeking info
+
+    setModalInfo({
+      type: ModalType.RENAME,
+      confirmCb: (newName: string) => {
+        dispatch(setTermName({ termId, name: newName }));
+        toast.success(`${termName} renamed to ${newName}`);
+      },
+      closeCb: () => {
+        setModalInfo(undefined);
+      },
+      text: termName
+    })
   }
 
   const getMaskTop = () => {
@@ -102,53 +133,72 @@ const TermCard = (props: TermCardProps) => {
   }
 
   return (
-    <Draggable draggableId={termId} index={index} isDragDisabled={isSeeking}>
-      {(provided, snapshot) =>
-        <div
-          className="term"
-          ref={provided.innerRef}
-          {...provided.draggableProps}
-          id={termId}
-        >
-          {/* term header */}
-          <div 
-            className={`term-header ${snapshot.isDragging ? "dragging" : ""} ${isSeeking ? "seeking" : ""}`} 
-            {...provided.dragHandleProps}
+    <>
+      <Draggable draggableId={termId} index={index} isDragDisabled={isSeeking}>
+        {(provided, snapshot) =>
+          <div
+            className="term"
+            ref={provided.innerRef}
+            {...provided.draggableProps}
+            id={termId}
           >
-            <div className="term-name">{termName}</div>
-            <Image className="delete-icon" src="delete.svg" alt="delete" width={20} height={20} onClick={handleDeleteTerm}/>
-          </div>
-          {/* droppable for courses */}
-          <Droppable droppableId={termId} type={DraggingType.COURSE}>
-            {(provided, snapshot) => (
-              <div
-                className={"term-body" + (snapshot.isDraggingOver ? " dragging-over" : "") + (isAddingCourse || isSeeking ? " overflow-hidden" : "")}
-                ref={provided.innerRef}
-                {...provided.droppableProps}
-              >
-                {/* add course mask */}
-                <div 
-                  className={`add-course-mask ${isAddingCourse ? "visible" : ""}`}
-                  style={{ top: getMaskTop() }}
-                  onClick={handleAddCourse}
+            {/* term header */}
+            <div 
+              className={`term-header ${snapshot.isDragging ? "dragging" : ""} ${isSeeking ? "seeking" : ""}`} 
+              {...provided.dragHandleProps}
+            >
+              <div className="term-name">{termName}</div>
+              <DM.Root modal={false}>
+                <DM.Trigger className="delete-icon" asChild>
+                  <Image src="hamburger.svg" alt="delete" width={20} height={20} />
+                </DM.Trigger>
+                
+                <DM.Portal>
+                  <DM.Content className="dropdown-menu-content" sideOffset={4}>
+                    <DM.Item className="dropdown-menu-item" onClick={handleDeleteTerm}>
+                      <span className="name">Delete</span>
+                    </DM.Item>
+                    <DM.Item className="dropdown-menu-item" onClick={handleRenameTerm}>
+                      <span className="name">Rename</span>
+                    </DM.Item>
+                  </DM.Content>
+                </DM.Portal>
+              </DM.Root>
+ 
+            </div>
+            {/* droppable for courses */}
+            <Droppable droppableId={termId} type={DraggingType.COURSE}>
+              {(provided, snapshot) => (
+                <div
+                  className={"term-body" + (snapshot.isDraggingOver ? " dragging-over" : "") + (isAddingCourse || isSeeking ? " overflow-hidden" : "")}
+                  ref={provided.innerRef}
+                  {...provided.droppableProps}
                 >
-                  Click to Add Course
+                  {/* add course mask */}
+                  <div 
+                    className={`add-course-mask ${isAddingCourse ? "visible" : ""}`}
+                    style={{ top: getMaskTop() }}
+                    onClick={handleAddCourse}
+                  >
+                    Click to Add Course
+                  </div>
+                  {/* courses */}
+                  {courseIds.map((courseId, index) => (
+                    <CourseCard key={courseId} termId={termId} courseId={courseId} index={index} />
+                  ))}
+                  {provided.placeholder}
                 </div>
-                {/* courses */}
-                {courseIds.map((courseId, index) => (
-                  <CourseCard key={courseId} termId={termId} courseId={courseId} index={index} />
-                ))}
-                {provided.placeholder}
-              </div>
-            )}
-          </Droppable>
-          {/* term footer */}
-          <div className="term-footer">
-            <div>{credits} credits</div>
+              )}
+            </Droppable>
+            {/* term footer */}
+            <div className="term-footer">
+              <div>{credits} credits</div>
+            </div>
           </div>
-        </div>
-      }
-    </Draggable>
+        }
+      </Draggable>
+      {modalInfo && <RenameConfirmModal modalInfo={modalInfo} />}
+    </>
   )
 }
 

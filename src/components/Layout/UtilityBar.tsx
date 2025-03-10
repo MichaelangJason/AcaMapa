@@ -3,11 +3,12 @@ import { CourseTag } from "@/components/Course";
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import { useMemo } from 'react';
-import { CourseTagType } from '@/utils/enums';
+import { CourseTagType, ModalType } from '@/utils/enums';
 import Image from 'next/image';
 import { useDispatch, shallowEqual } from 'react-redux';
-import { setIsTutorialModalOpen, setIsAboutModalOpen } from '@/store/slices/globalSlice';
 import DropdownMenu from './DropdownMenu';
+import { setModalInfo } from '@/store/slices/globalSlice';
+import { voidFn } from '@/utils';
 
 const UtilityBar = () => {
   const inTermCourseIds = useSelector((state: RootState) => state.terms.inTermCourseIds || [], shallowEqual);
@@ -16,12 +17,8 @@ const UtilityBar = () => {
   const isSideBarExpanded = useSelector((state: RootState) => state.global.isSideBarExpanded);
   const dispatch = useDispatch();
 
-  const toggleTutorialModal = () => {
-    dispatch(setIsTutorialModalOpen(true));
-  }
-
-  const toggleAboutModal = () => {
-    dispatch(setIsAboutModalOpen(true));
+  const openTutorialModal = () => {
+    dispatch(setModalInfo({ isOpen: true, type: ModalType.TUTORIAL, data: '', id: 'tutorial' }));
   }
 
   const inTermCredits = useMemo(() => {
@@ -80,8 +77,8 @@ const UtilityBar = () => {
       />
       ))}
       <div className="flex-grow"/>
-      <div className="utility-bar-link" onClick={toggleTutorialModal}>Tutorial</div>
-      <div className="utility-bar-link" onClick={toggleAboutModal}>About</div>
+      <div className="utility-bar-link" onClick={openTutorialModal}>Tutorial</div>
+      <div className="utility-bar-link" onClick={voidFn}>About</div>
       <Image 
         src="/github-mark.svg" 
         alt="github" 

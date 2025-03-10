@@ -45,6 +45,7 @@ export enum ModalType {
   TUTORIAL = "TUTORIAL",
   ABOUT = "ABOUT",
   RENAME = "RENAME",
+  DELETE = "DELETE",
   NONE = "NONE",
 }
 
