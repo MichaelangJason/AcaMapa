@@ -75,6 +75,11 @@
     font-weight: 600;
   }
 
+  p > span {
+    width: 100%;
+    word-wrap: break-word;
+  }
+
   footer {
     display: flex;
     justify-content: space-between;
@@ -91,6 +96,15 @@
 
       &:hover {
         background-color: #f0f0f0;
+      }
+
+      &.confirm-button {
+        background-color: #007bff;
+        color: #fff;
+
+        &:hover {
+          background-color: #0056b3;
+        }
       }
 
     }
