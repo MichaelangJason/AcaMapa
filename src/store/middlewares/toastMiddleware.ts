@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import { isTermActions, isCourseTakenAction, isPlanActions } from "@/utils/typeGuards";
 import { removeCourseTaken, addCourseTaken } from "../slices/courseTakenSlice";
 import { addPlan, removePlan, setCurrentPlanId, setPlanName } from "../slices/planSlice";
-import { addTerm, deleteTerm, addCourseToTerm, deleteCourseFromTerm, setTermName } from "../slices/termSlice";
+import { addTerm, deleteTerm, addCourseToTerm, deleteCourseFromTerm } from "../slices/termSlice";
 const listenerMiddleware = createListenerMiddleware();
 const startListening = listenerMiddleware.startListening.withTypes<
   RootState,
@@ -43,7 +43,7 @@ startListening({
 
 startListening({
   predicate: (action) => isCourseTakenAction(action),
-  effect: (action, listenerApi) => {
+  effect: (action) => {
     const actionType = action.type;
     const courseId = action.payload;
 

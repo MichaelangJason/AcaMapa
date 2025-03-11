@@ -86,7 +86,7 @@ const TermCard = (props: TermCardProps) => {
         }
       }, 100);
 
-  }, [index, termId, addingCourseId, dispatch, inTermCourseIds, existingAddingCourse]);
+  }, [termId, addingCourseId, dispatch, inTermCourseIds, existingAddingCourse]);
 
   const handleDeleteTerm = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
