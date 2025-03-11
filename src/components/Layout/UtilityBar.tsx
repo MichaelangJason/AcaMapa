@@ -23,7 +23,7 @@ const UtilityBar = () => {
 
   const inTermCredits = useMemo(() => {
     return initialCourses.reduce((acc, course) => {
-      if (inTermCourseIds.includes(course.id)) {
+      if (course.credits > 0 && inTermCourseIds.includes(course.id)) {
         return acc + course.credits;
       }
       return acc;
@@ -33,7 +33,7 @@ const UtilityBar = () => {
   const takenCredits = useMemo(() => {
     const courseIds = Object.values(courseTaken).flat()
     return initialCourses.reduce((acc, course) => {
-      if (course.credits > 0 &&courseIds.includes(course.id)) {
+      if (course.credits > 0 && courseIds.includes(course.id)) {
         return acc + course.credits;
       }
       return acc;

@@ -315,7 +315,8 @@ const CourseCard = (props: CourseCardProps) => {
               onClick={handleCoursePageJump}
               title="Go to course page"
             >
-              {credits < 0 ? <b>{id}</b> : <><b>{id}</b> ({credits} credits)</>}
+              <b>{id} </b> 
+              <span className="credits">({credits > 0 ? credits : 0} credits)</span>
             </div>
           </div>
           {/* Subsections */}

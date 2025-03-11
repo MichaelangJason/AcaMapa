@@ -121,7 +121,8 @@ const CourseResult = (props: CourseResultProps) => {
           onClick={handleCourseClick}
           title="Go to course page"
         >
-          {credits < 0 ? <b>{markedId}</b> : <><b>{markedId}</b> ({credits} credits)</>}
+          <b>{markedId} </b> 
+          <span className="credits">({credits > 0 ? credits : 0} credits)</span>
         </div>
       </div>
       <div className="course-button-container in-search">
