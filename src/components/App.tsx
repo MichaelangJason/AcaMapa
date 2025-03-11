@@ -93,7 +93,7 @@ const App = () => {
         <Terms />
         <KeyPressListener />
         <ToastContainer
-          position="bottom-center"
+          position="bottom-right" // TODO: change to bottom-center for assistant
           autoClose={5000}
           hideProgressBar={true}
           newestOnTop={false}
