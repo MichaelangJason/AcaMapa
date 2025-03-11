@@ -13,7 +13,6 @@ import { getShortcutByDevice } from '@/utils';
 import '@/styles/modal.scss';
 import RenameConfirmModal, { RenameConfirmModalInfo } from './RenameConfirmModal';
 import Modal from 'react-modal'
-import { toast } from 'react-toastify';
 Modal.setAppElement('body');
 
 const DropdownMenu = () => {
@@ -40,7 +39,6 @@ const DropdownMenu = () => {
       onClick: () => {
         dispatch(addPlan())
         handleCloseDropdownMenu()
-        toast.success('New Plan Created')
       },
       shortcut: getShortcutByDevice('p')
     },
@@ -49,7 +47,6 @@ const DropdownMenu = () => {
       onClick: () => {
         dispatch(addTerm())
         handleCloseDropdownMenu()
-        toast.success('New Term Created')
       },
       shortcut: getShortcutByDevice('n')
     },
@@ -58,7 +55,6 @@ const DropdownMenu = () => {
       onClick: () => {
         dispatch(removePlan(currentPlanId))
         handleCloseDropdownMenu()
-        toast.success('Current Plan Deleted')
       }
     },
     {
@@ -66,7 +62,6 @@ const DropdownMenu = () => {
       onClick: () => {
         dispatch(toggleSideBarExpanded())
         handleCloseDropdownMenu()
-        toast.success('Sidebar Toggled')
       },
       shortcut: getShortcutByDevice('b')
     },
@@ -75,7 +70,6 @@ const DropdownMenu = () => {
       onClick: () => {
         dispatch(toggleCourseTakenExpanded())
         handleCloseDropdownMenu()
-        toast.success('Course Taken Toggled')
       },
       shortcut: getShortcutByDevice('l')
     },
@@ -163,6 +157,7 @@ const DropdownMenu = () => {
                                 id={planId}
                                 onClick={() => {
                                   dispatch(setCurrentPlanId(planId));
+                                  handleCloseDropdownMenu()
                                 }}
                               >
                                 <div className='indicator' style={planId === currentPlanId && !isDragging ? { opacity: 1 } : {}}>
@@ -189,7 +184,6 @@ const DropdownMenu = () => {
                                         closeCb: handleCloseModal,
                                         confirmCb: () => { 
                                           dispatch(removePlan(planId)) 
-                                          toast.success(`Plan ${plans[planId].name} deleted`)
                                         },
                                         text: plans[planId].name
                                       });
@@ -209,8 +203,7 @@ const DropdownMenu = () => {
                                         type: ModalType.RENAME,
                                         closeCb: handleCloseModal,
                                         confirmCb: (newValue: string) => { 
-                                          dispatch(setPlanName({ id: planId, name: newValue || name })) 
-                                          toast.success(`${name} renamed to ${newValue}`)
+                                          dispatch(setPlanName({ planId: planId, name: newValue || name })) 
                                         },
                                         text: name
                                       });

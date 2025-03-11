@@ -79,7 +79,6 @@ const TermCard = (props: TermCardProps) => {
           const id = course.id;
           dispatch(addCourse(course))
           dispatch(addCourseToTerm({ termId, courseId: id }))
-          toast.success(`${id} added to term ${index + 1}`);
 
           setTimeout(() => { // set mounted after animation
             dispatch(setCourseMounted({ courseId: id, isMounted: true }))
@@ -97,7 +96,6 @@ const TermCard = (props: TermCardProps) => {
       type: ModalType.DELETE,
       confirmCb: () => {
         dispatch(deleteTerm(termId));
-        toast.success(`Term ${index + 1} deleted`);
       },
       closeCb: () => {
         setModalInfo(undefined);
@@ -116,7 +114,6 @@ const TermCard = (props: TermCardProps) => {
       type: ModalType.RENAME,
       confirmCb: (newName: string) => {
         dispatch(setTermName({ termId, name: newName }));
-        toast.success(`${termName} renamed to ${newName}`);
       },
       closeCb: () => {
         setModalInfo(undefined);

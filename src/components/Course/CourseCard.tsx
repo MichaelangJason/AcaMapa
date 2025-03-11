@@ -78,7 +78,6 @@ const CourseCard = (props: CourseCardProps) => {
       dispatch(deleteCourseFromTerm({ termId, courseId }));
       dispatch(setCourseMounted({ courseId: id, isMounted: false }))
       dispatch(setCourseExpanded({ courseId, isExpanded: true })) // default to expanded
-      toast.success(`${courseId} removed`);
     }, 200);
   }
 

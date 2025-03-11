@@ -2,7 +2,6 @@
 import { addCourseTaken, removeCourseTaken } from "@/store/slices/courseTakenSlice";
 import { CourseTagType } from "@/utils/enums";
 import { useDispatch } from "react-redux";
-import { toast } from "react-toastify";
 export interface CourseTagProps {
   courseId: string;
   type: CourseTagType;
@@ -29,11 +28,9 @@ const CourseTag = (props: CourseTagProps) => {
   const handleClick = () => {
     if (disabled) return;
     if (type === CourseTagType.TAKEN) {
-      dispatch(removeCourseTaken(courseId));
-      toast.success(`${courseId} removed from course taken`)
+      dispatch(removeCourseTaken(courseId));  
     } else {
       dispatch(addCourseTaken(courseId));
-      toast.success(`${courseId} added to course taken`)
       const courseTakenElem = document.getElementsByClassName('course-taken-container').item(0);
 
       if (courseTakenElem && !courseTakenElem.classList.contains('glow-border')) {

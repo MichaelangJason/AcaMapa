@@ -43,8 +43,8 @@ export const planSlice = createSlice({
     setCurrentPlanId: (state, action: PayloadAction<PlanId>) => {
       state.currentPlanId = action.payload;
     },
-    setPlanName: (state, action: PayloadAction<{ id: PlanId, name: string }>) => {
-      state.data[action.payload.id].name = action.payload.name;
+    setPlanName: (state, action: PayloadAction<{ planId: PlanId, name: string }>) => {
+      state.data[action.payload.planId].name = action.payload.name;
     },
     movePlan: (state, action: PayloadAction<{sourceIdx: number; destinationIdx: number}>) => {
       const { sourceIdx, destinationIdx } = action.payload
