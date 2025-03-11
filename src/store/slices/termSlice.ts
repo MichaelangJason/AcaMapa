@@ -110,6 +110,10 @@ export const termSlice = createSlice({
       // will be set in the middleware
       state.order = []
       state.inTermCourseIds = []
+    },
+    setTermName: (state, action: PayloadAction<{ termId: TermId; name: string }>) => {
+      const { termId, name } = action.payload
+      state.data[termId].name = name
     }
   },
 })
@@ -124,6 +128,7 @@ export const {
   moveCourse,
   importTerms,
   setTermsData,
-  setTermOrder
+  setTermOrder,
+  setTermName
 } = termSlice.actions
 export default termSlice.reducer

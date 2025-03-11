@@ -13,12 +13,17 @@ body {
   position: fixed;
   top: 20px;
   left: 20px;
+  outline: none;
 
   width: 100px;
   height: 100px;
   
   background-color: red;
   overflow: hidden;
+
+  img {
+    outline: none;
+  }
 }
 
 .terms {
@@ -111,8 +116,8 @@ body {
       top: 50%;
       z-index: 80;
       
-      width: 15px;
-      height: 15px;
+      width: 20px;
+      height: 20px;
       
       transform: translateY(-50%);
       opacity: 0.5;
@@ -291,10 +296,14 @@ body {
   
   transform: translateY(-60%);
   cursor: pointer;
-  transition: transform 0.3s ease;
+  transition: transform 0.3s ease, right 0.3s ease;
   
   &:hover {
     transform: translateY(-60%) scale(1.1);
+  }
+
+  &.expanded {
+    right: calc(var(--sidebar-width) + 20px);
   }
 }
 

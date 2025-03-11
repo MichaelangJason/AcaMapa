@@ -16,7 +16,7 @@ const TermCardSkeleton = (props: {
       {/* term header */}
       <div className={`term-header`}>
         <Skeleton width={100} />
-        <Image className="delete-icon" src="delete.svg" alt="delete" width={20} height={20} />
+        <Image className="delete-icon" src="hamburger.svg" alt="delete" width={20} height={20} />
       </div>
       <div className={"term-body overflow-hidden"}>
         {/* courses */}

@@ -3,30 +3,28 @@ import { CourseTag } from "@/components/Course";
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import { useMemo } from 'react';
-import { CourseTagType } from '@/utils/enums';
+import { CourseTagType, ModalType } from '@/utils/enums';
 import Image from 'next/image';
 import { useDispatch, shallowEqual } from 'react-redux';
-import { setIsTutorialModalOpen, setIsAboutModalOpen } from '@/store/slices/globalSlice';
 import DropdownMenu from './DropdownMenu';
+import { setModalInfo } from '@/store/slices/globalSlice';
+import { voidFn } from '@/utils';
 
 const UtilityBar = () => {
   const inTermCourseIds = useSelector((state: RootState) => state.terms.inTermCourseIds || [], shallowEqual);
   const courseTaken = useSelector((state: RootState) => state.courseTaken || [], shallowEqual);
   const initialCourses = useSelector((state: RootState) => state.global.initCourses || [], shallowEqual);
   const isSideBarExpanded = useSelector((state: RootState) => state.global.isSideBarExpanded);
+  const isAssitantExpanded = useSelector((state: RootState) => state.global.isAssistantExpanded);
   const dispatch = useDispatch();
 
-  const toggleTutorialModal = () => {
-    dispatch(setIsTutorialModalOpen(true));
-  }
-
-  const toggleAboutModal = () => {
-    dispatch(setIsAboutModalOpen(true));
+  const openTutorialModal = () => {
+    dispatch(setModalInfo({ isOpen: true, type: ModalType.TUTORIAL, data: '', id: 'tutorial' }));
   }
 
   const inTermCredits = useMemo(() => {
     return initialCourses.reduce((acc, course) => {
-      if (inTermCourseIds.includes(course.id)) {
+      if (course.credits > 0 && inTermCourseIds.includes(course.id)) {
         return acc + course.credits;
       }
       return acc;
@@ -36,7 +34,7 @@ const UtilityBar = () => {
   const takenCredits = useMemo(() => {
     const courseIds = Object.values(courseTaken).flat()
     return initialCourses.reduce((acc, course) => {
-      if (course.credits > 0 &&courseIds.includes(course.id)) {
+      if (course.credits > 0 && courseIds.includes(course.id)) {
         return acc + course.credits;
       }
       return acc;
@@ -56,7 +54,7 @@ const UtilityBar = () => {
   ]
 
   return (
-    <div className={`utility-bar ${isSideBarExpanded ? '' : 'full'}`}>
+    <div className={`utility-bar ${isSideBarExpanded ? 'sidebar-expanded' : ''} ${isAssitantExpanded ? 'assistant-expanded' : ""}`}>
       <DropdownMenu />
       
       {info.map((info, index) => (
@@ -80,8 +78,8 @@ const UtilityBar = () => {
       />
       ))}
       <div className="flex-grow"/>
-      <div className="utility-bar-link" onClick={toggleTutorialModal}>Tutorial</div>
-      <div className="utility-bar-link" onClick={toggleAboutModal}>About</div>
+      <div className="utility-bar-link" onClick={openTutorialModal}>Tutorial</div>
+      <div className="utility-bar-link" onClick={voidFn}>About</div>
       <Image 
         src="/github-mark.svg" 
         alt="github" 

@@ -1,12 +1,21 @@
-import { setAddingCourseId, setIsSideBarExpanded, setSeekingInfo, toggleCourseTakenExpanded, toggleUtilityDropdownMenuOpen, toggleSideBarExpanded } from "@/store/slices/globalSlice";
+import { 
+  setAddingCourseId, 
+  setIsSideBarExpanded, 
+  setSeekingInfo, 
+  toggleCourseTakenExpanded, 
+  toggleUtilityDropdownMenuOpen, 
+  toggleSideBarExpanded,
+} from "@/store/slices/globalSlice";
 import { useEffect, useCallback } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/store";
 import { addTerm } from "@/store/slices/termSlice";
 import { addPlan } from "@/store/slices/planSlice";
 
 
 const KeyPressListener = () => {
   const dispatch = useDispatch();
+  const isSeeking = useSelector((state: RootState) => !!state.global.seekingInfo);
 
   const focusInput = () => {
     const input = document.getElementById("search-input");
@@ -30,9 +39,11 @@ const KeyPressListener = () => {
     if (event.metaKey || event.ctrlKey) {
       if (key === "b") { // toggle sidebar
         event.preventDefault();
+        if (isSeeking) dispatch(setSeekingInfo({}));
         dispatch(toggleSideBarExpanded());
       } else if (key === 'n') { // add term
         event.preventDefault();
+        if (isSeeking) dispatch(setSeekingInfo({}));
         dispatch(addTerm());
         // Scroll to rightmost after adding term
         setTimeout(() => {
@@ -48,20 +59,24 @@ const KeyPressListener = () => {
         }, 50);
       } else if (key === 'k') { // search course
         event.preventDefault();
+        if (isSeeking) dispatch(setSeekingInfo({}));
         dispatch(setIsSideBarExpanded(true));
         focusInput();
       } else if (key === 'l') { // toggle course taken
         event.preventDefault();
+        if (isSeeking) dispatch(setSeekingInfo({}));
         dispatch(toggleCourseTakenExpanded());
       } else if (key === 'p') { // add plan
         event.preventDefault();
+        if (isSeeking) dispatch(setSeekingInfo({}));
         dispatch(addPlan());
       } else if (key === 'm') { // toggle dropdown menu
         event.preventDefault();
+        if (isSeeking) dispatch(setSeekingInfo({}));
         dispatch(toggleUtilityDropdownMenuOpen());
       }
     }
-  }, [dispatch]);
+  }, [dispatch, isSeeking]);
 
   useEffect(() => {
     window.removeEventListener("keydown", handleKeyDown);

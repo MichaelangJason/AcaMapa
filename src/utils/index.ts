@@ -442,3 +442,5 @@ export const getShortcutByDevice = (key: string) => {
   }
   return `Ctrl + ${key}`;
 }
+
+export const voidFn = () => {};

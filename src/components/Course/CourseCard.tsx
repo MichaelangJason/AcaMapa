@@ -67,6 +67,7 @@ const CourseCard = (props: CourseCardProps) => {
   const isSeeking = seekingId !== undefined && seekingTerm !== undefined;
   const isSeekingSelf = seekingId === courseId && seekingTerm === termId;
   const isSideBarExpanded = useSelector((state: RootState) => state.global.isSideBarExpanded);
+  const isAIAssistantExpanded = useSelector((state: RootState) => state.global.isAssistantExpanded);
   // const termIdx = useSelector((state: RootState) => state.terms.order.indexOf(termId));
   // const [isMoving, setIsMoving] = useState(isMounted); // for styling during drag
 
@@ -77,7 +78,6 @@ const CourseCard = (props: CourseCardProps) => {
       dispatch(deleteCourseFromTerm({ termId, courseId }));
       dispatch(setCourseMounted({ courseId: id, isMounted: false }))
       dispatch(setCourseExpanded({ courseId, isExpanded: true })) // default to expanded
-      toast.success(`${courseId} removed`);
     }, 200);
   }
 
@@ -128,18 +128,11 @@ const CourseCard = (props: CourseCardProps) => {
     };
     if (isSeekingSelf) dispatch(setSeekingInfo({ }));
     else {
-      if (!isExpanded) {
-        dispatch(setCourseExpanded({ courseId, isExpanded: true }));
-        await new Promise(resolve => setTimeout(resolve, 30));
-      }
-      dispatch(setSeekingInfo({ seekingId: courseId, seekingTerm: termId })); // set to seeking state
-      // console.log("toast id", toast.info(`Seeking ${courseId} in ${termId}`, {
-      //   position: "top-center",
-      //   autoClose: false
-      // }));
+
 
       const body = document.body;
       const sidebar = document.getElementById("sidebar");
+      const assistant = document.getElementById("assistant");
       const term = document.getElementById(termId);
       const course = document.getElementById(courseId);
       const termBody = term?.querySelector(".term-body");
@@ -152,21 +145,30 @@ const CourseCard = (props: CourseCardProps) => {
       const TOLERANCE = 5;
       // console.log("COURSE_CARD_GAP", COURSE_CARD_GAP);
       
-      if (!term || !termBody || !course || !body || !sidebar) return;
+      if (!term || !termBody || !course || !body || !sidebar || !assistant) return;
       
       const sidebarRect = sidebar.getBoundingClientRect();
+      const aiAssistantRect = assistant.getBoundingClientRect();
       // const bodyRect = body.getBoundingClientRect();
       const termRect = term.getBoundingClientRect();
       const termBodyRect = termBody.getBoundingClientRect();
       const courseRect = course.getBoundingClientRect();
       
       const sidebarWidth = isSideBarExpanded ? sidebarRect.width : 0;
+      // const aiAssistantWidth = isAIAssistantExpanded ? sidebarRect.width : 0;
+      const aiAssistantWidth = isAIAssistantExpanded ? aiAssistantRect.width : 0;
       // scroll course into view if needed
       const isCutOffAtTop = courseRect.top < termBodyRect.top + COURSE_CARD_GAP - TOLERANCE;
       const isCutOffAtBottom = courseRect.bottom > termBodyRect.bottom - COURSE_CARD_GAP + TOLERANCE;
       // scroll term into view if needed
       const isCutOffAtLeft = termRect.left < sidebarWidth;
-      const isCutOffAtRight = termRect.right > (window.innerWidth - termRect.width - 2 * MARGIN_LEFT);
+      const isCutOffAtRight = termRect.right > (window.innerWidth - termRect.width - 2 * MARGIN_LEFT - aiAssistantWidth);
+
+      if (!isExpanded) {
+        dispatch(setCourseExpanded({ courseId, isExpanded: true }));
+        await new Promise(resolve => setTimeout(resolve, 30));
+      }
+      dispatch(setSeekingInfo({ seekingId: courseId, seekingTerm: termId })); // set to seeking state
 
       // simply showing case
       if (!isCutOffAtTop && !isCutOffAtBottom && !isCutOffAtLeft && !isCutOffAtRight) {
@@ -183,7 +185,7 @@ const CourseCard = (props: CourseCardProps) => {
         // console.log("is cutting off at: ", isCutOffAtLeft ? "left" : "right");
         const scrollOffset = isCutOffAtLeft
           ? termRect.left - sidebarWidth - MARGIN_LEFT
-          : termRect.right - window.innerWidth + termRect.width + MARGIN_LEFT;
+          : termRect.right - window.innerWidth + termRect.width + MARGIN_LEFT + aiAssistantWidth;
 
         // console.log("termRect.left", termRect.left);
         // console.log("sidebarRect.right", sidebarRect.right);
@@ -313,7 +315,8 @@ const CourseCard = (props: CourseCardProps) => {
               onClick={handleCoursePageJump}
               title="Go to course page"
             >
-              {credits < 0 ? <b>{id}</b> : <><b>{id}</b> ({credits} credits)</>}
+              <b>{id} </b> 
+              <span className="credits">({credits > 0 ? credits : 0} credits)</span>
             </div>
           </div>
           {/* Subsections */}

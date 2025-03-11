@@ -11,13 +11,13 @@ import { DraggingType, LocalStorage } from "@/utils/enums";
 import { DragDropContext, DragStart, DragUpdate, DropResult } from "@hello-pangea/dnd";
 import { useDispatch } from "react-redux";
 import { Flip, toast, ToastContainer } from "react-toastify";
-import { TutorialModal, AboutModal } from "@/components/Modal";
 import { useEffect, useRef } from "react";
 import { IRawCourse } from "@/db/schema";
-import { isValidPlanState, isValidTermData } from "@/utils/typeGuards";
+import { isValidAssistantState, isValidPlanState, isValidTermData } from "@/utils/typeGuards";
 import { movePlan, setPlans } from "@/store/slices/planSlice";
 import { Course } from "@/types/course";
 import { setCoursesData } from "@/store/slices/courseSlice";
+import { setCurrentThreadId, setThreadIds } from "@/store/slices/assistantSlice";
 
 
 const App = () => {
@@ -88,11 +88,12 @@ const App = () => {
         onDragUpdate={handleDragUpdate}
       >
         <UtilityBar />
+        {/* <Assistant /> */}
         <SideBar />
         <Terms />
         <KeyPressListener />
         <ToastContainer
-          position="bottom-right"
+          position="bottom-center"
           autoClose={5000}
           hideProgressBar={true}
           newestOnTop={false}
@@ -107,8 +108,6 @@ const App = () => {
       </DragDropContext>
       <KeyPressListener />
       <ToolTips />
-      <TutorialModal />
-      <AboutModal />
     </>
   );
 }
@@ -132,6 +131,7 @@ const Wrapper = (props: { initCourses: IRawCourse[] }) => {
       
       const savedPlans = localStorage.getItem(LocalStorage.PLANS);
       const savedTerms = localStorage.getItem(LocalStorage.TERMS);
+      const savedThreadIds = localStorage.getItem(LocalStorage.ASSISTANT);
 
       // XORS to check if both are present
       if (!!savedPlans !== !!savedTerms) {
@@ -183,6 +183,17 @@ const Wrapper = (props: { initCourses: IRawCourse[] }) => {
           }
         )
         
+      }
+
+      if (savedThreadIds) {
+        const threadIds = JSON.parse(savedThreadIds);
+        
+        if (!isValidAssistantState(threadIds)) {
+          throw new Error("Invalid assistant state");
+        }
+
+        dispatch(setCurrentThreadId(threadIds.currentThreadId));
+        dispatch(setThreadIds(threadIds.threadIds));
       }
 
       toast.success("Initialized!")

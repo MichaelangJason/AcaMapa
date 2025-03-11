@@ -22,6 +22,7 @@ const Terms = () => {
   const { seekingId,seekingTerm } = useSelector((state: RootState) => state.global.seekingInfo);
   const isSeeking = seekingId !== undefined && seekingTerm !== undefined;
   const isSideBarExpanded = useSelector((state: RootState) => state.global.isSideBarExpanded);
+  const isAssistantExpanded = useSelector((state: RootState) => state.global.isAssistantExpanded);
   const isInitialized = useSelector((state: RootState) => state.global.isInitialized)
 
   const dispatch = useDispatch();
@@ -75,11 +76,18 @@ const Terms = () => {
                   const mockConfig = getTermCardConfig();
                   return (<TermCardSkeleton key={'mock-term-card-'+idx} coursesConfig={mockConfig}/>)
               })}
+            <div className={`terms-placeholder-box ${isAssistantExpanded ? '' : 'folded'}`}/>
             {provided.placeholder}
           </div>
         )}
       </Droppable>
-      <Image className="add-term-button" src="add.svg" alt="add" width={30} height={30} onClick={handleAddTerm}/>
+      <Image 
+        className={`add-term-button ${isAssistantExpanded ? 'expanded' : ''}`} 
+        src="add.svg" 
+        alt="add" 
+        width={30} 
+        height={30} 
+        onClick={handleAddTerm}/>
     </>
   )
 }
