@@ -13,9 +13,13 @@ import { getShortcutByDevice } from '@/utils';
 import '@/styles/modal.scss';
 import RenameConfirmModal, { RenameConfirmModalInfo } from './RenameConfirmModal';
 import Modal from 'react-modal'
+
 Modal.setAppElement('body');
 
-const DropdownMenu = () => {
+const DropdownMenu = (props: {
+  setIsAboutModalOpen: (isOpen: boolean) => void;
+  setIsTutorialModalOpen: (isOpen: boolean) => void;
+}) => {
   const dispatch = useDispatch();
   const plans = useSelector((state: RootState) => state.plans.data);
   const planOrder = useSelector((state: RootState) => state.plans.order);
@@ -27,8 +31,10 @@ const DropdownMenu = () => {
   const handleCloseDropdownMenu = () => {
     dispatch(setIsUtilityDropdownMenuOpen(false));
   }
+  // the modal state are generally mutually exclusive
   const [modalInfo, setModalInfo] = useState<RenameConfirmModalInfo | undefined>(undefined);
 
+  const { setIsAboutModalOpen, setIsTutorialModalOpen } = props;
   const handleCloseModal = () => {
     setModalInfo(undefined);
   }
@@ -76,12 +82,18 @@ const DropdownMenu = () => {
     {
       label: 'About',
       // onClick: () => dispatch(setIsAboutModalOpen(true))
-      onClick: () => {} 
+      onClick: () => {
+        setIsAboutModalOpen(true);
+        handleCloseDropdownMenu();
+      }
     },
     {
       label: 'Tutorial',
       // onClick: () => dispatch(setIsTutorialModalOpen(true))
-      onClick: () => {}
+      onClick: () => {
+        setIsTutorialModalOpen(true);
+        handleCloseDropdownMenu();
+      }
     },
     {
       label: 'Close Dropdown Menu',

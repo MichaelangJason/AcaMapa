@@ -21,11 +21,11 @@ startListening({
       toast.success("New term created");
     } else if (actionType === deleteTerm.type) {
       const termId = action.payload
-      // const currentPlanId = listenerApi.getState().plans.currentPlanId;
-      // const planName = listenerApi.getState().plans.data[currentPlanId].name;
+      const currentPlanId = listenerApi.getState().plans.currentPlanId;
+      const planName = listenerApi.getState().plans.data[currentPlanId].name;
       const termName = listenerApi.getOriginalState().terms.data[termId].name;
 
-      toast.success(`${termName.toLowerCase().startsWith("term") ? termName : `Term ${termName}`}`);
+      toast.success(`${termName.toLowerCase().startsWith("term") ? termName : `Term ${termName}`} removed from ${planName}`);
     } else if (actionType === addCourseToTerm.type) {
       const { termId, courseId } = action.payload;
       const currentPlanId = listenerApi.getState().plans.currentPlanId;

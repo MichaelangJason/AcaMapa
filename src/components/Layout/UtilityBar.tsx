@@ -2,13 +2,12 @@ import '@/styles/utilityBar.scss';
 import { CourseTag } from "@/components/Course";
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
-import { useMemo } from 'react';
-import { CourseTagType, ModalType } from '@/utils/enums';
+import { useMemo, useState } from 'react';
+import { CourseTagType } from '@/utils/enums';
 import Image from 'next/image';
-import { useDispatch, shallowEqual } from 'react-redux';
+import { shallowEqual } from 'react-redux';
 import DropdownMenu from './DropdownMenu';
-import { setModalInfo } from '@/store/slices/globalSlice';
-import { voidFn } from '@/utils';
+import InfoModal from './InfoModal';
 
 const UtilityBar = () => {
   const inTermCourseIds = useSelector((state: RootState) => state.terms.inTermCourseIds || [], shallowEqual);
@@ -16,11 +15,8 @@ const UtilityBar = () => {
   const initialCourses = useSelector((state: RootState) => state.global.initCourses || [], shallowEqual);
   const isSideBarExpanded = useSelector((state: RootState) => state.global.isSideBarExpanded);
   const isAssitantExpanded = useSelector((state: RootState) => state.global.isAssistantExpanded);
-  const dispatch = useDispatch();
-
-  const openTutorialModal = () => {
-    dispatch(setModalInfo({ isOpen: true, type: ModalType.TUTORIAL, data: '', id: 'tutorial' }));
-  }
+  const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
+  const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
 
   const inTermCredits = useMemo(() => {
     return initialCourses.reduce((acc, course) => {
@@ -55,7 +51,10 @@ const UtilityBar = () => {
 
   return (
     <div className={`utility-bar ${isSideBarExpanded ? 'sidebar-expanded' : ''} ${isAssitantExpanded ? 'assistant-expanded' : ""}`}>
-      <DropdownMenu />
+      <DropdownMenu 
+        setIsAboutModalOpen={setIsAboutModalOpen} 
+        setIsTutorialModalOpen={setIsInfoModalOpen} 
+      />
       
       {info.map((info, index) => (
         <CourseTag 
@@ -78,8 +77,8 @@ const UtilityBar = () => {
       />
       ))}
       <div className="flex-grow"/>
-      <div className="utility-bar-link" onClick={openTutorialModal}>Tutorial</div>
-      <div className="utility-bar-link" onClick={voidFn}>About</div>
+      <div className="utility-bar-link" onClick={() => setIsInfoModalOpen(true)}>Tutorial</div>
+      <div className="utility-bar-link" onClick={() => setIsAboutModalOpen(true)}>About</div>
       <Image 
         src="/github-mark.svg" 
         alt="github" 
@@ -88,6 +87,22 @@ const UtilityBar = () => {
         style={{ cursor: 'pointer', justifySelf: 'flex-end' }} 
         onClick={() => window.open('https://github.com/MichaelangJason/Course-Planner', '_blank')}
       />
+      {isAboutModalOpen && (
+        <InfoModal tabs={[
+          {
+            title: 'About',
+            src: '/about.md'
+          }
+        ]} onClose={() => setIsAboutModalOpen(false)} />
+      )}
+      {isInfoModalOpen && (
+        <InfoModal tabs={[
+          {
+            title: 'Tutorial',
+            src: '/tutorial.md'
+          }
+        ]} onClose={() => setIsInfoModalOpen(false)} />
+      )}
     </div>
   )
 }

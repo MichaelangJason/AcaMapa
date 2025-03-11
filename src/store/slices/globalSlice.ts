@@ -1,5 +1,5 @@
 import { IRawCourse } from "@/db/schema";
-import { DraggingType, ModalType } from "@/utils/enums";
+import { DraggingType } from "@/utils/enums";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export const initialState = {
@@ -14,12 +14,6 @@ export const initialState = {
   },
   searchInput: '' as string,
   assistantInput: '' as string,
-  modalInfo: {
-    isOpen: false as boolean,
-    type: ModalType.NONE,
-    data: '' as string,
-    id: '' as string,
-  },
   isSideBarExpanded: true as boolean,
   isAssistantExpanded: false as boolean,
   isCourseTakenExpanded: false as boolean,
@@ -98,13 +92,7 @@ const globalSlice = createSlice({
     },
     setIsDragging: (state, action: PayloadAction<boolean>) => {
       state.isDragging = action.payload;
-    },
-    setModalInfo: (state, action: PayloadAction<{ isOpen: boolean, type: ModalType, data: string, id: string }>) => {
-      state.modalInfo = action.payload;
-    },
-    clearModalInfo: (state) => {
-      state.modalInfo = initialState.modalInfo;
-    },
+    }
   },
 });
 
@@ -126,8 +114,6 @@ export const {
   setIsUtilityDropdownMenuOpen,
   toggleUtilityDropdownMenuOpen,
   setIsDragging,
-  setModalInfo,
-  clearModalInfo,
 } = globalSlice.actions;
 
 export default globalSlice.reducer;
