@@ -145,17 +145,16 @@ const CourseCard = (props: CourseCardProps) => {
       const TOLERANCE = 5;
       // console.log("COURSE_CARD_GAP", COURSE_CARD_GAP);
       
-      if (!term || !termBody || !course || !body || !sidebar || !assistant) return;
+      if (!term || !termBody || !course || !body || !sidebar) return;
       
       const sidebarRect = sidebar.getBoundingClientRect();
-      const aiAssistantRect = assistant.getBoundingClientRect();
+      const aiAssistantRect = assistant?.getBoundingClientRect() || { width: 0 }; // TODO: left for assistant
       // const bodyRect = body.getBoundingClientRect();
       const termRect = term.getBoundingClientRect();
       const termBodyRect = termBody.getBoundingClientRect();
       const courseRect = course.getBoundingClientRect();
       
       const sidebarWidth = isSideBarExpanded ? sidebarRect.width : 0;
-      // const aiAssistantWidth = isAIAssistantExpanded ? sidebarRect.width : 0;
       const aiAssistantWidth = isAIAssistantExpanded ? aiAssistantRect.width : 0;
       // scroll course into view if needed
       const isCutOffAtTop = courseRect.top < termBodyRect.top + COURSE_CARD_GAP - TOLERANCE;
@@ -304,7 +303,7 @@ const CourseCard = (props: CourseCardProps) => {
                 alt="Delete Course"
                 width={10}
                 height={10}
-                className="delete-icon"
+                className="delete-icon delete-course"
               />
             </div>
           </div>
