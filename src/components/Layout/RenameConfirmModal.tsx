@@ -53,7 +53,7 @@ const RenameConfirmModal = (props: { modalInfo: RenameConfirmModalInfo }) => {
         )}
 
         <footer>
-          <button onClick={closeCb}>Cancel</button>
+          <button className="cancel-button" onClick={closeCb}>Cancel</button>
           <button className="confirm-button" onClick={handleConfirm}>Confirm</button>
         </footer>
 

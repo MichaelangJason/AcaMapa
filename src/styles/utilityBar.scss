@@ -12,8 +12,7 @@
   align-items: center;
   gap: 10px;
   padding: 0px 10px;
-  padding-left: calc(var(--sidebar-width) + 10px);
-  padding-right: calc(var(--sidebar-width) + 10px); // for AI assitant
+
 
   background-color: var(--term-topbottom-color);
   overflow-x: scroll;
@@ -52,8 +51,12 @@
     text-decoration: underline;
   }
 
-  &.full {
-    padding-left: 10px;
+  &.sidebar-expanded {
+    padding-left: calc(var(--sidebar-width) + 10px);
+  }
+
+  &.assistant-expanded {
+    padding-right: calc(var(--sidebar-width) + 10px); // for AI assitant
   }
 
 }

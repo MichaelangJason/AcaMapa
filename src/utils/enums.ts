@@ -54,3 +54,9 @@ export enum MessageType {
   AI = 'ai',
   FORM = 'form',
 }
+
+export enum TooltipId {
+  SATISFIED_COURSE = 'satisfied-course',
+  UNSATISFIED_COURSE = 'unsatisfied-course',
+  TAKEN_COURSE = 'taken-course',
+}

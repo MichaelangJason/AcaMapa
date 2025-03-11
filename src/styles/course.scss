@@ -222,7 +222,7 @@
   cursor: pointer;
   // transition: background-color 0.2s ease-in-out;
   
-  &:not(.disabled):hover {
+  &:not(.disabled,.required,.restricted):hover {
     background-color: var(--course-tag-hover-bg-color);
   }
 

@@ -1,6 +1,6 @@
 
 import { addCourseTaken, removeCourseTaken } from "@/store/slices/courseTakenSlice";
-import { CourseTagType } from "@/utils/enums";
+import { CourseTagType, TooltipId } from "@/utils/enums";
 import { useDispatch } from "react-redux";
 export interface CourseTagProps {
   courseId: string;
@@ -42,12 +42,38 @@ const CourseTag = (props: CourseTagProps) => {
     }
   }
 
+  const getTooltipContent = () => {
+    if (type === CourseTagType.UTILITY || itExists) {
+      return undefined;
+    }
+
+    if (type === CourseTagType.TAKEN) {
+      return "click to remove from course taken";
+    }
+
+    return "click to add to course taken";
+  }
+
+  const getTooltipId = () => {
+    if (type === CourseTagType.UTILITY || itExists) {
+      return undefined;
+    }
+
+    if (type === CourseTagType.TAKEN) {
+      return TooltipId.TAKEN_COURSE;
+    }
+
+    return TooltipId.UNSATISFIED_COURSE;
+  }
+
   return (
     <div 
       className={className + (disabled ? ' disabled' : '')} 
       onClick={handleClick}
       title={"click to " + (type === CourseTagType.TAKEN ? "remove from" : "add to") + " course taken"}
       style={style}
+      data-tooltip-id={getTooltipId()}
+      data-tooltip-content={getTooltipContent()}
     >
       {courseId}
     </div>

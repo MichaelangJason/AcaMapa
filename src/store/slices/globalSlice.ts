@@ -21,7 +21,7 @@ export const initialState = {
     id: '' as string,
   },
   isSideBarExpanded: true as boolean,
-  isAssistantExpanded: true as boolean,
+  isAssistantExpanded: false as boolean,
   isCourseTakenExpanded: false as boolean,
   isInitialized: false as boolean,
   isUtilityDropdownMenuOpen: false as boolean,

@@ -220,7 +220,7 @@ const Assistant = () => {
         </div>
         <div className="chat-input">
           <input 
-            id="search-input"
+            id="assistant-input"
             type="text"
             value={assistantInput}  
             onChange={handleInputChange} 

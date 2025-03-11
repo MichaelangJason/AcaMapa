@@ -3,7 +3,7 @@
 import { AppStore, makeStore } from "@/store"
 import { Provider } from "react-redux"
 import { KeyPressListener, ToolTips } from "@/components/Common";
-import { SideBar, UtilityBar, Assistant } from "@/components/Layout";
+import { SideBar, UtilityBar } from "@/components/Layout";
 import { Terms } from "@/components/Term";
 import { setDroppableId, setInitCourses, setIsInitialized, setDraggingType, setIsDragging } from "@/store/slices/globalSlice";
 import { deleteTerm, moveCourse, moveTerm, setTermsData } from "@/store/slices/termSlice";
@@ -88,7 +88,7 @@ const App = () => {
         onDragUpdate={handleDragUpdate}
       >
         <UtilityBar />
-        <Assistant />
+        {/* <Assistant /> */}
         <SideBar />
         <Terms />
         <KeyPressListener />

@@ -15,6 +15,7 @@ const UtilityBar = () => {
   const courseTaken = useSelector((state: RootState) => state.courseTaken || [], shallowEqual);
   const initialCourses = useSelector((state: RootState) => state.global.initCourses || [], shallowEqual);
   const isSideBarExpanded = useSelector((state: RootState) => state.global.isSideBarExpanded);
+  const isAssitantExpanded = useSelector((state: RootState) => state.global.isAssistantExpanded);
   const dispatch = useDispatch();
 
   const openTutorialModal = () => {
@@ -53,7 +54,7 @@ const UtilityBar = () => {
   ]
 
   return (
-    <div className={`utility-bar ${isSideBarExpanded ? '' : 'full'}`}>
+    <div className={`utility-bar ${isSideBarExpanded ? 'sidebar-expanded' : ''} ${isAssitantExpanded ? 'assistant-expanded' : ""}`}>
       <DropdownMenu />
       
       {info.map((info, index) => (
