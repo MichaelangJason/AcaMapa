@@ -59,6 +59,7 @@ const CourseCard = (props: CourseCardProps) => {
     futureCourses,
     notes
   } = course;
+  const formattedId = id.slice(0, 4).toUpperCase() + " " + id.slice(4).toUpperCase();
   const dispatch = useDispatch();
   const isExpanded = useSelector((state: RootState) => state.courses[courseId].isExpanded);
   const [isRemoving, setIsRemoving] = useState(false);
@@ -123,7 +124,7 @@ const CourseCard = (props: CourseCardProps) => {
 
   const handleSeekFutureCourses = async () => {
     if (!hasFutureCourses) {
-      toast.error(`No future courses found for ${id}`);
+      toast.error(`No future courses found for ${formattedId}`);
       return;
     };
     if (isSeekingSelf) dispatch(setSeekingInfo({ }));
@@ -145,10 +146,10 @@ const CourseCard = (props: CourseCardProps) => {
       const TOLERANCE = 5;
       // console.log("COURSE_CARD_GAP", COURSE_CARD_GAP);
       
-      if (!term || !termBody || !course || !body || !sidebar) return;
+      if (!term || !termBody || !course || !body || !sidebar || !assistant) return;
       
       const sidebarRect = sidebar.getBoundingClientRect();
-      const aiAssistantRect = assistant?.getBoundingClientRect() || { width: 0 }; // TODO: left for assistant
+      const aiAssistantRect = assistant.getBoundingClientRect();
       // const bodyRect = body.getBoundingClientRect();
       const termRect = term.getBoundingClientRect();
       const termBodyRect = termBody.getBoundingClientRect();
@@ -181,22 +182,13 @@ const CourseCard = (props: CourseCardProps) => {
       const isScrollWindow = isCutOffAtLeft || isCutOffAtRight;
 
       if (isScrollWindow) {
-        // console.log("is cutting off at: ", isCutOffAtLeft ? "left" : "right");
         const scrollOffset = isCutOffAtLeft
           ? termRect.left - sidebarWidth - MARGIN_LEFT
           : termRect.right - window.innerWidth + termRect.width + MARGIN_LEFT + aiAssistantWidth;
-
-        // console.log("termRect.left", termRect.left);
-        // console.log("sidebarRect.right", sidebarRect.right);
-        // console.log("marginWidth", MARGIN_LEFT);
-        // console.log("bodyRect.right", bodyRect.right);
         
         const scrollLeft = window.scrollX || document.documentElement.scrollLeft || document.body.scrollLeft;
         const targetX = scrollLeft + scrollOffset;
 
-        // console.log('document.documentElement.scrollLeft', document.documentElement.scrollLeft);
-        // console.log('scrollOffset', scrollOffset);
-        // console.log('targetX', targetX);
         // Calculate duration based on horizontal distance
         const distance = Math.abs(targetX - window.scrollX);
         const duration = Math.min(Math.max(distance / 2, 300), 1000);
@@ -314,7 +306,7 @@ const CourseCard = (props: CourseCardProps) => {
               onClick={handleCoursePageJump}
               title="Go to course page"
             >
-              <b>{id} </b> 
+              <b>{formattedId} </b> 
               <span className="credits">({credits > 0 ? credits : 0} credits)</span>
             </div>
           </div>

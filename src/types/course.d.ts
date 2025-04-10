@@ -1,17 +1,17 @@
-import { IRawCourse } from "@/db/schema";
+import { ICourse } from "@/db/schema";
 
-export type CourseCode = string;
+export type CourseId = string;
 
-export interface Course extends IRawCourse {
+export interface Course extends ICourse {
   isExpanded: boolean;
   isMounted: boolean;
 }
 
 export interface CourseMap {
-  [id: CourseCode]: Course;
+  [id: CourseId]: Course;
 }
 
 export interface IGroup {
   type: GroupType;
-  inner: (CourseCode | IGroup)[]; // either course id or another group
+  inner: (CourseId | IGroup)[]; // either course id or another group
 }

@@ -1,11 +1,11 @@
-import { RawCourse } from "@/db/schema";
+import { Courses } from "@/db/schema";
 import { NextResponse } from "next/server";
 import { connectToDatabase, disconnectDatabase } from "@/db";
 
 export const GET = async () => {
   try {
-    await connectToDatabase(process.env.DATABASE_URL!, process.env.DATABASE_NAME!);
-    const courses = await RawCourse.find({}, { _id: 0, id: 1, name: 1, credits: 1 }, { sort: { id: 1 } });
+    await connectToDatabase(process.env.MONGODB_URI!, process.env.MONGODB_DATABASE_NAME!);
+    const courses = await Courses.find({}, { _id: 0, id: 1, name: 1, credits: 1 }, { sort: { id: 1 } });
     await disconnectDatabase();
 
     return NextResponse.json(courses, { status: 200 });
@@ -28,8 +28,8 @@ export const POST = async (req: Request) => {
   }
 
   try {
-    await connectToDatabase(process.env.DATABASE_URL!, process.env.DATABASE_NAME!);
-    const courses = await RawCourse.find({ id: { $in: courseIds }}, { _id: 0 });
+    await connectToDatabase(process.env.MONGODB_URI!, process.env.MONGODB_DATABASE_NAME!);
+    const courses = await Courses.find({ id: { $in: courseIds }}, { _id: 0 });
     if (!courses.length) {
       throw new Error("Courses list query empty: " + courseIds)
     }

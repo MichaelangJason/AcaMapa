@@ -45,7 +45,7 @@ const OtherReq = (props: OtherReqProps) => {
         {allCourseIds.map((id, idx) => 
           <CourseTag 
             key={idx} 
-            courseId={id} 
+            courseId={id.slice(0, 4).toUpperCase() + " " + id.slice(4).toUpperCase()} 
             type={courseTagType} 
             itExists={isPresent.get(id) || false}
             isMoving={isMoving}

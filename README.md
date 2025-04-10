@@ -42,8 +42,8 @@ DegreeMapper is a Next.js application designed to help students plan their acade
    NEXT_PUBLIC_ACADEMIC_YEAR=2024-2025
    NEXT_PUBLIC_SCHOOL_ENDPOINT=/study/ACADEMIC_YEAR/courses
 
-   DATABASE_URL=mongodb://localhost:27017/
-   DATABASE_NAME=planner
+   MONGODB_URI=mongodb://localhost:27017/
+   MONGODB_DATABASE_NAME=planner
    DOMAIN=http://localhost:3000
    ```
 

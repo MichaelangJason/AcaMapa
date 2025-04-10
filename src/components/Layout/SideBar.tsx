@@ -2,7 +2,7 @@ import { debounce } from "@/utils/requests"
 import { useEffect, useState, useCallback, useMemo, useRef, ChangeEvent } from "react"
 import Image  from "next/image"
 import { CourseResult } from "@/components/Course"
-import { toast } from "react-toastify"
+// import { toast } from "react-toastify"
 import FlexSearch from "flexsearch"
 import "@/styles/sidebar.scss"
 import { useDispatch, useSelector } from "react-redux"
@@ -10,7 +10,7 @@ import { RootState } from "@/store"
 import { setAddingCourseId, setIsSideBarExpanded, setSearchInput } from "@/store/slices/globalSlice"
 import { processQuery } from "@/utils"
 import CourseTaken from "./CourseTaken"
-import { IRawCourse } from "@/db/schema"
+import { ICourse } from "@/db/schema"
 import { CourseResultSkeleton } from "@/components/Skeleton"
 import { Constants } from "@/utils/enums"
 
@@ -19,17 +19,17 @@ const SideBar = () => {
   const input = useSelector((state: RootState) => state.global.searchInput); // search input
   const courses = useSelector((state: RootState) => state.global.initCourses); // TODO switch to api call?
   const isInitialized = useSelector((state: RootState) => state.global.isInitialized); // initial loading state
-  const [results, setResults] = useState<IRawCourse[]>(courses) // search results
+  const [results, setResults] = useState<ICourse[]>(courses) // search results
   const addingCourseId = useSelector((state: RootState) => state.global.addingCourseId); // for highlighting purpose
   const isSideBarExpanded = useSelector((state: RootState) => state.global.isSideBarExpanded);
-  /* infinite scroll*/
+  /* infinite scroll */
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const resultContainerRef = useRef<HTMLDivElement>(null);
 
   // TODO: switch to server based api call for better search?
   const index = useMemo(() => {
-    const index = new FlexSearch.Document<IRawCourse>({
+    const index = new FlexSearch.Document<ICourse>({
       // tokenize: 'full',
       document: {
         id: 'id',
@@ -38,21 +38,11 @@ const SideBar = () => {
             field: 'id',
             tokenize: 'full',
             resolution: 9,
-            encode: (str: string) => {
-              const exact = str.toLowerCase();
-              const noSpace = str.toLowerCase().replace(/\s+/g, '');
-              return [exact, noSpace];
-            }
           },
           { 
             field: 'name',
             tokenize: 'full',
             resolution: 9,
-            // encode: (str: string) => {
-            //   const exact = str.toLowerCase();
-            //   const noSpace = str.toLowerCase().replace(/\s+/g, '');
-            //   return [exact, noSpace];
-            // }
           }
         ],
         // @ts-expect-error, some ignorable typing error happened here
@@ -70,18 +60,17 @@ const SideBar = () => {
   const debouncedSearch = useCallback(
     debounce(async (input: string) => {
       setPage(1) // reset page
-      const query = index.search(input, {
-        enrich: true,
-      })
 
-      const result = processQuery(query);
-      return result;
+      await index.searchAsync(input, { enrich: true }, (res) => {
+        const result = processQuery(res);
+        setResults(result);
+      })
     }, 100),
     [index]
   );
 
   // search icon callback
-  const handleSearch = async (e: any) => {
+  const handleSearch = useCallback(async (e: any) => {
     if (!input) {
       setResults(courses);
       return;
@@ -91,16 +80,11 @@ const SideBar = () => {
     }
     e.preventDefault();
 
-    try {
-      const query = index.search(input, { enrich: true });
-      const results = processQuery(query);
-      setResults(results);
-    } catch (error) {
-      console.error('Search error:', error);
-      toast.error('Search failed');
-      setResults(courses);
-    }
-  }
+    await index.searchAsync(input, { enrich: true }, (res) => {
+      const result = processQuery(res);
+      setResults(result);
+    })
+  }, [input, index, courses])
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (addingCourseId) {
@@ -120,9 +104,6 @@ const SideBar = () => {
       return;
     }
     debouncedSearch(input)
-      .then((courses) => {
-        setResults(courses);
-      });
   }, [input, debouncedSearch, courses])
 
   // Simplified intersection observer setup
@@ -167,7 +148,7 @@ const SideBar = () => {
       </div>
       <div className={`sidebar ${isSideBarExpanded ? '' : 'folded'}`} id="sidebar">
         <div className="sidebar-header">
-          <Image src="/mcgill-logo.png" alt="logo" width={210} height={50} priority={true}/>
+          {/* <Image src="/mcgill-logo.png" alt="logo" width={210} height={50} priority={true}/> */}
         </div>
         <div className="search-bar">
           <input 

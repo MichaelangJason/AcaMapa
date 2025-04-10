@@ -87,6 +87,7 @@ const markPartialMatch = (source: string, target: string | undefined) => {
 
 const CourseResult = (props: CourseResultProps) => {
   const { id, name, credits, cb, partialMatch } = props;
+  const formattedId = id.slice(0, 4).toUpperCase() + " " + id.slice(4).toUpperCase();
   const dispatch = useDispatch();
   const addingCourseId = useSelector((state: RootState) => state.global.addingCourseId);
 
@@ -103,11 +104,11 @@ const CourseResult = (props: CourseResultProps) => {
     const domain = process.env.NEXT_PUBLIC_SCHOOL_DOMAIN;
     const academicYear = process.env.NEXT_PUBLIC_ACADEMIC_YEAR;
     const endpoint = process.env.NEXT_PUBLIC_SCHOOL_ENDPOINT?.replace(/ACADEMIC_YEAR/i, academicYear || "");
-    const courseId = id.replace(" ", "-").toLowerCase();
+    const courseId = formattedId.replace(" ", "-").toLowerCase();
     window.open(`${domain}${endpoint}${courseId}`, "_blank");
   }
 
-  const markedId = markPartialMatch(id, partialMatch);
+  const markedId = markPartialMatch(formattedId, partialMatch);
   const markedName = markPartialMatch(name, partialMatch);
 
   const isNameEmpty = name === "isEmpty";

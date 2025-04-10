@@ -1,4 +1,4 @@
-import { Course, CourseCode, IGroup } from "@/types/course";
+import { Course, CourseId, IGroup } from "@/types/course";
 import { TermId } from "@/types/term";
 import { memo, useMemo } from "react";
 import { useSelector } from "react-redux";
@@ -17,7 +17,7 @@ interface PreCoReqProps {
   isMoving: boolean;
 }
 
-const ReqGroup = (props: { group: IGroup, termId: TermId, isPresent: Map<CourseCode, boolean>, isMoving: boolean }) => {
+const ReqGroup = (props: { group: IGroup, termId: TermId, isPresent: Map<CourseId, boolean>, isMoving: boolean }) => {
   const { group, termId, isPresent, isMoving } = props;
 
   const AndOrGroup = (props: { group: IGroup, elemGap: number, direction: 'row' | 'column'}) => {
@@ -33,7 +33,7 @@ const ReqGroup = (props: { group: IGroup, termId: TermId, isPresent: Map<CourseC
         {group.inner.flatMap((item, index) => {
           const elem = typeof item === 'string' 
             ? <CourseTag 
-                courseId={item} 
+                courseId={item.slice(0, 4).toUpperCase() + " " + item.slice(4).toUpperCase()} 
                 type={CourseTagType.REQUIRED} 
                 itExists={isPresent.get(item) || false} 
                 key={`${item}-${index}`} 
@@ -68,7 +68,7 @@ const ReqGroup = (props: { group: IGroup, termId: TermId, isPresent: Map<CourseC
         <div className="prereq-pair">TWO FROM:</div>
         {(group.inner as string[]).map((id, index) => (
           <CourseTag 
-            courseId={id} 
+            courseId={id.slice(0, 4).toUpperCase() + " " + id.slice(4).toUpperCase()} 
             type={CourseTagType.REQUIRED} 
             itExists={isPresent.get(id) || false} 
             key={`pair-${index}`} 
@@ -141,7 +141,7 @@ const ReqGroup = (props: { group: IGroup, termId: TermId, isPresent: Map<CourseC
         <div className="prereq-credits">AT LEAST <b>{required}</b> CREDITS FROM:</div>
         {prefixes.flatMap((prefix, index) => [
           <CourseTag 
-            courseId={prefix + levelString + '(' + creditMap[prefix] + ')'} 
+            courseId={prefix.toUpperCase() + levelString + '(' + creditMap[prefix] + ')'} 
             type={CourseTagType.REQUIRED} 
             itExists={creditMap[prefix] >= requiredCredits || totalCredits >= requiredCredits} 
             key={`credit-${index}`} 
@@ -198,12 +198,12 @@ const PreCoReq = (props: PreCoReqProps) => {
       id,
       thisTermCourseIds.includes(id) || 
       prevTermCourseIds.includes(id) || 
-      courseTaken[id.split(' ')[0]]?.includes(id)
+      courseTaken[id.slice(0, 4)]?.includes(id)
     ]))
     : new Map(allCourseIds.map(id => [
       id,
       prevTermCourseIds.includes(id) || 
-      courseTaken[id.split(' ')[0]]?.includes(id)
+      courseTaken[id.slice(0, 4)]?.includes(id)
     ]))
   
   return (

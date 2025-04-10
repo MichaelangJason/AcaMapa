@@ -2,7 +2,7 @@ import { createListenerMiddleware } from "@reduxjs/toolkit";
 import { AppDispatch, RootState } from "..";
 import { toast } from "react-toastify";
 import { isTermActions, isCourseTakenAction, isPlanActions } from "@/utils/typeGuards";
-import { removeCourseTaken, addCourseTaken } from "../slices/courseTakenSlice";
+import { removeCourseTaken, addCourseTaken, setCourseTaken } from "../slices/courseTakenSlice";
 import { addPlan, removePlan, setCurrentPlanId, setPlanName } from "../slices/planSlice";
 import { addTerm, deleteTerm, addCourseToTerm, deleteCourseFromTerm, setTermName } from "../slices/termSlice";
 
@@ -28,16 +28,18 @@ startListening({
       toast.success(`${termName.toLowerCase().startsWith("term") ? termName : `Term ${termName}`} removed from ${planName}`);
     } else if (actionType === addCourseToTerm.type) {
       const { termId, courseId } = action.payload;
+      const formattedCourseId = courseId.slice(0, 4).toUpperCase() + " " + courseId.slice(4).toUpperCase();
       const currentPlanId = listenerApi.getState().plans.currentPlanId;
       const planName = listenerApi.getState().plans.data[currentPlanId].name;
       const termName = listenerApi.getState().terms.data[termId].name;
       
-      toast.success(`${courseId} added to ${termName.toLowerCase().startsWith("term") ? termName : `Term ${termName}`} in ${planName}`);
+      toast.success(`${formattedCourseId} added to ${termName.toLowerCase().startsWith("term") ? termName : `Term ${termName}`} in ${planName}`);
     } else if (actionType === deleteCourseFromTerm.type) {
       const { termId, courseId } = action.payload;
+      const formattedCourseId = courseId.slice(0, 4).toUpperCase() + " " + courseId.slice(4).toUpperCase();
       const termName = listenerApi.getState().terms.data[termId].name;
 
-      toast.success(`${courseId} removed from ${termName.toLowerCase().startsWith("term") ? termName : `Term ${termName}`}`);
+      toast.success(`${formattedCourseId} removed from ${termName.toLowerCase().startsWith("term") ? termName : `Term ${termName}`}`);
     } else if (actionType === setTermName.type) {
       const { termId, name } = action.payload;
       const oldName = listenerApi.getOriginalState().terms.data[termId].name;
@@ -51,12 +53,14 @@ startListening({
   predicate: (action) => isCourseTakenAction(action),
   effect: (action) => {
     const actionType = action.type;
+    if (actionType === setCourseTaken.type) return;
     const courseId = action.payload;
+    const formattedCourseId = courseId.slice(0, 4)?.toUpperCase() + " " + courseId.slice(4).toUpperCase();
 
     if (actionType === addCourseTaken.type) {
-      toast.success(`${courseId} added to course taken`);
+      toast.success(`${formattedCourseId} added to course taken`);
     } else if (actionType === removeCourseTaken.type) {
-      toast.success(`${courseId} removed from course taken`);
+      toast.success(`${formattedCourseId} removed from course taken`);
     }
   }
 })

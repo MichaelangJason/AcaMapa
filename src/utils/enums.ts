@@ -22,8 +22,8 @@ export enum GroupType {
   AND = "AND",
   OR = "OR",
   SINGLE = "SINGLE",
-  PAIR = "PAIR",
-  CREDIT = "CREDIT",
+  PAIR = "PAIR", // two of the following courses must be taken
+  CREDIT = "CREDIT", // number of credits + allowed levels + subject codes
   EMPTY = "EMPTY",
 }
 

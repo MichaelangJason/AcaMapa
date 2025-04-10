@@ -1,13 +1,13 @@
 import { CourseTag } from "@/components/Course";
 import { RootState } from "@/store";
-import { CourseCode } from "@/types/course";
+import { CourseId } from "@/types/course";
 import { CourseTagType } from "@/utils/enums";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { setIsCourseTakenExpanded } from "@/store/slices/globalSlice";
 import Image from "next/image";
 
-const CourseTagGroup = (props: { courseTaken: CourseCode[], prefix: string }) => {
+const CourseTagGroup = (props: { courseTaken: CourseId[], prefix: string }) => {
   const { courseTaken, prefix } = props;
 
   return (
@@ -16,10 +16,10 @@ const CourseTagGroup = (props: { courseTaken: CourseCode[], prefix: string }) =>
         {prefix}
       </div>
       <div className="course-taken-group-body">
-        {courseTaken.map(course => 
+        {courseTaken.map(courseId => 
           <CourseTag 
-          key={course} 
-          courseId={course} 
+          key={courseId} 
+          courseId={courseId.slice(0, 4).toUpperCase() + " " + courseId.slice(4).toUpperCase()} 
           type={CourseTagType.TAKEN} 
           itExists={true}
           isMoving={false} 
@@ -35,7 +35,7 @@ const CourseTaken = () => {
   const isExpanded = useSelector((state: RootState) => state.global.isCourseTakenExpanded);
   const dispatch = useDispatch();
   // filter course taken
-  const nonEmptyCourseTaken = Object.keys(courseTaken).filter(prefix => courseTaken[prefix].length > 0);
+  const courseTakenDict = Object.keys(courseTaken).filter(prefix => courseTaken[prefix].length > 0);
 
   // toggle expanded state
   const toggleExpanded = () => {
@@ -57,13 +57,13 @@ const CourseTaken = () => {
     </div>
     </div>
     {isExpanded 
-      ? nonEmptyCourseTaken.length > 0
+      ? courseTakenDict.length > 0
         ? <div className="course-taken-list">
-            {nonEmptyCourseTaken.map((prefix, index) => (
+            {courseTakenDict.map((prefix, index) => (
               <CourseTagGroup 
                 key={index} 
                 courseTaken={courseTaken[prefix]} 
-                prefix={prefix}
+                prefix={prefix.toUpperCase()}
               />
             ))}
           </div>

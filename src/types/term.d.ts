@@ -1,10 +1,10 @@
-import { CourseCode } from "./course";
+import { CourseId } from "./course";
 export type TermId = string;
 export type PlanId = string;
 export interface Term {
   id: TermId; // term id
   name: string;
-  courseIds: CourseCode[];
+  courseIds: CourseId[];
 }
 
 export interface TermMap {
@@ -16,6 +16,6 @@ export interface PlanMap {
     id: PlanId;
     name: string;
     termIds: TermId[];
-    courseTaken: CourseCode[];
+    courseTaken: CourseId[];
   };
 }

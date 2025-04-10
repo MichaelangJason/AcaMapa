@@ -14,7 +14,7 @@ import { addCourse, setCourseMounted } from "@/store/slices/courseSlice";
 import "@/styles/terms.scss"
 import "@/styles/dropdown.scss"
 import Image from "next/image";
-import { IRawCourse } from "@/db/schema";
+import { ICourse } from "@/db/schema";
 import * as DM from "@radix-ui/react-dropdown-menu";
 import RenameConfirmModal, { RenameConfirmModalInfo } from "@/components/Layout/RenameConfirmModal";
 export interface TermCardProps {
@@ -49,9 +49,9 @@ const TermCard = (props: TermCardProps) => {
 
   const handleAddCourse = useCallback(async () => {
     // check if course exists in any term
+    const formattedCourseId = addingCourseId!.slice(0, 4).toUpperCase() + " " + addingCourseId!.slice(4).toUpperCase();
     if (inTermCourseIds.includes(addingCourseId!)) {
-
-      toast.error(`Cannot add duplicate ${addingCourseId}`);
+      toast.error(`Cannot add duplicate ${formattedCourseId}`);
       dispatch(setAddingCourseId(null));
       return;
     }
@@ -60,21 +60,21 @@ const TermCard = (props: TermCardProps) => {
 
     // for animation purposes, delay adding course
     setTimeout(async () => {
-      let course: IRawCourse | null = existingAddingCourse;
+      let course: ICourse | null = existingAddingCourse;
 
       if (!course) {
         course = await toast.promise(
           getCourse(addingCourseId!),
           {
-            pending: `Fetching ${addingCourseId}...`,
-            error: `Failed to fetch ${addingCourseId}`,
-            success: `${addingCourseId} fetched successfully`,
+            pending: `Fetching ${formattedCourseId}...`,
+            error: `Failed to fetch ${formattedCourseId}`,
+            success: `${formattedCourseId} fetched successfully`,
           }
         );
       }
       
       if (!course) {
-        toast.error("Course not found");
+        toast.error(`Course not found: ${formattedCourseId}`);
       } else {
           const id = course.id;
           dispatch(addCourse(course))

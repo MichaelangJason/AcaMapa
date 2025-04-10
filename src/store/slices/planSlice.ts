@@ -1,4 +1,4 @@
-import { CourseCode } from "@/types/course";
+import { CourseId } from "@/types/course";
 import { PlanId, PlanMap, TermId } from "@/types/term";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
@@ -8,7 +8,7 @@ export const initialState = {
       id: "plan-1",
       name: "Plan 1",
       termIds: ["term-1"],
-      courseTaken: [] as CourseCode[],
+      courseTaken: [] as CourseId[],
     }
   } as PlanMap,
   order: ["plan-1"] as PlanId[],
@@ -33,7 +33,7 @@ export const planSlice = createSlice({
     setPlanTermIds: (state, action: PayloadAction<{ planId: PlanId, termIds: TermId[] }>) => {
       state.data[action.payload.planId].termIds = action.payload.termIds;
     },
-    setPlanCourseTaken: (state, action: PayloadAction<{ planId: PlanId, courseTaken: CourseCode[] }>) => {
+    setPlanCourseTaken: (state, action: PayloadAction<{ planId: PlanId, courseTaken: CourseId[] }>) => {
       state.data[action.payload.planId].courseTaken = action.payload.courseTaken;
     },
     removePlan: (state, action: PayloadAction<PlanId>) => {

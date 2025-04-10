@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { CourseResult } from "@/components/Course";
 import { setSearchInput, setSeekingInfo } from "@/store/slices/globalSlice";
 import { motion } from "motion/react";
-import { IRawCourse } from "@/db/schema";
+import { ICourse } from "@/db/schema";
 
 const useSeeking = (seekingId: string | null) => {
   const courses = useSelector((state: RootState) => state.courses);
@@ -33,7 +33,7 @@ const Seeking = () => {
   const isSeeking = !!futureCourses;
   const dispatch = useDispatch();
 
-  const handleAddCourse = (course: IRawCourse) => {
+  const handleAddCourse = (course: ICourse) => {
     dispatch(setSeekingInfo({ })); // clear seeking info
     dispatch(setSearchInput(course.id));
   }

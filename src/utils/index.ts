@@ -1,23 +1,23 @@
-import { Course, CourseCode } from "@/types/course";
+import { Course, CourseId } from "@/types/course";
 import { TermMap } from "@/types/term";
 import { TermId } from "@/types/term";
 import { GroupType } from "@/utils/enums";
 import { IGroup } from "@/types/course";
 import FlexSearch from "flexsearch";
-import { IRawCourse } from "@/db/schema";
+import { ICourse } from "@/db/schema";
 
 export const isSatisfied = (
   {prerequisites, restrictions, corequisites, courseTaken, terms, termId, initCourses}: {
     prerequisites: IGroup,
     restrictions: IGroup,
     corequisites: IGroup,
-    courseTaken: CourseCode[],
+    courseTaken: CourseId[],
     terms: {
       data: TermMap;
       order: TermId[];
-      inTermCourseIds: CourseCode[];
+      inTermCourseIds: CourseId[];
     },
-    initCourses: IRawCourse[],
+    initCourses: ICourse[],
     termId: string
   }
 ) => {
@@ -36,8 +36,8 @@ export const isSatisfied = (
     const flatContext = context.flat();
     const multiTermPattern = /[A-Z0-9]{4}(( )*|-)\d{3}([A-Z]\d)/i
     
-    if (group.type === GroupType.SINGLE) { // guaranteed to be a string
-      const courseId = group.inner[0] as string
+    if (group.type === GroupType.SINGLE) { 
+      const courseId = group.inner[0] as string // guaranteed to be a string
       const isMultiTerm = courseId.match(multiTermPattern);
 
       if (isMultiTerm) {
@@ -77,15 +77,16 @@ export const isSatisfied = (
     }
   
     if (group.type === GroupType.CREDIT) {
-      const [required, scopes, ...prefixes] = group.inner as string[];
+      const [required, scopes, ...subjectCodes] = group.inner as string[];
       const levels = scopes.split("").map(l => parseInt(l));
 
       const total = initCourses
         .filter(course => flatContext.includes(course.id))
         .filter(course => {
-          const [prefix, code] = course.id.split(" ");
+          const subjectCode = course.id.slice(0, 4)
+          const code = course.id.slice(4)
           const level = parseInt(code[0]);
-          return prefixes.includes(prefix) && (levels[0] === 0 || levels.includes(level));
+          return subjectCodes.includes(subjectCode) && (levels[0] === 0 || levels.includes(level));
         })
         .reduce((acc, course) => acc + course.credits, 0);
 
@@ -95,14 +96,17 @@ export const isSatisfied = (
 
   // every prerequisite must be from the previous term
   const prereqSatisfied = isGroupSatisfied(prerequisites, priorTerms);
+  if (!prereqSatisfied) return false;
 
   // restrictions are OR groups, so either it's empty or it's should not be satisfied
   const restrictionSatisfied = restrictions.type === GroupType.EMPTY || !isGroupSatisfied(restrictions, priorTerms.concat(thisTerm));
+  if (!restrictionSatisfied) return false;
 
   // every corequisite must be from the previous term or this term
   const coreqSatisfied = isGroupSatisfied(corequisites, priorTerms.concat(thisTerm));
+  if (!coreqSatisfied) return false;
 
-  return prereqSatisfied && restrictionSatisfied && coreqSatisfied;
+  return true
 }
 
 export const splitCourseIds = (val: string[]) => {
@@ -115,7 +119,7 @@ export const splitCourseIds = (val: string[]) => {
       acc.notes.push(val);
     }
     return acc;
-  }, {courseIds: [] as CourseCode[], notes: [] as string[]});
+  }, {courseIds: [] as CourseId[], notes: [] as string[]});
 
   return {courseIds, notes};
 }
@@ -127,42 +131,43 @@ export const findCourseIds = (raw: string, findAll: boolean, log: boolean = fals
   const multitermPattern = /([A-Z0-9]{4}(( )*|-)\d{3}([A-Z]\d(\/[A-Z]\d)+))/i
   // match alternative course ids like NRSC/BIOL 451
   const alternativePattern = /([A-Z0-9]{4}( )*(\/|or)( )*[A-Z0-9]{4}(( )*|-)\d{3}([A-Z]\d(\/[A-Z]\d)*)?)/ig
-  // match consecutive course id that shares department code
+  // match consecutive course id that shares department code like comp 579,550,330
   const consecutivePattern = /([A-Z0-9]{4}(( )*|-)\d{3}([A-Z]\d(\/[A-Z]\d)*)?((,)?( )*\d{3}([A-Z]\d(\/[A-Z]\d)*)?)+)/i
 
   // find all course ids in the string that match the pattern
-  const courseIds = raw.match(pattern);
-  let result = courseIds as string[] || [];
-  if (!findAll) result = result.slice(0, 1);
+  let results: string[] = raw.match(pattern) as string[] || [];
+  if (!findAll) results = results.slice(0, 1);
 
-  result = result?.reduce((acc, id)=> {
+  results = results?.reduce((acc, id)=> {
     id = id.replace(/-/i, " ").replace(/ ( )*/i, " ");
 
-    if (!id.includes(" ")) {
-      id = id.slice(0, 4) + " " + id.slice(4);
-    }
     // map multiterm course ids to separate course ids
     if (id.match(multitermPattern)) {
       if (log) console.log("multitermPattern: ", id);
-      const [prefix, terms] = id.split(" ");
+      const prefix = id.slice(0, 4)
+      const terms = id.slice(4)
       const suffix = terms.split("/")
       suffix.forEach((s, i) => {
         if (i === 0) {
-          acc.push(prefix + " " + s);
+          acc.push(prefix + s);
         } else {
           const baseNumber = suffix[0].slice(0, -2);
-          acc.push(prefix + " " + baseNumber + s);
+          acc.push(prefix + baseNumber + s);
         }
       })
     } else if (id.match(alternativePattern)) {
       if (log) console.log("alternativePattern: ", id);
-      const [prefix, suffix] = id.replace(/( )*or( )*/ig, "/").split(" ");
+      const prefix = id.replace(/( )*or( )*/ig, "/").slice(0, 4);
+      const suffix = id.replace(/( )*or( )*/ig, "/").slice(4);
       prefix.split("/").forEach(p => {
-        acc.push(p + " " + suffix);
+        acc.push(p + suffix);
       })
     } else if (id.match(consecutivePattern)) {
       if (log) console.log("consecutivePattern: ", id);
-      const [prefix, ...rest] = id.replace(/( )*,( )*/ig, " ").split(" ");
+      // const [prefix, ...rest] = id.replace(/( )*,( )*/ig, " ").split(" ");
+      const prefix = id.replace(/( )*or( )*/ig, "/").slice(0, 4);
+      const rest = id.replace(/( )*or( )*/ig, "/").slice(4).split(",");
+
       rest.forEach(r => {
         if (log) console.log("inner: ", r);
         r = r.replace(",", "").trim();
@@ -173,14 +178,14 @@ export const findCourseIds = (raw: string, findAll: boolean, log: boolean = fals
           
           suffix.forEach((s, i) => {
             if (i === 0) {
-              acc.push(prefix + " " + s);
+              acc.push(prefix + s);
             } else {
               const baseNumber = suffix[0].slice(0, -2);
-              acc.push(prefix + " " + baseNumber + s);
+              acc.push(prefix + baseNumber + s);
             }
           })
         } else {
-          acc.push(prefix + " " + r);
+          acc.push(prefix + r);
         }
       })
     } else {
@@ -191,19 +196,19 @@ export const findCourseIds = (raw: string, findAll: boolean, log: boolean = fals
     return acc;
   }, [] as string[]) || [];
 
-  return [...new Set(result)]; // remove duplicates
+  return [...new Set(results)]; // remove duplicates
 }
 
 export const parseGroup = (text: string) => {
 
   const formatCourseId = (id: string) => {
-    if (!id.includes(" ")) {
-      id = id.slice(0, 4) + " " + id.slice(4);
-    }
+    // if (!id.includes(" ")) {
+    //   id = id.slice(0, 4) + " " + id.slice(4);
+    // }
     return id.trim();
   }
 
-  const tailRecursiveParse = (remaining: string[], groupType: GroupType = GroupType.SINGLE) => {
+  const parse = (remaining: string[], groupType: GroupType = GroupType.SINGLE) => {
     const group = {
       type: groupType,
       inner: []
@@ -216,6 +221,16 @@ export const parseGroup = (text: string) => {
 
     let next;
     let nextCourseId = "";
+
+    const pushToGroup = () => {
+      if (nextCourseId.length === 0) return
+
+      if (findCourseIds(nextCourseId, false).length === 0) {
+        throw new Error("pushed string is not a valid courseId: " + nextCourseId);
+      }
+      group.inner.push(formatCourseId(nextCourseId));
+      nextCourseId = "";
+    }
     
     while (remaining.length > 0) {
       next = remaining.shift(); // future call will also mutate the array
@@ -227,30 +242,22 @@ export const parseGroup = (text: string) => {
             group.type = GroupType.EMPTY;
             return group;
           }
-          group.inner.push(tailRecursiveParse(remaining));
+          group.inner.push(parse(remaining));
           break;
         case ")": // group ended
-          if (nextCourseId.length > 0) {
-            group.inner.push(formatCourseId(nextCourseId));
-          }
+          pushToGroup();
           return simplify(group);
         case '"': // skip quotes
         case " ": // skip whitespace
         case "\n": // skip newline
           break;
-        case "/": // or
+        case "/": // or group
           if (group.type === GroupType.SINGLE) { // assign new group type
             group.type = GroupType.OR;  
-          } else if (group.type !== GroupType.OR) {
+          } else if (group.type !== GroupType.OR) { // throw error if mixed group type
             throw new Error("Invalid group: no mixed group type: " + JSON.stringify(group, null, 2));
           }
-          if (nextCourseId.length > 0) {
-            if (findCourseIds(nextCourseId, false).length === 0) {
-              throw new Error("pushed string is not a valid courseId: " + nextCourseId);
-            }
-            group.inner.push(formatCourseId(nextCourseId));
-            nextCourseId = "";
-          }
+          pushToGroup();
           break;
         case "+": // and
           if (group.type === GroupType.SINGLE) { // assign new group type
@@ -258,27 +265,15 @@ export const parseGroup = (text: string) => {
           } else if (group.type !== GroupType.AND) {
             throw new Error("Invalid group: no mixed group type: " + JSON.stringify(group, null, 2));
           }
-          if (nextCourseId.length > 0) {
-            if (findCourseIds(nextCourseId, false).length === 0) {
-              throw new Error("pushed string is not a valid courseId: " + nextCourseId);
-            }
-            group.inner.push(formatCourseId(nextCourseId));
-            nextCourseId = "";
-          }
+          pushToGroup();
           break;
-        case "|": // pair
+        case "|": // pair group (two of the following courses must be taken)
           if (group.type === GroupType.SINGLE) {
             group.type = GroupType.PAIR;
           } else if (group.type !== GroupType.PAIR) {
             throw new Error("Invalid group: no mixed group type: " + JSON.stringify(group, null, 2));
           }
-          if (nextCourseId.length > 0) {
-            if (findCourseIds(nextCourseId, false).length === 0) {
-              throw new Error("pushed string is not a valid courseId: " + nextCourseId);
-            }
-            group.inner.push(formatCourseId(nextCourseId));
-            nextCourseId = "";
-          }
+          pushToGroup();
           break;
         case "-": // credit
           if (group.type === GroupType.SINGLE) {
@@ -286,6 +281,7 @@ export const parseGroup = (text: string) => {
           } else if (group.type !== GroupType.CREDIT) {
             throw new Error("Invalid group: no mixed group type: " + JSON.stringify(group, null, 2));
           }
+          // special push case
           if (nextCourseId.length > 0) {
             // verify that its either a number or a string of len 4
             if (!nextCourseId.match(/^((\d){1,7}|[A-Z]{4})$/)) {
@@ -300,19 +296,14 @@ export const parseGroup = (text: string) => {
       }
     }
 
-    // if there's a course id left, add it to the group
-    if (nextCourseId.length > 0) {
-      if (findCourseIds(nextCourseId, false).length === 0) {
-        throw new Error("pushed string is not a valid courseId: " + nextCourseId);
-      }
-      group.inner.push(formatCourseId(nextCourseId));
-    }
+    pushToGroup(); // push the remaining course id if any
+    
     if (group.inner.length === 0) {
       throw new Error("The parsed string is empty");
     }
-    group.inner = group.inner.map(course => {
-      if (typeof course !== "string") return course;
-      else return formatCourseId(course);
+    group.inner = group.inner.map(item => {
+      if (typeof item !== "string") return item;
+      else return formatCourseId(item);
     })
 
     const simplified = simplify(group);
@@ -348,7 +339,7 @@ export const parseGroup = (text: string) => {
     return group; // same reference
   }
   
-  return tailRecursiveParse(text.split("")); // split in to array of chars
+  return parse(text.split("")); // split in to array of chars
 }
 
 interface ScrollOptions {

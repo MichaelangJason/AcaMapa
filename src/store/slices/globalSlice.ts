@@ -1,4 +1,4 @@
-import { IRawCourse } from "@/db/schema";
+import { ICourse } from "@/db/schema";
 import { DraggingType } from "@/utils/enums";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
@@ -6,7 +6,7 @@ export const initialState = {
   draggingType: null as DraggingType | null,
   addingCourseId: null as string | null,
   droppableId: null as string | null,
-  initCourses: [] as IRawCourse[],
+  initCourses: [] as ICourse[],
   seekingInfo: {
     seekingId: undefined as string | undefined,
     seekingTerm: undefined as string | undefined,
@@ -15,7 +15,7 @@ export const initialState = {
   searchInput: '' as string,
   assistantInput: '' as string,
   isSideBarExpanded: true as boolean,
-  isAssistantExpanded: false as boolean,
+  isAssistantExpanded: true as boolean,
   isCourseTakenExpanded: false as boolean,
   isInitialized: false as boolean,
   isUtilityDropdownMenuOpen: false as boolean,
@@ -35,7 +35,7 @@ const globalSlice = createSlice({
     setDroppableId: (state, action: PayloadAction<string | null>) => {
       state.droppableId = action.payload;
     },
-    setInitCourses: (state, action: PayloadAction<IRawCourse[]>) => {
+    setInitCourses: (state, action: PayloadAction<ICourse[]>) => {
       action.payload.forEach((course) => { // avoid mutating passed in array
         state.initCourses.push(course);
       });

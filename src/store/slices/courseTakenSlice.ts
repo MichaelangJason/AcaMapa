@@ -1,14 +1,14 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { CourseCode } from "../../types/course";
+import { CourseId } from "../../types/course";
 
-export const initialState: { [key: string]: CourseCode[] } = {}
+export const initialState: { [key: string]: CourseId[] } = {}
 
 export const courseTakenSlice = createSlice({
   name: 'courseTaken',
   initialState,
   reducers: {
-    addCourseTaken: (state, action: PayloadAction<CourseCode>) => {
-      const prefix = action.payload.split(' ')[0]
+    addCourseTaken: (state, action: PayloadAction<CourseId>) => {
+      const prefix = action.payload.slice(0, 4)
       // lazy init
       if (!state[prefix]) {
         state[prefix] = []
@@ -20,20 +20,20 @@ export const courseTakenSlice = createSlice({
       state[prefix].push(action.payload)
       state[prefix].sort()
     },
-    setCourseTaken: (state, action: PayloadAction<CourseCode[]>) => {
+    setCourseTaken: (state, action: PayloadAction<CourseId[]>) => {
       const keys = Object.keys(state)
       keys.forEach(key => { delete state[key] })
       
       action.payload.forEach(course => {
-        const prefix = course.split(' ')[0]
+        const prefix = course.slice(0, 4)
         if (!state[prefix]) {
           state[prefix] = []
         }
         state[prefix].push(course)
       })
     },
-    removeCourseTaken: (state, action: PayloadAction<CourseCode>) => {
-      const prefix = action.payload.split(' ')[0]
+    removeCourseTaken: (state, action: PayloadAction<CourseId>) => {
+      const prefix = action.payload.slice(0, 4)
       if (!state[prefix] || state[prefix].length === 0) {
         return
       }

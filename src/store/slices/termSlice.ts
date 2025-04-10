@@ -1,4 +1,4 @@
-import { CourseCode } from "@/types/course";
+import { CourseId } from "@/types/course";
 import { TermId, TermMap } from "@/types/term";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
@@ -12,7 +12,7 @@ export const initialState = {
     },
   } as TermMap,
   order: ["term-1"] as TermId[],
-  inTermCourseIds: [] as CourseCode[],
+  inTermCourseIds: [] as CourseId[],
 }
 
 export const termSlice = createSlice({
@@ -53,18 +53,18 @@ export const termSlice = createSlice({
       state.order.splice(sourceIdx, 1)
       state.order.splice(destinationIdx, 0, item)
     },
-    addCourseToTerm: (state, action: PayloadAction<{ termId: string; courseId: CourseCode }>) => {
+    addCourseToTerm: (state, action: PayloadAction<{ termId: string; courseId: CourseId }>) => {
       const { termId, courseId } = action.payload
       state.data[termId].courseIds.unshift(courseId)
       state.inTermCourseIds.unshift(courseId)
     },
-    deleteCourseFromTerm: (state, action: PayloadAction<{ termId: string; courseId: CourseCode }>) => {
+    deleteCourseFromTerm: (state, action: PayloadAction<{ termId: string; courseId: CourseId }>) => {
       const { termId, courseId } = action.payload
-      state.data[termId].courseIds = state.data[termId].courseIds.filter((id: CourseCode) => id !== courseId)
-      state.inTermCourseIds = state.inTermCourseIds.filter((id: CourseCode) => id !== courseId)
+      state.data[termId].courseIds = state.data[termId].courseIds.filter((id: CourseId) => id !== courseId)
+      state.inTermCourseIds = state.inTermCourseIds.filter((id: CourseId) => id !== courseId)
     },
     moveCourse: (state, action: PayloadAction<{ 
-      courseId: CourseCode; 
+      courseId: CourseId; 
       sourceIdx: number; 
       destinationIdx: number; 
       sourceTermId: TermId; 
@@ -93,7 +93,7 @@ export const termSlice = createSlice({
     setTermOrder: (state, action: PayloadAction<TermId[]>) => {
       // all term should exists in the state
       const newOrder = action.payload
-      const newInTermCourseIds = [] as CourseCode[]
+      const newInTermCourseIds = [] as CourseId[]
       newOrder.forEach((id) => {
         if (!state.data[id]) {
           toast.error(`${id} does not exist`)

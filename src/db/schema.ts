@@ -1,13 +1,15 @@
-import { Schema, Model, model } from "mongoose";
-import mongoose from "mongoose";
+import mongoose, { Schema, Model, model } from "mongoose";
+import { AcademicLevel, CourseLevel, Degree, Department, Faculty, MongoCollection } from "./enums";
 
-export interface IRawCourse {
+export interface ICourse {
   id: string;
   name: string;
   credits: number;
-  faculty: string;
-  department: string;
-  level: number;
+  faculty: Faculty;
+  department: Department;
+  academicLevel: AcademicLevel;
+  degree: Degree;
+  courseLevel: CourseLevel;
   terms: string[];
   overview?: string;
   instructors?: string;
@@ -25,15 +27,18 @@ export interface IRawCourse {
     parsed: string; // restricted taken or taking courses
   };
   futureCourses?: string[];
+  // embeddings?: Float32List;
 }
 
-export const RawCourseSchema = new Schema<IRawCourse>({
+export const CourseSchema = new Schema<ICourse>({
   id: { type: String, required: true, unique: true },
   name: { type: String, required: true },
   credits: { type: Number, required: true, min: -1 },
   faculty: { type: String, required: true },
+  degree: { type: String, required: true },
   department: { type: String, required: true },
-  level: { type: Number, required: true },
+  academicLevel: { type: Number, required: true },
+  courseLevel: { type: String, required: true },
   terms: { type: [String], required: true, minlength: 0 },
   overview: { type: String, required: false },
   instructors: { type: String, required: false },
@@ -46,9 +51,7 @@ export const RawCourseSchema = new Schema<IRawCourse>({
   timestamps: true
 });
 
-const ACADEMIC_YEAR = process.env.NEXT_PUBLIC_ACADEMIC_YEAR?.replace("-", "_");
+export const Courses: Model<ICourse> = mongoose.models.Courses || 
+  model<ICourse>("Courses", CourseSchema, MongoCollection.COURSES);
 
-export const RawCourse: Model<IRawCourse> = mongoose.models.RawCourse || 
-  model<IRawCourse>("RawCourse", RawCourseSchema, "raw_courses_" + ACADEMIC_YEAR);
-
-export default RawCourse;
+export default Courses;

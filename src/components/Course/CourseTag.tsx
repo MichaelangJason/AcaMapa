@@ -27,10 +27,13 @@ const CourseTag = (props: CourseTagProps) => {
 
   const handleClick = () => {
     if (disabled) return;
+    const normalizedCourseId = courseId.replace(/ /g, "").toLowerCase();
+
+
     if (type === CourseTagType.TAKEN) {
-      dispatch(removeCourseTaken(courseId));  
+      dispatch(removeCourseTaken(normalizedCourseId));  
     } else {
-      dispatch(addCourseTaken(courseId));
+      dispatch(addCourseTaken(normalizedCourseId));
       const courseTakenElem = document.getElementsByClassName('course-taken-container').item(0);
 
       if (courseTakenElem && !courseTakenElem.classList.contains('glow-border')) {

@@ -1,8 +1,8 @@
-import { RawCourse } from "@/db/schema";
+import { Courses } from "@/db/schema";
 import { NextResponse } from "next/server";
 import { connectToDatabase, disconnectDatabase } from "@/db";
 
-const COURSE_ID_REGEX = /((?!(fall|lent))[A-Z0-9]{4}(( )*(\/|or)( )*[A-Z0-9]{4})?(( )*|-)\d{3}([A-Z]\d(\/[A-Z]\d)*)?((,)?( )*\d{3}([A-Z]\d(\/[A-Z]\d)*)?)*)/i
+const COURSE_ID_REGEX = /[a-z0-9]{4}([a-z]{4}|[0-9]{3}([dnj]\d)?)?/
 
 export const GET = async (
   req: Request,
@@ -18,11 +18,9 @@ export const GET = async (
     return NextResponse.json({ message: 'Invalid course ID format' }, { status: 400 });
   }
 
-  console.log("courseId", courseId);
-
   try {
-    await connectToDatabase(process.env.DATABASE_URL!, process.env.DATABASE_NAME!);
-    const course = await RawCourse.findOne(
+    await connectToDatabase(process.env.MONGODB_URI!, process.env.MONGODB_DATABASE_NAME!);
+    const course = await Courses.findOne(
       { id: courseId },
       { _id: 0 }
     );

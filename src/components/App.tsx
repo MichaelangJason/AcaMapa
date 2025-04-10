@@ -3,7 +3,7 @@
 import { AppStore, makeStore } from "@/store"
 import { Provider } from "react-redux"
 import { KeyPressListener, ToolTips } from "@/components/Common";
-import { SideBar, UtilityBar } from "@/components/Layout";
+import { Assistant, SideBar, UtilityBar } from "@/components/Layout";
 import { Terms } from "@/components/Term";
 import { setDroppableId, setInitCourses, setIsInitialized, setDraggingType, setIsDragging } from "@/store/slices/globalSlice";
 import { deleteTerm, moveCourse, moveTerm, setTermsData } from "@/store/slices/termSlice";
@@ -12,7 +12,7 @@ import { DragDropContext, DragStart, DragUpdate, DropResult } from "@hello-pange
 import { useDispatch } from "react-redux";
 import { Flip, toast, ToastContainer } from "react-toastify";
 import { useEffect, useRef } from "react";
-import { IRawCourse } from "@/db/schema";
+import { ICourse } from "@/db/schema";
 import { isValidAssistantState, isValidPlanState, isValidTermData } from "@/utils/typeGuards";
 import { movePlan, setPlans } from "@/store/slices/planSlice";
 import { Course } from "@/types/course";
@@ -88,12 +88,12 @@ const App = () => {
         onDragUpdate={handleDragUpdate}
       >
         <UtilityBar />
-        {/* <Assistant /> */}
+        <Assistant />
         <SideBar />
         <Terms />
         <KeyPressListener />
         <ToastContainer
-          position="bottom-right" // TODO: change to bottom-center for assistant
+          position="bottom-center"
           autoClose={5000}
           hideProgressBar={true}
           newestOnTop={false}
@@ -112,7 +112,7 @@ const App = () => {
   );
 }
 
-const Wrapper = (props: { initCourses: IRawCourse[] }) => {
+const Wrapper = (props: { initCourses: ICourse[] }) => {
   const storeRef = useRef<AppStore>(null);
 
   // only run once
