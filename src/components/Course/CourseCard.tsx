@@ -49,10 +49,10 @@ const useIsSatisfied = (termId: string, prerequisites: IGroup, restrictions: IGr
 const CourseCard = (props: CourseCardProps) => {
   const { termId, courseId, index } = props;
   const course = useSelector((state: RootState) => state.courses[courseId]);
-  if (!course) {
-    console.error(`Course ${courseId} not found`);
-    return null
-  }
+  // if (!course) {
+  //   console.error(`Course ${courseId} not found`);
+  //   return null
+  // }
   const { 
     name, 
     id, 

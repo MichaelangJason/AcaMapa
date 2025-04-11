@@ -2,7 +2,7 @@ import { createListenerMiddleware, isAnyOf } from "@reduxjs/toolkit";
 import { AppDispatch, RootState } from "..";
 import { toast } from "react-toastify";
 import { LocalStorage } from "@/utils/enums";
-import { isTermActions, isCourseTakenAction, isPlanActions, isAssistantAction } from "@/utils/typeGuards";
+import { isTermActions, isCourseTakenAction, isPlanActions } from "@/utils/typeGuards";
 import { addThreadId, removeThreadId, setCurrentThreadId } from "../slices/assistantSlice";
 
 const listenerMiddleware = createListenerMiddleware();

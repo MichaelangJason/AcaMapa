@@ -32,7 +32,9 @@ const AIMessage = (props: { message: Message, isStreaming?: boolean }) => {
             const content = node?.children[0];
             const handleApply = async(e: React.MouseEvent<HTMLDivElement>) => {
               e.stopPropagation();
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
               let resolveApply: Function = () => {};
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
               let rejectApply: Function = () => {};
               try {
                 const json = JSON.parse((content as any)?.value);
@@ -297,7 +299,7 @@ const Assistant = () => {
       
       for (const line of lines) {
         if (line.startsWith('event: ')) {
-          let eventType = line.substring(7).trim();
+          const eventType = line.substring(7).trim();
           if (eventType === "end_of_stream") {
             setIsStreaming(false);
             break;
