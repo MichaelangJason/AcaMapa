@@ -202,7 +202,7 @@ const History = () => {
               <Image 
                 src="/delete.svg" 
                 alt="delete" 
-                className="delete-icon" 
+                className="assistant-delete-icon" 
                 width={20} 
                 height={20} 
                 onClick={(e) => handleDeleteThread(e, threadId)}
