@@ -44,14 +44,21 @@ const TermCard = (props: TermCardProps) => {
   const addingCourseId = useSelector((state: RootState) => state.global.addingCourseId);
   const isAddingCourse = addingCourseId !== null;
   const inTermCourseIds = useSelector((state: RootState) => state.terms.inTermCourseIds);
+  const courseTaken = useSelector((state: RootState) => state.courseTaken);
   const existingAddingCourse = useSelector((state: RootState) => addingCourseId ? state.courses[addingCourseId] : null)
   const [modalInfo, setModalInfo] = useState<RenameConfirmModalInfo | undefined>(undefined);
 
   const handleAddCourse = useCallback(async () => {
+    if (!addingCourseId) return;
     // check if course exists in any term
-    const formattedCourseId = addingCourseId!.slice(0, 4).toUpperCase() + " " + addingCourseId!.slice(4).toUpperCase();
-    if (inTermCourseIds.includes(addingCourseId!)) {
+    const formattedCourseId = addingCourseId.slice(0, 4).toUpperCase() + " " + addingCourseId.slice(4).toUpperCase();
+    if (inTermCourseIds.includes(addingCourseId)) {
       toast.error(`Cannot add duplicate ${formattedCourseId}`);
+      dispatch(setAddingCourseId(null));
+      return;
+    }
+    if (courseTaken[addingCourseId.slice(0, 4)]?.includes(addingCourseId)) {
+      toast.error(`Cannot add duplicate ${formattedCourseId}, you need to remove it from the course taken list first`);
       dispatch(setAddingCourseId(null));
       return;
     }

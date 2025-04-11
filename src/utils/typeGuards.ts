@@ -3,6 +3,7 @@ import type { initialState as CourseTakenState } from '@/store/slices/courseTake
 import type { initialState as PlanState } from '@/store/slices/planSlice'
 import type { initialState as AssistantState } from '@/store/slices/assistantSlice'
 import { TermAction, CourseTakenAction, PlanAction, AssistantAction } from '@/types/actions';
+import { AppliablePlan } from '@/types/assistant';
 
 export const isValidPlanState = (plans: unknown): plans is typeof PlanState => {
   if (!plans || typeof plans !== 'object') return false;
@@ -70,4 +71,24 @@ export const isPlanActions = (action: unknown): action is PlanAction => {
 }
 export const isAssistantAction = (action: unknown): action is AssistantAction => {
   return (action as AssistantAction)?.type.startsWith('assistant');
+}
+
+export const isAppliablePlan = (plan: unknown): plan is AppliablePlan => {
+  if (!plan || typeof plan !== 'object') return false;
+
+  const p = plan as AppliablePlan;
+
+  return (
+    typeof p.terms === 'object' &&
+    Object.values(p.terms).every(term => {  
+      return (
+        typeof term.id === 'string' &&
+        typeof term.name === 'string' &&
+        Array.isArray(term.course_ids) &&
+        term.course_ids.every(courseId => typeof courseId === 'string') &&
+        typeof term.total_credits === 'number'
+      )
+    }) &&
+    typeof p.total_credits === 'number' && (typeof p.notes === 'object' || p.notes === undefined)
+  )
 }

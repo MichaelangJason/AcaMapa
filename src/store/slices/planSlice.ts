@@ -1,7 +1,7 @@
 import { CourseId } from "@/types/course";
 import { PlanId, PlanMap, TermId } from "@/types/term";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-
+import { v4 as uuidv4 } from 'uuid';
 export const initialState = {
   data: {
     "plan-1": {
@@ -19,8 +19,8 @@ export const planSlice = createSlice({
   name: 'plans',
   initialState,
   reducers: {
-    addPlan: (state) => {
-      const id = "plan-" + Date.now().toString();
+    addPlan: (state, action: PayloadAction<{ notSetCurrent?: boolean, id?: PlanId, noFirstTerm?: boolean } | undefined>) => {
+      const id = action.payload?.id ?? "plan-" + uuidv4();
       state.data[id] = {
         id,
         name: "Plan " + (state.order.length + 1),
@@ -28,7 +28,10 @@ export const planSlice = createSlice({
         courseTaken: [],
       }
       state.order.push(id) // add the new plan to the end
-      state.currentPlanId = id // set the new plan as the current plan
+      if (action.payload?.notSetCurrent) {
+        return state;
+      }
+      state.currentPlanId = id;
     },
     setPlanTermIds: (state, action: PayloadAction<{ planId: PlanId, termIds: TermId[] }>) => {
       state.data[action.payload.planId].termIds = action.payload.termIds;

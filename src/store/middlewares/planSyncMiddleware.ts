@@ -19,7 +19,9 @@ const planSyncMiddleware: Middleware =
           const state = store.getState();
           const planId = state.plans.currentPlanId;
           store.dispatch(setCurrentPlanId(planId));
-          store.dispatch(addTerm())
+          if (!action.payload?.noFirstTerm) {
+            store.dispatch(addTerm())
+          }
 
           return response;
         }
@@ -71,7 +73,14 @@ const planSyncMiddleware: Middleware =
         case termSlice.actions.deleteTerm.type: {
           const response = next(action);
           const state = store.getState();
-          const planId = state.plans.currentPlanId;
+          let planId = state.plans.currentPlanId;
+          // apply new term from assistant
+          if (
+            action.type === termSlice.actions.addTerm.type
+            && action.payload?.planId
+          ) {
+            planId = action.payload.planId;
+          }
           const termIds = state.terms.order;
 
           store.dispatch(setPlanTermIds({ planId, termIds }));

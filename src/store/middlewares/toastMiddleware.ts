@@ -16,6 +16,9 @@ startListening({
   predicate: (action) => isTermActions(action),
   effect: (action, listenerApi) => {
     const actionType = action.type;
+    const isToastEnabled = listenerApi.getState().global.isToastEnabled;
+
+    if (!isToastEnabled) return;
     
     if (actionType === addTerm.type) {
       toast.success("New term created");
@@ -51,8 +54,12 @@ startListening({
 
 startListening({
   predicate: (action) => isCourseTakenAction(action),
-  effect: (action) => {
+  effect: (action, listenerApi) => {
     const actionType = action.type;
+    const isToastEnabled = listenerApi.getState().global.isToastEnabled;
+
+    if (!isToastEnabled) return;
+
     if (actionType === setCourseTaken.type) return;
     const courseId = action.payload;
     const formattedCourseId = courseId.slice(0, 4)?.toUpperCase() + " " + courseId.slice(4).toUpperCase();
@@ -69,6 +76,9 @@ startListening({
   predicate: (action) => isPlanActions(action),
   effect: (action, listenerApi) => {
     const actionType = action.type;
+    const isToastEnabled = listenerApi.getState().global.isToastEnabled;
+
+    if (!isToastEnabled) return;
 
     if (actionType === addPlan.type) {
       toast.success("New plan created");

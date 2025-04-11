@@ -17,7 +17,7 @@ import { isValidAssistantState, isValidPlanState, isValidTermData } from "@/util
 import { movePlan, setPlans } from "@/store/slices/planSlice";
 import { Course } from "@/types/course";
 import { setCoursesData } from "@/store/slices/courseSlice";
-import { setCurrentThreadId, setThreadIds } from "@/store/slices/assistantSlice";
+import { setCurrentThreadId, setMessages, setThreadIds } from "@/store/slices/assistantSlice";
 
 
 const App = () => {
@@ -192,8 +192,26 @@ const Wrapper = (props: { initCourses: ICourse[] }) => {
           throw new Error("Invalid assistant state");
         }
 
-        dispatch(setCurrentThreadId(threadIds.currentThreadId));
         dispatch(setThreadIds(threadIds.threadIds));
+        dispatch(setCurrentThreadId(threadIds.currentThreadId));
+
+        if (threadIds.currentThreadId !== null) {
+          await toast.promise(
+            async () => {
+              const response = await fetch(`/api/chat/${threadIds.currentThreadId}`);
+              if (!response.ok) {
+                throw new Error("Failed to fetch chat history");
+              }
+              const data = await response.json();
+              dispatch(setMessages(data.messages));
+            },
+            {
+              pending: 'Loading chat history...',
+              error: 'Failed to load chat history',
+              success: 'Chat history loaded!',
+            }
+          )
+        }
       }
 
       toast.success("Initialized!")

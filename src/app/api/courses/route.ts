@@ -5,7 +5,7 @@ import { connectToDatabase, disconnectDatabase } from "@/db";
 export const GET = async () => {
   try {
     await connectToDatabase(process.env.MONGODB_URI!, process.env.MONGODB_DATABASE_NAME!);
-    const courses = await Courses.find({}, { _id: 0, id: 1, name: 1, credits: 1 }, { sort: { id: 1 } });
+    const courses = await Courses.find({}, { _id: 0, embeddings: 0, id: 1, name: 1, credits: 1 }, { sort: { id: 1 } });
     await disconnectDatabase();
 
     return NextResponse.json(courses, { status: 200 });
@@ -29,7 +29,7 @@ export const POST = async (req: Request) => {
 
   try {
     await connectToDatabase(process.env.MONGODB_URI!, process.env.MONGODB_DATABASE_NAME!);
-    const courses = await Courses.find({ id: { $in: courseIds }}, { _id: 0 });
+    const courses = await Courses.find({ id: { $in: courseIds }}, { _id: 0, embeddings: 0 });
     if (!courses.length) {
       throw new Error("Courses list query empty: " + courseIds)
     }

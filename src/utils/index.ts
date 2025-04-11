@@ -189,7 +189,7 @@ export const findCourseIds = (raw: string, findAll: boolean, log: boolean = fals
         }
       })
     } else {
-      if (log) console.log("no pattern: ", id);
+      // console.log("no pattern: ", id);
       acc.push(id);
     }
 
@@ -225,7 +225,10 @@ export const parseGroup = (text: string) => {
     const pushToGroup = () => {
       if (nextCourseId.length === 0) return
 
-      if (findCourseIds(nextCourseId, false).length === 0) {
+      if (
+        group.type !== GroupType.CREDIT &&
+        findCourseIds(nextCourseId, false).length === 0
+      ) {
         throw new Error("pushed string is not a valid courseId: " + nextCourseId);
       }
       group.inner.push(formatCourseId(nextCourseId));

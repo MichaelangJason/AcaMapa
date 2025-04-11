@@ -49,6 +49,10 @@ const useIsSatisfied = (termId: string, prerequisites: IGroup, restrictions: IGr
 const CourseCard = (props: CourseCardProps) => {
   const { termId, courseId, index } = props;
   const course = useSelector((state: RootState) => state.courses[courseId]);
+  if (!course) {
+    console.error(`Course ${courseId} not found`);
+    return null
+  }
   const { 
     name, 
     id, 
@@ -115,6 +119,11 @@ const CourseCard = (props: CourseCardProps) => {
       dispatch(setCourseExpanded({courseId, isExpanded: !isExpanded}));
     }
   }
+
+  // console.log("Parsing course: ", id);
+  // console.log("prerequisites: ", prerequisites);
+  // console.log("restrictions: ", restrictions);
+  // console.log("corequisites: ", corequisites);
   const isSatisfied = useIsSatisfied(
     termId, 
     parseGroup(prerequisites!.parsed), 

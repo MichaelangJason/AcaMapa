@@ -52,7 +52,7 @@ export enum ModalType {
 export enum MessageType {
   HUMAN = 'human',
   AI = 'ai',
-  FORM = 'form',
+  QUESTION = 'question',
 }
 
 export enum TooltipId {

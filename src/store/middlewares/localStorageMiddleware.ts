@@ -1,8 +1,9 @@
-import { createListenerMiddleware } from "@reduxjs/toolkit";
+import { createListenerMiddleware, isAnyOf } from "@reduxjs/toolkit";
 import { AppDispatch, RootState } from "..";
 import { toast } from "react-toastify";
 import { LocalStorage } from "@/utils/enums";
 import { isTermActions, isCourseTakenAction, isPlanActions, isAssistantAction } from "@/utils/typeGuards";
+import { addThreadId, removeThreadId, setCurrentThreadId } from "../slices/assistantSlice";
 
 const listenerMiddleware = createListenerMiddleware();
 const startListening = listenerMiddleware.startListening.withTypes<
@@ -33,14 +34,15 @@ startListening({
 
 // save the assistant thread ids to local storage
 startListening({
-  predicate: (action) => {
-    return isAssistantAction(action);
-  },
+  matcher: isAnyOf(addThreadId, removeThreadId, setCurrentThreadId),
   effect: (_, listenerApi) => {
     const assistantData = listenerApi.getState().assistant;
 
     try {
-      localStorage.setItem(LocalStorage.ASSISTANT, JSON.stringify(assistantData));
+      localStorage.setItem(LocalStorage.ASSISTANT, JSON.stringify({ 
+        threadIds: assistantData.threadIds,
+        currentThreadId: assistantData.currentThreadId,
+      }));
     } catch (error) {
       console.error(error);
       toast.error("Assistant Saving Failed")

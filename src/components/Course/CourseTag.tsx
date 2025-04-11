@@ -2,6 +2,7 @@
 import { addCourseTaken, removeCourseTaken } from "@/store/slices/courseTakenSlice";
 import { CourseTagType, TooltipId } from "@/utils/enums";
 import { useDispatch } from "react-redux";
+import { toast } from "react-toastify";
 export interface CourseTagProps {
   courseId: string;
   type: CourseTagType;
@@ -33,6 +34,10 @@ const CourseTag = (props: CourseTagProps) => {
     if (type === CourseTagType.TAKEN) {
       dispatch(removeCourseTaken(normalizedCourseId));  
     } else {
+      if (itExists) {
+        toast.error(`${courseId} already exists`);
+        return;
+      }
       dispatch(addCourseTaken(normalizedCourseId));
       const courseTakenElem = document.getElementsByClassName('course-taken-container').item(0);
 

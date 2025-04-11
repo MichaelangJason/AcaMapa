@@ -26,6 +26,4 @@ startListening({
   }
 })
 
-
-
 export default listenerMiddleware.middleware;

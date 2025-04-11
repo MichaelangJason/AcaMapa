@@ -20,6 +20,7 @@ export const initialState = {
   isInitialized: false as boolean,
   isUtilityDropdownMenuOpen: false as boolean,
   isDragging: false as boolean,
+  isToastEnabled: true as boolean,
 }
 
 const globalSlice = createSlice({
@@ -92,6 +93,9 @@ const globalSlice = createSlice({
     },
     setIsDragging: (state, action: PayloadAction<boolean>) => {
       state.isDragging = action.payload;
+    },
+    setIsToastEnabled: (state, action: PayloadAction<boolean>) => {
+      state.isToastEnabled = action.payload;
     }
   },
 });
@@ -114,6 +118,7 @@ export const {
   setIsUtilityDropdownMenuOpen,
   toggleUtilityDropdownMenuOpen,
   setIsDragging,
+  setIsToastEnabled,
 } = globalSlice.actions;
 
 export default globalSlice.reducer;

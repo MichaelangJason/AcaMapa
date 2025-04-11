@@ -109,7 +109,8 @@ const ReqGroup = (props: { group: IGroup, termId: TermId, isPresent: Map<CourseI
     const context = useSelector(selectContext);
 
     const creditMap = context.reduce((acc, course) => {
-      const [prefix, code] = course.id.split(' ');
+      const prefix = course.id.slice(0, 4);
+      const code = course.id.slice(4);
       const level = parseInt(code[0]);
       if (levels[0] === 0 || levels.includes(level)) {
         acc[prefix] = (acc[prefix] || 0) + course.credits;

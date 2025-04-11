@@ -1,8 +1,8 @@
 import { CourseId } from "@/types/course";
-import { TermId, TermMap } from "@/types/term";
+import { PlanId, TermId, TermMap } from "@/types/term";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
-
+import { v4 as uuidv4 } from 'uuid';
 export const initialState = {
   data: {
     "term-1": {
@@ -19,12 +19,14 @@ export const termSlice = createSlice({
   name: 'terms',
   initialState,
   reducers: {
-    addTerm: (state) => {
-      const id = "term-" + Date.now().toString();
-      state.order.push(id)
+    addTerm: (state, action: PayloadAction<{ termId?: TermId, termName?: string, planId?: PlanId, notAddToOrder?: boolean } | undefined>) => {
+      const id = action.payload?.termId ?? "term-" + uuidv4();
+      if (!action.payload?.notAddToOrder) {
+        state.order.push(id)
+      }
       state.data[id] = {
         id,
-        name: "Term " + state.order.length,
+        name: action.payload?.termName ?? "Term " + state.order.length,
         courseIds: [],
       }
     },
@@ -53,10 +55,12 @@ export const termSlice = createSlice({
       state.order.splice(sourceIdx, 1)
       state.order.splice(destinationIdx, 0, item)
     },
-    addCourseToTerm: (state, action: PayloadAction<{ termId: string; courseId: CourseId }>) => {
-      const { termId, courseId } = action.payload
+    addCourseToTerm: (state, action: PayloadAction<{ termId: string; courseId: CourseId, notAddToInTermCourseIds?: boolean }>) => {
+      const { termId, courseId, notAddToInTermCourseIds } = action.payload
       state.data[termId].courseIds.unshift(courseId)
-      state.inTermCourseIds.unshift(courseId)
+      if (!notAddToInTermCourseIds) {
+        state.inTermCourseIds.unshift(courseId)
+      }
     },
     deleteCourseFromTerm: (state, action: PayloadAction<{ termId: string; courseId: CourseId }>) => {
       const { termId, courseId } = action.payload
