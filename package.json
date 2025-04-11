@@ -30,7 +30,8 @@
     "react-tooltip": "^5.28.0",
     "rehype-react": "^8.0.0",
     "remark-gfm": "^4.0.1",
-    "remark-toc": "^9.0.0"
+    "remark-toc": "^9.0.0",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.0",
