@@ -1,0 +1,75 @@
+name: DegreeMapper-dev
+
+networks:
+  degreemapper-network:
+    driver: bridge
+
+services:
+  db:
+    image: mongodb/mongodb-atlas-local:latest
+    # ports:
+    #   - 27020:27017
+    volumes:
+      - ./db-setup:/db-setup
+    networks:
+      - degreemapper-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  app:
+    build:
+      context: .
+      dockerfile: dockerfile
+      network: host
+      args:
+        - MONGODB_URI=mongodb://db:27017/?directConnection=true # TODO: replace with a builder that will use subnet
+        - MONGODB_DATABASE_NAME=${MONGODB_DATABASE_NAME}
+        - AI_BACKEND_URL=http://ai:3030/api/chat
+        - NEXT_PUBLIC_SCHOOL_DOMAIN=${NEXT_PUBLIC_SCHOOL_DOMAIN}
+        - NEXT_PUBLIC_ACADEMIC_YEAR=${NEXT_PUBLIC_ACADEMIC_YEAR}
+        - NEXT_PUBLIC_SCHOOL_ENDPOINT=${NEXT_PUBLIC_SCHOOL_ENDPOINT}
+    ports:
+      - 3000:3000
+    environment:
+      - AI_BACKEND_URL=http://ai:3030/api/chat
+      - MONGODB_URI=mongodb://db:27017/?directConnection=true
+      - MONGODB_DATABASE_NAME=${MONGODB_DATABASE_NAME}
+    networks:
+      - degreemapper-network
+    depends_on:
+      db:
+        condition: service_healthy
+      ai:
+        condition: service_healthy
+
+  ai:
+    build:
+      context: ./src/ai/python
+      dockerfile: dockerfile
+      args:
+        - EMBEDDING_MODEL=${EMBEDDING_MODEL}
+    # ports:
+    #   - ${APP_PORT}:${APP_PORT}
+    environment:
+      - EMBEDDING_MODEL=${EMBEDDING_MODEL}
+      - APP_HOST=${APP_HOST}
+      - APP_PORT=${APP_PORT}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - MONGODB_URI=mongodb://db:27017/?directConnection=true
+      - MONGODB_DATABASE_NAME=${MONGODB_DATABASE_NAME}
+    networks:
+      - degreemapper-network
+    healthcheck:
+      # check whether the app is up by pinging the db service
+      test: ["CMD", "python", "-c", "import http.client; conn = http.client.HTTPConnection('localhost', $APP_PORT); conn.request('GET', '/ping/mongodb'); response = conn.getresponse(); exit(0 if response.status == 200 else 1)"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    depends_on:
+      db:
+        condition: service_healthy
