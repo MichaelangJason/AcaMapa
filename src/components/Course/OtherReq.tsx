@@ -33,7 +33,7 @@ const OtherReq = (props: OtherReqProps) => {
   // for restrictions only
   const isPresent = new Map(allCourseIds.map(id => [
     id,
-    prevTermCourseIds.includes(id) || thisTermCourseIds.includes(id) || courseTaken[id.split(' ')[0]]?.includes(id)
+    prevTermCourseIds.includes(id) || thisTermCourseIds.includes(id) || courseTaken[id.slice(0, 4)]?.includes(id)
   ]));
   const courseTagType = title === ReqTitle.ANTI_REQ ? CourseTagType.RESTRICTED : CourseTagType.REQUIRED;
 

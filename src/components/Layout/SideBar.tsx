@@ -148,7 +148,7 @@ const SideBar = () => {
       </div>
       <div className={`sidebar ${isSideBarExpanded ? '' : 'folded'}`} id="sidebar">
         <div className="sidebar-header">
-          {/* <Image src="/mcgill-logo.png" alt="logo" width={210} height={50} priority={true}/> */}
+          <Image src="/mcgill-logo.png" alt="logo" width={210} height={50} priority={true}/>
         </div>
         <div className="search-bar">
           <input 

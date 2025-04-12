@@ -22,7 +22,7 @@ export const GET = async (
     await connectToDatabase(process.env.MONGODB_URI!, process.env.MONGODB_DATABASE_NAME!);
     const course = await Courses.findOne(
       { id: courseId },
-      { _id: 0 }
+      { _id: 0, embeddings: 0 }
     );
     await disconnectDatabase();
     
