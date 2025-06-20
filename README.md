@@ -19,12 +19,14 @@ DegreeMapper is a Next.js application designed to help students plan their acade
 ## Installation
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/MichaelangJason/DegreeMapper.git
    cd DegreeMapper
    ```
 
 2. Install dependencies:
+
    ```bash
    npm install
    # or
@@ -37,6 +39,7 @@ DegreeMapper is a Next.js application designed to help students plan their acade
 
 3. Set up environment variables:
    Create a `.env` file in the root directory with the following variables:
+
    ```
    # School-related configuration
    NEXT_PUBLIC_SCHOOL_DOMAIN=https://www.mcgill.ca
@@ -91,6 +94,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to see the a
 ### Production Mode
 
 1. Build the application:
+
    ```bash
    npm run build
    # or
@@ -115,12 +119,14 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to see the a
 ### Running with Docker
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/MichaelangJason/DegreeMapper.git
    cd DegreeMapper
    ```
 
 2. Initialize and update the AI submodule:
+
    ```bash
    git submodule update --init --recursive
    ```
@@ -128,13 +134,16 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to see the a
 3. Create and configure the `.env` file as specified in the Environment Variables section above.
 
 4. Ensure Docker and Docker Compose are installed on your system:
+
    - [Install Docker](https://docs.docker.com/get-docker/)
    - [Install Docker Compose](https://docs.docker.com/compose/install/)
 
 5. Start the project using the provided script:
+
    ```bash
    ./start.sh
    ```
+
    Note: Initial startup may take several minutes as it downloads required dependencies including PyTorch and sentence transformers.
 
 6. To stop and clean up the Docker environment:
