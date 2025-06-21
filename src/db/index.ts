@@ -1,4 +1,4 @@
-import mongoose, { ConnectOptions } from 'mongoose';
+import mongoose, { ConnectOptions } from "mongoose";
 
 // Add connection error handlers
 // mongoose.connection.on('disconnected', () => {
@@ -9,10 +9,13 @@ import mongoose, { ConnectOptions } from 'mongoose';
 //   console.error('\nMongoDB connection error:', err);
 // });
 
-export const connectToDatabase = async (databaseUri: string, databaseName: string): Promise<void> => {
+export const connectToDatabase = async (
+  databaseUri: string,
+  databaseName: string,
+): Promise<void> => {
   try {
     if (!databaseUri || !databaseName) {
-      throw new Error("Database URI and name must be provided");
+      throw new Error("Database URI or name are missing");
     }
 
     const options: ConnectOptions = {
@@ -24,7 +27,7 @@ export const connectToDatabase = async (databaseUri: string, databaseName: strin
 
     await mongoose.connect(databaseUri, options);
   } catch (error) {
-    console.error('\nError connecting to the database:', error);
+    console.error("\nError connecting to the database:", error);
     throw error;
   }
 };
@@ -33,7 +36,28 @@ export const disconnectDatabase = async (): Promise<void> => {
   try {
     await mongoose.disconnect();
   } catch (error) {
-    console.error('\nError disconnecting from the database:', error);
+    console.error("\nError disconnecting from the database:", error);
     throw error;
   }
 };
+
+export async function withDatabase<T>(
+  queryFn: () => Promise<T>,
+  errorHandler?: (error: any) => any,
+): Promise<T> {
+  try {
+    await connectToDatabase(
+      process.env.MONGODB_URI!,
+      process.env.MONGODB_DATABASE_NAME!,
+    );
+    const result = await queryFn();
+    await disconnectDatabase();
+    return result;
+  } catch (error) {
+    await disconnectDatabase();
+    if (errorHandler) {
+      return errorHandler(error);
+    }
+    return undefined as unknown as T;
+  }
+}
