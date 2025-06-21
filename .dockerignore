@@ -1,6 +1,0 @@
-.next/
-.mypy_cache/
-node_modules/
-.env
-src/ai
-db-setup/
