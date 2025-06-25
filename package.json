@@ -11,12 +11,6 @@
     "format": "prettier --write",
     "test": "jest"
   },
-  "lint-staged": {
-    "src/**/*.{js,ts,tsx,jsx}": [
-      "npx eslint",
-      "prettier --check"
-    ]
-  },
   "dependencies": {
     "@hello-pangea/dnd": "^17.0.0",
     "@radix-ui/react-dropdown-menu": "^2.1.6",
