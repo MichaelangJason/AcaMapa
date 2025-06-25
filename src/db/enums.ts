@@ -1,6 +1,7 @@
 export enum MongoCollection {
   COURSES = "courses_2024_2025",
   PROGRAMS = "programs_2024_2025",
+  USERS = "users",
 }
 
 export enum AcademicLevel {
