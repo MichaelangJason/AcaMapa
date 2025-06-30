@@ -1,5 +1,5 @@
 import mongoose, { ConnectOptions } from "mongoose";
-
+import { MongoClient, ServerApiVersion } from "mongodb";
 // Add connection error handlers
 // mongoose.connection.on('disconnected', () => {
 //   console.log('\nMongoDB disconnected');
@@ -60,4 +60,23 @@ export async function withDatabase<T>(
     }
     return undefined as unknown as T;
   }
+}
+
+// asynchronous function to get a connected client, suitable for use in serverless functions
+export async function getConnectedClient(): Promise<MongoClient> {
+  if (!process.env.MONGODB_URI) {
+    throw new Error("MONGODB_URI environment variable is not set");
+  }
+
+  const client = new MongoClient(process.env.MONGODB_URI, {
+    serverApi: {
+      version: ServerApiVersion.v1,
+      strict: true,
+      deprecationErrors: true,
+    },
+    serverSelectionTimeoutMS: 5000,
+    socketTimeoutMS: 30000,
+  });
+
+  return await client.connect();
 }
