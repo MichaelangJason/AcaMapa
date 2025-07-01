@@ -1,2 +1,3 @@
-@use "./leftSideBar.scss";
-@use "./scrollbars.scss";
+@forward "./sideBar.scss";
+@forward "./scrollbars.scss";
+@forward "./searchInput.scss";

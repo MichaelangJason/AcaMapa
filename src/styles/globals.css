@@ -101,7 +101,9 @@
 
   /* shared styles */
 
-  --shadow-default: 0px 3px 10px 0px rgba(149, 149, 149, 0.25);
+  --shadow-color: rgba(149, 149, 149, 0.25);
+  --shadow-default: 0px 3px 10px 0px var(--shadow-color);
+  --shadow-default-right: 0px 0px 2px 0px var(--shadow-color);
   --border-radius-default: 16px;
 
   /* dimensions */

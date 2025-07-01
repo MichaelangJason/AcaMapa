@@ -1,10 +1,10 @@
 "use client";
 
-import { debounce } from "@/lib/utils";
-import { useCallback, useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import clsx from "clsx";
 import DeleteIcon from "@/public/icons/delete.svg";
 import MagnifierIcon from "@/public/icons/magnifier.svg";
+import { useDebounce } from "@/lib/hooks";
 
 const SearchInput = ({
   callback = async () => {},
@@ -18,10 +18,7 @@ const SearchInput = ({
   const [value, setValue] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const debouncedCallback = useCallback(
-    debounce(async (value: string) => callback(value), debounceTime),
-    [callback],
-  );
+  const debouncedCallback = useDebounce(callback, debounceTime);
 
   // Auto-resize function
   const resizeTextarea = () => {

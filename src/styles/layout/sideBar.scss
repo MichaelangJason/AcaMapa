@@ -1,0 +1,86 @@
+.left-sidebar {
+  position: absolute;
+  background: var(--gray-300);
+  box-shadow: var(--shadow-default);
+  top: 0;
+  left: 0;
+
+  width: var(--sidebar-width);
+  min-width: var(--sidebar-width);
+  height: 100vh;
+  padding: 1.25rem 0.75rem;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+
+  box-sizing: border-box;
+  transition: left 0.3s ease-in-out;
+
+  header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+
+    width: fit-content;
+    height: fit-content;
+
+    img {
+      width: 216px;
+      height: auto;
+    }
+  }
+
+  &.folded {
+    left: calc(-1 * var(--sidebar-width));
+
+    &:hover {
+      transition: left 0.1s ease-in-out;
+      left: calc(-1 * var(--sidebar-width) + 8px);
+    }
+  }
+}
+
+.right-handle {
+  position: absolute;
+  right: -20px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+
+  padding: 0 0.375rem 0 0.25rem;
+  border-radius: 0px 8px 8px 0px;
+  background: var(--gray-200);
+  box-shadow: var(--shadow-default-right);
+
+  height: 40px;
+  width: 20px;
+  box-sizing: border-box;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  .expand {
+    height: 50%;
+    width: auto;
+    flex-shrink: 0;
+    transition: transform 0.35s ease;
+
+    path {
+      stroke-width: 200px; // svg default
+      stroke: var(--gray-400);
+      transition: stroke 0.2s ease;
+    }
+
+    &.flipped {
+      transform: scaleX(-1);
+    }
+  }
+
+  &:hover .expand path {
+    stroke: var(--gray-500);
+  }
+}
