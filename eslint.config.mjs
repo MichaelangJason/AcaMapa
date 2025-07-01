@@ -17,7 +17,7 @@ const eslintConfig = [
     },
   },
   {
-    ignores: ["src/updater/**/*", "src/ai/**"],
+    ignores: ["src/updater/**/*", "src/ai/**", "src/PoC"],
   },
 ];
 
