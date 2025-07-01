@@ -1,15 +1,11 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  --theme-color: #83A4C9;
+  --theme-color: #83a4c9;
 
   /* sidebar */
   --sidebar-width: 300px;
-  --sidebar-bg-color: #CFCFCF;
+  --sidebar-bg-color: #cfcfcf;
   --sidebar-result-hightlight-bg-color: #c1c1c1;
 
   /* utility bar */
@@ -21,14 +17,17 @@
   --dragging-over-term-body-bg-color: #ffffff8d;
   --terms-padding-bottom: 30px;
   --terms-padding-right: 50px;
-  --terms-padding-top: calc(var(--utility-bar-height) + var(--terms-padding-bottom));
-  --terms-padding: var(--terms-padding-top) var(--terms-padding-right) var(--terms-padding-bottom) 0px;
+  --terms-padding-top: calc(
+    var(--utility-bar-height) + var(--terms-padding-bottom)
+  );
+  --terms-padding: var(--terms-padding-top) var(--terms-padding-right)
+    var(--terms-padding-bottom) 0px;
 
   /* term */
   --term-width: 300px;
   --term-height: calc(90vh - 50px);
-  --term-border-color: #CFCFCF;
-  --term-topbottom-color: #CFCFCF;
+  --term-border-color: #cfcfcf;
+  --term-topbottom-color: #cfcfcf;
   --term-body-bg-color: #ffffffe9;
   --term-topbottom-height: 40px;
   --term-topbottom-margin: calc(5vh + 50px);
@@ -40,8 +39,8 @@
   --dragging-over-bg-color: #69696937;
   --term-add-course-mask-hover-color: #efefef;
 
-  /* course */  
-  --course-search-bg-color: #FFF;
+  /* course */
+  --course-search-bg-color: #fff;
   --course-card-width: 260px;
   --course-name-font-size: 12px;
   --course-id-credits-font-size: 18px;
@@ -49,24 +48,24 @@
   --course-in-term-margin-top: 10px;
 
   /* course card status */
-  --course-satisfied-bg-color: #B2E026;
-  --course-unsatisfied-bg-color: #ED7155;
+  --course-satisfied-bg-color: #b2e026;
+  --course-unsatisfied-bg-color: #ed7155;
   --course-moving-bg-color: #8d8d8d;
 
   /* course req notes */
-  --course-req-notes-bg-color: #F0F0F0;
+  --course-req-notes-bg-color: #f0f0f0;
   --course-req-notes-border-radius: 7px;
   --course-req-notes-title-font-size: 12px;
   --course-req-notes-title-color: #939393;
   --course-req-notes-notes-font-size: 15px;
 
   /* course tag */
-  --course-tag-default-bg-color: #CCCCCC;
+  --course-tag-default-bg-color: #cccccc;
   --course-tag-border-radius: 3px;
   --course-tag-font-size: 12px;
   --course-tag-hover-bg-color: #939393;
-  --course-tag-satisfied-bg-color: #A5D63F;
-  --course-tag-unsatisfied-bg-color: #ED7155;
+  --course-tag-satisfied-bg-color: #a5d63f;
+  --course-tag-unsatisfied-bg-color: #ed7155;
 
   /* course expand */
   --course-expand-color: var(--course-tag-default-bg-color);
@@ -75,20 +74,62 @@
   --result-card-skeleton-width: 200px;
 }
 
-/* @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-} */
+/* refactored part */
+:root {
+  /* colors */
+  --mcgill-red: #e91d2e;
+
+  --card-bg-yellow: #fffdf2;
+  --satisfy-green: #b2e026;
+  --unsatisfy-red: #ed7155;
+
+  --gray-0: #ffffff;
+  --gray-100: #efefef;
+  --gray-200: #d9d9d9;
+  --gray-300: #cfcfcf;
+  --gray-400: #b4b4b4;
+  --gray-500: #8d8d8d;
+  --gray-600: #747474;
+  --gray-800: #3c3c3c;
+  --gray-1000: #000000;
+
+  --gray-1000-50-opac: rgba(0, 0, 0, 0.5);
+  --overlay-hover: rgba(0, 0, 0, 0.05);
+  --overlay-hover-strong: rgba(0, 0, 0, 0.08);
+  --overlay-selected: rgba(0, 0, 0, 0.12);
+  --overlay-disabled: rgba(0, 0, 0, 0.02);
+
+  /* shared styles */
+
+  --shadow-default: 0px 3px 10px 0px rgba(149, 149, 149, 0.25);
+  --border-radius-default: 32px;
+
+  /* dimensions */
+  --sidebar-width: 300px;
+
+  --search-input-width: 240px;
+  --search-input-height: 32px;
+  --search-input-border: 2px solid var(--gray-500);
+  --input-max-width: 220px;
+}
+
+html {
+  font-size: 16px; /* rem */
+}
 
 body {
-  color: var(--foreground);
-  background: var(--background);
+  /* color: var(--foreground);
+  background: var(--background); */
   font-family: Arial, Helvetica, sans-serif;
 
   height: 100vh;
   width: 100vw;
+
+  /* 
+  * Due to technical issue of @hello-pangea/dnd library regarding nested Droppable
+  * https://github.com/hello-pangea/dnd/issues/559
+  * Term Card's are directly contained in body.
+  */
   display: flex;
   flex-direction: row;
   overflow: hidden;
