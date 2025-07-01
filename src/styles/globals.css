@@ -102,7 +102,7 @@
   /* shared styles */
 
   --shadow-default: 0px 3px 10px 0px rgba(149, 149, 149, 0.25);
-  --border-radius-default: 32px;
+  --border-radius-default: 16px;
 
   /* dimensions */
   --sidebar-width: 300px;
@@ -124,6 +124,7 @@ body {
 
   height: 100vh;
   width: 100vw;
+  margin: 0px;
 
   /* 
   * Due to technical issue of @hello-pangea/dnd library regarding nested Droppable

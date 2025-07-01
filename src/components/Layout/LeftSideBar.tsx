@@ -6,6 +6,7 @@ import { SearchInput } from "../Common";
 const LeftSideBar = () => {
   return (
     <div className="left-sidebar">
+      {/* header */}
       <header>
         <Image
           src="/mcgill-logo.png"
@@ -20,6 +21,8 @@ const LeftSideBar = () => {
           }}
         />
       </header>
+
+      {/* results */}
     </div>
   );
 };
