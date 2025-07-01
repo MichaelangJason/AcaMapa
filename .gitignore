@@ -7,4 +7,5 @@ next-env.d.ts
 src/app/demo/
 src/crawler/*.csv
 src/mockData/
+src/PoC
 .swc
