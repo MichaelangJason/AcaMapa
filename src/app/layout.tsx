@@ -1,4 +1,5 @@
 import "@/styles/globals.css";
+import "@/styles/index.scss";
 import { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/next";
 
