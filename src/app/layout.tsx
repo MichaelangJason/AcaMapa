@@ -1,7 +1,7 @@
 import "@/styles/globals.css";
 import "@/styles/index.scss";
 import { Metadata } from "next";
-import { Analytics } from "@vercel/analytics/next";
+// import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
   title: "Degree Mapper",
@@ -16,7 +16,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>{children}</body>
-      <Analytics />
+      {/* <Analytics /> */}
     </html>
   );
 }
