@@ -1,10 +1,12 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useRef, useEffect, useCallback } from "react";
 import clsx from "clsx";
 import DeleteIcon from "@/public/icons/delete.svg";
 import MagnifierIcon from "@/public/icons/magnifier.svg";
 import { useDebounce } from "@/lib/hooks";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { setSearchInput } from "@/store/slices/localStateSlice";
 
 const SearchInput = ({
   callback = async () => {},
@@ -15,34 +17,26 @@ const SearchInput = ({
   debounceTime?: number;
   isDisabled?: boolean;
 }) => {
-  const [value, setValue] = useState("");
+  const dispatch = useAppDispatch();
+  const value = useAppSelector((state) => state.localState.searchInput);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const debouncedCallback = useDebounce(callback, debounceTime);
 
-  // Auto-resize function
-  const resizeTextarea = () => {
+  // auto resize function, overhead acceptable
+  const resizeTextarea = useCallback(() => {
     const textarea = textareaRef.current;
     if (textarea) {
       textarea.style.height = "fit-content";
       textarea.style.height = textarea.scrollHeight + "px";
       textarea.scrollTop = textarea.scrollHeight;
     }
-  };
+  }, []);
 
   useEffect(() => {
     resizeTextarea();
-  }, [value]);
-
-  const handleChange = async (input: string) => {
-    setValue(input);
-    await debouncedCallback(input);
-  };
-
-  const handleClear = () => {
-    setValue("");
-    callback("");
-  };
+    debouncedCallback(value);
+  }, [value, debouncedCallback, resizeTextarea]);
 
   const className = clsx({
     "scrollbar-hover": true,
@@ -56,12 +50,15 @@ const SearchInput = ({
         className={className}
         name="course-search"
         placeholder="course id or name"
-        onChange={(e) => handleChange(e.target.value)}
+        onChange={(e) => dispatch(setSearchInput(e.target.value))}
         value={value}
         disabled={isDisabled}
         rows={1}
       />
-      <div className="search-input-icon" onClick={handleClear}>
+      <div
+        className="search-input-icon"
+        onClick={() => dispatch(setSearchInput(""))}
+      >
         {value ? (
           <DeleteIcon className="delete" />
         ) : (
