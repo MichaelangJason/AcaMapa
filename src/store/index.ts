@@ -1,6 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { enableMapSet } from "immer";
-import { globalReducer } from "./slices";
+import { globalReducer, localDataReducer } from "./slices";
 // import { errorMiddleware, localStorageMiddleware, planSyncMiddleware, interactionMiddleware, guardMiddleware, toastMiddleware } from './middlewares';
 
 enableMapSet();
@@ -12,6 +12,7 @@ export const makeStore = () => {
       // courses: courseReducer,
       // terms: termsReducer,
       global: globalReducer,
+      localData: localDataReducer,
       // courseTaken: courseTakenReducer,
       // plans: planReducer,
       // assistant: assistantReducer,
