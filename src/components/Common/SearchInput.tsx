@@ -6,7 +6,7 @@ import DeleteIcon from "@/public/icons/delete.svg";
 import MagnifierIcon from "@/public/icons/magnifier.svg";
 import { useDebounce } from "@/lib/hooks";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { setSearchInput } from "@/store/slices/localStateSlice";
+import { setSearchInput } from "@/store/slices/localDataSlice";
 
 const SearchInput = ({
   callback = async () => {},
@@ -18,7 +18,7 @@ const SearchInput = ({
   isDisabled?: boolean;
 }) => {
   const dispatch = useAppDispatch();
-  const value = useAppSelector((state) => state.localState.searchInput);
+  const value = useAppSelector((state) => state.localData.searchInput);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const debouncedCallback = useDebounce(callback, debounceTime);

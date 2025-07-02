@@ -28,7 +28,8 @@
 // Custom colored scrollbar
 .scrollbar-custom {
   scrollbar-width: thin;
-  scrollbar-color: var(--theme-color) transparent;
+  scrollbar-color: var(--gray-1000-50-opac) transparent;
+  overflow: overlay;
 
   &::-webkit-scrollbar {
     width: 8px;

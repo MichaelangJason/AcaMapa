@@ -3,9 +3,11 @@ import { ReactNode } from "react";
 const TextHighlighter = ({
   source,
   target,
+  className = "highlight-text",
 }: {
   source: string;
   target?: string;
+  className?: string;
 }) => {
   if (!target || !source) return <>{source}</>;
 
@@ -68,7 +70,7 @@ const TextHighlighter = ({
     const match = source.slice(start, end);
 
     if (before) result.push(before);
-    result.push(<mark className="highlight-text">{match}</mark>);
+    result.push(<mark className={className}>{match}</mark>);
     lastPos = end;
   });
 

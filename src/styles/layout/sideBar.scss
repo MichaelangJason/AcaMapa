@@ -9,6 +9,7 @@
   min-width: var(--sidebar-width);
   height: 100vh;
   padding: 1.25rem 0.75rem;
+  gap: 1rem;
 
   display: flex;
   flex-direction: column;
@@ -16,7 +17,7 @@
   flex-shrink: 0;
 
   box-sizing: border-box;
-  transition: left 0.3s ease-in-out;
+  transition: left 0.2s ease-in-out;
 
   header {
     display: flex;
