@@ -35,3 +35,16 @@ export const processQuery = (
 
   return result;
 };
+
+export const formatCourseId = (
+  id: string,
+  separator = " ",
+  isLower = false,
+) => {
+  const formatted = (id.slice(0, 4) + separator + id.slice(4)).toUpperCase();
+  return isLower ? formatted.toLowerCase() : formatted;
+};
+
+export const clamp = (value: number, min: number, max: number) => {
+  return Math.max(min, Math.min(value, max));
+};

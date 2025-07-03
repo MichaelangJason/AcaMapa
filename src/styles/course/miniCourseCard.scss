@@ -1,6 +1,7 @@
 .mini-course-card {
   display: flex;
   width: 260px;
+  height: fit-content;
   padding: 0.75rem 0;
   justify-content: space-between;
   align-items: center;
@@ -8,8 +9,13 @@
   box-sizing: border-box;
 
   border-radius: var(--border-radius-default);
-  background: var(--gray-0);
+  background: var(--gray-000);
   box-shadow: var(--shadow-default);
+
+  &.satisfied .credits span {
+    background: var(--satisfy-green, #b2e026);
+    color: var(--gray-000);
+  }
 
   .credits {
     height: 100%;
@@ -21,7 +27,6 @@
     align-items: center;
 
     span {
-      flex-shrink: 0;
       display: flex;
       height: 20px;
       min-width: 16px;
@@ -40,19 +45,17 @@
 
       border-radius: 4px;
     }
-
-    &.satisfied span {
-      background: var(--satisfy-green, #b2e026);
-      color: var(--gray-0);
-    }
   }
 
   .info {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    flex-shrink: 0;
     flex-grow: 1;
+    max-width: 164px;
     gap: 4px;
+    height: fit-content;
 
     .name {
       margin: 0px;

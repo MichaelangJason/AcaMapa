@@ -1,6 +1,6 @@
 "use client";
 
-import { SearchInput, SearchResults } from "../Common";
+import { SearchInput, SearchResults, MultiSelect } from "../Common";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { toggleIsLeftSideBarFolded } from "@/store/slices/globalSlice";
 import { setSearchResult } from "@/store/slices/localDataSlice";
@@ -65,6 +65,7 @@ const LeftSideBar = ({
         <SearchInput callback={handleSearchCourse} />
       </header>
       {/* courses to be added, data passed by global redux state */}
+      <MultiSelect />
 
       {/* results, results data passed by global redux state */}
       <SearchResults />

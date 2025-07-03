@@ -83,7 +83,7 @@
   --satisfy-green: #b2e026;
   --unsatisfy-red: #ed7155;
 
-  --gray-0: #ffffff;
+  --gray-000: #ffffff;
   --gray-100: #efefef;
   --gray-200: #d9d9d9;
   --gray-300: #cfcfcf;
@@ -102,8 +102,9 @@
   /* shared styles */
 
   --shadow-color: rgba(0, 0, 0, 0.25);
+  --shadow-color-light: rgba(149, 149, 149, 0.25);
   --shadow-default: 0px 3px 10px 0px var(--shadow-color);
-  --shadow-default-right: 0px 0px 2px 0px var(--shadow-color);
+  --shadow-default-right: 2px 0px 10px 0px var(--shadow-color-light);
   --border-radius-default: 16px;
 
   /* dimensions */
@@ -140,4 +141,13 @@ body {
 
 mark {
   background: var(--gray-200);
+}
+
+a {
+  color: var(--gray-1000);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
 }

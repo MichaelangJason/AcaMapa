@@ -12,7 +12,8 @@ export const initialState = {
     data: [] as any[],
   },
   searchInput: "",
-  selectedCourses: [] as Course[], // acceptable overhead, however we can only store id
+  // utilize the hash
+  selectedCourses: new Map<string, Course>(),
 };
 
 const localDataSlice = createSlice({
@@ -47,15 +48,20 @@ const localDataSlice = createSlice({
       });
     },
     addSelectedCourse: (state, action: PayloadAction<Course>) => {
-      state.selectedCourses.push(action.payload);
+      state.selectedCourses.set(action.payload.id, action.payload);
     },
     removeSelectedCourse: (state, action: PayloadAction<Course>) => {
-      state.selectedCourses = state.selectedCourses.filter(
-        (course) => course.id !== action.payload.id,
-      );
+      state.selectedCourses.delete(action.payload.id);
+    },
+    toggleSelectedCourse: (state, action: PayloadAction<Course>) => {
+      if (state.selectedCourses.has(action.payload.id)) {
+        state.selectedCourses.delete(action.payload.id);
+      } else {
+        state.selectedCourses.set(action.payload.id, action.payload);
+      }
     },
     clearSelectedCourses: (state) => {
-      state.selectedCourses = [];
+      state.selectedCourses.clear();
     },
   },
 });
@@ -67,6 +73,7 @@ export const {
   updateDetailedCourseData,
   addSelectedCourse,
   removeSelectedCourse,
+  toggleSelectedCourse,
   clearSelectedCourses,
 } = localDataSlice.actions;
 

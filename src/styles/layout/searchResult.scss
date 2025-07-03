@@ -8,3 +8,53 @@
   align-items: center;
   gap: 16px;
 }
+
+.multi-select-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+
+  .multi-select-info {
+    font-size: 0.75rem;
+    color: var(--gray-600);
+  }
+
+  .multi-select-clear {
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    transition: color 0.15s ease;
+
+    &:hover {
+      color: var(--gray-800);
+    }
+  }
+}
+
+.multi-select {
+  position: relative;
+  display: flex;
+  flex-direction: column-reverse; // to use native css stacking
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  height: fit-content;
+
+  .mini-course-card {
+    transition: all 0.4s ease;
+    height: 64px;
+
+    .name {
+      max-width: 100%;
+
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+  }
+
+  &.expanded {
+    cursor: pointer;
+  }
+}

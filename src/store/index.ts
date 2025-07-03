@@ -17,7 +17,10 @@ export const makeStore = () => {
       // plans: planReducer,
       // assistant: assistantReducer,
     },
-    middleware: (getDefaultMiddleware) => getDefaultMiddleware(),
+    middleware: (getDefaultMiddleware) =>
+      getDefaultMiddleware({
+        serializableCheck: false, // disabled for map set
+      }),
     // .prepend(errorMiddleware)
     // .concat(guardMiddleware)
     // .concat(localStorageMiddleware) // update at return
