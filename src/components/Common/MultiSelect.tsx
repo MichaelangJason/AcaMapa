@@ -4,7 +4,7 @@ import {
   clearSelectedCourses,
   toggleSelectedCourse,
 } from "@/store/slices/localDataSlice";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Course } from "@/types/db";
 import { clamp } from "@/lib/utils";
 import MiniCourseCard from "../Course/CourseCard/MiniCourseCard";
@@ -68,6 +68,16 @@ const MultiSelect = () => {
   }, []);
   const toggleExpand = () => setIsExpanded((prev) => !prev);
 
+  // since the presence of MultiSelect is not controlled by the parent component,
+  // we need to handle the case where the selected courses are cleared
+  // to avoid the case where the MultiSelect preserves the expanded state when it returns null
+  useEffect(() => {
+    if (selectedCourses.size <= 0) {
+      setIsExpanded(false);
+      setIsHovering(false);
+    }
+  }, [selectedCourses.size]);
+
   if (selectedCourses.size <= 0) return null;
 
   return (
@@ -101,7 +111,8 @@ const MultiSelect = () => {
         <span className="multi-select-clear" onClick={handleClear}>
           clear all
         </span>
-        <strong> {selectedCourses.size}</strong> selected courses
+        <strong> {selectedCourses.size}</strong> selected course
+        {selectedCourses.size > 1 ? "s" : ""}
       </span>
     </div>
   );
