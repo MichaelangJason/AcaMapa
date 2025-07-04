@@ -6,6 +6,7 @@ import { RESULT_PER_PAGE } from "@/lib/constants";
 import { MiniCourseCard } from "@/components/Course/CourseCard";
 import { addSelectedCourse } from "@/store/slices/localDataSlice";
 import type { Course } from "@/types/db";
+import { useDebounce } from "@/lib/hooks";
 
 const SearchResults = () => {
   const { type, query, data } = useAppSelector(
@@ -19,6 +20,13 @@ const SearchResults = () => {
   const dispatch = useAppDispatch();
 
   const displayData = type === ResultType.DEFAULT ? defaultData : data;
+
+  const reset = useCallback(() => {
+    setPage(1);
+    resultContainerRef.current?.scrollTo({ top: 0 });
+  }, []);
+
+  const debouncedReset = useDebounce(reset, 200);
 
   // handle infinite scroll
   const handleIntersection = useCallback(
@@ -52,9 +60,8 @@ const SearchResults = () => {
   }, [displayData, page]);
 
   useEffect(() => {
-    setPage(1);
-    resultContainerRef.current?.scrollTo({ top: 0 });
-  }, [query]);
+    debouncedReset();
+  }, [query, debouncedReset]);
 
   const handleAddCourse = useCallback(
     async (course: Course) => {
