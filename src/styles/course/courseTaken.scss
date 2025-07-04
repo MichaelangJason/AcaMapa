@@ -1,0 +1,143 @@
+.course-taken {
+  display: flex;
+  width: 272px;
+  height: fit-content;
+  max-height: 192px;
+  padding: 0.5rem 1rem;
+  margin: 0px;
+  flex-direction: column;
+  align-items: center;
+  // transition: all 0.2s ease;
+
+  box-sizing: border-box;
+
+  position: absolute;
+  bottom: 20px;
+
+  border-radius: var(--border-radius-default);
+  border: 2px solid var(--gray-400);
+  background: var(--gray-000);
+  box-shadow: var(--shadow-default-heavy);
+
+  .adding-mask {
+    position: absolute;
+    background-color: var(--gray-600);
+    top: -2px;
+    border-radius: var(--border-radius-default);
+    border: 2px solid var(--gray-600);
+    width: 100%;
+    height: 100%;
+
+    transition: scale 0.2s ease;
+
+    cursor: pointer;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    color: var(--gray-000);
+    font-weight: bold;
+
+    &:hover {
+      scale: 1.05;
+    }
+  }
+
+  header {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    height: fit-content;
+    margin: 0;
+    padding: 0;
+
+    cursor: pointer;
+
+    .title {
+      color: var(--gray-600);
+      font-size: 1rem;
+      font-weight: bold;
+      line-height: 14px;
+
+      margin: 0;
+      padding: 0;
+    }
+
+    .expand {
+      position: absolute;
+      width: 14px;
+      height: auto;
+      right: 0.75rem;
+      transition: all 0.3s ease;
+
+      path {
+        stroke-width: 2px;
+        stroke: var(--gray-600);
+      }
+    }
+  }
+
+  &.expanded {
+    header {
+      margin-bottom: 4px;
+      .expand {
+        transform: rotate(-180deg);
+      }
+    }
+    padding-bottom: 0px;
+  }
+
+  .course-taken-list {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    gap: 0.5rem;
+    overflow-y: scroll;
+    margin: 4px 0px 8px 0px;
+
+    .course-taken-item {
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: start;
+      gap: 0.25rem;
+      align-self: stretch;
+
+      .subject {
+        color: var(--gray-500);
+        text-align: center;
+        font-family: Arial;
+        font-size: 0.75rem;
+        font-style: normal;
+        font-weight: 700;
+      }
+
+      .ids {
+        display: flex;
+        width: 95%;
+        align-items: flex-start;
+        align-content: flex-start;
+        gap: 8px;
+        flex-wrap: wrap;
+
+        .tag {
+          cursor: pointer;
+
+          &:hover {
+            background-color: var(--gray-400);
+          }
+        }
+      }
+    }
+
+    .empty {
+      align-self: center;
+      font-size: 0.75rem;
+      font-style: italic;
+      color: var(--gray-400);
+    }
+  }
+}

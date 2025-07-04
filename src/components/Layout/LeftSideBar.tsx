@@ -1,6 +1,7 @@
 "use client";
 
 import { SearchInput, SearchResults, MultiSelect } from "../Common";
+import { CourseTaken } from "../Course";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { toggleIsLeftSideBarFolded } from "@/store/slices/globalSlice";
 import { setSearchResult } from "@/store/slices/localDataSlice";
@@ -71,6 +72,7 @@ const LeftSideBar = ({
       <SearchResults />
 
       {/* course taken */}
+      <CourseTaken />
     </div>
   );
 };
