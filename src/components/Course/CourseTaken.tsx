@@ -1,6 +1,9 @@
 "use client";
 
-import { toggleIsCourseTakenExpanded } from "@/store/slices/globalSlice";
+import {
+  toggleIsCourseTakenExpanded,
+  setIsCourseTakenExpanded,
+} from "@/store/slices/globalSlice";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { useCallback } from "react";
 import ExpandIcon from "@/public/icons/expand-single.svg";
@@ -39,6 +42,7 @@ const CourseTaken = () => {
       addCourseTaken([...selectedCourses.values()].map((course) => course.id)),
     );
     dispatch(clearSelectedCourses());
+    dispatch(setIsCourseTakenExpanded(true));
   }, [dispatch, selectedCourses]);
 
   return (
