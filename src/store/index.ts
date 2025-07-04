@@ -1,7 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { enableMapSet } from "immer";
-import { globalReducer, localDataReducer } from "./slices";
-// import { errorMiddleware, localStorageMiddleware, planSyncMiddleware, interactionMiddleware, guardMiddleware, toastMiddleware } from './middlewares';
+import { globalReducer, localDataReducer, userDataReducer } from "./slices";
+import { sideStateMiddleware, errorMiddleware } from "./middlewares";
 
 enableMapSet();
 
@@ -13,6 +13,7 @@ export const makeStore = () => {
       // terms: termsReducer,
       global: globalReducer,
       localData: localDataReducer,
+      userData: userDataReducer,
       // courseTaken: courseTakenReducer,
       // plans: planReducer,
       // assistant: assistantReducer,
@@ -20,8 +21,9 @@ export const makeStore = () => {
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({
         serializableCheck: false, // disabled for map set
-      }),
-    // .prepend(errorMiddleware)
+      })
+        .prepend(errorMiddleware)
+        .concat(sideStateMiddleware),
     // .concat(guardMiddleware)
     // .concat(localStorageMiddleware) // update at return
     // .concat(planSyncMiddleware)

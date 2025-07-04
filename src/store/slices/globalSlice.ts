@@ -4,6 +4,9 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export const initialState = {
   isLeftSideBarFolded: false as boolean,
+  isCourseTakenExpanded: true as boolean,
+  // state controlled by selectedCourses, can be replaced by createSelector on selectedCourses.size
+  isAddingCourse: false as boolean,
 
   // draggingType: null as DraggingType | null,
   // addingCourseId: null as string | null,
@@ -35,7 +38,15 @@ const globalSlice = createSlice({
     toggleIsLeftSideBarFolded: (state) => {
       state.isLeftSideBarFolded = !state.isLeftSideBarFolded;
     },
-
+    setIsCourseTakenExpanded: (state, action: PayloadAction<boolean>) => {
+      state.isCourseTakenExpanded = action.payload;
+    },
+    toggleIsCourseTakenExpanded: (state) => {
+      state.isCourseTakenExpanded = !state.isCourseTakenExpanded;
+    },
+    setIsAddingCourse: (state, action: PayloadAction<boolean>) => {
+      state.isAddingCourse = action.payload;
+    },
     // setDraggingType: (state, action: PayloadAction<DraggingType | null>) => {
     //   state.draggingType = action.payload;
     // },
@@ -112,6 +123,9 @@ const globalSlice = createSlice({
 export const {
   setIsLeftSideBarFolded,
   toggleIsLeftSideBarFolded,
+  setIsCourseTakenExpanded,
+  toggleIsCourseTakenExpanded,
+  setIsAddingCourse,
   // setDraggingType,
   // setAddingCourseId,
   // setDroppableId,
