@@ -24,6 +24,8 @@ const SearchInput = ({
   const debouncedCallback = useDebounce(callback, debounceTime);
 
   // auto resize function, overhead acceptable
+  // TODO: switch to native resizing when it is widely supported
+  // https://developer.mozilla.org/en-US/docs/Web/CSS/field-sizing
   const resizeTextarea = useCallback(() => {
     const textarea = textareaRef.current;
     if (textarea) {

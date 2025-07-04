@@ -8,7 +8,7 @@
 
   box-sizing: border-box;
 
-  background: var(--gray-0);
+  background: var(--gray-000);
 
   display: flex;
   flex-direction: row;
@@ -18,6 +18,8 @@
   gap: 0.25rem;
 
   textarea {
+    // TODO: switch to native resizing when it is widely supported
+    // https://developer.mozilla.org/en-US/docs/Web/CSS/field-sizing
     height: fit-content;
     max-height: calc(1.5rem * 5);
     min-height: 100%;
