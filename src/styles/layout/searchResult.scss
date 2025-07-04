@@ -9,21 +9,6 @@
   gap: 16px;
 
   padding-top: 8px;
-
-  mask-image: linear-gradient(
-    to bottom,
-    transparent,
-    var(--gray-000) 1%,
-    var(--gray-000) 99%,
-    transparent
-  );
-  -webkit-mask-image: linear-gradient(
-    to bottom,
-    transparent,
-    var(--gray-000) 1%,
-    var(--gray-000) 99%,
-    transparent
-  );
 }
 
 .multi-select-container {

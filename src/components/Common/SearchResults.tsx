@@ -15,6 +15,7 @@ const SearchResults = () => {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const loadingTriggerRef = useRef<HTMLDivElement>(null);
+  const resultContainerRef = useRef<HTMLDivElement>(null);
   const dispatch = useAppDispatch();
 
   const displayData = type === ResultType.DEFAULT ? defaultData : data;
@@ -50,6 +51,11 @@ const SearchResults = () => {
     setHasMore(page * RESULT_PER_PAGE < displayData.length);
   }, [displayData, page]);
 
+  useEffect(() => {
+    setPage(1);
+    resultContainerRef.current?.scrollTo({ top: 0 });
+  }, [query]);
+
   const handleAddCourse = useCallback(
     async (course: Course) => {
       dispatch(addSelectedCourse(course));
@@ -58,7 +64,10 @@ const SearchResults = () => {
   );
 
   return (
-    <div className="result-container scrollbar-custom">
+    <div
+      className="result-container scrollbar-custom scroll-mask"
+      ref={resultContainerRef}
+    >
       {displayData.slice(0, page * RESULT_PER_PAGE).map((entry, idx) => {
         if (
           (type === ResultType.COURSE || type === ResultType.DEFAULT) &&
