@@ -7,6 +7,23 @@
   flex-direction: column;
   align-items: center;
   gap: 16px;
+
+  padding-top: 8px;
+
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    var(--gray-000) 1%,
+    var(--gray-000) 99%,
+    transparent
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    var(--gray-000) 1%,
+    var(--gray-000) 99%,
+    transparent
+  );
 }
 
 .multi-select-container {
@@ -14,6 +31,7 @@
   flex-direction: column;
   align-items: center;
   gap: 16px;
+  margin: 8px 0 8px 0;
 
   .multi-select-info {
     font-size: 0.75rem;
