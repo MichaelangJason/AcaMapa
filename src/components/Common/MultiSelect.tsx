@@ -2,7 +2,7 @@ import { MULTI_SELECT_CONFIG } from "@/lib/constants";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
   clearSelectedCourses,
-  toggleSelectedCourse,
+  removeSelectedCourse,
 } from "@/store/slices/localDataSlice";
 import { useCallback, useEffect, useState } from "react";
 import { Course } from "@/types/db";
@@ -51,7 +51,7 @@ const MultiSelect = () => {
 
   const handleRemoveCourse = useCallback(
     async (course: Course) => {
-      dispatch(toggleSelectedCourse(course));
+      dispatch(removeSelectedCourse(course));
     },
     [dispatch],
   );
