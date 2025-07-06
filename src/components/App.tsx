@@ -13,7 +13,6 @@ const App = ({ courseData }: { courseData: Course[] }) => {
   const storeRef = useRef<AppStore>(null);
   if (!storeRef.current) {
     // should only run once at init
-    console.log("making new store");
     storeRef.current = makeStore();
     storeRef.current.dispatch(setCourseData(courseData));
   }

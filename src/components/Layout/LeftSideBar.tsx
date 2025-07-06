@@ -24,6 +24,9 @@ const LeftSideBar = ({
     async () => dispatch(toggleIsLeftSideBarFolded()),
     [dispatch],
   );
+  const { type, query, data } = useAppSelector(
+    (state) => state.localData.searchResult,
+  );
 
   const handleSearchCourse = useCallback(
     async (input: string) => {
@@ -69,7 +72,7 @@ const LeftSideBar = ({
       <MultiSelect />
 
       {/* results, results data passed by global redux state */}
-      <SearchResults />
+      <SearchResults type={type} query={query} data={data} />
 
       {/* course taken */}
       <CourseTaken />

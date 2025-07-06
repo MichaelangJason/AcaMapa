@@ -8,15 +8,23 @@ import { addSelectedCourse } from "@/store/slices/localDataSlice";
 import type { Course } from "@/types/db";
 import { useDebounce } from "@/lib/hooks";
 
-const SearchResults = () => {
-  const { type, query, data } = useAppSelector(
-    (state) => state.localData.searchResult,
-  );
+const SearchResults = ({
+  type,
+  query,
+  data,
+}: {
+  type: ResultType;
+  query: string;
+  data: Course[];
+}) => {
   const defaultData = useAppSelector((state) => state.localData.courseData);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const loadingTriggerRef = useRef<HTMLDivElement>(null);
   const resultContainerRef = useRef<HTMLDivElement>(null);
+  const selectedCourses = useAppSelector(
+    (state) => state.localData.selectedCourses,
+  );
   const dispatch = useAppDispatch();
 
   const displayData = type === ResultType.DEFAULT ? defaultData : data;
@@ -86,6 +94,7 @@ const SearchResults = () => {
               data={entry}
               query={query}
               callback={handleAddCourse}
+              isSelected={selectedCourses.has(entry.id)}
             />
           );
         }
