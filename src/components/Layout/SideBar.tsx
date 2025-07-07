@@ -1,191 +1,83 @@
-import { debounce } from "@/utils/requests"
-import { useEffect, useState, useCallback, useMemo, useRef, ChangeEvent } from "react"
-import Image  from "next/image"
-import { CourseResult } from "@/components/Course"
-// import { toast } from "react-toastify"
-import FlexSearch from "flexsearch"
-import "@/styles/sidebar.scss"
-import { useDispatch, useSelector } from "react-redux"
-import { RootState } from "@/store"
-import { setAddingCourseId, setIsSideBarExpanded, setSearchInput } from "@/store/slices/globalSlice"
-import { processQuery } from "@/utils"
-import CourseTaken from "./CourseTaken"
-import { ICourse } from "@/db/schema"
-import { CourseResultSkeleton } from "@/components/Skeleton"
-import { Constants } from "@/utils/enums"
+"use client";
 
-const SideBar = () => {
-  const dispatch = useDispatch() // for redux state manipulations
-  const input = useSelector((state: RootState) => state.global.searchInput); // search input
-  const courses = useSelector((state: RootState) => state.global.initCourses); // TODO switch to api call?
-  const isInitialized = useSelector((state: RootState) => state.global.isInitialized); // initial loading state
-  const [results, setResults] = useState<ICourse[]>(courses) // search results
-  const addingCourseId = useSelector((state: RootState) => state.global.addingCourseId); // for highlighting purpose
-  const isSideBarExpanded = useSelector((state: RootState) => state.global.isSideBarExpanded);
-  /* infinite scroll */
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(false);
-  const resultContainerRef = useRef<HTMLDivElement>(null);
+import { SearchInput, SearchResults, MultiSelect } from "../Common";
+import { CourseTaken } from "../Course";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { toggleIsLeftSideBarFolded } from "@/store/slices/globalSlice";
+import { setSearchResult } from "@/store/slices/localDataSlice";
+import { useCallback } from "react";
+import { ResultType } from "@/lib/enums";
+import type { Course } from "@/types/course";
+import Image from "next/image";
+import clsx from "clsx";
+import ExpandIcon from "@/public/icons/expand.svg";
 
-  // TODO: switch to server based api call for better search?
-  const index = useMemo(() => {
-    const index = new FlexSearch.Document<ICourse>({
-      // tokenize: 'full',
-      document: {
-        id: 'id',
-        index: [
-          { 
-            field: 'id',
-            tokenize: 'full',
-            resolution: 9,
-          },
-          { 
-            field: 'name',
-            tokenize: 'full',
-            resolution: 9,
-          }
-        ],
-        // @ts-expect-error, some ignorable typing error happened here
-        store: ['id', 'name', 'credits']
-      }
-    })
-    
-    courses.forEach(course => {
-      index.add(course)
-    })
-    return index
-  }, [courses])
+const SideBar = ({
+  searchCourseFn,
+}: {
+  searchCourseFn: (query: string) => Promise<Course[]>;
+}) => {
+  const dispatch = useAppDispatch();
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const debouncedSearch = useCallback(
-    debounce(async (input: string) => {
-      setPage(1) // reset page
-
-      await index.searchAsync(input, { enrich: true }, (res) => {
-        const result = processQuery(res);
-        setResults(result);
-      })
-    }, 100),
-    [index]
+  const isFolded = useAppSelector((state) => state.global.isLeftSideBarFolded);
+  const toggleFolded = useCallback(
+    async () => dispatch(toggleIsLeftSideBarFolded()),
+    [dispatch],
+  );
+  const { type, query, data } = useAppSelector(
+    (state) => state.localData.searchResult,
   );
 
-  // search icon callback
-  const handleSearch = useCallback(async (e: any) => {
-    if (!input) {
-      setResults(courses);
-      return;
-    }
-    if (e.key && e.key !== "Enter") {
-      return;
-    }
-    e.preventDefault();
+  const handleSearchCourse = useCallback(
+    async (input: string) => {
+      if (!input.length) {
+        // reset search result
+        dispatch(
+          setSearchResult({ type: ResultType.DEFAULT, query: "", data: [] }),
+        );
+        return;
+      }
 
-    await index.searchAsync(input, { enrich: true }, (res) => {
-      const result = processQuery(res);
-      setResults(result);
-    })
-  }, [input, index, courses])
-
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (addingCourseId) {
-      dispatch(setAddingCourseId(null));
-    }
-    dispatch(setSearchInput(e.target.value)); // need it for seeking
-  }
-
-  const handleSideBarToggle = () => {
-    dispatch(setIsSideBarExpanded(!isSideBarExpanded));
-  }
-
-  // trigger search from input change
-  useEffect(() => {
-    if (!input) {
-      setResults(courses);
-      return;
-    }
-    debouncedSearch(input)
-  }, [input, debouncedSearch, courses])
-
-  // Simplified intersection observer setup
-  useEffect(() => {
-    if (!resultContainerRef.current) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const first = entries[0];
-        if (first.isIntersecting && hasMore) {
-          setPage((prev) => prev + 1);
-        }
-      },
-      { threshold: 0.5 }
-    );
-
-    const loadingTrigger = document.getElementById('loading-trigger');
-    if (loadingTrigger) {
-      observer.observe(loadingTrigger);
-    }
-
-    return () => {
-      observer.disconnect();
-    };
-  }, [hasMore]);
-
-  // Update hasMore when results change
-  useEffect(() => {
-    setHasMore(page * 10 < results.length);
-  }, [results, page]);
+      const result = await searchCourseFn(input);
+      dispatch(
+        setSearchResult({
+          type: ResultType.COURSE,
+          query: input,
+          data: result,
+        }),
+      );
+    },
+    [searchCourseFn, dispatch],
+  );
 
   return (
-    <>
-      <div className={`sidebar-toggle ${isSideBarExpanded ? '' : 'folded'}`} onClick={handleSideBarToggle}>
-        <Image 
-          src="/expand.svg" 
-          alt="sidebar-toggle" 
-          width={10} 
-          height={10}
-          className={(isSideBarExpanded ? '' : 'icon-folded')} 
-        />
+    <div className={clsx(["left-sidebar", isFolded && "folded"])}>
+      {/* folding handle */}
+      <div className="right-handle" onClick={toggleFolded}>
+        <ExpandIcon className={clsx(["expand", isFolded && "flipped"])} />
       </div>
-      <div className={`sidebar ${isSideBarExpanded ? '' : 'folded'}`} id="sidebar">
-        <div className="sidebar-header">
-          <Image src="/mcgill-logo.png" alt="logo" width={210} height={50} priority={true}/>
-        </div>
-        <div className="search-bar">
-          <input 
-            id="search-input"
-            type="text" 
-            value={input} 
-            onChange={handleInputChange} 
-            onKeyDown={handleSearch} 
-            placeholder="course code or name"
-            disabled={!isInitialized}
-          />
-          <Image 
-            src="/search.svg" 
-            alt="search" 
-            width={20} 
-            height={20} 
-            className="search-icon"
-            onClick={handleSearch}
-          />
-        </div>
-        <div className={`result-container ${isInitialized ? '' : 'initializing'}`} ref={resultContainerRef}>
-          {isInitialized 
-            ? results.slice(0, page * 10).map(course => 
-                <CourseResult 
-                  key={course.id} 
-                  {...course} 
-                  partialMatch={input} 
-                />
-              )
-            : Array(Constants.MOCK_RESULT_N).fill(null).map((_, idx) => <CourseResultSkeleton key={"mock"+idx}/>)}
-          <div id="loading-trigger" />
-          {isInitialized && results.length > 0 && hasMore && <div className="loading">Loading more...</div>}
-        </div>
-        <CourseTaken />
-      </div>
-    </>
-  )
-}
 
-export default SideBar
+      {/* header, including logo and search input */}
+      <header>
+        <Image
+          src="/mcgill-logo.png"
+          alt="logo"
+          width={1280}
+          height={303}
+          priority={true}
+        />
+        <SearchInput callback={handleSearchCourse} />
+      </header>
+      {/* courses to be added, data passed by global redux state */}
+      <MultiSelect />
+
+      {/* results, results data passed by global redux state */}
+      <SearchResults type={type} query={query} data={data} />
+
+      {/* course taken */}
+      <CourseTaken />
+    </div>
+  );
+};
+
+export default SideBar;

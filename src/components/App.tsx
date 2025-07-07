@@ -1,12 +1,13 @@
 "use client";
 
 import { useRef } from "react";
-import { LeftSideBar } from "./Layout";
+import { SideBar } from "./Layout";
 import { Provider } from "react-redux";
 import { AppStore, makeStore } from "@/store";
 import { Course } from "@/types/db";
 import { useCourseSearch } from "@/lib/hooks";
 import { setCourseData } from "@/store/slices/localDataSlice";
+import { DndContext } from "@dnd-kit/core";
 
 const App = ({ courseData }: { courseData: Course[] }) => {
   // init redux store
@@ -22,7 +23,12 @@ const App = ({ courseData }: { courseData: Course[] }) => {
 
   return (
     <Provider store={storeRef.current}>
-      <LeftSideBar searchCourseFn={searchCourseAsync} />
+      <DndContext>
+        <SideBar searchCourseFn={searchCourseAsync} />
+        {/* <UtilityBar /> */}
+        {/* <Terms /> */}
+        {/* <Assistant /> */}
+      </DndContext>
     </Provider>
   );
 };

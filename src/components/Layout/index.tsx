@@ -4,4 +4,4 @@
 // export { default as Assistant } from "./Assistant";
 // export { default as RenameConfirmModal } from "./RenameConfirmModal";
 // export { default as InfoModal } from "./InfoModal";
-export { default as LeftSideBar } from "./LeftSideBar";
+export { default as SideBar } from "./SideBar";
