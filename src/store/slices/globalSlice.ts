@@ -3,7 +3,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export const initialState = {
-  isLeftSideBarFolded: false as boolean,
+  isSideBarFolded: false as boolean,
   isCourseTakenExpanded: true as boolean,
   // state controlled by selectedCourses, can be replaced by createSelector on selectedCourses.size
   isAddingCourse: false as boolean,
@@ -32,11 +32,11 @@ const globalSlice = createSlice({
   name: "global",
   initialState,
   reducers: {
-    setIsLeftSideBarFolded: (state, action: PayloadAction<boolean>) => {
-      state.isLeftSideBarFolded = action.payload;
+    setIsSideBarFolded: (state, action: PayloadAction<boolean>) => {
+      state.isSideBarFolded = action.payload;
     },
-    toggleIsLeftSideBarFolded: (state) => {
-      state.isLeftSideBarFolded = !state.isLeftSideBarFolded;
+    toggleIsSideBarFolded: (state) => {
+      state.isSideBarFolded = !state.isSideBarFolded;
     },
     setIsCourseTakenExpanded: (state, action: PayloadAction<boolean>) => {
       state.isCourseTakenExpanded = action.payload;
@@ -121,8 +121,8 @@ const globalSlice = createSlice({
 });
 
 export const {
-  setIsLeftSideBarFolded,
-  toggleIsLeftSideBarFolded,
+  setIsSideBarFolded,
+  toggleIsSideBarFolded,
   setIsCourseTakenExpanded,
   toggleIsCourseTakenExpanded,
   setIsAddingCourse,

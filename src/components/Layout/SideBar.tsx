@@ -3,7 +3,7 @@
 import { SearchInput, SearchResults, MultiSelect } from "../Common";
 import { CourseTaken } from "../Course";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { toggleIsLeftSideBarFolded } from "@/store/slices/globalSlice";
+import { toggleIsSideBarFolded } from "@/store/slices/globalSlice";
 import { setSearchResult } from "@/store/slices/localDataSlice";
 import { useCallback } from "react";
 import { ResultType } from "@/lib/enums";
@@ -19,9 +19,9 @@ const SideBar = ({
 }) => {
   const dispatch = useAppDispatch();
 
-  const isFolded = useAppSelector((state) => state.global.isLeftSideBarFolded);
+  const isFolded = useAppSelector((state) => state.global.isSideBarFolded);
   const toggleFolded = useCallback(
-    async () => dispatch(toggleIsLeftSideBarFolded()),
+    async () => dispatch(toggleIsSideBarFolded()),
     [dispatch],
   );
   const { type, query, data } = useAppSelector(
