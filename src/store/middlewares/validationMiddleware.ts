@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-empty-object-type */
 import type { RootState } from "..";
 import type {
   Middleware,
@@ -9,10 +10,10 @@ import {
   isTermAction,
   isCourseAction,
   isCourseTakenAction,
+  isLocalDataAction,
   isValidObjectId,
 } from "@/lib/typeGuards";
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 const validationMiddleware: Middleware<
   {},
   RootState,
@@ -163,7 +164,7 @@ const validationMiddleware: Middleware<
         ) {
           throw new Error(`Invalid index: ${idx}`);
         }
-        if (typeof termData !== "object" || termData === null) {
+        if ((termData && typeof termData !== "object") || termData === null) {
           throw new Error(`Invalid term data: ${termData}`);
         }
 
@@ -307,6 +308,24 @@ const validationMiddleware: Middleware<
       }
       default:
         throw new Error(`Invalid course taken action: ${action}`);
+    }
+  }
+
+  if (isLocalDataAction(action)) {
+    switch (action.type) {
+      case "localData/setCurrentPlanId": {
+        const planId = action.payload;
+        if (!isValidObjectId(planId)) {
+          throw new Error(`Invalid plan id: ${planId}`);
+        }
+        if (!state.userData.planData.has(planId)) {
+          throw new Error(`Plan id not found in plan data: ${planId}`);
+        }
+
+        break;
+      }
+      default:
+        break; // TODO add other validations
     }
   }
 
