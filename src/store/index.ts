@@ -4,7 +4,12 @@ import {
   type ConfigureStoreOptions,
 } from "@reduxjs/toolkit";
 import { enableMapSet } from "immer";
-import { globalReducer, localDataReducer, userDataReducer } from "./slices";
+import {
+  globalReducer,
+  localDataReducer,
+  userDataReducer,
+  apiSlice,
+} from "./slices";
 import {
   sideStateMiddleware,
   errorMiddleware,
@@ -18,6 +23,7 @@ const reducer = combineReducers({
   global: globalReducer,
   localData: localDataReducer,
   userData: userDataReducer,
+  [apiSlice.reducerPath]: apiSlice.reducer,
 });
 
 const middleware: ConfigureStoreOptions<RootState>["middleware"] = (
@@ -27,6 +33,7 @@ const middleware: ConfigureStoreOptions<RootState>["middleware"] = (
     serializableCheck: false, // disabled for map set
   })
     .prepend(errorMiddleware)
+    .concat(apiSlice.middleware)
     .concat(validationMiddleware)
     .concat(sideStateMiddleware);
 // .concat(guardMiddleware)

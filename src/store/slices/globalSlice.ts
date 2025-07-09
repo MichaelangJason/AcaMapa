@@ -7,6 +7,7 @@ export const initialState = {
   isCourseTakenExpanded: true as boolean,
   // state controlled by selectedCourses, can be replaced by createSelector on selectedCourses.size
   isAddingCourse: false as boolean,
+  isDragging: false as boolean,
 
   // draggingType: null as DraggingType | null,
   // addingCourseId: null as string | null,
@@ -46,6 +47,9 @@ const globalSlice = createSlice({
     },
     setIsAddingCourse: (state, action: PayloadAction<boolean>) => {
       state.isAddingCourse = action.payload;
+    },
+    setIsDragging: (state, action: PayloadAction<boolean>) => {
+      state.isDragging = action.payload;
     },
     // setDraggingType: (state, action: PayloadAction<DraggingType | null>) => {
     //   state.draggingType = action.payload;
@@ -126,6 +130,7 @@ export const {
   setIsCourseTakenExpanded,
   toggleIsCourseTakenExpanded,
   setIsAddingCourse,
+  setIsDragging,
   // setDraggingType,
   // setAddingCourseId,
   // setDroppableId,
