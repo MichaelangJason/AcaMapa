@@ -24,9 +24,7 @@ const SideBar = ({
     async () => dispatch(toggleIsSideBarFolded()),
     [dispatch],
   );
-  const { type, query, data } = useAppSelector(
-    (state) => state.localData.searchResult,
-  );
+  const searchResult = useAppSelector((state) => state.localData.searchResult);
 
   const handleSearchCourse = useCallback(
     async (input: string) => {
@@ -72,7 +70,7 @@ const SideBar = ({
       <MultiSelect />
 
       {/* results, results data passed by global redux state */}
-      <SearchResults type={type} query={query} data={data} />
+      <SearchResults result={searchResult} />
 
       {/* course taken */}
       <CourseTaken />

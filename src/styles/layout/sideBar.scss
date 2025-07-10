@@ -3,6 +3,7 @@
   background: var(--gray-300);
   box-shadow: var(--shadow-default);
   left: 0;
+  z-index: 1000;
 
   width: var(--sidebar-width);
   min-width: var(--sidebar-width);

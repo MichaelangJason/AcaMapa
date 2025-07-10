@@ -6,18 +6,12 @@ import { RESULT_PER_PAGE } from "@/lib/constants";
 import { MiniCourseCard } from "@/components/Course/CourseCard";
 import { addSelectedCourse } from "@/store/slices/localDataSlice";
 import type { Course } from "@/types/db";
+import type { SearchResult } from "@/types/local";
 import { useDebounce } from "@/lib/hooks";
+import { selectAllCourseData } from "@/store/selectors";
 
-const SearchResults = ({
-  type,
-  query,
-  data,
-}: {
-  type: ResultType;
-  query: string;
-  data: Course[];
-}) => {
-  const defaultData = useAppSelector((state) => state.localData.courseData);
+const SearchResults = ({ result }: { result: SearchResult }) => {
+  const defaultData = useAppSelector(selectAllCourseData);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const loadingTriggerRef = useRef<HTMLDivElement>(null);
@@ -26,6 +20,7 @@ const SearchResults = ({
     (state) => state.localData.selectedCourses,
   );
   const dispatch = useAppDispatch();
+  const { type, query, data } = result;
 
   const displayData = type === ResultType.DEFAULT ? defaultData : data;
 
@@ -48,6 +43,7 @@ const SearchResults = ({
   );
 
   // setup infinite scroll
+  // OPTIMIZE: maybe switch to a virtualized list
   useEffect(() => {
     if (!loadingTriggerRef.current) return;
 

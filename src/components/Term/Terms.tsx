@@ -1,95 +1,174 @@
-import { useSelector } from "react-redux";
+"use client";
+
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { selectCurrentPlan, selectCurrentTerms } from "@/store/selectors";
+import clsx from "clsx";
+import {
+  DndContext,
+  useSensors,
+  PointerSensor,
+  useSensor,
+  DragEndEvent,
+  DragOverlay,
+  DragStartEvent,
+  DragCancelEvent,
+} from "@dnd-kit/core";
+import {
+  horizontalListSortingStrategy,
+  SortableContext,
+} from "@dnd-kit/sortable";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import type { Term } from "@/types/db";
+import { addTerm, deleteTerm, moveTerm } from "@/store/slices/userDataSlice";
 import TermCard from "./TermCard";
-import Image from "next/image";
-import { RootState } from "@/store";
-import { TermId } from "@/types/term";
-import { Droppable } from "@hello-pangea/dnd";
-import { useDispatch } from "react-redux";
-import { addTerm } from "@/store/slices/termSlice";
-import "@/styles/terms.scss";
-import { Constants, DraggingType } from "@/utils/enums";
-import { useEffect } from "react";
-import { setSeekingInfo } from "@/store/slices/globalSlice";
-import { Seeking } from "@/components/Layout";
-import { TermCardSkeleton } from "../Skeleton";
-import { getTermCardConfig } from "@/utils/skeleton";
+import { DraggingType } from "@/lib/enums";
+import { setIsDragging } from "@/store/slices/globalSlice";
+import { createPortal } from "react-dom";
 
 const Terms = () => {
-  const order = useSelector((state: RootState) => state.terms.order);
-  const isDragging = useSelector((state: RootState) => 
-    state.global.draggingType === DraggingType.TERM
+  const isSidebarFolded = useAppSelector(
+    (state) => state.global.isSideBarFolded,
   );
-  const { seekingId,seekingTerm } = useSelector((state: RootState) => state.global.seekingInfo);
-  const isSeeking = seekingId !== undefined && seekingTerm !== undefined;
-  const isSideBarExpanded = useSelector((state: RootState) => state.global.isSideBarExpanded);
-  const isAssistantExpanded = useSelector((state: RootState) => state.global.isAssistantExpanded);
-  const isInitialized = useSelector((state: RootState) => state.global.isInitialized)
+  const currentPlan = useAppSelector(selectCurrentPlan);
+  const currentTerms = useAppSelector(selectCurrentTerms);
+  const dispatch = useAppDispatch();
 
-  const dispatch = useDispatch();
+  // to avoid multiple redux dispatch when dragging and dropping
+  // we need to use local state to update the display
+  const [terms, setTerms] = useState<Term[]>(currentTerms);
+
+  const [draggingTerm, setDraggingTerm] = useState<Term | undefined>(undefined);
+
+  const termIds = useMemo(
+    () => terms.map((term) => term._id.toString()),
+    [terms],
+  );
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 3,
+      },
+    }),
+  );
 
   useEffect(() => {
-    if (isDragging) {
-      document.body.classList.add('dragging');
-    } else {
-      document.body.classList.remove('dragging');
-    }
-  }, [isDragging]);
+    setTerms(currentTerms);
+  }, [currentTerms]);
 
-  const handleAddTerm = () => {
-    dispatch(addTerm());
-  }
+  /* term related handlers */
+  const handleAddTerm = useCallback(
+    (termId: string, isBefore = false) => {
+      const idx =
+        currentPlan.termOrder.findIndex((s) => s === termId) +
+        (isBefore ? 0 : 1);
+      dispatch(addTerm({ planId: currentPlan._id, idx }));
+    },
+    [dispatch, currentPlan],
+  );
 
-  const handleSeekingMaskClick = () => {
-    dispatch(setSeekingInfo({ })); // clear seeking info
-  }
-  
+  const handleDeleteTerm = useCallback(
+    (termId: string) => {
+      dispatch(deleteTerm({ planId: currentPlan._id, termId }));
+    },
+    [dispatch, currentPlan],
+  );
+
+  /* drag and drop related */
+  const onDragStart = useCallback(
+    (event: DragStartEvent) => {
+      dispatch(setIsDragging(true));
+      if (event.active.data.current?.type === DraggingType.TERM) {
+        setDraggingTerm(terms.find((term) => term._id === event.active.id));
+      }
+    },
+    [dispatch, terms],
+  );
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const onDragCancel = useCallback(
+    (_: DragCancelEvent) => {
+      dispatch(setIsDragging(false));
+      setDraggingTerm(undefined);
+    },
+    [dispatch],
+  );
+
+  const onDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
+      if (!over) return;
+
+      const isDraggingTerm = active.data.current?.type === DraggingType.TERM;
+
+      if (isDraggingTerm) {
+        const termId = active.id as string;
+        const termIdx = currentPlan.termOrder.findIndex((s) => s === termId);
+        const overIdx = currentPlan.termOrder.findIndex((s) => s === over.id);
+
+        if (termIdx !== overIdx) {
+          dispatch(
+            moveTerm({
+              termId,
+              planId: currentPlan._id,
+              sourceIdx: termIdx,
+              destIdx: overIdx,
+            }),
+          );
+        }
+      }
+
+      dispatch(setIsDragging(false));
+      setDraggingTerm(undefined);
+    },
+    [currentPlan, dispatch],
+  );
+
   return (
-    <>
-      <Droppable droppableId="terms" direction="horizontal" type={DraggingType.TERM}>
-        {(provided) => (
-          <div 
-            className="terms" 
-            ref={provided.innerRef} 
-            {...provided.droppableProps}
-            id="terms"
-          >
-            {/* <Image 
-              className="terms-background" 
-              src="/school.webp" 
-              alt="school" 
-              width={2400} height={2400}
-              style={{
-                width: "100%",
-                height: "auto"
-              }}
-            /> */}
-            {isSeeking && <div className="seeking-mask" onClick={handleSeekingMaskClick}/>}
-            <div className={`terms-placeholder-box ${isSideBarExpanded ? '' : 'folded'}`}/>
-            {isInitialized 
-              ? order.flatMap((termId: TermId, index: number) => {
-                return [
-                  <TermCard key={termId} termId={termId} index={index} />,
-                  seekingTerm === termId && <Seeking key={"seeking-" + termId} />
-                ]
-              }) 
-              : Array(Constants.MOCK_NUM_TERMS).fill(null).map((_, idx) => {
-                  const mockConfig = getTermCardConfig();
-                  return (<TermCardSkeleton key={'mock-term-card-'+idx} coursesConfig={mockConfig}/>)
-              })}
-            <div className={`terms-placeholder-box ${isAssistantExpanded ? '' : 'folded'}`}/>
-            {provided.placeholder}
-          </div>
-        )}
-      </Droppable>
-      <Image 
-        className={`add-term-button ${isAssistantExpanded ? 'expanded' : ''}`} 
-        src="add.svg" 
-        alt="add" 
-        width={30} 
-        height={30} 
-        onClick={handleAddTerm}/>
-    </>
-  )
-}
+    <DndContext
+      sensors={sensors}
+      onDragStart={onDragStart}
+      onDragCancel={onDragCancel}
+      onDragEnd={onDragEnd}
+    >
+      <div
+        id="terms"
+        className={clsx([
+          "terms-container",
+          isSidebarFolded && "sidebar-folded",
+        ])}
+      >
+        <SortableContext
+          items={termIds}
+          strategy={horizontalListSortingStrategy}
+        >
+          {terms.map((term, idx) => (
+            <TermCard
+              key={term._id}
+              term={term}
+              isFirst={idx === 0}
+              addTerm={handleAddTerm}
+              deleteTerm={handleDeleteTerm}
+            />
+          ))}
+        </SortableContext>
+      </div>
+
+      {createPortal(
+        <DragOverlay>
+          {draggingTerm && (
+            <TermCard
+              term={draggingTerm}
+              isFirst={false}
+              addTerm={handleAddTerm}
+              deleteTerm={handleDeleteTerm}
+              isDraggingOverlay
+            />
+          )}
+        </DragOverlay>,
+        document.body,
+      )}
+    </DndContext>
+  );
+};
 
 export default Terms;

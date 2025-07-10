@@ -48,3 +48,124 @@ export const formatCourseId = (
 export const clamp = (value: number, min: number, max: number) => {
   return Math.max(min, Math.min(value, max));
 };
+
+export const getComputedStyleValueByClassName = (
+  className: string,
+  key: string,
+) => {
+  const element = document.querySelector(`.${className}`);
+  if (!element) return undefined;
+  return getComputedStyle(element).getPropertyValue(key);
+};
+
+interface ScrollOptions {
+  container: Window | Element;
+  targetX?: number;
+  targetY?: number;
+  duration?: number;
+  easing?: (t: number) => number;
+  onComplete?: () => void;
+}
+
+export const smoothScrollTo = ({
+  container,
+  targetX,
+  targetY,
+  duration = 500,
+  easing = (t) =>
+    t < 0.5 ? 4 * Math.pow(t, 3) : 1 - Math.pow(-2 * t + 2, 3) / 2,
+  onComplete,
+}: ScrollOptions) => {
+  let animationFrame: number;
+  let isCancelled = false;
+
+  const startX =
+    "scrollX" in container ? container.scrollX : container.scrollLeft;
+  const startY =
+    "scrollY" in container ? container.scrollY : container.scrollTop;
+
+  const distanceX = targetX !== undefined ? targetX - startX : 0;
+  const distanceY = targetY !== undefined ? targetY - startY : 0;
+
+  const startTime = performance.now();
+
+  function scroll(currentTime: number) {
+    if (isCancelled) return;
+
+    const elapsed = currentTime - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    const easedProgress = easing(progress);
+
+    if (targetX !== undefined) {
+      const currentX = startX + distanceX * easedProgress;
+      if ("scrollTo" in container) {
+        container.scrollTo({ left: currentX });
+      } else {
+        (container as HTMLElement).scrollLeft = currentX;
+      }
+    }
+
+    if (targetY !== undefined) {
+      const currentY = startY + distanceY * easedProgress;
+      if ("scrollTo" in container) {
+        container.scrollTo({ top: currentY });
+      } else {
+        (container as HTMLElement).scrollTop = currentY;
+      }
+    }
+
+    if (progress < 1) {
+      animationFrame = requestAnimationFrame(scroll);
+    } else if (onComplete) {
+      onComplete();
+    }
+  }
+
+  // Start animation in next rAF
+  animationFrame = requestAnimationFrame(scroll);
+
+  // Return cancel function
+  return () => {
+    isCancelled = true;
+    cancelAnimationFrame(animationFrame);
+  };
+};
+
+export const scrollTermCardToView = (
+  termCard: HTMLElement | number,
+  options: Omit<ScrollOptions, "container">,
+) => {
+  const termsContainer = document.getElementById("terms");
+  if (!termsContainer) return;
+
+  const termsContainerLeft = termsContainer.getBoundingClientRect().left;
+  const termsContainerScrollLeft = termsContainer.scrollLeft;
+  const maxScrollLeft = termsContainer.scrollWidth - termsContainer.clientWidth;
+
+  const termCardElement =
+    typeof termCard === "number" ? termsContainer.children[termCard] : termCard;
+  if (
+    !termCardElement ||
+    !(termCardElement instanceof HTMLDivElement) ||
+    !termCardElement.classList.contains("term-card")
+  )
+    return;
+
+  const termCardLeft = termCardElement.getBoundingClientRect().left;
+  const termCardCenter = termCardLeft + termCardElement.clientWidth / 2;
+
+  const clientCenterX = document.documentElement.clientWidth / 2;
+  const offsetX = clientCenterX - termsContainerLeft;
+
+  const targetX = clamp(
+    termsContainerScrollLeft - (termsContainerLeft - termCardCenter + offsetX),
+    0,
+    maxScrollLeft,
+  );
+
+  smoothScrollTo({
+    targetX,
+    container: termsContainer,
+    ...options,
+  });
+};

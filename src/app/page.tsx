@@ -28,7 +28,7 @@ const getInitCourses = nextCache(async () => {
   } catch (error) {
     console.error(error);
     await disconnectDatabase();
-    throw new Error("Prereder initialization failed");
+    throw new Error("Prerender initialization failed");
   }
 });
 

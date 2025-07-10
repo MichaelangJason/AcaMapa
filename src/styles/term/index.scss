@@ -1,0 +1,133 @@
+.term-card {
+  position: relative;
+  display: flex;
+  width: var(--term-card-width);
+  min-height: 300px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+  box-sizing: border-box;
+
+  border-radius: var(--border-radius-default);
+  border: var(--term-card-border-width) solid var(--gray-300);
+  background: var(--gray-000);
+
+  &.dragging {
+    opacity: 0.5;
+  }
+
+  .term-header {
+    position: relative;
+    display: flex;
+    height: 40px;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    cursor: pointer;
+
+    border-radius: var(--term-inner-border-radius)
+      var(--term-inner-border-radius) 0px 0px;
+    background: var(--gray-300);
+
+    span {
+      width: 70%;
+      overflow: hidden;
+      color: var(--gray-1000, #000);
+      text-align: center;
+      text-wrap: nowrap;
+      text-overflow: ellipsis;
+      font-size: 1rem;
+      font-style: normal;
+    }
+
+    svg {
+      position: absolute;
+      right: 12px;
+
+      width: 20px;
+      height: auto;
+
+      path {
+        fill: var(--gray-1000-50-opac);
+        transition: fill 0.1s ease;
+      }
+
+      &:hover {
+        path {
+          fill: var(--gray-500);
+        }
+      }
+    }
+  }
+
+  .term-body {
+    flex-grow: 1;
+    width: 100%;
+  }
+
+  .term-footer {
+    display: flex;
+    height: 40px;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+
+    border-radius: 0 0 var(--term-inner-border-radius)
+      var(--term-inner-border-radius);
+    background: var(--gray-300);
+  }
+}
+
+.add-term-button {
+  position: absolute;
+  width: var(--terms-gap);
+  height: 80%;
+  border-radius: var(--border-radius-default);
+  opacity: 0;
+  transition:
+    all 0.2s ease,
+    height 0.1s ease;
+  right: calc(-1 * var(--terms-gap) - var(--term-card-border-width));
+  background: var(--gray-100);
+
+  cursor: pointer;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  &:hover:not(.disabled):not(.clicked) {
+    opacity: 1;
+    height: 85%;
+  }
+
+  &.on-left {
+    right: unset;
+    left: calc(-1 * var(--terms-gap) - var(--term-card-border-width));
+  }
+
+  svg {
+    width: 16px;
+    height: auto;
+    path {
+      stroke: var(--gray-400);
+      stroke-width: 3;
+      transition: stroke 0.2s ease;
+    }
+  }
+
+  &.clicked {
+    opacity: 1;
+    height: 80%;
+    background: var(--gray-200);
+
+    svg {
+      path {
+        stroke: var(--gray-500);
+      }
+    }
+  }
+}
