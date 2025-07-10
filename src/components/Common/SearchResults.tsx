@@ -4,7 +4,10 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { isValidCourse } from "@/lib/typeGuards";
 import { RESULT_PER_PAGE } from "@/lib/constants";
 import { MiniCourseCard } from "@/components/Course/CourseCard";
-import { addSelectedCourse } from "@/store/slices/localDataSlice";
+import {
+  addSelectedCourse,
+  removeSelectedCourse,
+} from "@/store/slices/localDataSlice";
 import type { Course } from "@/types/db";
 import type { SearchResult } from "@/types/local";
 import { useDebounce } from "@/lib/hooks";
@@ -68,8 +71,12 @@ const SearchResults = ({ result }: { result: SearchResult }) => {
   }, [query, debouncedReset]);
 
   const handleAddCourse = useCallback(
-    async (course: Course) => {
-      dispatch(addSelectedCourse(course));
+    async (course: Course, isSelected: boolean) => {
+      if (isSelected) {
+        dispatch(removeSelectedCourse(course));
+      } else {
+        dispatch(addSelectedCourse(course));
+      }
     },
     [dispatch],
   );

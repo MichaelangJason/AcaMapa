@@ -19,6 +19,28 @@
   background: var(--gray-000);
   box-shadow: var(--shadow-default-heavy);
 
+  .add-button {
+    border-radius: var(--border-radius-default);
+    border: 2px solid var(--gray-600);
+    background: var(--gray-600);
+    box-shadow: var(--shadow-default-heavy);
+    color: var(--gray-000);
+    font-weight: bold;
+    margin: 0;
+    transition: all 0.2s ease;
+    cursor: pointer;
+
+    &:not(:hover) {
+      animation: twinkle 1s ease-out infinite;
+    }
+
+    &:hover {
+      // animation-play-state: initial;
+      opacity: 1;
+      scale: 1.05;
+    }
+  }
+
   .adding-mask {
     position: absolute;
     background-color: var(--gray-600);
@@ -50,6 +72,7 @@
     align-items: center;
     justify-content: center;
     height: fit-content;
+    max-height: 14px;
     margin: 0;
     padding: 0;
 

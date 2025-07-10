@@ -16,7 +16,7 @@ const MiniCourseCard = ({
 }: {
   data: Course;
   query?: string;
-  callback?: (course: Course) => Promise<void>;
+  callback?: (course: Course, isSelected: boolean) => Promise<void>;
   isSelected?: boolean;
   isSatisfied?: boolean;
   style?: React.CSSProperties;
@@ -27,10 +27,10 @@ const MiniCourseCard = ({
     async (e: React.MouseEvent<HTMLDivElement>) => {
       e.stopPropagation();
       if (callback) {
-        await callback(data);
+        await callback(data, isSelected);
       }
     },
-    [callback, data],
+    [callback, data, isSelected],
   );
 
   return (
