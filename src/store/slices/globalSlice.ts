@@ -8,6 +8,7 @@ export const initialState = {
   // state controlled by selectedCourses, can be replaced by createSelector on selectedCourses.size
   isAddingCourse: false as boolean,
   isDragging: false as boolean,
+  isInitialized: false as boolean,
 
   // draggingType: null as DraggingType | null,
   // addingCourseId: null as string | null,
@@ -33,6 +34,9 @@ const globalSlice = createSlice({
   name: "global",
   initialState,
   reducers: {
+    setIsInitialized: (state, action: PayloadAction<boolean>) => {
+      state.isInitialized = action.payload;
+    },
     setIsSideBarFolded: (state, action: PayloadAction<boolean>) => {
       state.isSideBarFolded = action.payload;
     },
@@ -125,6 +129,7 @@ const globalSlice = createSlice({
 });
 
 export const {
+  setIsInitialized,
   setIsSideBarFolded,
   toggleIsSideBarFolded,
   setIsCourseTakenExpanded,

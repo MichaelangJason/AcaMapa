@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import type { CourseMetadata, Plan, Term } from "@/types/db";
 import { ObjectId } from "bson";
 
-const initialState = {
+export const initialState = {
   courseTaken: new Map<string, string[]>(),
 
   planData: new Map<string, Plan>(),
@@ -121,7 +121,7 @@ export const userDataSlice = createSlice({
       action: PayloadAction<{
         planId: string;
         idx: number;
-        termData: Partial<Term>;
+        termData?: Partial<Term>;
       }>,
     ) => {
       const { planId, idx, termData } = action.payload;
@@ -129,8 +129,8 @@ export const userDataSlice = createSlice({
       const plan = state.planData.get(planId)!; // existence should be guaranteed by middleware
       const newTerm: Term = {
         _id: new ObjectId().toString(),
-        name: termData.name ?? "New Term",
-        courseIds: termData.courseIds ?? [],
+        name: termData?.name ?? "New Term",
+        courseIds: termData?.courseIds ?? [],
       };
 
       state.termData.set(newTerm._id, newTerm);
@@ -141,7 +141,8 @@ export const userDataSlice = createSlice({
       action: PayloadAction<{ planId: string; termId: string }>,
     ) => {
       const { planId, termId } = action.payload;
-      state.planData.delete(planId);
+      const plan = state.planData.get(planId)!;
+      plan.termOrder = plan.termOrder.filter((id) => id !== termId);
       state.termData.delete(termId);
     },
     moveTerm: (
@@ -164,18 +165,20 @@ export const userDataSlice = createSlice({
     addCourse: (
       state,
       action: PayloadAction<{
-        courseId: string;
+        courseIds: string[];
         termId: string;
         planId: string;
       }>,
     ) => {
       // TODO: is planId needed here for sync?
-      const { courseId, termId, planId } = action.payload;
+      const { courseIds, termId, planId } = action.payload;
 
       const term = state.termData.get(termId)!;
-      term.courseIds.unshift(courseId); // duplicate check among entire plan is handled in middleware
+      term.courseIds.unshift(...courseIds); // duplicate check among entire plan is handled in middleware
       const plan = state.planData.get(planId)!;
-      plan.courseMetadata[courseId] = { isOverwritten: false };
+      courseIds.forEach((courseId) => {
+        plan.courseMetadata[courseId] = { isOverwritten: false };
+      });
     },
     deleteCourse: (
       state,

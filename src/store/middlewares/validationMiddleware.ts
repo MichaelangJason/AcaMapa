@@ -203,17 +203,23 @@ const validationMiddleware: Middleware<
   if (isCourseAction(action)) {
     switch (action.type) {
       case "userData/addCourse": {
-        const { courseId, termId, planId } = action.payload;
-        if (!isValidObjectId(courseId)) {
-          throw new Error(`Invalid course id: ${courseId}`);
-        }
+        const { courseIds, termId, planId } = action.payload;
         if (!isValidObjectId(termId)) {
           throw new Error(`Invalid term id: ${termId}`);
         }
         if (!isValidObjectId(planId)) {
           throw new Error(`Invalid plan id: ${planId}`);
         }
-
+        const plan = state.userData.planData.get(planId)!;
+        const duplicateCourseIds = courseIds.filter(
+          (id: string) => plan.courseMetadata[id] !== undefined,
+        );
+        if (duplicateCourseIds.length > 0) {
+          throw new Error(
+            `Duplicate course ids: ${duplicateCourseIds.join(", ")}`,
+          );
+          // TODO: toast duplicate course ids
+        }
         break;
       }
       case "userData/deleteCourse": {

@@ -1,18 +1,22 @@
 import { ResultType } from "@/lib/enums";
 import type { Course } from "@/types/db";
+import { SearchResult } from "@/types/local";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export const initialState = {
-  courseData: [] as Course[], // init once, for quick lookup
-  detailedCourseData: {} as { [key: string]: Course },
+  courseData: {} as { [key: string]: Course }, // init once, for quick lookup
+  cachedDetailedCourseData: {} as { [key: string]: Course },
 
   searchResult: {
     type: ResultType.DEFAULT,
     query: "",
-    data: [] as any[],
-  },
+    data: [],
+  } as SearchResult,
   searchInput: "",
-  // utilize the hash
+
+  currentPlanId: "" as string,
+
+  // utilize the hashmap for quick lookup and ordering
   selectedCourses: new Map<string, Course>(),
 };
 
@@ -20,29 +24,33 @@ const localDataSlice = createSlice({
   name: "localData",
   initialState,
   reducers: {
-    setSearchResult: (
-      state,
-      action: PayloadAction<{ type: ResultType; query: string; data: any[] }>,
-    ) => {
-      state.searchResult = {
-        ...action.payload,
-        data:
-          action.payload.type === ResultType.DEFAULT ? [] : action.payload.data,
-      };
+    setSearchResult: (state, action: PayloadAction<SearchResult>) => {
+      state.searchResult = action.payload;
     },
     setSearchInput: (state, action: PayloadAction<string>) => {
       state.searchInput = action.payload;
     },
     setCourseData: (state, action: PayloadAction<Course[]>) => {
-      state.courseData = action.payload;
+      action.payload.forEach((course) => {
+        // guaranteed insertion order
+        state.courseData[course.id] = course;
+      });
     },
-    updateDetailedCourseData: (state, action: PayloadAction<Course[]>) => {
+    setDetailedCourseData: (state, action: PayloadAction<Course[]>) => {
+      action.payload.forEach((course) => {
+        state.cachedDetailedCourseData[course.id] = course;
+      });
+    },
+    updateCachedDetailedCourseData: (
+      state,
+      action: PayloadAction<Course[]>,
+    ) => {
       action.payload.forEach((course) => {
         const id = course.id;
 
-        state.detailedCourseData[id] = {
+        state.cachedDetailedCourseData[id] = {
           // this will create a new object if not exists
-          ...state.detailedCourseData[id],
+          ...state.cachedDetailedCourseData[id],
           ...course,
         };
       });
@@ -63,6 +71,9 @@ const localDataSlice = createSlice({
     clearSelectedCourses: (state) => {
       state.selectedCourses.clear();
     },
+    setCurrentPlanId: (state, action: PayloadAction<string>) => {
+      state.currentPlanId = action.payload;
+    },
   },
 });
 
@@ -70,11 +81,16 @@ export const {
   setSearchResult,
   setSearchInput,
   setCourseData,
-  updateDetailedCourseData,
+  updateCachedDetailedCourseData,
   addSelectedCourse,
   removeSelectedCourse,
   toggleSelectedCourse,
   clearSelectedCourses,
+  setCurrentPlanId,
 } = localDataSlice.actions;
+
+export type LocalDataAction = ReturnType<
+  (typeof localDataSlice.actions)[keyof typeof localDataSlice.actions]
+>;
 
 export default localDataSlice.reducer;
