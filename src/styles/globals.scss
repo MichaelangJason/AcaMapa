@@ -62,20 +62,36 @@
       ) *
       100%
   );
+
+  --course-card-width-numeric: 260;
+  --course-card-width: calc(var(--course-card-width-numeric) * 1px);
 }
 
 html {
   font-size: 16px; /* rem */
 }
 
+/* Hide scrollbar but keep scrolling functionality */
+html,
 body {
-  /* color: var(--foreground);
-  background: var(--background); */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
+/* Webkit browsers */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;
+}
+
+body {
+  position: relative;
   font-family: Arial, Helvetica, sans-serif;
 
   height: 100vh;
   width: 100vw;
   margin: 0px;
+  padding: 0 0 0 var(--sidebar-width);
 
   /* 
   * Due to technical issue of @hello-pangea/dnd library regarding nested Droppable
@@ -84,7 +100,7 @@ body {
   */
   display: flex;
   flex-direction: row;
-  overflow: hidden;
+  // overflow: hidden;
 }
 
 mark {

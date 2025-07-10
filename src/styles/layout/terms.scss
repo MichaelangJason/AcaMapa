@@ -3,18 +3,16 @@
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
-  gap: var(--terms-gap);
 
-  overflow-y: hidden;
-  overflow-x: auto;
   transition: margin 0.2s ease-in-out;
 
   width: 100%;
   flex-grow: 1;
 
-  margin-left: var(--sidebar-width);
+  // margin-left: var(--sidebar-width);
   margin-top: var(--utility-bar-height);
-  padding: var(--terms-padding-topbottom) var(--terms-gap);
+  padding: var(--terms-padding-topbottom) 0 var(--terms-padding-topbottom)
+    var(--terms-gap);
 
   &.sidebar-folded {
     margin-left: 0;

@@ -1,59 +1,69 @@
 "use client";
 
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { selectCurrentPlan, selectCurrentTerms } from "@/store/selectors";
-import clsx from "clsx";
 import {
-  DndContext,
-  useSensors,
-  PointerSensor,
-  useSensor,
-  DragEndEvent,
-  DragOverlay,
-  DragStartEvent,
-  DragCancelEvent,
-} from "@dnd-kit/core";
+  selectCurrentCoursePerTerms,
+  selectCurrentPlan,
+  selectCurrentTerms,
+} from "@/store/selectors";
+import { useCallback, useRef } from "react";
 import {
-  horizontalListSortingStrategy,
-  SortableContext,
-} from "@dnd-kit/sortable";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import type { Term } from "@/types/db";
-import { addTerm, deleteTerm, moveTerm } from "@/store/slices/userDataSlice";
+  addTerm,
+  deleteCourse,
+  deleteTerm,
+  moveTerm,
+  moveCourse,
+} from "@/store/slices/userDataSlice";
 import TermCard from "./TermCard";
+import { addCourseToTerm } from "@/store/thunks";
+import { clearSelectedCourses } from "@/store/slices/localDataSlice";
+import {
+  DragDropContext,
+  type DragStart,
+  type DragUpdate,
+  type DropResult,
+  Droppable,
+} from "@hello-pangea/dnd";
 import { DraggingType } from "@/lib/enums";
 import { setIsDragging } from "@/store/slices/globalSlice";
-import { createPortal } from "react-dom";
 
 const Terms = () => {
-  const isSidebarFolded = useAppSelector(
-    (state) => state.global.isSideBarFolded,
-  );
   const currentPlan = useAppSelector(selectCurrentPlan);
   const currentTerms = useAppSelector(selectCurrentTerms);
+  const currentCourseDataPerTerm = useAppSelector(selectCurrentCoursePerTerms);
+  const selectedCourses = useAppSelector(
+    (state) => state.localData.selectedCourses,
+  );
   const dispatch = useAppDispatch();
+  const termsContainerRef = useRef<HTMLDivElement>(null);
 
-  // to avoid multiple redux dispatch when dragging and dropping
-  // we need to use local state to update the display
-  const [terms, setTerms] = useState<Term[]>(currentTerms);
-
-  const [draggingTerm, setDraggingTerm] = useState<Term | undefined>(undefined);
-
-  const termIds = useMemo(
-    () => terms.map((term) => term._id.toString()),
-    [terms],
-  );
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 3,
-      },
-    }),
+  const handleAddCourse = useCallback(
+    async (termId: string) => {
+      if (selectedCourses.size === 0) return;
+      dispatch(
+        addCourseToTerm({
+          termId,
+          courseIds: Array.from(selectedCourses.keys()),
+          planId: currentPlan._id,
+        }),
+      );
+      dispatch(clearSelectedCourses());
+    },
+    [selectedCourses, dispatch, currentPlan],
   );
 
-  useEffect(() => {
-    setTerms(currentTerms);
-  }, [currentTerms]);
+  const handleDeleteCourse = useCallback(
+    (termId: string, courseId: string) => {
+      dispatch(
+        deleteCourse({
+          termId,
+          courseId,
+          planId: currentPlan._id,
+        }),
+      );
+    },
+    [dispatch, currentPlan],
+  );
 
   /* term related handlers */
   const handleAddTerm = useCallback(
@@ -73,101 +83,98 @@ const Terms = () => {
     [dispatch, currentPlan],
   );
 
-  /* drag and drop related */
   const onDragStart = useCallback(
-    (event: DragStartEvent) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    (start: DragStart) => {
+      // const { type } = start;
       dispatch(setIsDragging(true));
-      if (event.active.data.current?.type === DraggingType.TERM) {
-        setDraggingTerm(terms.find((term) => term._id === event.active.id));
-      }
-    },
-    [dispatch, terms],
-  );
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const onDragCancel = useCallback(
-    (_: DragCancelEvent) => {
-      dispatch(setIsDragging(false));
-      setDraggingTerm(undefined);
     },
     [dispatch],
   );
 
+  const onDragUpdate = useCallback((update: DragUpdate) => {
+    const { type } = update;
+
+    if (type !== DraggingType.COURSE) return;
+  }, []);
+
   const onDragEnd = useCallback(
-    (event: DragEndEvent) => {
-      const { active, over } = event;
-      if (!over) return;
-
-      const isDraggingTerm = active.data.current?.type === DraggingType.TERM;
-
-      if (isDraggingTerm) {
-        const termId = active.id as string;
-        const termIdx = currentPlan.termOrder.findIndex((s) => s === termId);
-        const overIdx = currentPlan.termOrder.findIndex((s) => s === over.id);
-
-        if (termIdx !== overIdx) {
-          dispatch(
-            moveTerm({
-              termId,
-              planId: currentPlan._id,
-              sourceIdx: termIdx,
-              destIdx: overIdx,
-            }),
-          );
-        }
-      }
+    (result: DropResult) => {
+      const { destination, source, draggableId, type } = result;
 
       dispatch(setIsDragging(false));
-      setDraggingTerm(undefined);
+      if (!destination) return;
+
+      if (
+        destination.droppableId === source.droppableId &&
+        destination.index === source.index
+      )
+        return;
+
+      if (type === DraggingType.TERM) {
+        dispatch(
+          moveTerm({
+            planId: currentPlan._id,
+            termId: draggableId,
+            sourceIdx: source.index,
+            destIdx: destination.index,
+          }),
+        );
+      }
+      if (type === DraggingType.COURSE) {
+        dispatch(
+          moveCourse({
+            courseId: draggableId,
+            sourceIdx: source.index,
+            destIdx: destination.index,
+            sourceTermId: source.droppableId,
+            destTermId: destination.droppableId,
+          }),
+        );
+      }
     },
     [currentPlan, dispatch],
   );
 
   return (
-    <DndContext
-      sensors={sensors}
+    <DragDropContext
       onDragStart={onDragStart}
-      onDragCancel={onDragCancel}
+      onDragUpdate={onDragUpdate}
       onDragEnd={onDragEnd}
     >
-      <div
-        id="terms"
-        className={clsx([
-          "terms-container",
-          isSidebarFolded && "sidebar-folded",
-        ])}
+      <Droppable
+        droppableId="terms"
+        direction="horizontal"
+        type={DraggingType.TERM}
       >
-        <SortableContext
-          items={termIds}
-          strategy={horizontalListSortingStrategy}
-        >
-          {terms.map((term, idx) => (
-            <TermCard
-              key={term._id}
-              term={term}
-              isFirst={idx === 0}
-              addTerm={handleAddTerm}
-              deleteTerm={handleDeleteTerm}
-            />
-          ))}
-        </SortableContext>
-      </div>
-
-      {createPortal(
-        <DragOverlay>
-          {draggingTerm && (
-            <TermCard
-              term={draggingTerm}
-              isFirst={false}
-              addTerm={handleAddTerm}
-              deleteTerm={handleDeleteTerm}
-              isDraggingOverlay
-            />
-          )}
-        </DragOverlay>,
-        document.body,
-      )}
-    </DndContext>
+        {(provided) => (
+          <div
+            id="terms"
+            className="terms-container"
+            ref={(el) => {
+              provided.innerRef(el);
+              termsContainerRef.current = el;
+            }}
+            {...provided.droppableProps}
+          >
+            {currentTerms.map((term, idx) => (
+              <TermCard
+                key={term._id}
+                idx={idx}
+                term={term}
+                courses={currentCourseDataPerTerm[term._id]}
+                isFirst={idx === 0}
+                addTerm={handleAddTerm}
+                deleteTerm={handleDeleteTerm}
+                addCourse={handleAddCourse}
+                deleteCourse={handleDeleteCourse}
+              />
+            ))}
+            {provided.placeholder}
+          </div>
+        )}
+      </Droppable>
+    </DragDropContext>
   );
 };
 

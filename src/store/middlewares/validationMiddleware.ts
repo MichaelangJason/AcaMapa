@@ -282,25 +282,21 @@ const validationMiddleware: Middleware<
         break;
       }
       case "userData/deleteCourse": {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { courseId, termId, planId } = action.payload;
-        if (!isValidObjectId(courseId)) {
-          throw new Error(`Invalid course id: ${courseId}`);
-        }
-        if (!isValidObjectId(termId)) {
+        if (!isValidObjectId(termId) || !state.userData.planData.has(planId)) {
           throw new Error(`Invalid term id: ${termId}`);
         }
-        if (!isValidObjectId(planId)) {
+        if (!isValidObjectId(planId) || !state.userData.termData.has(termId)) {
           throw new Error(`Invalid plan id: ${planId}`);
         }
 
         break;
       }
       case "userData/moveCourse": {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { courseId, sourceTermId, destTermId, sourceIdx, destIdx } =
           action.payload;
-        if (!isValidObjectId(courseId)) {
-          throw new Error(`Invalid course id: ${courseId}`);
-        }
         if (!isValidObjectId(sourceTermId)) {
           throw new Error(`Invalid source term id: ${sourceTermId}`);
         }

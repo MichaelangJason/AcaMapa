@@ -1,13 +1,17 @@
 import { createSelector } from "@reduxjs/toolkit";
 import type { RootState } from ".";
-import type { Plan, Term } from "@/types/db";
+import type { Course, Plan, Term } from "@/types/db";
 import type { initialState as userDataState } from "@/store/slices/userDataSlice";
 import type { initialState as localDataState } from "@/store/slices/localDataSlice";
 import { isValidObjectId } from "@/lib/typeGuards";
 
-export const selectCurrentPlan = createSelector(
-  (state: RootState) => state.localData.currentPlanId,
-  (state: RootState) => state.userData.planData,
+const createAppSelector = createSelector.withTypes<RootState>();
+
+export const selectCurrentPlan = createAppSelector(
+  [
+    (state) => state.localData.currentPlanId,
+    (state) => state.userData.planData,
+  ],
   (currentPlanId, planData) => {
     if (
       !currentPlanId ||
@@ -20,10 +24,12 @@ export const selectCurrentPlan = createSelector(
   },
 );
 
-export const selectCurrentTerms = createSelector(
-  (state: RootState) => state.localData.currentPlanId,
-  (state: RootState) => state.userData.planData,
-  (state: RootState) => state.userData.termData,
+export const selectCurrentTerms = createAppSelector(
+  [
+    (state) => state.localData.currentPlanId,
+    (state) => state.userData.planData,
+    (state) => state.userData.termData,
+  ],
   (currentPlanId, planData, termData) => {
     if (
       !currentPlanId ||
@@ -42,6 +48,46 @@ export const selectCurrentTerms = createSelector(
       return acc;
     }, [] as Term[]);
     return terms;
+  },
+);
+
+export const selectCurrentCoursePerTerms = createAppSelector(
+  [
+    (state) => state.userData.planData,
+    (state) => state.userData.termData,
+    (state) => state.localData.cachedDetailedCourseData,
+    (state) => state.localData.currentPlanId,
+  ],
+  (planData, termData, cachedDetailedCourseData, currentPlanId) => {
+    const plan = planData.get(currentPlanId);
+    if (!plan) {
+      throw new Error(`Plan id not found in plan data: ${currentPlanId}`);
+    }
+
+    const courseDataPerTerm = plan.termOrder.reduce(
+      (acc, val) => {
+        const term = termData.get(val);
+        if (!term) {
+          throw new Error(`Term id not found in term data: ${val}`);
+        }
+
+        const courses = term.courseIds.map((courseId) => {
+          const course = cachedDetailedCourseData[courseId];
+          if (!course) {
+            throw new Error(
+              `Course id not found in cached detailed course data: ${courseId}`,
+            );
+          }
+          return course;
+        });
+
+        acc[val] = courses;
+        return acc;
+      },
+      {} as { [termId: string]: Course[] },
+    );
+
+    return courseDataPerTerm;
   },
 );
 

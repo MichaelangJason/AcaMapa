@@ -44,6 +44,7 @@ export const isTermAction = (action: unknown): action is TermAction => {
   return (
     typeof a.type === "string" &&
     typeof a.payload === "object" &&
+    a.type.startsWith("userData/") &&
     a.type.split("/")[1].toLowerCase().includes("term")
   );
 };

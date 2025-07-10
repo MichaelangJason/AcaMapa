@@ -1,14 +1,14 @@
 "use client";
 
-import type { Term } from "@/types/db";
-import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+import type { Course, Term } from "@/types/db";
 import HamburgerIcon from "@/public/hamburger.svg";
 import PlusIcon from "@/public/icons/plus.svg";
-import { DraggingType } from "@/lib/enums";
 import clsx from "clsx";
-import { getComputedStyleValueByClassName } from "@/lib/utils";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { useAppSelector } from "@/store/hooks";
+import DetailedCourseCard from "../Course/CourseCard/DetailedCourseCard";
+import { Droppable, Draggable } from "@hello-pangea/dnd";
+import { DraggingType } from "@/lib/enums";
 
 const AddTermButton = ({
   isBefore,
@@ -42,62 +42,105 @@ const AddTermButton = ({
 
 const TermCard = ({
   term,
+  courses,
+  idx,
   isFirst,
+  addCourse,
   addTerm,
   deleteTerm,
+  deleteCourse,
   style,
-  isDraggingOverlay,
 }: {
   term: Term;
+  courses: Course[];
+  idx: number;
   isFirst: boolean;
   addTerm: (termId: string, isBefore?: boolean) => void;
   deleteTerm: (termId: string) => void;
+  addCourse: (termId: string) => Promise<void>;
+  deleteCourse: (termId: string, courseId: string) => void;
   style?: React.CSSProperties;
   isDraggingOverlay?: boolean;
 }) => {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transition,
-    transform,
-    isDragging: isDraggingSelf,
-  } = useSortable({
-    id: term._id.toString(),
-    data: {
-      type: DraggingType.TERM,
-    },
-  });
+  const isAddingCourse = useAppSelector((state) => state.global.isAddingCourse);
+  const isDragging = useAppSelector((state) => state.global.isDragging);
 
-  const handleClickButton = (isBefore: boolean) => {
+  const totalCredits = useMemo(() => {
+    return courses.reduce((acc, course) => acc + course.credits, 0);
+  }, [courses]);
+
+  const handleAddCourse = async () => {
+    await addCourse(term._id.toString());
+  };
+
+  const handleDeleteCourse = (courseId: string) => {
+    deleteCourse(term._id.toString(), courseId);
+  };
+
+  const handleAddTerm = (isBefore: boolean) => {
     addTerm(term._id.toString(), isBefore);
   };
 
-  const allStyle = {
-    ...style,
-    transition,
-    transform: CSS.Transform.toString(transform),
-    height: isDraggingOverlay
-      ? getComputedStyleValueByClassName("term-card", "height")
-      : undefined,
-  };
-
   return (
-    <div
-      className={clsx(["term-card", isDraggingSelf && "dragging"])}
-      ref={setNodeRef}
-      style={allStyle}
-    >
-      {isFirst && <AddTermButton isBefore={true} onClick={handleClickButton} />}
-      <header className="term-header" {...attributes} {...listeners}>
-        <span>{term.name}</span>
-        <HamburgerIcon onClick={() => deleteTerm(term._id.toString())} />
-      </header>
-      <main className="term-body"></main>
-      <footer className="term-footer"></footer>
+    <Draggable draggableId={term._id} index={idx} isDragDisabled={false}>
+      {(draggableProvided, draggableSnapshot) => (
+        <div
+          className={clsx([
+            "term-card",
+            draggableSnapshot.isDragging && "dragging",
+          ])}
+          style={style}
+          ref={draggableProvided.innerRef}
+          {...draggableProvided.draggableProps}
+        >
+          {!isDragging && isFirst && (
+            <AddTermButton isBefore={true} onClick={handleAddTerm} />
+          )}
+          <header
+            className="term-header"
+            {...draggableProvided.dragHandleProps}
+          >
+            {isAddingCourse ? (
+              <button className="add-course-button" onClick={handleAddCourse}>
+                Add to {term.name}
+              </button>
+            ) : (
+              <span>{term.name}</span>
+            )}
+            <HamburgerIcon onClick={() => deleteTerm(term._id)} />
+          </header>
+          <Droppable droppableId={term._id} type={DraggingType.COURSE}>
+            {(droppableProvided, droppableSnapshot) => (
+              <main
+                className={clsx([
+                  "term-body",
+                  droppableSnapshot.isDraggingOver && "dragging-over",
+                ])}
+                ref={droppableProvided.innerRef}
+                {...droppableProvided.droppableProps}
+              >
+                {courses.map((course, idx) => (
+                  <DetailedCourseCard
+                    key={`${term._id}-${course.id}-${idx}`}
+                    course={course}
+                    idx={idx}
+                    handleDelete={handleDeleteCourse}
+                  />
+                ))}
+                {droppableProvided.placeholder}
+              </main>
+            )}
+          </Droppable>
+          <footer className="term-footer">
+            <span>{totalCredits} credits</span>
+          </footer>
 
-      <AddTermButton isBefore={false} onClick={handleClickButton} />
-    </div>
+          {!isDragging && (
+            <AddTermButton isBefore={false} onClick={handleAddTerm} />
+          )}
+        </div>
+      )}
+    </Draggable>
   );
 };
 

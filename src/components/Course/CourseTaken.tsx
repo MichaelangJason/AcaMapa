@@ -37,20 +37,32 @@ const CourseTaken = () => {
     },
     [dispatch],
   );
-  const handleAddCourseTaken = useCallback(() => {
-    dispatch(
-      addCourseTaken([...selectedCourses.values()].map((course) => course.id)),
-    );
-    dispatch(clearSelectedCourses());
-    dispatch(setIsCourseTakenExpanded(true));
-  }, [dispatch, selectedCourses]);
+  const handleAddCourseTaken = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.stopPropagation();
+      dispatch(
+        addCourseTaken(
+          [...selectedCourses.values()].map((course) => course.id),
+        ),
+      );
+      dispatch(clearSelectedCourses());
+      dispatch(setIsCourseTakenExpanded(true));
+    },
+    [dispatch, selectedCourses],
+  );
 
   return (
     <section
       className={clsx(["course-taken", isCourseTakenExpanded && "expanded"])}
     >
       <header onClick={handleExpand}>
-        <h4 className="title">Course Taken</h4>
+        {isAddingCourse ? (
+          <button className="add-button" onClick={handleAddCourseTaken}>
+            Add to Course Taken
+          </button>
+        ) : (
+          <h4 className="title">Course Taken</h4>
+        )}
         <ExpandIcon className="expand" />
       </header>
       {isCourseTakenExpanded ? (
@@ -79,12 +91,6 @@ const CourseTaken = () => {
             })
           )}
         </section>
-      ) : null}
-
-      {isAddingCourse ? (
-        <div className="adding-mask" onClick={handleAddCourseTaken}>
-          Add to Course Taken
-        </div>
       ) : null}
     </section>
   );

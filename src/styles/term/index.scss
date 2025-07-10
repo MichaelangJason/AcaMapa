@@ -9,12 +9,23 @@
   flex-shrink: 0;
   box-sizing: border-box;
 
+  margin-right: var(--terms-gap);
+
   border-radius: var(--border-radius-default);
   border: var(--term-card-border-width) solid var(--gray-300);
-  background: var(--gray-000);
+  background: var(--gray-300);
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
 
   &.dragging {
     opacity: 0.5;
+  }
+
+  &.dragging-over {
+    background: var(--gray-500);
+    border-color: var(--gray-500);
   }
 
   .term-header {
@@ -25,10 +36,35 @@
     align-items: center;
     width: 100%;
     cursor: pointer;
+    flex-shrink: 0;
 
     border-radius: var(--term-inner-border-radius)
       var(--term-inner-border-radius) 0px 0px;
-    background: var(--gray-300);
+    background: transparent;
+    transition: all 0.2s ease;
+
+    .add-course-button {
+      border-radius: var(--border-radius-default);
+      // border: 2px solid var(--gray-600);
+      background: var(--gray-600);
+      box-shadow: var(--shadow-default-heavy);
+      color: var(--gray-000);
+      font-size: 1rem;
+      font-weight: bold;
+      margin: 0;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      padding: 0.3rem 0.75rem;
+
+      &:not(:hover) {
+        animation: twinkle 1s ease-out infinite;
+      }
+
+      &:hover {
+        opacity: 1;
+        scale: 1.05;
+      }
+    }
 
     span {
       width: 70%;
@@ -63,7 +99,23 @@
 
   .term-body {
     flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    // gap: 0.75rem;
+    padding: 0.75rem;
+    background: var(--gray-000);
+    transition: background 0.2s ease;
+
+    box-sizing: border-box;
     width: 100%;
+    overflow-y: scroll;
+    overflow-x: hidden;
+
+    &.dragging-over {
+      background: var(--gray-100);
+    }
   }
 
   .term-footer {
@@ -76,7 +128,8 @@
 
     border-radius: 0 0 var(--term-inner-border-radius)
       var(--term-inner-border-radius);
-    background: var(--gray-300);
+    background: transparent;
+    transition: all 0.2s ease;
   }
 }
 
