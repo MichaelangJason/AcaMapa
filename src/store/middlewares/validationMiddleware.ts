@@ -20,6 +20,7 @@ const validationMiddleware: Middleware<
   ThunkDispatch<RootState, undefined, UnknownAction>
 > = (store) => (next) => (action) => {
   const state = store.getState();
+
   if (isPlanAction(action)) {
     switch (action.type) {
       case "userData/movePlan": {
@@ -200,6 +201,64 @@ const validationMiddleware: Middleware<
     }
   }
 
+  if (isCourseTakenAction(action)) {
+    switch (action.type) {
+      case "userData/setCourseTaken": {
+        const courseTakenErrors = Object.keys(action.payload).reduce(
+          (acc: { [subjectCode: string]: string[] }, subjectCode: string) => {
+            const errors: string[] = [];
+            if (typeof subjectCode !== "string" || subjectCode.length !== 4) {
+              errors.push(`Invalid subject code: ${subjectCode}`);
+            }
+            const courseIds = new Set(action.payload[subjectCode]);
+            if (courseIds.size !== action.payload[subjectCode].length) {
+              errors.push(`Duplicate course ids in course taken: ${courseIds}`);
+            }
+            courseIds.forEach((courseId: string) => {
+              if (
+                typeof courseId !== "string" ||
+                courseId.slice(0, 4) !== subjectCode
+              ) {
+                errors.push(`Invalid course id in course taken: ${courseId}`);
+              }
+            });
+            if (errors.length > 0) {
+              acc[subjectCode] = errors;
+            }
+            return acc;
+          },
+          {} as { [subjectCode: string]: string[] },
+        );
+
+        if (Object.keys(courseTakenErrors).length > 0) {
+          throw new Error(
+            `Invalid course taken: ${JSON.stringify(courseTakenErrors, null, 2)}`,
+          );
+        }
+
+        break;
+      }
+      case "userData/addCourseTaken": {
+        const courseIds = action.payload;
+        if (courseIds.some((id: string) => typeof id !== "string")) {
+          throw new Error(`Invalid course id: ${courseIds}`);
+        }
+
+        break;
+      }
+      case "userData/removeCourseTaken": {
+        const courseIds = action.payload;
+        if (courseIds.some((id: string) => typeof id !== "string")) {
+          throw new Error(`Invalid course id: ${courseIds}`);
+        }
+
+        break;
+      }
+      default:
+        throw new Error(`Invalid course taken action: ${action}`);
+    }
+  }
+
   if (isCourseAction(action)) {
     switch (action.type) {
       case "userData/addCourse": {
@@ -256,64 +315,6 @@ const validationMiddleware: Middleware<
       }
       default:
         throw new Error(`Invalid course action: ${action}`);
-    }
-  }
-
-  if (isCourseTakenAction(action)) {
-    switch (action.type) {
-      case "userData/setCourseTaken": {
-        const courseTakenErrors = Object.keys(action.payload).reduce(
-          (acc: { [subjectCode: string]: string[] }, subjectCode: string) => {
-            const errors: string[] = [];
-            if (typeof subjectCode !== "string" || subjectCode.length !== 4) {
-              errors.push(`Invalid subject code: ${subjectCode}`);
-            }
-            const courseIds = new Set(action.payload[subjectCode]);
-            if (courseIds.size !== action.payload[subjectCode].length) {
-              errors.push(`Duplicate course ids in course taken: ${courseIds}`);
-            }
-            courseIds.forEach((courseId: string) => {
-              if (
-                typeof courseId !== "string" ||
-                courseId.slice(0, 4) !== subjectCode
-              ) {
-                errors.push(`Invalid course id in course taken: ${courseId}`);
-              }
-            });
-            if (errors.length > 0) {
-              acc[subjectCode] = errors;
-            }
-            return acc;
-          },
-          {} as { [subjectCode: string]: string[] },
-        );
-
-        if (Object.keys(courseTakenErrors).length > 0) {
-          throw new Error(
-            `Invalid course taken: ${JSON.stringify(courseTakenErrors, null, 2)}`,
-          );
-        }
-
-        break;
-      }
-      case "userData/addCourseTaken": {
-        const courseIds = action.payload;
-        if (courseIds.some((id: string) => typeof id !== "string")) {
-          throw new Error(`Invalid course id: ${courseIds}`);
-        }
-
-        break;
-      }
-      case "userData/removeCourseTaken": {
-        const courseIds = action.payload;
-        if (courseIds.some((id: string) => typeof id !== "string")) {
-          throw new Error(`Invalid course id: ${courseIds}`);
-        }
-
-        break;
-      }
-      default:
-        throw new Error(`Invalid course taken action: ${action}`);
     }
   }
 

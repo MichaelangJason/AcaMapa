@@ -54,8 +54,9 @@ export const isCourseAction = (action: unknown): action is CourseAction => {
   return (
     typeof a.type === "string" &&
     typeof a.payload === "object" &&
-    a.type.split("/")[0].toLowerCase() === "userdata" &&
-    a.type.split("/")[1].toLowerCase().includes("course")
+    a.type.startsWith("userData/") &&
+    a.type.split("/")[1].toLowerCase().includes("course") &&
+    !a.type.split("/")[1].toLowerCase().includes("taken")
   );
 };
 
@@ -74,7 +75,7 @@ export const isCourseTakenAction = (
   const a = action as CourseTakenAction;
   return (
     typeof a.type === "string" &&
-    typeof a.payload === "object" &&
+    a.type.startsWith("userData/") &&
     a.type.split("/")[1].toLowerCase().includes("coursetaken")
   );
 };

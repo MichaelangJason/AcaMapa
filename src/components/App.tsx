@@ -7,7 +7,7 @@ import { Provider } from "react-redux";
 import { AppStore, makeStore } from "@/store";
 import type { Course, Term } from "@/types/db";
 import { useCourseSearch } from "@/lib/hooks";
-import { setCourseData } from "@/store/slices/localDataSlice";
+import { setCourseData, setCurrentPlanId } from "@/store/slices/localDataSlice";
 import { setIsInitialized } from "@/store/slices/globalSlice";
 import { mockNewPlan } from "@/lib/mock";
 import { setPlanData, setTermData } from "@/store/slices/userDataSlice";
@@ -52,6 +52,7 @@ const App = ({ courseData }: { courseData: Course[] }) => {
           planOrder: [plan._id],
         }),
       );
+      storeRef.current.dispatch(setCurrentPlanId(plan._id));
     }
 
     storeRef.current.dispatch(setIsInitialized(true));
