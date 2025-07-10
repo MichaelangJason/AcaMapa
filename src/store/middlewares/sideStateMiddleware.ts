@@ -1,6 +1,10 @@
 import { createListenerMiddleware, isAnyOf } from "@reduxjs/toolkit";
 import { AppDispatch, RootState } from "..";
-import { setIsAddingCourse } from "../slices/globalSlice";
+import {
+  setIsAddingCourse,
+  setIsSideBarFolded,
+  toggleIsSideBarFolded,
+} from "../slices/globalSlice";
 import {
   addSelectedCourse,
   removeSelectedCourse,
@@ -28,6 +32,19 @@ startListening({
     const isAddingCourse = selectedCourseSize > 0;
     if (isAddingCourse !== listenerApi.getState().global.isAddingCourse) {
       listenerApi.dispatch(setIsAddingCourse(isAddingCourse));
+    }
+  },
+});
+
+startListening({
+  matcher: isAnyOf(setIsSideBarFolded, toggleIsSideBarFolded),
+  effect: (_, listenerApi) => {
+    const isSideBarFolded = listenerApi.getState().global.isSideBarFolded;
+
+    if (isSideBarFolded) {
+      window.document.body.style.paddingLeft = "0";
+    } else {
+      window.document.body.style.paddingLeft = "var(--sidebar-width)";
     }
   },
 });

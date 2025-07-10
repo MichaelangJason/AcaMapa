@@ -135,15 +135,22 @@ export const scrollTermCardToView = (
   termCard: HTMLElement | number,
   options: Omit<ScrollOptions, "container">,
 ) => {
-  const termsContainer = document.getElementById("terms");
-  if (!termsContainer) return;
+  const docElm = document.documentElement;
+  if (!docElm) return;
 
-  const termsContainerLeft = termsContainer.getBoundingClientRect().left;
-  const termsContainerScrollLeft = termsContainer.scrollLeft;
-  const maxScrollLeft = termsContainer.scrollWidth - termsContainer.clientWidth;
+  const docElLeft = (
+    document.body.computedStyleMap().get("padding-left") as CSSUnitValue
+  ).value;
+  const docElScrollLeft = window.scrollX;
+  const maxScrollLeft = docElm.scrollWidth - docElm.clientWidth;
+
+  const termsBox = document.getElementById("terms");
+
+  if (!termsBox) return;
 
   const termCardElement =
-    typeof termCard === "number" ? termsContainer.children[termCard] : termCard;
+    typeof termCard === "number" ? termsBox?.children[termCard] : termCard;
+
   if (
     !termCardElement ||
     !(termCardElement instanceof HTMLDivElement) ||
@@ -155,17 +162,17 @@ export const scrollTermCardToView = (
   const termCardCenter = termCardLeft + termCardElement.clientWidth / 2;
 
   const clientCenterX = document.documentElement.clientWidth / 2;
-  const offsetX = clientCenterX - termsContainerLeft;
+  const offsetX = clientCenterX - docElLeft;
 
   const targetX = clamp(
-    termsContainerScrollLeft - (termsContainerLeft - termCardCenter + offsetX),
+    docElScrollLeft - (docElLeft - termCardCenter + offsetX),
     0,
     maxScrollLeft,
   );
 
   smoothScrollTo({
     targetX,
-    container: termsContainer,
+    container: docElm,
     ...options,
   });
 };
