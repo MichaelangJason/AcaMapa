@@ -1,3 +1,7 @@
+@function inner-radius($outer-radius, $outer-width, $inner-width, $coef: 0.7) {
+  @return $outer-radius / $outer-width * $inner-width * $coef;
+}
+
 :root {
   /* colors */
   --mcgill-red: #e91d2e;
@@ -22,6 +26,9 @@
   --overlay-selected: rgba(0, 0, 0, 0.12);
   --overlay-disabled: rgba(0, 0, 0, 0.02);
 
+  /* inner border radius */
+  --inner-border-coef: 0.7;
+
   /* shared styles */
 
   --shadow-color: rgba(0, 0, 0, 0.25);
@@ -30,6 +37,7 @@
   --shadow-default: 0px 3px 10px 0px var(--shadow-color);
   --shadow-default-right: 2px 0px 10px 0px var(--shadow-color-light);
   --shadow-default-heavy: 0px 3px 10px 0px var(--shadow-color-heavy);
+  --border-radius-default-numeric: 16;
   --border-radius-default: 16px;
 
   /* dimensions */
@@ -39,6 +47,21 @@
   --search-input-height: 32px;
   --search-input-border: 2px solid var(--gray-500);
   --input-max-width: 220px;
+
+  --utility-bar-height: 44px;
+
+  --terms-gap: 40px;
+  --terms-padding-topbottom: 30px;
+  --term-card-width-numeric: 308;
+  --term-card-width: calc(var(--term-card-width-numeric) * 1px);
+  --term-card-border-width: 4px;
+  --term-inner-border-radius: calc(
+    (
+        var(--border-radius-default-numeric) / var(--term-card-width-numeric) *
+          var(--inner-border-coef)
+      ) *
+      100%
+  );
 }
 
 html {
@@ -122,4 +145,8 @@ h6 {
     var(--gray-000) 99%,
     transparent
   );
+}
+
+button {
+  border: none;
 }
