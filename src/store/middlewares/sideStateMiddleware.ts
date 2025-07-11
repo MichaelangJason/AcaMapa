@@ -9,10 +9,9 @@ import {
   addSelectedCourse,
   removeSelectedCourse,
   clearSelectedCourses,
-  removeCourseLocalMetadata,
   initCourseLocalMetadata,
-  deleteCourseLocalMetadata,
-  updateCourseLocalMetadata,
+  deleteIsCourseExpanded,
+  setIsCourseExpanded,
 } from "../slices/localDataSlice";
 import { addTerm, deleteTerm } from "../slices/userDataSlice";
 import { scrollTermCardToView } from "@/lib/utils";
@@ -101,7 +100,9 @@ startListening({
           dispatch(initCourseLocalMetadata(planId));
           break;
         case "userData/deletePlan":
-          dispatch(deleteCourseLocalMetadata({ planId }));
+          dispatch(
+            deleteIsCourseExpanded({ planId, courseIds: [], deletePlan: true }),
+          );
           break;
         case "userData/setPlanData": // handled at initialization
         case "userData/movePlan":
@@ -116,10 +117,10 @@ startListening({
           const { planId, termId } = action.payload;
           const term = listenerApi.getState().userData.termData.get(termId)!;
           dispatch(
-            updateCourseLocalMetadata({
+            setIsCourseExpanded({
               planId,
               courseIds: term.courseIds,
-              metadata: { termId },
+              isExpanded: true,
             }),
           );
           break;
@@ -130,7 +131,7 @@ startListening({
             .getOriginalState()
             .userData.termData.get(termId)!;
           dispatch(
-            removeCourseLocalMetadata({
+            deleteIsCourseExpanded({
               planId,
               courseIds: term.courseIds,
             }),
@@ -147,12 +148,12 @@ startListening({
     if (isCourseAction(action)) {
       switch (action.type) {
         case "userData/addCourse": {
-          const { courseIds, planId, termId } = action.payload;
+          const { courseIds, planId } = action.payload;
           dispatch(
-            updateCourseLocalMetadata({
+            setIsCourseExpanded({
               planId,
               courseIds,
-              metadata: { termId, isExpanded: true },
+              isExpanded: true,
             }),
           );
           break;
@@ -160,7 +161,7 @@ startListening({
         case "userData/deleteCourse": {
           const { courseId, planId } = action.payload;
           dispatch(
-            removeCourseLocalMetadata({
+            deleteIsCourseExpanded({
               planId,
               courseIds: [courseId],
             }),
@@ -168,12 +169,12 @@ startListening({
           break;
         }
         case "userData/moveCourse": {
-          const { courseId, destTermId, planId } = action.payload;
+          const { courseId, planId } = action.payload;
           dispatch(
-            updateCourseLocalMetadata({
+            setIsCourseExpanded({
               planId,
               courseIds: [courseId],
-              metadata: { termId: destTermId },
+              isExpanded: true,
             }),
           );
           break;

@@ -16,7 +16,10 @@ import {
 } from "@/store/slices/userDataSlice";
 import TermCard from "./TermCard";
 import { addCourseToTerm } from "@/store/thunks";
-import { clearSelectedCourses } from "@/store/slices/localDataSlice";
+import {
+  clearSelectedCourses,
+  setIsCourseExpanded,
+} from "@/store/slices/localDataSlice";
 import {
   DragDropContext,
   type DragStart,
@@ -59,6 +62,19 @@ const Terms = () => {
           termId,
           courseId,
           planId: currentPlan._id,
+        }),
+      );
+    },
+    [dispatch, currentPlan],
+  );
+
+  const handleSetIsCourseExpanded = useCallback(
+    (courseId: string, isExpanded: boolean) => {
+      dispatch(
+        setIsCourseExpanded({
+          planId: currentPlan._id,
+          courseIds: [courseId],
+          isExpanded,
         }),
       );
     },
@@ -124,6 +140,7 @@ const Terms = () => {
       if (type === DraggingType.COURSE) {
         dispatch(
           moveCourse({
+            planId: currentPlan._id,
             courseId: draggableId,
             sourceIdx: source.index,
             destIdx: destination.index,
@@ -168,6 +185,7 @@ const Terms = () => {
                 deleteTerm={handleDeleteTerm}
                 addCourse={handleAddCourse}
                 deleteCourse={handleDeleteCourse}
+                setIsCourseExpanded={handleSetIsCourseExpanded}
               />
             ))}
             {provided.placeholder}

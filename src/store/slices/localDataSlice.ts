@@ -1,11 +1,11 @@
 import { ResultType } from "@/lib/enums";
 import type { Course } from "@/types/db";
-import { CourseLocalMetadata, SearchResult } from "@/types/local";
+import { CachedDetailedCourse, SearchResult } from "@/types/local";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export const initialState = {
   courseData: {} as { [key: string]: Course }, // init once, for quick lookup
-  cachedDetailedCourseData: {} as { [key: string]: Course },
+  cachedDetailedCourseData: {} as { [key: string]: CachedDetailedCourse },
 
   searchResult: {
     type: ResultType.DEFAULT,
@@ -19,8 +19,8 @@ export const initialState = {
   // utilize the hashmap for quick lookup and ordering
   selectedCourses: new Map<string, Course>(),
 
-  courseLocalMetadata: {} as {
-    [planId: string]: { [courseId: string]: CourseLocalMetadata };
+  isCourseExpanded: {} as {
+    [planId: string]: { [courseId: string]: boolean };
   },
 };
 
@@ -40,21 +40,24 @@ const localDataSlice = createSlice({
         state.courseData[course.id] = course;
       });
     },
-    setDetailedCourseData: (state, action: PayloadAction<Course[]>) => {
+    setDetailedCourseData: (
+      state,
+      action: PayloadAction<CachedDetailedCourse[]>,
+    ) => {
       action.payload.forEach((course) => {
         state.cachedDetailedCourseData[course.id] = course;
       });
     },
     updateCachedDetailedCourseData: (
       state,
-      action: PayloadAction<Course[]>,
+      action: PayloadAction<CachedDetailedCourse[]>,
     ) => {
       action.payload.forEach((course) => {
         const id = course.id;
 
         state.cachedDetailedCourseData[id] = {
           // this will create a new object if not exists
-          ...state.cachedDetailedCourseData[id],
+          ...(state.cachedDetailedCourseData[id] ?? {}),
           ...course,
         };
       });
@@ -79,46 +82,35 @@ const localDataSlice = createSlice({
       state.currentPlanId = action.payload;
     },
     initCourseLocalMetadata: (state, action: PayloadAction<string>) => {
-      state.courseLocalMetadata[action.payload] = {};
+      state.isCourseExpanded[action.payload] = {};
     },
-    setCourseLocalMetadata: (
-      state,
-      action: PayloadAction<{
-        planId: string;
-        metadata: { [courseId: string]: CourseLocalMetadata };
-      }>,
-    ) => {
-      state.courseLocalMetadata[action.payload.planId] =
-        action.payload.metadata;
-    },
-    updateCourseLocalMetadata: (
+    setIsCourseExpanded: (
       state,
       action: PayloadAction<{
         planId: string;
         courseIds: string[];
-        metadata: Partial<CourseLocalMetadata>;
+        isExpanded: boolean;
       }>,
     ) => {
       action.payload.courseIds.forEach((courseId) => {
-        state.courseLocalMetadata[action.payload.planId][courseId] = {
-          ...(state.courseLocalMetadata[action.payload.planId][courseId] ?? {}),
-          ...action.payload.metadata,
-        };
+        state.isCourseExpanded[action.payload.planId][courseId] =
+          action.payload.isExpanded;
       });
     },
-    removeCourseLocalMetadata: (
+    deleteIsCourseExpanded: (
       state,
-      action: PayloadAction<{ planId: string; courseIds: string[] }>,
+      action: PayloadAction<{
+        planId: string;
+        courseIds: string[];
+        deletePlan?: boolean;
+      }>,
     ) => {
       action.payload.courseIds.forEach((courseId) => {
-        delete state.courseLocalMetadata[action.payload.planId][courseId];
+        delete state.isCourseExpanded[action.payload.planId][courseId];
       });
-    },
-    deleteCourseLocalMetadata: (
-      state,
-      action: PayloadAction<{ planId: string }>,
-    ) => {
-      delete state.courseLocalMetadata[action.payload.planId];
+      if (action.payload.deletePlan) {
+        delete state.isCourseExpanded[action.payload.planId];
+      }
     },
   },
 });
@@ -133,10 +125,8 @@ export const {
   toggleSelectedCourse,
   clearSelectedCourses,
   setCurrentPlanId,
-  setCourseLocalMetadata,
-  updateCourseLocalMetadata,
-  removeCourseLocalMetadata,
-  deleteCourseLocalMetadata,
+  setIsCourseExpanded,
+  deleteIsCourseExpanded,
   initCourseLocalMetadata,
 } = localDataSlice.actions;
 

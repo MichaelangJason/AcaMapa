@@ -6,10 +6,16 @@ export type { ObjectId } from "bson";
 
 import type { Course } from "./db";
 
+type NonNullableRequired<T> = {
+  [K in keyof T]-?: NonNullable<T[K]>;
+};
+
 // exclude embeddings from DetailedCourse
-export type FullCourse = Required<Course>;
-export type DetailedCourse = Required<Course> &
-  Partial<Pick<Course, "embeddings">>;
+export type FullCourse = NonNullableRequired<Course>;
+export type DetailedCourse = Omit<
+  FullCourse,
+  "embeddings" | "createdAt" | "updatedAt"
+>;
 export type CourseMetadata = {
   isOverwritten: boolean;
 };

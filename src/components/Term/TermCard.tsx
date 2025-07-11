@@ -1,10 +1,11 @@
 "use client";
 
-import type { Course, Term } from "@/types/db";
+import type { Term } from "@/types/db";
+import type { CachedDetailedCourse } from "@/types/local";
 import HamburgerIcon from "@/public/hamburger.svg";
 import PlusIcon from "@/public/icons/plus.svg";
 import clsx from "clsx";
-import { useMemo, useState } from "react";
+import { useMemo, useState, memo } from "react";
 import { useAppSelector } from "@/store/hooks";
 import DetailedCourseCard from "../Course/CourseCard/DetailedCourseCard";
 import { Droppable, Draggable } from "@hello-pangea/dnd";
@@ -49,16 +50,18 @@ const TermCard = ({
   addTerm,
   deleteTerm,
   deleteCourse,
+  setIsCourseExpanded,
   style,
 }: {
   term: Term;
-  courses: Course[];
+  courses: CachedDetailedCourse[];
   idx: number;
   isFirst: boolean;
   addTerm: (termId: string, isBefore?: boolean) => void;
   deleteTerm: (termId: string) => void;
   addCourse: (termId: string) => Promise<void>;
   deleteCourse: (termId: string, courseId: string) => void;
+  setIsCourseExpanded: (courseId: string, isExpanded: boolean) => void;
   style?: React.CSSProperties;
   isDraggingOverlay?: boolean;
 }) => {
@@ -114,6 +117,7 @@ const TermCard = ({
               <main
                 className={clsx([
                   "term-body",
+                  "scrollbar-custom",
                   droppableSnapshot.isDraggingOver && "dragging-over",
                 ])}
                 ref={droppableProvided.innerRef}
@@ -125,6 +129,7 @@ const TermCard = ({
                     course={course}
                     idx={idx}
                     handleDelete={handleDeleteCourse}
+                    setIsExpanded={setIsCourseExpanded}
                   />
                 ))}
                 {droppableProvided.placeholder}
@@ -144,4 +149,4 @@ const TermCard = ({
   );
 };
 
-export default TermCard;
+export default memo(TermCard);

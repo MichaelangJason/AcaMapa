@@ -1,4 +1,5 @@
-import type { ResultType } from "@/lib/enums";
+import type { GroupType, ResultType } from "@/lib/enums";
+import type { Course, DetailedCourse, Requisite } from "./db";
 
 export type SearchResult = { query: string } & (
   | {
@@ -22,6 +23,31 @@ export type SearchResult = { query: string } & (
 
 export type CourseLocalMetadata = {
   isExpanded: boolean;
+};
 
-  termId: string;
+export type CourseDepData = {
+  subjectMap: { [subject: string]: Set<string> };
+  depGraph: {
+    [courseId: string]: {
+      isSatisfied: boolean;
+      termId: string;
+      termOrder: number;
+      affectedCourseIds: Set<string>;
+    };
+  };
+};
+
+export type ReqGroup = {
+  type: GroupType;
+  inner: (string | ReqGroup)[];
+};
+
+export type EnhancedRequisites = Requisite & {
+  group: ReqGroup;
+};
+
+export type CachedDetailedCourse = DetailedCourse & {
+  prerequisites: EnhancedRequisites;
+  corequisites: EnhancedRequisites;
+  restrictions: EnhancedRequisites;
 };

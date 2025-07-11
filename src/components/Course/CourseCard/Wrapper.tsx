@@ -9,10 +9,10 @@ const Wrapper = ({
   heading,
   subheading,
   credits,
-  isFolded,
+  isExpanded,
   isDragging = false,
   isSeeking,
-  toggleIsFolded,
+  toggleIsExpanded,
   handleDelete,
   handleSeek,
   className,
@@ -23,10 +23,10 @@ const Wrapper = ({
   heading: string;
   subheading: string;
   credits: string;
-  isFolded: boolean;
+  isExpanded: boolean;
   isDragging?: boolean;
   isSeeking?: boolean;
-  toggleIsFolded: () => void;
+  toggleIsExpanded: () => void;
   handleDelete?: () => void;
   handleSeek?: () => void;
 
@@ -47,7 +47,7 @@ const Wrapper = ({
       className={clsx(
         ["course-card"],
         className,
-        isFolded && "folded",
+        isExpanded && "expanded",
         isDragging && "dragging",
       )}
       style={style}
@@ -59,10 +59,7 @@ const Wrapper = ({
         <h4 className="heading">{heading}</h4>
         <h5 className="subheading">{subheading}</h5>
         <section className="icons-container">
-          <div
-            className={clsx(["expand", isFolded && "folded"])}
-            onClick={toggleIsFolded}
-          >
+          <div className="expand" onClick={toggleIsExpanded}>
             <ExpandIcon />
           </div>
           {handleDelete && (
@@ -83,7 +80,7 @@ const Wrapper = ({
           <span>{credits}</span>
         </div>
       </header>
-      {!isFolded && children}
+      {isExpanded && children}
     </article>
   );
 };

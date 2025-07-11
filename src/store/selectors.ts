@@ -1,9 +1,10 @@
 import { createSelector } from "@reduxjs/toolkit";
 import type { RootState } from ".";
-import type { Course, Plan, Term } from "@/types/db";
+import type { Plan, Term } from "@/types/db";
 import type { initialState as userDataState } from "@/store/slices/userDataSlice";
 import type { initialState as localDataState } from "@/store/slices/localDataSlice";
 import { isValidObjectId } from "@/lib/typeGuards";
+import type { CachedDetailedCourse } from "@/types/local";
 
 const createAppSelector = createSelector.withTypes<RootState>();
 
@@ -84,7 +85,7 @@ export const selectCurrentCoursePerTerms = createAppSelector(
         acc[val] = courses;
         return acc;
       },
-      {} as { [termId: string]: Course[] },
+      {} as { [termId: string]: CachedDetailedCourse[] },
     );
 
     return courseDataPerTerm;
@@ -140,21 +141,34 @@ export const selectTotalCredits = createSelector(
   },
 );
 
-export const selectCurrentCourseLocalMetadata = createSelector(
-  (state: RootState) => state.localData.courseLocalMetadata,
+export const selectCurrentPlanIsCourseExpanded = createSelector(
+  (state: RootState) => state.localData.isCourseExpanded,
   (state: RootState) => state.localData.currentPlanId,
   (_: RootState, courseId: string) => courseId,
-  (courseLocalMetadata, currentPlanId, courseId) => {
-    if (!courseLocalMetadata[currentPlanId]) {
+  (isCourseExpanded, currentPlanId, courseId) => {
+    if (!isCourseExpanded[currentPlanId]) {
       throw new Error(
         `Course local metadata not found for plan: ${currentPlanId}`,
       );
     }
-    if (!courseLocalMetadata[currentPlanId][courseId]) {
+    if (!isCourseExpanded[currentPlanId][courseId]) {
       throw new Error(
         `Course local metadata not found for course: ${courseId}`,
       );
     }
-    return courseLocalMetadata[currentPlanId][courseId];
+    return isCourseExpanded[currentPlanId][courseId];
+  },
+);
+
+export const selectIsOverwritten = createSelector(
+  (state: RootState) => state.userData.planData,
+  (state: RootState) => state.localData.currentPlanId,
+  (_: RootState, courseId: string) => courseId,
+  (planData, currentPlanId, courseId) => {
+    const plan = planData.get(currentPlanId);
+    if (!plan) {
+      throw new Error(`Plan id not found in plan data: ${currentPlanId}`);
+    }
+    return plan.courseMetadata[courseId]?.isOverwritten;
   },
 );

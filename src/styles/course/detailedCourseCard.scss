@@ -9,12 +9,23 @@
   border-radius: var(--border-radius-default);
   box-shadow: var(--shadow-default);
   background: var(--gray-500);
-  cursor: grab;
+  flex-shrink: 0;
+  gap: 8px;
+
+  overflow: hidden;
 
   // &.dragging {
   //   opacity: 0.5;
   //   box-shadow: none;
   // }
+
+  &.expanded {
+    padding: 8px;
+
+    .course-card-header .icons-container .expand {
+      rotate: 0deg;
+    }
+  }
 
   .course-card-header {
     display: grid;
@@ -70,12 +81,8 @@
       }
 
       .expand {
-        rotate: 180deg;
+        rotate: -180deg;
         transition: rotate 0.2s ease-in-out;
-
-        &.folded {
-          rotate: 0deg;
-        }
 
         svg path {
           stroke-width: 3px;

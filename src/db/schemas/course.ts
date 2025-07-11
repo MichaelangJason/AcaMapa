@@ -37,9 +37,7 @@ const CourseSchema = new Schema(
   },
 );
 
-export type Course = InferSchemaType<typeof CourseSchema> & {
-  overwritten?: boolean;
-}; // also includes a type for store usage
+export type Course = InferSchemaType<typeof CourseSchema>; // also includes a type for store usage
 export type Requisite = InferSchemaType<typeof RequisiteSchema>;
 
 // avoid multiple model registration in dev

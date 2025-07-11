@@ -1,8 +1,8 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import type { RootState, AppDispatch } from ".";
-import { isValidCourse } from "@/lib/typeGuards";
+import { isValidDetailedCourse } from "@/lib/typeGuards";
 import {
-  setCourseLocalMetadata,
+  setIsCourseExpanded,
   setCurrentPlanId,
   updateCachedDetailedCourseData,
 } from "./slices/localDataSlice";
@@ -10,7 +10,8 @@ import { addCourse, setPlanData, setTermData } from "./slices/userDataSlice";
 import { setIsInitialized } from "./slices/globalSlice";
 import { mockNewPlan } from "@/lib/mock";
 import type { Term } from "@/types/db";
-import type { CourseLocalMetadata } from "@/types/local";
+import type { CachedDetailedCourse } from "@/types/local";
+import { parseGroup } from "@/lib/course";
 
 const createAppAsyncThunk = createAsyncThunk.withTypes<{
   state: RootState;
@@ -29,7 +30,9 @@ export const fetchCourseData = createAppAsyncThunk(
 
     if (response.ok) {
       const data = await response.json();
-      if (!(Array.isArray(data) && data.every((v) => isValidCourse(v)))) {
+      if (
+        !(Array.isArray(data) && data.every((v) => isValidDetailedCourse(v)))
+      ) {
         return rejectWithValue("Invalid Course Data");
       }
 
@@ -44,7 +47,18 @@ export const fetchCourseData = createAppAsyncThunk(
           }, [] as string[]);
         // TODO: toast for errorId
       }
-      dispatch(updateCachedDetailedCourseData(data));
+
+      (data as CachedDetailedCourse[]).forEach((c) => {
+        c.prerequisites.group = parseGroup(c.prerequisites.parsed);
+        c.corequisites.group = parseGroup(c.corequisites.parsed);
+        c.restrictions.group = parseGroup(c.restrictions.parsed);
+
+        console.log(c.prerequisites.group);
+        console.log(c.corequisites.group);
+        console.log(c.restrictions.group);
+      });
+
+      dispatch(updateCachedDetailedCourseData(data as CachedDetailedCourse[]));
       return fulfillWithValue(data);
       // TODO: toast for success
     }
@@ -137,20 +151,10 @@ export const initApp = createAppAsyncThunk(
     dispatch(setCurrentPlanId(plan._id));
 
     dispatch(
-      setCourseLocalMetadata({
+      setIsCourseExpanded({
         planId: plan._id,
-        metadata: terms.reduce(
-          (acc, term) => {
-            term.courseIds.forEach((courseId) => {
-              acc[courseId] = {
-                isExpanded: true,
-                termId: term._id,
-              };
-            });
-            return acc;
-          },
-          {} as { [courseId: string]: CourseLocalMetadata },
-        ),
+        courseIds: Object.keys(plan.courseMetadata),
+        isExpanded: true,
       }),
     );
 
