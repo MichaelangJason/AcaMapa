@@ -198,6 +198,7 @@ export const userDataSlice = createSlice({
     moveCourse: (
       state,
       action: PayloadAction<{
+        planId: string;
         courseId: string;
         sourceTermId: string;
         destTermId: string;

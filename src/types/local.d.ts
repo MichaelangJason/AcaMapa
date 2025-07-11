@@ -19,3 +19,9 @@ export type SearchResult = { query: string } & (
       }[];
     }
 );
+
+export type CourseLocalMetadata = {
+  isExpanded: boolean;
+
+  termId: string;
+};

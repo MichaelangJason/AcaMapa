@@ -1,6 +1,6 @@
 import { ResultType } from "@/lib/enums";
 import type { Course } from "@/types/db";
-import { SearchResult } from "@/types/local";
+import { CourseLocalMetadata, SearchResult } from "@/types/local";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export const initialState = {
@@ -18,6 +18,10 @@ export const initialState = {
 
   // utilize the hashmap for quick lookup and ordering
   selectedCourses: new Map<string, Course>(),
+
+  courseLocalMetadata: {} as {
+    [planId: string]: { [courseId: string]: CourseLocalMetadata };
+  },
 };
 
 const localDataSlice = createSlice({
@@ -74,6 +78,48 @@ const localDataSlice = createSlice({
     setCurrentPlanId: (state, action: PayloadAction<string>) => {
       state.currentPlanId = action.payload;
     },
+    initCourseLocalMetadata: (state, action: PayloadAction<string>) => {
+      state.courseLocalMetadata[action.payload] = {};
+    },
+    setCourseLocalMetadata: (
+      state,
+      action: PayloadAction<{
+        planId: string;
+        metadata: { [courseId: string]: CourseLocalMetadata };
+      }>,
+    ) => {
+      state.courseLocalMetadata[action.payload.planId] =
+        action.payload.metadata;
+    },
+    updateCourseLocalMetadata: (
+      state,
+      action: PayloadAction<{
+        planId: string;
+        courseIds: string[];
+        metadata: Partial<CourseLocalMetadata>;
+      }>,
+    ) => {
+      action.payload.courseIds.forEach((courseId) => {
+        state.courseLocalMetadata[action.payload.planId][courseId] = {
+          ...(state.courseLocalMetadata[action.payload.planId][courseId] ?? {}),
+          ...action.payload.metadata,
+        };
+      });
+    },
+    removeCourseLocalMetadata: (
+      state,
+      action: PayloadAction<{ planId: string; courseIds: string[] }>,
+    ) => {
+      action.payload.courseIds.forEach((courseId) => {
+        delete state.courseLocalMetadata[action.payload.planId][courseId];
+      });
+    },
+    deleteCourseLocalMetadata: (
+      state,
+      action: PayloadAction<{ planId: string }>,
+    ) => {
+      delete state.courseLocalMetadata[action.payload.planId];
+    },
   },
 });
 
@@ -87,6 +133,11 @@ export const {
   toggleSelectedCourse,
   clearSelectedCourses,
   setCurrentPlanId,
+  setCourseLocalMetadata,
+  updateCourseLocalMetadata,
+  removeCourseLocalMetadata,
+  deleteCourseLocalMetadata,
+  initCourseLocalMetadata,
 } = localDataSlice.actions;
 
 export type LocalDataAction = ReturnType<

@@ -139,3 +139,22 @@ export const selectTotalCredits = createSelector(
     }, 0);
   },
 );
+
+export const selectCurrentCourseLocalMetadata = createSelector(
+  (state: RootState) => state.localData.courseLocalMetadata,
+  (state: RootState) => state.localData.currentPlanId,
+  (_: RootState, courseId: string) => courseId,
+  (courseLocalMetadata, currentPlanId, courseId) => {
+    if (!courseLocalMetadata[currentPlanId]) {
+      throw new Error(
+        `Course local metadata not found for plan: ${currentPlanId}`,
+      );
+    }
+    if (!courseLocalMetadata[currentPlanId][courseId]) {
+      throw new Error(
+        `Course local metadata not found for course: ${courseId}`,
+      );
+    }
+    return courseLocalMetadata[currentPlanId][courseId];
+  },
+);

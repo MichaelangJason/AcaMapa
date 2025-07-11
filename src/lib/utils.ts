@@ -116,8 +116,8 @@ export const smoothScrollTo = ({
 
     if (progress < 1) {
       animationFrame = requestAnimationFrame(scroll);
-    } else if (onComplete) {
-      onComplete();
+    } else {
+      if (onComplete) onComplete();
     }
   }
 
@@ -170,7 +170,8 @@ export const scrollTermCardToView = (
     maxScrollLeft,
   );
 
-  smoothScrollTo({
+  // TODO: Add a mousemove listener to the document body to cancel the scroll animation when the mouse is moved
+  return smoothScrollTo({
     targetX,
     container: docElm,
     ...options,

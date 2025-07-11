@@ -1,8 +1,16 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import type { RootState, AppDispatch } from ".";
 import { isValidCourse } from "@/lib/typeGuards";
-import { updateCachedDetailedCourseData } from "./slices/localDataSlice";
-import { addCourse } from "./slices/userDataSlice";
+import {
+  setCourseLocalMetadata,
+  setCurrentPlanId,
+  updateCachedDetailedCourseData,
+} from "./slices/localDataSlice";
+import { addCourse, setPlanData, setTermData } from "./slices/userDataSlice";
+import { setIsInitialized } from "./slices/globalSlice";
+import { mockNewPlan } from "@/lib/mock";
+import type { Term } from "@/types/db";
+import type { CourseLocalMetadata } from "@/types/local";
 
 const createAppAsyncThunk = createAsyncThunk.withTypes<{
   state: RootState;
@@ -102,5 +110,51 @@ export const addCourseToTerm = createAppAsyncThunk(
     );
 
     return fulfillWithValue(courseIds);
+  },
+);
+
+export const initApp = createAppAsyncThunk(
+  "thunks/initApp",
+  async (_, { dispatch, fulfillWithValue }) => {
+    const { plan, terms } = mockNewPlan(3, "Mock Plan");
+
+    const termData = terms.reduce(
+      (acc, term) => {
+        acc[term._id] = term;
+        return acc;
+      },
+      {} as { [termId: string]: Term },
+    );
+
+    const planData = {
+      [plan._id]: plan,
+    };
+
+    const planOrder = [plan._id];
+
+    dispatch(setTermData({ termData }));
+    dispatch(setPlanData({ planData, planOrder }));
+    dispatch(setCurrentPlanId(plan._id));
+
+    dispatch(
+      setCourseLocalMetadata({
+        planId: plan._id,
+        metadata: terms.reduce(
+          (acc, term) => {
+            term.courseIds.forEach((courseId) => {
+              acc[courseId] = {
+                isExpanded: true,
+                termId: term._id,
+              };
+            });
+            return acc;
+          },
+          {} as { [courseId: string]: CourseLocalMetadata },
+        ),
+      }),
+    );
+
+    dispatch(setIsInitialized(true));
+    return fulfillWithValue(true);
   },
 );
