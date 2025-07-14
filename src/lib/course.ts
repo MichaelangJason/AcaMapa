@@ -379,26 +379,15 @@ export const isSatisfied = (
   graph: CourseDepData,
   allCourseData: { [key: string]: Course },
   courseTaken: Map<string, string[]>,
+  combinedSubjectMap: Map<string, Set<string>>,
 ) => {
-  const { depGraph, subjectMap } = graph;
+  const { depGraph } = graph;
 
   if (!isCourseInGraph(graph, course.id)) {
     throw new Error("Course not in graph: " + course.id);
   }
 
   const { termOrder: currentOrder } = depGraph.get(course.id)!;
-
-  // OPTIMIZE: this can be cached and updated only when the courseTaken changes
-  const combinedSubjectMap = subjectMap
-    .entries()
-    .reduce((acc, [subject, courseIds]) => {
-      acc.set(
-        subject,
-        new Set(Array.from(courseIds).concat(courseTaken.get(subject) ?? [])),
-      );
-
-      return acc;
-    }, new Map<string, Set<string>>());
 
   const isCourseTaken = (courseId: string) => {
     const subjectCode = getSubjectCode(courseId);

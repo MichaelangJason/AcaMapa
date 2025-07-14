@@ -194,6 +194,19 @@ const localDataSlice = createSlice({
         courseToBeUpdated.add(course.id);
       });
 
+      const combinedSubjectMap = subjectMap
+        .entries()
+        .reduce((acc, [subject, courseIds]) => {
+          acc.set(
+            subject,
+            new Set(
+              Array.from(courseIds).concat(courseTaken.get(subject) ?? []),
+            ),
+          );
+
+          return acc;
+        }, new Map<string, Set<string>>());
+
       courseToBeUpdated.forEach((c) => {
         if (!depGraph.get(c)?.termId) return;
         const courseDetail = state.cachedDetailedCourseData[c];
@@ -202,6 +215,7 @@ const localDataSlice = createSlice({
           state.courseDepData,
           state.courseData,
           courseTaken,
+          combinedSubjectMap,
         );
       });
     },
@@ -214,21 +228,17 @@ const localDataSlice = createSlice({
       }>,
     ) => {
       const { depGraph, subjectMap } = state.courseDepData;
+      const { courseTaken, courseIds } = action.payload;
 
-      if (
-        action.payload.courseIds.some(
-          (c) => !isCourseInGraph(state.courseDepData, c),
-        )
-      ) {
+      if (courseIds.some((c) => !isCourseInGraph(state.courseDepData, c))) {
         throw new Error(
-          "Course not in dependency graph: " +
-            action.payload.courseIds.join(", "),
+          "Course not in dependency graph: " + courseIds.join(", "),
         );
       }
 
       const courseToBeUpdated = new Set<string>();
 
-      action.payload.courseIds.forEach((id) => {
+      courseIds.forEach((id) => {
         depGraph.get(id)!.affectedCourseIds.forEach((c) => {
           courseToBeUpdated.add(c);
         });
@@ -241,6 +251,19 @@ const localDataSlice = createSlice({
         }
       });
 
+      const combinedSubjectMap = subjectMap
+        .entries()
+        .reduce((acc, [subject, courseIds]) => {
+          acc.set(
+            subject,
+            new Set(
+              Array.from(courseIds).concat(courseTaken.get(subject) ?? []),
+            ),
+          );
+
+          return acc;
+        }, new Map<string, Set<string>>());
+
       courseToBeUpdated.forEach((c) => {
         if (!depGraph.get(c)?.termId) return;
         const courseDetail = state.cachedDetailedCourseData[c];
@@ -248,7 +271,8 @@ const localDataSlice = createSlice({
           courseDetail,
           state.courseDepData,
           state.courseData,
-          action.payload.courseTaken,
+          courseTaken,
+          combinedSubjectMap,
         );
       });
     },
@@ -264,7 +288,7 @@ const localDataSlice = createSlice({
     ) => {
       const { courseIds, newTermId, newTermOrder, courseTaken } =
         action.payload;
-      const { depGraph } = state.courseDepData;
+      const { depGraph, subjectMap } = state.courseDepData;
 
       if (courseIds.some((c) => !isCourseInGraph(state.courseDepData, c))) {
         throw new Error(
@@ -284,6 +308,19 @@ const localDataSlice = createSlice({
         });
       });
 
+      const combinedSubjectMap = subjectMap
+        .entries()
+        .reduce((acc, [subject, courseIds]) => {
+          acc.set(
+            subject,
+            new Set(
+              Array.from(courseIds).concat(courseTaken.get(subject) ?? []),
+            ),
+          );
+
+          return acc;
+        }, new Map<string, Set<string>>());
+
       courseToBeUpdated.forEach((c) => {
         if (!depGraph.get(c)?.termId) return;
         const courseDetail = state.cachedDetailedCourseData[c];
@@ -292,6 +329,7 @@ const localDataSlice = createSlice({
           state.courseDepData,
           state.courseData,
           courseTaken,
+          combinedSubjectMap,
         );
       });
     },
