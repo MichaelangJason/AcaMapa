@@ -1,5 +1,10 @@
 import { GroupType } from "@/lib/enums";
-import type { ReqGroup } from "@/types/local";
+import type {
+  CachedDetailedCourse,
+  CourseDepData,
+  ReqGroup,
+} from "@/types/local";
+import type { Course } from "@/types/db";
 
 export const splitCourseIds = (val: string[]) => {
   const pattern = /^[a-zA-Z]{4}\d{3}([djnDJN][1-3])?$/;
@@ -272,4 +277,221 @@ export const parseGroup = (parsed: string) => {
   };
 
   return parse(parsed.split("")); // split in to array of chars
+};
+
+export const findIdInReqGroup = (item: ReqGroup | string): string[] => {
+  if (typeof item === "string") {
+    return [item];
+  }
+
+  if ([GroupType.EMPTY, GroupType.CREDIT].includes(item.type)) {
+    // empty group or credit group
+    return [];
+  }
+
+  if (item.type === GroupType.SINGLE) {
+    // single group
+    return findIdInReqGroup(item.inner[0]);
+  }
+
+  if ([GroupType.OR, GroupType.AND, GroupType.PAIR].includes(item.type)) {
+    // or, and, pair group
+    return item.inner.flatMap(findIdInReqGroup);
+  }
+
+  throw new Error("Invalid group type: " + item.type);
+};
+
+export const getValidCoursePerSubject = (
+  courseMap: Map<string, Set<string> | string[]>,
+  allCourseData: { [courseId: string]: Course },
+  isSubjectValid: (subject: string) => boolean,
+  isCourseValid: (courseId: string) => string, // returns the source of course as result,
+  earlyReturnFn?: (accumulatedCredits: number) => boolean, // returns true if the accumulated credits is enough to satisfy the requirement
+) => {
+  const isEarlyReturn = (accumulatedCredits: number) => {
+    if (!earlyReturnFn) return false;
+    return earlyReturnFn(accumulatedCredits);
+  };
+
+  let totalCredits = 0;
+  const validSubjectMap: { [subject: string]: { [courseId: string]: string } } =
+    {};
+
+  if (isEarlyReturn(totalCredits)) {
+    return {
+      validSubjectMap,
+      totalCredits,
+    };
+  }
+
+  for (const [subject, courseIds] of courseMap.entries()) {
+    if (!isSubjectValid(subject)) {
+      continue;
+    }
+
+    for (const c of courseIds) {
+      const source = isCourseValid(c);
+      if (!source) continue;
+
+      totalCredits += allCourseData[c].credits;
+      if (!validSubjectMap[subject]) {
+        validSubjectMap[subject] = {};
+      }
+      validSubjectMap[subject][c] = source;
+    }
+
+    if (isEarlyReturn(totalCredits)) {
+      return {
+        validSubjectMap,
+        totalCredits,
+      };
+    }
+  }
+
+  return {
+    validSubjectMap,
+    totalCredits,
+  };
+};
+
+// course dep little algorithm will be independent of the corresponding redux slice
+// it is designed to pass in the graph object and mutate it in place (with immer)
+// TODO: maybe switch to a dep graph object
+
+export const getSubjectCode = (courseId: string) => {
+  return courseId.slice(0, 4);
+};
+
+export const getCourseLevel = (courseId: string) => {
+  return courseId.charAt(4);
+};
+
+export const isCourseInGraph = (graph: CourseDepData, courseId: string) => {
+  return !!(
+    graph.depGraph.has(courseId) &&
+    graph.subjectMap.get(getSubjectCode(courseId))?.has(courseId)
+  );
+};
+
+export const isSatisfied = (
+  course: CachedDetailedCourse,
+  graph: CourseDepData,
+  allCourseData: { [key: string]: Course },
+  courseTaken: Map<string, string[]>,
+) => {
+  const { depGraph, subjectMap } = graph;
+
+  if (!isCourseInGraph(graph, course.id)) {
+    throw new Error("Course not in graph: " + course.id);
+  }
+
+  const { termOrder: currentOrder } = depGraph.get(course.id)!;
+
+  // OPTIMIZE: this can be cached and updated only when the courseTaken changes
+  const combinedSubjectMap = subjectMap
+    .entries()
+    .reduce((acc, [subject, courseIds]) => {
+      acc.set(
+        subject,
+        new Set(Array.from(courseIds).concat(courseTaken.get(subject) ?? [])),
+      );
+
+      return acc;
+    }, new Map<string, Set<string>>());
+
+  const isCourseTaken = (courseId: string) => {
+    const subjectCode = getSubjectCode(courseId);
+    return courseTaken.get(subjectCode)?.includes(courseId) ?? false;
+  };
+
+  const isGroupSatisfied = (
+    input: ReqGroup | string,
+    includeCurrentTerm: boolean,
+  ): boolean => {
+    if (typeof input === "string") {
+      if (isCourseTaken(input)) return true;
+      const inputOrder = depGraph.get(input)!.termOrder;
+
+      if (inputOrder < 0) return false; // not planned
+
+      return includeCurrentTerm
+        ? inputOrder <= currentOrder
+        : inputOrder < currentOrder;
+    }
+
+    switch (input.type) {
+      case GroupType.EMPTY:
+        return true;
+      case GroupType.SINGLE:
+      case GroupType.OR:
+        return input.inner.some((i) => isGroupSatisfied(i, includeCurrentTerm));
+      case GroupType.AND:
+        return input.inner.every((i) =>
+          isGroupSatisfied(i, includeCurrentTerm),
+        );
+      case GroupType.PAIR:
+        // acceptable overhead
+        return (
+          input.inner.filter((i) => isGroupSatisfied(i, includeCurrentTerm))
+            .length >= 2
+        );
+      case GroupType.CREDIT:
+        const [requiredCredit, scopes, ...subjects] = input.inner as string[];
+        const levels = scopes.split("");
+        const subjectsSet = new Set(subjects);
+        const requiredCreditFloat = parseFloat(requiredCredit);
+        // closures
+        const isCourseValid = (courseId: string) => {
+          if (!isCourseInGraph(graph, courseId)) {
+            throw new Error("Course not in graph: " + courseId);
+          }
+          if (isCourseTaken(courseId)) return "Course Taken";
+
+          const { termOrder: courseOrder, termId: courseTermId } =
+            depGraph.get(courseId)!;
+
+          if (courseOrder < 0) {
+            // not planned
+            return "";
+          }
+
+          const isOrderSatisfied = includeCurrentTerm
+            ? courseOrder <= currentOrder
+            : courseOrder < currentOrder;
+          const isLevelSatisfied =
+            levels[0] === "0" || levels.includes(getCourseLevel(courseId));
+
+          if (!isOrderSatisfied || !isLevelSatisfied) {
+            return "";
+          }
+
+          return courseTermId;
+        };
+        const isSubjectValid = (subject: string) => {
+          return subjectsSet.has(subject);
+        };
+        const isEarlyReturn = (accumulatedCredits: number) => {
+          return accumulatedCredits >= requiredCreditFloat;
+        };
+
+        const { totalCredits } = getValidCoursePerSubject(
+          combinedSubjectMap,
+          allCourseData,
+          isSubjectValid,
+          isCourseValid,
+          isEarlyReturn,
+        );
+
+        return totalCredits >= requiredCreditFloat;
+    }
+  };
+  // check prerequisites
+  if (!isGroupSatisfied(course.prerequisites.group, false)) return false;
+
+  // check corequisites
+  if (!isGroupSatisfied(course.corequisites.group, true)) return false;
+
+  // check restrictions (OR group), should not be satisfied
+  return !isGroupSatisfied(course.restrictions.group, false);
 };

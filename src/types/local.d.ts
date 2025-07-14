@@ -26,15 +26,16 @@ export type CourseLocalMetadata = {
 };
 
 export type CourseDepData = {
-  subjectMap: { [subject: string]: Set<string> };
-  depGraph: {
-    [courseId: string]: {
+  subjectMap: Map<string, Set<string>>;
+  depGraph: Map<
+    string,
+    {
       isSatisfied: boolean;
       termId: string;
       termOrder: number;
       affectedCourseIds: Set<string>;
-    };
-  };
+    }
+  >;
 };
 
 export type ReqGroup = {
