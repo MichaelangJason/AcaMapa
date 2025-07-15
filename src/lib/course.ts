@@ -5,6 +5,8 @@ import type {
   ReqGroup,
 } from "@/types/local";
 import type { Course } from "@/types/db";
+import type { WritableDraft } from "immer";
+import { COURSE_PATTERN } from "./constants";
 
 export const splitCourseIds = (val: string[]) => {
   const pattern = /^[a-zA-Z]{4}\d{3}([djnDJN][1-3])?$/;
@@ -374,20 +376,30 @@ export const isCourseInGraph = (graph: CourseDepData, courseId: string) => {
   );
 };
 
-export const isSatisfied = (
-  course: CachedDetailedCourse,
-  graph: CourseDepData,
-  allCourseData: { [key: string]: Course },
-  courseTaken: Map<string, string[]>,
-  combinedSubjectMap: Map<string, Set<string>>,
-) => {
+export const isSatisfied = (args: {
+  course: CachedDetailedCourse;
+  graph: CourseDepData;
+  termOrderMap: Map<string, number>;
+  allCourseData: { [key: string]: Course };
+  courseTaken: Map<string, string[]>;
+  combinedSubjectMap: Map<string, Set<string>>;
+}) => {
+  const {
+    course,
+    graph,
+    termOrderMap,
+    allCourseData,
+    courseTaken,
+    combinedSubjectMap,
+  } = args;
   const { depGraph } = graph;
 
   if (!isCourseInGraph(graph, course.id)) {
     throw new Error("Course not in graph: " + course.id);
   }
 
-  const { termOrder: currentOrder } = depGraph.get(course.id)!;
+  const { termId } = depGraph.get(course.id)!;
+  const currentOrder = termOrderMap.get(termId)!;
 
   const isCourseTaken = (courseId: string) => {
     const subjectCode = getSubjectCode(courseId);
@@ -400,9 +412,21 @@ export const isSatisfied = (
   ): boolean => {
     if (typeof input === "string") {
       if (isCourseTaken(input)) return true;
-      const inputOrder = depGraph.get(input)!.termOrder;
 
-      if (inputOrder < 0) return false; // not planned
+      const inputOrder = termOrderMap.get(depGraph.get(input)!.termId);
+
+      // not planned
+      if (!inputOrder) {
+        return false;
+      }
+
+      // consecutive requirements (i.e. COMP361D1, COMP361D2)
+      if (
+        input.match(COURSE_PATTERN.MULTI_TERM) &&
+        inputOrder !== currentOrder - 1
+      ) {
+        return false;
+      }
 
       return includeCurrentTerm
         ? inputOrder <= currentOrder
@@ -437,8 +461,8 @@ export const isSatisfied = (
           }
           if (isCourseTaken(courseId)) return "Course Taken";
 
-          const { termOrder: courseOrder, termId: courseTermId } =
-            depGraph.get(courseId)!;
+          const { termId: courseTermId } = depGraph.get(courseId)!;
+          const courseOrder = termOrderMap.get(courseTermId)!;
 
           if (courseOrder < 0) {
             // not planned
@@ -483,4 +507,47 @@ export const isSatisfied = (
 
   // check restrictions (OR group), should not be satisfied
   return !isGroupSatisfied(course.restrictions.group, false);
+};
+
+export const updateAffectedCourses = (args: {
+  graph: WritableDraft<CourseDepData>;
+  courseToBeUpdated: Set<string>;
+  cachedDetailedCourseData: { [key: string]: CachedDetailedCourse };
+  termOrderMap: Map<string, number>;
+  allCourseData: { [key: string]: Course };
+  courseTaken: Map<string, string[]>;
+}) => {
+  const {
+    courseToBeUpdated,
+    cachedDetailedCourseData,
+    graph,
+    termOrderMap,
+    allCourseData,
+    courseTaken,
+  } = args;
+  const { depGraph, subjectMap } = graph;
+
+  const combinedSubjectMap = subjectMap
+    .entries()
+    .reduce((acc, [subject, courseIds]) => {
+      acc.set(
+        subject,
+        new Set(Array.from(courseIds).concat(courseTaken.get(subject) ?? [])),
+      );
+
+      return acc;
+    }, new Map<string, Set<string>>());
+
+  courseToBeUpdated.forEach((c) => {
+    if (!depGraph.get(c)?.termId) return;
+    const courseDetail = cachedDetailedCourseData[c];
+    depGraph.get(c)!.isSatisfied = isSatisfied({
+      course: courseDetail,
+      graph,
+      termOrderMap,
+      allCourseData,
+      courseTaken,
+      combinedSubjectMap,
+    });
+  });
 };

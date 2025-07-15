@@ -1,16 +1,16 @@
 import { ResultType } from "@/lib/enums";
 import type { Course } from "@/types/db";
-import {
+import type {
   CachedDetailedCourse,
   CourseDepData,
   SearchResult,
 } from "@/types/local";
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import {
   findIdInReqGroup,
   getSubjectCode,
-  isSatisfied,
   isCourseInGraph,
+  updateAffectedCourses,
 } from "@/lib/course";
 
 export const initialState = {
@@ -129,18 +129,23 @@ const localDataSlice = createSlice({
     addCoursesToGraph: (
       state,
       action: PayloadAction<{
-        courseIds: string[];
+        courseIds: Set<string>;
         termId: string;
-        termOrder: number;
         courseTaken: Map<string, string[]>;
+        termOrderMap: Map<string, number>;
+        isSkipUpdate?: boolean;
       }>,
     ) => {
       const { subjectMap, depGraph } = state.courseDepData;
-      const { courseIds, termId, termOrder, courseTaken } = action.payload;
+      const { courseIds, termId, courseTaken, termOrderMap, isSkipUpdate } =
+        action.payload;
 
-      if (courseIds.some((c) => !state.cachedDetailedCourseData[c])) {
+      if (
+        Array.from(courseIds).some((c) => !state.cachedDetailedCourseData[c])
+      ) {
         throw new Error(
-          "Course not in cached detailed course data: " + courseIds.join(", "),
+          "Course not in cached detailed course data: " +
+            Array.from(courseIds).join(", "),
         );
       }
 
@@ -153,13 +158,11 @@ const localDataSlice = createSlice({
           depGraph.set(course.id, {
             isSatisfied: false,
             termId,
-            termOrder,
             affectedCourseIds: new Set(),
           });
         } else {
           // already in graph, update termId and termOrder only
           depGraph.get(course.id)!.termId = termId;
-          depGraph.get(course.id)!.termOrder = termOrder;
         }
 
         // update subjectCode
@@ -180,7 +183,6 @@ const localDataSlice = createSlice({
             depGraph.set(c, {
               isSatisfied: false,
               termId: "",
-              termOrder: -1,
               affectedCourseIds: new Set(),
             });
           }
@@ -194,45 +196,40 @@ const localDataSlice = createSlice({
         courseToBeUpdated.add(course.id);
       });
 
-      const combinedSubjectMap = subjectMap
-        .entries()
-        .reduce((acc, [subject, courseIds]) => {
-          acc.set(
-            subject,
-            new Set(
-              Array.from(courseIds).concat(courseTaken.get(subject) ?? []),
-            ),
-          );
+      if (isSkipUpdate) {
+        return;
+      }
 
-          return acc;
-        }, new Map<string, Set<string>>());
-
-      courseToBeUpdated.forEach((c) => {
-        if (!depGraph.get(c)?.termId) return;
-        const courseDetail = state.cachedDetailedCourseData[c];
-        depGraph.get(c)!.isSatisfied = isSatisfied(
-          courseDetail,
-          state.courseDepData,
-          state.courseData,
-          courseTaken,
-          combinedSubjectMap,
-        );
+      updateAffectedCourses({
+        graph: state.courseDepData,
+        courseToBeUpdated,
+        cachedDetailedCourseData: state.cachedDetailedCourseData,
+        termOrderMap,
+        allCourseData: state.courseData,
+        courseTaken,
       });
     },
 
     deleteCoursesFromGraph: (
       state,
       action: PayloadAction<{
-        courseIds: string[];
+        courseIds: Set<string>;
         courseTaken: Map<string, string[]>;
+        termOrderMap: Map<string, number>;
+        isSkipUpdate?: boolean;
       }>,
     ) => {
       const { depGraph, subjectMap } = state.courseDepData;
-      const { courseTaken, courseIds } = action.payload;
+      const { courseTaken, courseIds, termOrderMap, isSkipUpdate } =
+        action.payload;
 
-      if (courseIds.some((c) => !isCourseInGraph(state.courseDepData, c))) {
+      if (
+        Array.from(courseIds).some(
+          (c) => !isCourseInGraph(state.courseDepData, c),
+        )
+      ) {
         throw new Error(
-          "Course not in dependency graph: " + courseIds.join(", "),
+          "Course not in dependency graph: " + Array.from(courseIds).join(", "),
         );
       }
 
@@ -251,48 +248,41 @@ const localDataSlice = createSlice({
         }
       });
 
-      const combinedSubjectMap = subjectMap
-        .entries()
-        .reduce((acc, [subject, courseIds]) => {
-          acc.set(
-            subject,
-            new Set(
-              Array.from(courseIds).concat(courseTaken.get(subject) ?? []),
-            ),
-          );
+      if (isSkipUpdate) {
+        return;
+      }
 
-          return acc;
-        }, new Map<string, Set<string>>());
-
-      courseToBeUpdated.forEach((c) => {
-        if (!depGraph.get(c)?.termId) return;
-        const courseDetail = state.cachedDetailedCourseData[c];
-        depGraph.get(c)!.isSatisfied = isSatisfied(
-          courseDetail,
-          state.courseDepData,
-          state.courseData,
-          courseTaken,
-          combinedSubjectMap,
-        );
+      updateAffectedCourses({
+        graph: state.courseDepData,
+        courseToBeUpdated,
+        cachedDetailedCourseData: state.cachedDetailedCourseData,
+        termOrderMap,
+        allCourseData: state.courseData,
+        courseTaken,
       });
     },
 
     moveCoursesInGraph: (
       state,
       action: PayloadAction<{
-        courseIds: string[];
+        courseIds: Set<string>;
         newTermId: string;
-        newTermOrder: number;
+        termOrderMap: Map<string, number>;
         courseTaken: Map<string, string[]>;
+        isSkipUpdate?: boolean;
       }>,
     ) => {
-      const { courseIds, newTermId, newTermOrder, courseTaken } =
+      const { courseIds, newTermId, courseTaken, termOrderMap, isSkipUpdate } =
         action.payload;
-      const { depGraph, subjectMap } = state.courseDepData;
+      const { depGraph } = state.courseDepData;
 
-      if (courseIds.some((c) => !isCourseInGraph(state.courseDepData, c))) {
+      if (
+        Array.from(courseIds).some(
+          (c) => !isCourseInGraph(state.courseDepData, c),
+        )
+      ) {
         throw new Error(
-          "Course not in dependency graph: " + courseIds.join(", "),
+          "Course not in dependency graph: " + Array.from(courseIds).join(", "),
         );
       }
 
@@ -302,35 +292,42 @@ const localDataSlice = createSlice({
         const entry = depGraph.get(id)!;
 
         entry.termId = newTermId;
-        entry.termOrder = newTermOrder;
         entry.affectedCourseIds.forEach((c) => {
           courseToBeUpdated.add(c);
         });
       });
 
-      const combinedSubjectMap = subjectMap
-        .entries()
-        .reduce((acc, [subject, courseIds]) => {
-          acc.set(
-            subject,
-            new Set(
-              Array.from(courseIds).concat(courseTaken.get(subject) ?? []),
-            ),
-          );
+      if (isSkipUpdate) {
+        return;
+      }
 
-          return acc;
-        }, new Map<string, Set<string>>());
+      updateAffectedCourses({
+        graph: state.courseDepData,
+        courseToBeUpdated,
+        cachedDetailedCourseData: state.cachedDetailedCourseData,
+        termOrderMap,
+        allCourseData: state.courseData,
+        courseTaken,
+      });
+    },
 
-      courseToBeUpdated.forEach((c) => {
-        if (!depGraph.get(c)?.termId) return;
-        const courseDetail = state.cachedDetailedCourseData[c];
-        depGraph.get(c)!.isSatisfied = isSatisfied(
-          courseDetail,
-          state.courseDepData,
-          state.courseData,
-          courseTaken,
-          combinedSubjectMap,
-        );
+    updateCoursesIsSatisfied: (
+      state,
+      action: PayloadAction<{
+        courseToBeUpdated: Set<string>;
+        courseTaken: Map<string, string[]>;
+        termOrderMap: Map<string, number>;
+      }>,
+    ) => {
+      const { courseToBeUpdated, courseTaken, termOrderMap } = action.payload;
+
+      updateAffectedCourses({
+        graph: state.courseDepData,
+        courseToBeUpdated,
+        cachedDetailedCourseData: state.cachedDetailedCourseData,
+        termOrderMap,
+        allCourseData: state.courseData,
+        courseTaken,
       });
     },
 
@@ -360,6 +357,7 @@ export const {
   deleteCoursesFromGraph,
   moveCoursesInGraph,
   clearCourseDepData,
+  updateCoursesIsSatisfied,
 } = localDataSlice.actions;
 
 export type LocalDataAction = ReturnType<

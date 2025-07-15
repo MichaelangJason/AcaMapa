@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { CourseMetadata, Plan, Term } from "@/types/db";
 import { ObjectId } from "bson";
 

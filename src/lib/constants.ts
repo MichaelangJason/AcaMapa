@@ -20,3 +20,7 @@ export const MULTI_SELECT_CONFIG = {
     MAX: 4,
   },
 };
+
+export const COURSE_PATTERN = {
+  MULTI_TERM: /[A-Z0-9]{4}(( )*|-)\d{3}([A-Z]\d)/i,
+};

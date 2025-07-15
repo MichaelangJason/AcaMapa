@@ -32,7 +32,6 @@ export type CourseDepData = {
     {
       isSatisfied: boolean;
       termId: string;
-      termOrder: number;
       affectedCourseIds: Set<string>;
     }
   >;
