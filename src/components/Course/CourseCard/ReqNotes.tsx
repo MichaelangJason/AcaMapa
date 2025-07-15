@@ -163,7 +163,10 @@ const ReqGroup = ({
           : flexDirection,
         width: isOuterGroup ? "100%" : "fit-content",
         overflow: isOuterGroup ? "scroll" : "visible",
-        gap: flexDirection === "column" ? "0.125rem" : undefined,
+        gap:
+          flexDirection === "column" && group.type !== GroupType.PAIR
+            ? "0.125rem"
+            : undefined,
       }}
     >
       {children}

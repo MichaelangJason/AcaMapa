@@ -146,12 +146,12 @@ export const selectCurrentPlanIsCourseExpanded = createSelector(
   (state: RootState) => state.localData.currentPlanId,
   (_: RootState, courseId: string) => courseId,
   (isCourseExpanded, currentPlanId, courseId) => {
-    if (!isCourseExpanded[currentPlanId]) {
+    if (isCourseExpanded[currentPlanId] === undefined) {
       throw new Error(
         `Course local metadata not found for plan: ${currentPlanId}`,
       );
     }
-    if (!isCourseExpanded[currentPlanId][courseId]) {
+    if (isCourseExpanded[currentPlanId][courseId] === undefined) {
       throw new Error(
         `Course local metadata not found for course: ${courseId}`,
       );
