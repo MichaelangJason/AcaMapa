@@ -58,7 +58,7 @@ const TermCard = ({
   idx: number;
   isFirst: boolean;
   addTerm: (termId: string, isBefore?: boolean) => void;
-  deleteTerm: (termId: string) => void;
+  deleteTerm: (termId: string, termIdx: number) => void;
   addCourse: (termId: string) => Promise<void>;
   deleteCourse: (termId: string, courseId: string) => void;
   setIsCourseExpanded: (courseId: string, isExpanded: boolean) => void;
@@ -110,7 +110,7 @@ const TermCard = ({
             ) : (
               <span>{term.name}</span>
             )}
-            <HamburgerIcon onClick={() => deleteTerm(term._id)} />
+            <HamburgerIcon onClick={() => deleteTerm(term._id, idx)} />
           </header>
           <Droppable droppableId={term._id} type={DraggingType.COURSE}>
             {(droppableProvided, droppableSnapshot) => (

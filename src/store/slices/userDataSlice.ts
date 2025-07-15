@@ -138,11 +138,15 @@ export const userDataSlice = createSlice({
     },
     deleteTerm: (
       state,
-      action: PayloadAction<{ planId: string; termId: string }>,
+      action: PayloadAction<{
+        planId: string;
+        termId: string;
+        termIdx: number;
+      }>,
     ) => {
-      const { planId, termId } = action.payload;
+      const { planId, termId, termIdx } = action.payload;
       const plan = state.planData.get(planId)!;
-      plan.termOrder = plan.termOrder.filter((id) => id !== termId);
+      plan.termOrder.splice(termIdx, 1);
       state.termData.delete(termId);
     },
     moveTerm: (

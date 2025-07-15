@@ -93,8 +93,8 @@ const Terms = () => {
   );
 
   const handleDeleteTerm = useCallback(
-    (termId: string) => {
-      dispatch(deleteTerm({ planId: currentPlan._id, termId }));
+    (termId: string, termIdx: number) => {
+      dispatch(deleteTerm({ planId: currentPlan._id, termId, termIdx }));
     },
     [dispatch, currentPlan],
   );

@@ -1,5 +1,5 @@
 import { createListenerMiddleware, isAnyOf } from "@reduxjs/toolkit";
-import { AppDispatch, RootState } from "..";
+import type { AppDispatch, RootState } from "..";
 import {
   setIsAddingCourse,
   setIsSideBarFolded,
@@ -248,31 +248,28 @@ startListening({
           break;
         }
         case "userData/deleteTerm": {
-          const { planId, termId } = action.payload;
+          const { planId, termId, termIdx } = action.payload;
           const term = originalState.userData.termData.get(termId)!;
           const plan = state.userData.planData.get(planId)!;
-
-          if (term.courseIds.length === 0) {
-            return;
-          }
 
           const newTermOrderMap = new Map(plan.termOrder.map((t, i) => [t, i]));
           const courseTaken = state.userData.courseTaken;
 
-          // delete the course from the graph
-          dispatch(
-            deleteCoursesFromGraph({
-              courseIds: new Set(term.courseIds),
-              courseTaken,
-              // use new term order to calculate
-              termOrderMap: newTermOrderMap,
-            }),
-          );
+          if (term.courseIds.length > 0) {
+            // delete the course from the graph
+            dispatch(
+              deleteCoursesFromGraph({
+                courseIds: new Set(term.courseIds),
+                courseTaken,
+                // use new term order to calculate
+                termOrderMap: newTermOrderMap,
+              }),
+            );
+          }
 
           const oldPlan = originalState.userData.planData.get(planId)!;
 
           // update the right term if any, for consecutive course requirement
-          const termIdx = oldPlan.termOrder.indexOf(termId);
           if (termIdx === oldPlan.termOrder.length - 1) {
             return;
           }
@@ -280,17 +277,15 @@ startListening({
           const nextTermId = oldPlan.termOrder[termIdx + 1];
           const nextTerm = originalState.userData.termData.get(nextTermId)!;
 
-          if (nextTerm.courseIds.length === 0) {
-            return;
+          if (nextTerm.courseIds.length > 0) {
+            dispatch(
+              updateCoursesIsSatisfied({
+                courseToBeUpdated: new Set(nextTerm.courseIds),
+                courseTaken,
+                termOrderMap: newTermOrderMap,
+              }),
+            );
           }
-
-          dispatch(
-            updateCoursesIsSatisfied({
-              courseToBeUpdated: new Set(nextTerm.courseIds),
-              courseTaken,
-              termOrderMap: newTermOrderMap,
-            }),
-          );
           break;
         }
         case "userData/setTermData":
@@ -407,4 +402,5 @@ startListening({
     }
   },
 });
+
 export default listenerMiddleware.middleware;
