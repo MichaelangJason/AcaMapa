@@ -219,7 +219,9 @@ export const parseGroup = (parsed: string) => {
           // special push case
           if (nextCourseId.length > 0) {
             // verify that its either a number or a string of len 4
-            if (!nextCourseId.match(/^((\d){1,7}|[A-Z]{4})$/)) {
+            if (!nextCourseId.match(/^((\d){1,7}|[a-zA-Z0-9]{4})$/)) {
+              // console.log(nextCourseId);
+
               throw new Error(
                 "Invalid group: credit must be a number or a string of len 4: " +
                   nextCourseId,
@@ -369,6 +371,17 @@ export const getCourseLevel = (courseId: string) => {
   return courseId.charAt(4);
 };
 
+export const getTargetGroup = (
+  group: ReqGroup | string,
+  targetGroupType: GroupType,
+): ReqGroup | undefined => {
+  if (typeof group === "string") return undefined;
+  if (group.type === targetGroupType) return group;
+  return group.inner.find((i) => getTargetGroup(i, targetGroupType)) as
+    | ReqGroup
+    | undefined;
+};
+
 export const isCourseInGraph = (graph: CourseDepData, courseId: string) => {
   return !!(
     graph.depGraph.has(courseId) &&
@@ -393,6 +406,7 @@ export const isSatisfied = (args: {
     combinedSubjectMap,
   } = args;
   const { depGraph } = graph;
+  const { prerequisites, corequisites, restrictions } = course;
 
   if (!isCourseInGraph(graph, course.id)) {
     throw new Error("Course not in graph: " + course.id);
@@ -406,6 +420,11 @@ export const isSatisfied = (args: {
     return courseTaken.get(subjectCode)?.includes(courseId) ?? false;
   };
 
+  console.group("isSatisfied: " + course.id);
+  console.log("depGraph", depGraph);
+  console.log("termOrderMap", termOrderMap);
+  console.log("combinedSubjectMap", combinedSubjectMap);
+
   const isGroupSatisfied = (
     input: ReqGroup | string,
     includeCurrentTerm: boolean,
@@ -413,10 +432,10 @@ export const isSatisfied = (args: {
     if (typeof input === "string") {
       if (isCourseTaken(input)) return true;
 
-      const inputOrder = termOrderMap.get(depGraph.get(input)!.termId);
+      const inputOrder = termOrderMap.get(depGraph.get(input)?.termId ?? "");
 
       // not planned
-      if (!inputOrder) {
+      if (inputOrder === undefined) {
         return false;
       }
 
@@ -499,14 +518,26 @@ export const isSatisfied = (args: {
         return totalCredits >= requiredCreditFloat;
     }
   };
+  const isPrerequisiteSatisfied = isGroupSatisfied(prerequisites.group, false);
+  const isCorequisiteSatisfied = isGroupSatisfied(corequisites.group, true);
+  const isRestrictionSatisfied = !isGroupSatisfied(restrictions.group, true);
+
+  console.log("isPrerequisiteSatisfied", isPrerequisiteSatisfied);
+  console.log("isCorequisiteSatisfied", isCorequisiteSatisfied);
+  console.log("isRestrictionSatisfied", isRestrictionSatisfied);
+  console.groupEnd();
+
   // check prerequisites
-  if (!isGroupSatisfied(course.prerequisites.group, false)) return false;
+  if (!isGroupSatisfied(prerequisites.group, false)) return false;
 
   // check corequisites
-  if (!isGroupSatisfied(course.corequisites.group, true)) return false;
+  if (!isGroupSatisfied(corequisites.group, true)) return false;
 
   // check restrictions (OR group), should not be satisfied
-  return !isGroupSatisfied(course.restrictions.group, false);
+  return (
+    restrictions.group.type === GroupType.EMPTY ||
+    !isGroupSatisfied(restrictions.group, true)
+  );
 };
 
 export const updateAffectedCourses = (args: {
@@ -527,16 +558,17 @@ export const updateAffectedCourses = (args: {
   } = args;
   const { depGraph, subjectMap } = graph;
 
-  const combinedSubjectMap = subjectMap
-    .entries()
-    .reduce((acc, [subject, courseIds]) => {
+  const combinedSubjectMap = [...subjectMap.entries()].reduce(
+    (acc, [subject, courseIds]) => {
       acc.set(
         subject,
         new Set(Array.from(courseIds).concat(courseTaken.get(subject) ?? [])),
       );
 
       return acc;
-    }, new Map<string, Set<string>>());
+    },
+    new Map<string, Set<string>>(),
+  );
 
   courseToBeUpdated.forEach((c) => {
     if (!depGraph.get(c)?.termId) return;

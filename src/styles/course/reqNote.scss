@@ -44,4 +44,27 @@
       text-wrap: wrap;
     }
   }
+
+  .req-group {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 0.25rem;
+    width: 100%;
+    max-width: fit-content;
+    height: fit-content;
+
+    overflow: scroll;
+
+    .delimiter {
+      color: var(--gray-800);
+      text-align: center;
+      font-size: 0.5rem;
+    }
+
+    .req-title {
+      @extend .delimiter;
+      text-wrap: nowrap;
+    }
+  }
 }

@@ -138,17 +138,17 @@ h6 {
   justify-content: center;
   align-items: center;
   transition: all 0.2s ease;
+  flex-shrink: 0;
+  height: fit-content;
 
   border-radius: 4px;
   background: var(--gray-200);
 
-  color: var(--gray-1000, #000);
-  text-align: center;
-  font-family: Arial;
-  font-size: 12px;
-  font-style: normal;
-  font-weight: 700;
-  line-height: 16px; /* 133.333% */
+  color: var(--gray-1000);
+  font-size: 0.75rem;
+  font-weight: bold;
+  text-wrap: nowrap;
+  line-height: 1rem;
 }
 
 .scroll-mask {

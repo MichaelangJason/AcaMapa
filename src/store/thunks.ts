@@ -5,6 +5,7 @@ import {
   setIsCourseExpanded,
   setCurrentPlanId,
   updateCachedDetailedCourseData,
+  initPlanIsCourseExpanded,
 } from "./slices/localDataSlice";
 import { addCourse, setPlanData, setTermData } from "./slices/userDataSlice";
 import { setIsInitialized } from "./slices/globalSlice";
@@ -149,6 +150,7 @@ export const initApp = createAppAsyncThunk(
     dispatch(setTermData({ termData }));
     dispatch(setPlanData({ planData, planOrder }));
     dispatch(setCurrentPlanId(plan._id));
+    dispatch(initPlanIsCourseExpanded(plan._id));
 
     dispatch(
       setIsCourseExpanded({

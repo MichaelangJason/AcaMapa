@@ -1,14 +1,14 @@
 import clsx from "clsx";
 
 const Tag = ({
-  source,
+  sourceText,
   displayText,
   callback,
   className,
   style,
   isDisabled = false,
 }: {
-  source: string;
+  sourceText: string;
   displayText: string;
   callback?: (text?: string) => void;
   className?: string;
@@ -19,7 +19,7 @@ const Tag = ({
     <span
       className={clsx("tag", className, isDisabled && "disabled")}
       style={style}
-      onClick={() => callback?.(source)}
+      onClick={() => callback?.(sourceText)}
     >
       {displayText}
     </span>

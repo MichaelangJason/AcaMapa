@@ -79,7 +79,7 @@ const CourseTaken = () => {
                       return (
                         <Tag
                           key={idx}
-                          source={id}
+                          sourceText={id}
                           displayText={formatCourseId(id)}
                           callback={handleRemoveCourseTaken}
                         />

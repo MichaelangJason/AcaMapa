@@ -1,6 +1,7 @@
 import type { Course } from "@/types/db";
 import { TextHighlighter } from "@/components/Common";
 import { useCallback } from "react";
+import { MCGILL_URL_BASES } from "@/lib/constants";
 import { formatCourseId } from "@/lib/utils";
 import RemoveIcon from "@/public/icons/minus.svg";
 import AddIcon from "@/public/icons/plus.svg";
@@ -54,7 +55,7 @@ const MiniCourseCard = ({
         </h4>
         <code className="id">
           <a
-            href={`https://coursecatalogue.mcgill.ca/courses/${formatCourseId(id, "-", true)}`}
+            href={`${MCGILL_URL_BASES.COURSE_CATALOGUE}${formatCourseId(id, "-", true)}`}
             target="_blank"
             rel="noopener noreferrer"
           >

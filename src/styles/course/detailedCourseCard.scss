@@ -14,10 +14,13 @@
 
   overflow: hidden;
 
-  // &.dragging {
-  //   opacity: 0.5;
-  //   box-shadow: none;
-  // }
+  &.satisfied {
+    background: var(--satisfy-green);
+  }
+
+  &.unsatisfied {
+    background: var(--unsatisfy-red);
+  }
 
   &.expanded {
     padding: 8px;

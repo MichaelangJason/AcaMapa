@@ -4,22 +4,28 @@ import { formatCourseId } from "@/lib/utils";
 import { Draggable } from "@hello-pangea/dnd";
 import { useAppSelector } from "@/store/hooks";
 import {
+  selectCourseDepGraph,
   selectCurrentPlanIsCourseExpanded,
   selectIsOverwritten,
 } from "@/store/selectors";
 import FootNote from "./FootNote";
 import ReqNotes from "./ReqNotes";
+import clsx from "clsx";
+import { MCGILL_URL_BASES } from "@/lib/constants";
 
 const DetailedCourseCard = ({
   course,
   idx,
   handleDelete,
   setIsExpanded,
+  isDragging,
 }: {
   course: CachedDetailedCourse;
   idx: number;
   handleDelete: (courseId: string) => void;
   setIsExpanded: (courseId: string, isExpanded: boolean) => void;
+  isDragging: boolean;
+  // TODO: handle overwritten course
 }) => {
   const {
     id,
@@ -33,18 +39,24 @@ const DetailedCourseCard = ({
   const isExpanded = useAppSelector((state) =>
     selectCurrentPlanIsCourseExpanded(state, id),
   );
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const isOverwritten = useAppSelector((state) =>
     selectIsOverwritten(state, id),
   );
+  const depGraph = useAppSelector(selectCourseDepGraph);
 
   return (
     <Draggable draggableId={id} index={idx}>
       {(provided, snapshot) => (
         <Wrapper
           heading={formatCourseId(id)}
+          headingHref={`${MCGILL_URL_BASES.COURSE_CATALOGUE}${formatCourseId(id, "-", true)}`}
           subheading={name}
           credits={credits.toString()}
+          className={clsx([
+            !snapshot.isDragging &&
+              !isDragging &&
+              (depGraph.get(id)?.isSatisfied ? "satisfied" : "unsatisfied"),
+          ])}
           isExpanded={isExpanded}
           toggleIsExpanded={() => setIsExpanded(id, !isExpanded)}
           handleDelete={() => handleDelete(id)}
@@ -57,18 +69,30 @@ const DetailedCourseCard = ({
           {isExpanded && (
             <>
               {prerequisites?.raw && (
-                <ReqNotes title="Prerequisites" requisites={prerequisites} />
+                <ReqNotes
+                  parentCourse={id}
+                  title="Pre-reqs"
+                  requisites={prerequisites}
+                />
               )}
               {corequisites?.raw && (
-                <ReqNotes title="Corequisites" requisites={corequisites} />
+                <ReqNotes
+                  parentCourse={id}
+                  title="Co-reqs"
+                  requisites={corequisites}
+                />
               )}
               {restrictions?.raw && (
-                <ReqNotes title="Restrictions" requisites={restrictions} />
+                <ReqNotes
+                  parentCourse={id}
+                  title="Restrictions"
+                  requisites={restrictions}
+                />
               )}
               {notes && notes.length > 0 && (
-                <ReqNotes title="Notes" notes={notes} />
+                <ReqNotes parentCourse={id} title="Notes" notes={notes} />
               )}
-              {true && <FootNote content={"OVERWRITTEN"} />}
+              {isOverwritten && <FootNote content={"OVERWRITTEN"} />}
             </>
           )}
         </Wrapper>

@@ -9,7 +9,7 @@ import {
   addSelectedCourse,
   removeSelectedCourse,
   clearSelectedCourses,
-  initCourseLocalMetadata,
+  initPlanIsCourseExpanded,
   deleteIsCourseExpanded,
   setIsCourseExpanded,
   moveCoursesInGraph,
@@ -106,7 +106,7 @@ startListening({
       const planId = listenerApi.getState().localData.currentPlanId;
       switch (action.type) {
         case "userData/addPlan":
-          dispatch(initCourseLocalMetadata(planId));
+          dispatch(initPlanIsCourseExpanded(planId));
           break;
         case "userData/deletePlan":
           dispatch(
@@ -205,11 +205,9 @@ startListening({
       switch (action.type) {
         case "userData/moveTerm": {
           const { planId, termId } = action.payload;
-          const originalPlan = originalState.userData.planData.get(planId)!;
+          const plan = state.userData.planData.get(planId)!;
           const term = state.userData.termData.get(termId)!;
-          const termOrderMap = new Map(
-            originalPlan.termOrder.map((t, i) => [t, i]),
-          );
+          const termOrderMap = new Map(plan.termOrder.map((t, i) => [t, i]));
 
           dispatch(
             moveCoursesInGraph({
@@ -229,7 +227,8 @@ startListening({
             originalState.userData.planData.get(planId)!.termOrder[idx];
           const term = originalState.userData.termData.get(termIdx)!;
 
-          if (term.courseIds.length === 0) {
+          // if term is not found, it means we are adding a new term on the rightmost side
+          if (!term || term.courseIds.length === 0) {
             return;
           }
 
@@ -370,7 +369,7 @@ startListening({
 
           dispatch(
             deleteCoursesFromGraph({
-              courseIds: new Set(courseId),
+              courseIds: new Set([courseId]),
               courseTaken,
               termOrderMap,
             }),
@@ -388,7 +387,7 @@ startListening({
 
           dispatch(
             moveCoursesInGraph({
-              courseIds: new Set(courseId),
+              courseIds: new Set([courseId]),
               newTermId: destTermId,
               termOrderMap,
               courseTaken,

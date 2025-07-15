@@ -130,6 +130,7 @@ const TermCard = ({
                     idx={idx}
                     handleDelete={handleDeleteCourse}
                     setIsExpanded={setIsCourseExpanded}
+                    isDragging={draggableSnapshot.isDragging}
                   />
                 ))}
                 {droppableProvided.placeholder}

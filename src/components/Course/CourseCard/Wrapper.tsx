@@ -7,6 +7,7 @@ import type { DraggableProvided } from "@hello-pangea/dnd";
 const Wrapper = ({
   children,
   heading,
+  headingHref,
   subheading,
   credits,
   isExpanded,
@@ -21,6 +22,7 @@ const Wrapper = ({
   extraProps,
 }: {
   heading: string;
+  headingHref?: string;
   subheading: string;
   credits: string;
   isExpanded: boolean;
@@ -56,7 +58,15 @@ const Wrapper = ({
       {...extraProps}
     >
       <header className="course-card-header" {...dragHandleProps}>
-        <h4 className="heading">{heading}</h4>
+        <h4 className="heading">
+          {headingHref ? (
+            <a href={headingHref} target="_blank" rel="noopener noreferrer">
+              {heading}
+            </a>
+          ) : (
+            heading
+          )}
+        </h4>
         <h5 className="subheading">{subheading}</h5>
         <section className="icons-container">
           <div className="expand" onClick={toggleIsExpanded}>

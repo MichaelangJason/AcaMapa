@@ -27,6 +27,7 @@ export type CourseLocalMetadata = {
 
 export type CourseDepData = {
   subjectMap: Map<string, Set<string>>;
+  creditsReqMap: Map<string, Set<string>>; // subscribe courses with CREDIT group
   depGraph: Map<
     string,
     {

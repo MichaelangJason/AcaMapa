@@ -161,8 +161,8 @@ export const selectCurrentPlanIsCourseExpanded = createSelector(
 );
 
 export const selectIsOverwritten = createSelector(
-  (state: RootState) => state.userData.planData,
-  (state: RootState) => state.localData.currentPlanId,
+  (state) => state.userData.planData,
+  (state) => state.localData.currentPlanId,
   (_: RootState, courseId: string) => courseId,
   (planData, currentPlanId, courseId) => {
     const plan = planData.get(currentPlanId);
@@ -170,5 +170,12 @@ export const selectIsOverwritten = createSelector(
       throw new Error(`Plan id not found in plan data: ${currentPlanId}`);
     }
     return plan.courseMetadata[courseId]?.isOverwritten;
+  },
+);
+
+export const selectCourseDepGraph = createSelector(
+  (state: RootState) => state.localData.courseDepData,
+  (courseDepData) => {
+    return courseDepData.depGraph;
   },
 );
