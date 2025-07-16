@@ -377,3 +377,74 @@ export const selectTermOrderMap = createSelector(
     );
   },
 );
+
+export const selectPlanStats = createSelector(
+  (state: RootState) => state.localData.courseData,
+  (state: RootState) => state.localData.currentPlanId,
+  (state: RootState) => state.userData.planData,
+  (state: RootState) => state.userData.termData,
+  (state: RootState) => state.userData.courseTaken,
+  (courseData, currentPlanId, planData, termData, courseTaken) => {
+    const plan = planData.get(currentPlanId);
+    if (!plan) {
+      throw new Error(`Plan id not found in plan data: ${currentPlanId}`);
+    }
+    const totalPlanCredits = Object.keys(plan.courseMetadata).reduce(
+      (acc, courseId) => {
+        const course = courseData[courseId];
+        if (!course) {
+          throw new Error(`Course data not found: ${courseId}`);
+        }
+        return acc + course.credits;
+      },
+      0,
+    );
+
+    const totalCourseTakenCretids = [...courseTaken.keys()].reduce(
+      (acc, subject) => {
+        const courses = courseTaken.get(subject);
+        if (!courses) {
+          throw new Error(`Course taken not found for subject: ${subject}`);
+        }
+        return (
+          acc +
+          courses.reduce((acc, courseId) => {
+            const course = courseData[courseId];
+            if (!course) {
+              throw new Error(`Course data not found: ${courseId}`);
+            }
+            return acc + course.credits;
+          }, 0)
+        );
+      },
+      0,
+    );
+
+    const totalCredits = totalPlanCredits + totalCourseTakenCretids;
+
+    const totalCourseTaken = [...courseTaken.keys()].reduce((acc, subject) => {
+      const courses = courseTaken.get(subject);
+      if (!courses) {
+        throw new Error(`Course taken not found for subject: ${subject}`);
+      }
+      return acc + courses.length;
+    }, 0);
+    const totalPlannedCourses = Object.keys(plan.courseMetadata).length;
+    const totalCourses = totalPlannedCourses + totalCourseTaken;
+
+    const totalTerm = plan.termOrder.length;
+    const averageCreditsPerTerm =
+      Math.round((totalPlanCredits / totalTerm) * 100) / 100;
+
+    return {
+      totalPlanCredits,
+      totalCourseTakenCretids,
+      totalCredits,
+      totalCourseTaken,
+      totalPlannedCourses,
+      totalCourses,
+      totalTerm,
+      averageCreditsPerTerm,
+    };
+  },
+);

@@ -1,0 +1,39 @@
+.utility-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 9500;
+
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  height: 44px;
+  padding: 12px;
+  background: var(--gray-300);
+  padding-left: calc(var(--sidebar-width) + 12px);
+
+  transition: padding-left 0.2s ease-in-out;
+
+  .hamburger,
+  .github-mark {
+    width: 20px;
+    height: auto;
+  }
+
+  .hamburger {
+    path {
+      fill: var(--gray-1000-50-opac);
+    }
+  }
+
+  .contents {
+    flex-grow: 1;
+    padding: 0 12px;
+    height: 24px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 12px;
+  }
+}

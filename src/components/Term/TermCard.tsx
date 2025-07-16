@@ -2,7 +2,7 @@
 
 import type { Term } from "@/types/db";
 import type { CachedDetailedCourse } from "@/types/local";
-import HamburgerIcon from "@/public/hamburger.svg";
+import HamburgerIcon from "@/public/icons/hamburger.svg";
 import PlusIcon from "@/public/icons/plus.svg";
 import clsx from "clsx";
 import { useMemo, useState, memo } from "react";

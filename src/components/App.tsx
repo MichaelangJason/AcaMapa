@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { SideBar } from "./Layout";
+import { SideBar, UtilityBar } from "./Layout";
 import { Terms } from "./Term";
 import { Provider } from "react-redux";
 import { AppStore, makeStore } from "@/store";
@@ -28,14 +28,14 @@ const App = ({ courseData }: { courseData: Course[] }) => {
     const isInitialized = storeRef.current?.getState().global.isInitialized;
     if (!isInitialized) return;
     setIsMounted(true);
-  }, [storeRef.current]);
+  }, [storeRef]);
 
   if (!isMounted) return null;
 
   return (
     <Provider store={storeRef.current}>
       <SideBar searchCourseFn={searchCourseAsync} />
-      {/* <UtilityBar /> */}
+      <UtilityBar />
       <Terms />
       {/* <Assistant /> */}
     </Provider>

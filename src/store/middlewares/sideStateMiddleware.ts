@@ -59,8 +59,19 @@ startListening({
 
     if (isSideBarFolded) {
       window.document.body.style.paddingLeft = "0";
+      const utilityBar = document.querySelector(".utility-bar");
+      if (utilityBar) {
+        utilityBar.setAttribute("style", "padding-left: 12px;");
+      }
     } else {
       window.document.body.style.paddingLeft = "var(--sidebar-width)";
+      const utilityBar = document.querySelector(".utility-bar");
+      if (utilityBar) {
+        utilityBar.setAttribute(
+          "style",
+          "padding-left: calc(var(--sidebar-width) + 12px);",
+        );
+      }
     }
   },
 });

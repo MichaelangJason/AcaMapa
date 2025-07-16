@@ -1,0 +1,27 @@
+.tag {
+  display: flex;
+  padding: 0px 4px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  height: fit-content;
+
+  border-radius: 4px;
+  background: var(--gray-200);
+
+  color: var(--gray-1000);
+  font-size: 0.75rem;
+  font-weight: bold;
+  text-wrap: nowrap;
+  line-height: 1rem;
+
+  &.satisfied {
+    background: var(--satisfy-green);
+  }
+
+  &.unsatisfied {
+    background: var(--unsatisfy-red);
+  }
+}

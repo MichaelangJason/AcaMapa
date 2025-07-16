@@ -38,10 +38,10 @@
   &.folded {
     left: calc(-1 * var(--sidebar-width));
 
-    &:hover {
-      transition: left 0.1s ease-in-out;
-      left: calc(-1 * var(--sidebar-width) + 8px);
-    }
+    // &:hover {
+    //   transition: left 0.1s ease-in-out;
+    //   left: calc(-1 * var(--sidebar-width) + 8px);
+    // }
   }
 }
 
