@@ -145,6 +145,10 @@ export const userDataSlice = createSlice({
       }>,
     ) => {
       const { planId, termId, termIdx } = action.payload;
+      const term = state.termData.get(termId)!;
+      term.courseIds.forEach((courseId) => {
+        delete state.planData.get(planId)!.courseMetadata[courseId];
+      });
       const plan = state.planData.get(planId)!;
       plan.termOrder.splice(termIdx, 1);
       state.termData.delete(termId);
@@ -183,6 +187,11 @@ export const userDataSlice = createSlice({
       courseIds.forEach((courseId) => {
         plan.courseMetadata[courseId] = { isOverwritten: false };
       });
+
+      console.group(action.type);
+      console.log(action.payload);
+      console.log("current term data", state.termData);
+      console.groupEnd();
     },
     deleteCourse: (
       state,

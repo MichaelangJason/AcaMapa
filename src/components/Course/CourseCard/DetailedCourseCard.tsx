@@ -4,24 +4,27 @@ import { formatCourseId } from "@/lib/utils";
 import { Draggable } from "@hello-pangea/dnd";
 import { useAppSelector } from "@/store/hooks";
 import {
-  selectCourseDepGraph,
   selectCurrentPlanIsCourseExpanded,
+  selectCourseDepGraph,
   selectIsOverwritten,
 } from "@/store/selectors";
 import FootNote from "./FootNote";
 import ReqNotes from "./ReqNotes";
 import clsx from "clsx";
 import { MCGILL_URL_BASES } from "@/lib/constants";
+import { ReqType } from "@/lib/enums";
 
 const DetailedCourseCard = ({
   course,
   idx,
+  termId,
   handleDelete,
   setIsExpanded,
   isDragging,
 }: {
   course: CachedDetailedCourse;
   idx: number;
+  termId: string;
   handleDelete: (courseId: string) => void;
   setIsExpanded: (courseId: string, isExpanded: boolean) => void;
   isDragging: boolean;
@@ -71,26 +74,40 @@ const DetailedCourseCard = ({
               {prerequisites?.raw && (
                 <ReqNotes
                   parentCourse={id}
-                  title="Pre-reqs"
+                  title={ReqType.PRE_REQ.valueOf()}
+                  type={ReqType.PRE_REQ}
                   requisites={prerequisites}
+                  termId={termId}
                 />
               )}
               {corequisites?.raw && (
                 <ReqNotes
                   parentCourse={id}
-                  title="Co-reqs"
+                  title={ReqType.CO_REQ.valueOf()}
+                  type={ReqType.CO_REQ}
                   requisites={corequisites}
+                  termId={termId}
+                  includeCurrentTerm
                 />
               )}
               {restrictions?.raw && (
                 <ReqNotes
                   parentCourse={id}
-                  title="Restrictions"
+                  title={ReqType.ANTI_REQ.valueOf()}
+                  type={ReqType.ANTI_REQ}
                   requisites={restrictions}
+                  termId={termId}
+                  includeCurrentTerm
                 />
               )}
               {notes && notes.length > 0 && (
-                <ReqNotes parentCourse={id} title="Notes" notes={notes} />
+                <ReqNotes
+                  parentCourse={id}
+                  title={ReqType.NOTES.valueOf()}
+                  type={ReqType.NOTES}
+                  notes={notes}
+                  termId={termId}
+                />
               )}
               {isOverwritten && <FootNote content={"OVERWRITTEN"} />}
             </>

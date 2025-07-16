@@ -149,6 +149,14 @@ h6 {
   font-weight: bold;
   text-wrap: nowrap;
   line-height: 1rem;
+
+  &.satisfied {
+    background: var(--satisfy-green);
+  }
+
+  &.unsatisfied {
+    background: var(--unsatisfy-red);
+  }
 }
 
 .scroll-mask {

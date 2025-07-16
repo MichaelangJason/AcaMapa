@@ -1,19 +1,27 @@
-import { GroupType } from "@/lib/enums";
+import { GroupType, ReqType } from "@/lib/enums";
 import { Tag } from "@/components/Common";
 import { formatCourseId } from "@/lib/utils";
 import type { EnhancedRequisites, ReqGroup } from "@/types/local";
 import type { CSSProperties, JSX } from "react";
+import { useAppSelector } from "@/store/hooks";
+import { selectCourseDepMeta } from "@/store/selectors";
 
 const ReqNotes = ({
   parentCourse,
   title,
   requisites,
   notes = [],
+  termId,
+  includeCurrentTerm = false,
+  type,
 }: {
   parentCourse: string;
   title: string;
+  type: ReqType;
   requisites?: EnhancedRequisites;
   notes?: string[];
+  termId: string;
+  includeCurrentTerm?: boolean;
 }) => {
   return (
     <div className="req-note">
@@ -23,6 +31,9 @@ const ReqNotes = ({
           parentCourse={parentCourse}
           group={requisites.group}
           isOuterGroup={true}
+          includeCurrentTerm={includeCurrentTerm}
+          termId={termId}
+          reqType={type}
         />
       )}
       <ul className="notes">
@@ -40,13 +51,21 @@ const ReqGroup = ({
   group,
   flexDirection = "row",
   isOuterGroup = false,
+  includeCurrentTerm = false,
+  termId,
+  reqType,
 }: {
   parentCourse: string;
   group: ReqGroup;
   flexDirection?: CSSProperties["flexDirection"];
   isOuterGroup?: boolean;
+  includeCurrentTerm?: boolean;
+  termId: string;
+  reqType: ReqType;
 }) => {
   let children: JSX.Element[] = [];
+  const { getCourseSource, getValidCourses } =
+    useAppSelector(selectCourseDepMeta);
 
   switch (group.type) {
     case GroupType.EMPTY: {
@@ -60,11 +79,29 @@ const ReqGroup = ({
 
       const entries = group.inner.map((item, idx) => {
         if (typeof item === "string") {
+          // TODO: source check
+          const { isValid, source } = getCourseSource(
+            item,
+            termId,
+            includeCurrentTerm,
+          );
+          const status =
+            source === ""
+              ? undefined
+              : reqType !== ReqType.ANTI_REQ && isValid
+                ? "satisfied"
+                : "unsatisfied";
+
+          if (source) {
+            console.log(isValid, source);
+          }
+
           return (
             <Tag
               key={`${parentCourse}-${group.type}-${idx}-${item}`}
               sourceText={item}
               displayText={formatCourseId(item)}
+              className={status}
             />
           );
         } else {
@@ -74,6 +111,8 @@ const ReqGroup = ({
               parentCourse={parentCourse}
               group={item}
               flexDirection={flexDirection === "row" ? "column" : "row"}
+              termId={termId}
+              reqType={reqType}
             />
           );
         }
@@ -99,13 +138,27 @@ const ReqGroup = ({
         throw new Error("Pair group cannot contain non-string");
       }
 
-      children = group.inner.map((item, idx) => (
-        <Tag
-          key={`${parentCourse}-${group.type}-${idx}-${item}`}
-          sourceText={item}
-          displayText={formatCourseId(item)}
-        />
-      ));
+      children = group.inner.map((item, idx) => {
+        const { isValid, source } = getCourseSource(
+          item,
+          termId,
+          includeCurrentTerm,
+        );
+        const status =
+          source === ""
+            ? undefined
+            : reqType !== ReqType.ANTI_REQ && isValid
+              ? "satisfied"
+              : "unsatisfied";
+        return (
+          <Tag
+            key={`${parentCourse}-${group.type}-${idx}-${item}`}
+            sourceText={item}
+            displayText={formatCourseId(item)}
+            className={status}
+          />
+        );
+      });
 
       children.unshift(
         <span
@@ -120,6 +173,7 @@ const ReqGroup = ({
     }
 
     // rare case, no need to over optimize for this case
+    // there will be no nested cases
     case GroupType.CREDIT: {
       // every is used for typing usage, can also use some
       if (!group.inner.every((i) => typeof i === "string")) {
@@ -127,6 +181,14 @@ const ReqGroup = ({
       }
 
       const [req, scopes, ...subjects] = group.inner;
+
+      const { totalCredits, validSubjectMap } = getValidCourses(
+        new Set(subjects),
+        scopes,
+        termId,
+        includeCurrentTerm,
+      );
+      const status = totalCredits >= parseFloat(req) ? "satisfied" : undefined;
 
       const levels =
         scopes[0] === "0"
@@ -139,7 +201,12 @@ const ReqGroup = ({
         <Tag
           key={`${parentCourse}-${group.type}-${idx}-${subject}`}
           sourceText={subject}
-          displayText={subject.toUpperCase() + levels + `(${0})`}
+          displayText={
+            subject.toUpperCase() +
+            levels +
+            `(${validSubjectMap[subject]?.totalCredits ?? 0})`
+          }
+          className={status}
         />
       ));
 

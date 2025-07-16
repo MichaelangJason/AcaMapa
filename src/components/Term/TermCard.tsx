@@ -128,6 +128,7 @@ const TermCard = ({
                     key={`${term._id}-${course.id}-${idx}`}
                     course={course}
                     idx={idx}
+                    termId={term._id}
                     handleDelete={handleDeleteCourse}
                     setIsExpanded={setIsCourseExpanded}
                     isDragging={draggableSnapshot.isDragging}

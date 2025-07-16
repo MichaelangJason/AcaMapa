@@ -25,6 +25,7 @@ import {
   isPlanAction,
   isTermAction,
 } from "@/lib/typeGuards";
+import { getSubjectCode } from "@/lib/course";
 
 const listenerMiddleware = createListenerMiddleware();
 const startListening = listenerMiddleware.startListening.withTypes<
@@ -298,7 +299,7 @@ startListening({
         case "userData/addCourseTaken":
         case "userData/removeCourseTaken": {
           const courseIds = action.payload;
-          const depGraph = state.localData.courseDepData.depGraph;
+          const { depGraph, creditsReqMap } = state.localData.courseDepData;
 
           const affectedCourses = new Set<string>();
           courseIds.forEach((courseId) => {
@@ -308,6 +309,13 @@ startListening({
               course.affectedCourseIds.forEach((id) => {
                 affectedCourses.add(id);
               });
+              const subject = getSubjectCode(courseId);
+              const creditsReq = creditsReqMap.get(subject);
+              if (creditsReq) {
+                creditsReq.forEach((req) => {
+                  affectedCourses.add(req);
+                });
+              }
             }
           });
 
@@ -340,6 +348,12 @@ startListening({
     if (isCourseAction(action)) {
       switch (action.type) {
         case "userData/addCourse": {
+          // console.group(action.type)
+          // console.log(action.payload)
+          // console.log('current term data',state.userData.termData)
+          // console.log('old term data',originalState.userData.termData)
+          // console.groupEnd()
+
           const { courseIds, termId, planId } = action.payload;
           const courseTaken = state.userData.courseTaken;
           const termOrderMap = new Map(

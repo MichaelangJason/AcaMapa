@@ -24,3 +24,10 @@ export enum GroupType {
   CREDIT = "CREDIT", // number of credits + allowed levels + subject codes
   EMPTY = "EMPTY",
 }
+
+export enum ReqType {
+  PRE_REQ = "Pre-req",
+  ANTI_REQ = "Anti-req / Restrictions",
+  CO_REQ = "Co-req",
+  NOTES = "Notes",
+}

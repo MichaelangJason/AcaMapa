@@ -319,8 +319,12 @@ export const getValidCoursePerSubject = (
   };
 
   let totalCredits = 0;
-  const validSubjectMap: { [subject: string]: { [courseId: string]: string } } =
-    {};
+  const validSubjectMap: {
+    [subject: string]: {
+      totalCredits: number;
+      validCourses: { [courseId: string]: { source: string; credits: number } };
+    };
+  } = {};
 
   if (isEarlyReturn(totalCredits)) {
     return {
@@ -338,12 +342,19 @@ export const getValidCoursePerSubject = (
       const source = isCourseValid(c);
       if (!source) continue;
 
-      totalCredits += allCourseData[c].credits;
       if (!validSubjectMap[subject]) {
-        validSubjectMap[subject] = {};
+        validSubjectMap[subject] = {
+          totalCredits: 0,
+          validCourses: {},
+        };
       }
-      validSubjectMap[subject][c] = source;
+      validSubjectMap[subject].validCourses[c] = {
+        source,
+        credits: allCourseData[c].credits,
+      };
+      validSubjectMap[subject].totalCredits += allCourseData[c].credits;
     }
+    totalCredits += validSubjectMap[subject]?.totalCredits ?? 0;
 
     if (isEarlyReturn(totalCredits)) {
       return {
