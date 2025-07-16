@@ -15,6 +15,7 @@ const Tag = ({
   style?: React.CSSProperties;
   isDisabled?: boolean;
 }) => {
+  // TODO: TOAST, TOOLTIP, HOVER, CB
   return (
     <span
       className={clsx("tag", className, isDisabled && "disabled")}

@@ -69,20 +69,20 @@ const Wrapper = ({
         </h4>
         <h5 className="subheading">{subheading}</h5>
         <section className="icons-container">
-          <div className="expand" onClick={toggleIsExpanded}>
-            <ExpandIcon />
-          </div>
-          {handleDelete && (
-            <div className="delete" onClick={handleDelete}>
-              <DeleteIcon />
-            </div>
-          )}
           {handleSeek && (
             <div
               className={clsx(["seek", isSeeking && "active"])}
               onClick={handleSeek}
             >
               <SeekIcon />
+            </div>
+          )}
+          <div className="expand" onClick={toggleIsExpanded}>
+            <ExpandIcon />
+          </div>
+          {handleDelete && (
+            <div className="delete" onClick={handleDelete}>
+              <DeleteIcon />
             </div>
           )}
         </section>

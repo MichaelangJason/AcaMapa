@@ -44,6 +44,9 @@
 
     .heading {
       grid-area: heading;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
 
       color: var(--gray-1000);
       font-size: 1.125rem;
@@ -97,13 +100,23 @@
           stroke-width: 2px;
         }
       }
+
+      .seek {
+        svg {
+          path {
+            fill: var(--gray-1000-50-opac);
+            fill-opacity: 1;
+            stroke-width: 0;
+          }
+        }
+      }
     }
 
     .credits {
       grid-area: credits;
       display: flex;
       justify-content: flex-end;
-      align-items: flex-end;
+      align-items: center;
 
       span {
         flex-shrink: 0;

@@ -164,17 +164,7 @@ startListening({
           );
           break;
         }
-        case "userData/moveCourse": {
-          const { courseId, planId } = action.payload;
-          dispatch(
-            setIsCourseExpanded({
-              planId,
-              courseIds: [courseId],
-              isExpanded: true,
-            }),
-          );
-          break;
-        }
+        case "userData/moveCourse":
         case "userData/setCourseIsOverwritten":
         default:
           break;
