@@ -1,10 +1,14 @@
 // Re-export all types from schemas
-export type { Course, Requisite } from "../db/schemas/course";
+export type { Requisite } from "../db/schemas/course";
 export type { Program } from "../db/schemas/program";
 // export type { CoursePrerequisite } from "../db/schemas/coursePrerequisite";
 export type { ObjectId } from "bson";
 
-import type { Course } from "./db";
+import type { Course as CourseSchema } from "../db/schemas/course";
+export type Course = Omit<
+  CourseSchema,
+  "createdAt" | "updatedAt" | "embeddings"
+>;
 
 type NonNullableRequired<T> = {
   [K in keyof T]-?: NonNullable<T[K]>;

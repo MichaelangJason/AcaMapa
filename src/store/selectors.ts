@@ -11,6 +11,7 @@ import {
   getValidCoursePerSubject,
   isCourseInGraph,
 } from "@/lib/course";
+import { COURSE_PATTERN } from "@/lib/constants";
 
 const createAppSelector = createSelector.withTypes<RootState>();
 
@@ -230,21 +231,32 @@ export const selectCourseDepMeta = createSelector(
       const targetTermId = depGraph.get(courseId)?.termId;
       const targetTermOrder = termOrderMap.get(targetTermId ?? "");
 
-      const isValid =
-        isCourseTaken(courseId) ||
-        (targetTermOrder !== undefined &&
-          currentTermOrder !== undefined &&
-          (includeCurrentTerm
+      // here we assume such course must exist in the previous term.
+      const isMultiTerm = !!courseId.match(COURSE_PATTERN.MULTI_TERM);
+
+      let isValid = !isMultiTerm && isCourseTaken(courseId);
+
+      if (
+        !isValid &&
+        targetTermOrder !== undefined &&
+        currentTermOrder !== undefined
+      ) {
+        isValid = isMultiTerm
+          ? targetTermOrder === currentTermOrder - 1
+          : includeCurrentTerm
             ? targetTermOrder <= currentTermOrder
-            : targetTermOrder < currentTermOrder));
+            : targetTermOrder < currentTermOrder;
+      }
+
+      const source = isCourseTaken(courseId)
+        ? "Course Taken"
+        : targetTermId !== undefined
+          ? (userData.termData.get(targetTermId)?.name ?? "")
+          : "";
 
       return {
         isValid: !!isValid,
-        source: isCourseTaken(courseId)
-          ? "Course Taken"
-          : targetTermId !== undefined
-            ? (userData.termData.get(targetTermId)?.name ?? "")
-            : "",
+        source,
       };
     };
 
