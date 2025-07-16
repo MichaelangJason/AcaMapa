@@ -202,17 +202,23 @@ export const selectCourseDepMeta = createSelector(
     );
 
     const { depGraph, subjectMap } = courseDepData;
-    const combinedSubjectMap = [...subjectMap.entries()].reduce(
-      (acc, [subject, courseIds]) => {
-        acc.set(
-          subject,
-          new Set(Array.from(courseIds).concat(courseTaken.get(subject) ?? [])),
-        );
-
-        return acc;
-      },
-      new Map<string, Set<string>>(),
+    const uniqueSubjects = new Set([
+      ...courseTaken.keys(),
+      ...subjectMap.keys(),
+    ]);
+    const combinedSubjectMap = new Map(
+      Array.from(uniqueSubjects).map((subject) => [
+        subject,
+        new Set([
+          ...(courseTaken.get(subject) ?? []),
+          ...(subjectMap.get(subject) ?? []),
+        ]),
+      ]),
     );
+    const isCourseTaken = (courseId: string) => {
+      const subject = getSubjectCode(courseId);
+      return courseTaken.get(subject)?.includes(courseId) ?? false;
+    };
 
     // return these closures
     const getCourseSource = (
@@ -223,10 +229,9 @@ export const selectCourseDepMeta = createSelector(
       const currentTermOrder = termOrderMap.get(sourceTermId);
       const targetTermId = depGraph.get(courseId)?.termId;
       const targetTermOrder = termOrderMap.get(targetTermId ?? "");
-      const subject = getSubjectCode(courseId);
 
       const isValid =
-        courseTaken.get(subject)?.includes(courseId) ||
+        isCourseTaken(courseId) ||
         (targetTermOrder !== undefined &&
           currentTermOrder !== undefined &&
           (includeCurrentTerm
@@ -235,7 +240,7 @@ export const selectCourseDepMeta = createSelector(
 
       return {
         isValid: !!isValid,
-        source: courseTaken.get(subject)?.includes(courseId)
+        source: isCourseTaken(courseId)
           ? "Course Taken"
           : targetTermId !== undefined
             ? (userData.termData.get(targetTermId)?.name ?? "")
@@ -252,10 +257,10 @@ export const selectCourseDepMeta = createSelector(
       const currentOrder = termOrderMap.get(sourceTermId);
 
       const isCourseValid = (courseId: string) => {
+        if (isCourseTaken(courseId)) return "Course Taken";
         if (!isCourseInGraph(courseDepData, courseId)) {
           throw new Error("Course not in graph: " + courseId);
         }
-        if (courseTaken.has(courseId)) return "Course Taken";
 
         if (currentOrder === undefined) {
           throw new Error(`Term id not found in term data: ${sourceTermId}`);
@@ -325,14 +330,21 @@ export const selectCombinedSubjectMap = createSelector(
   (state: RootState) => state.userData.courseTaken,
   (courseDepData, courseTaken) => {
     const { subjectMap } = courseDepData;
-    return [...subjectMap.entries()].reduce((acc, [subject, courseIds]) => {
-      acc.set(
+    const uniqueSubjects = new Set([
+      ...courseTaken.keys(),
+      ...subjectMap.keys(),
+    ]);
+    const combinedSubjectMap = new Map(
+      Array.from(uniqueSubjects).map((subject) => [
         subject,
-        new Set(Array.from(courseIds).concat(courseTaken.get(subject) ?? [])),
-      );
+        new Set([
+          ...(courseTaken.get(subject) ?? []),
+          ...(subjectMap.get(subject) ?? []),
+        ]),
+      ]),
+    );
 
-      return acc;
-    }, new Map<string, Set<string>>());
+    return combinedSubjectMap;
   },
 );
 

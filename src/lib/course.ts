@@ -435,6 +435,7 @@ export const isSatisfied = (args: {
   console.log("depGraph", depGraph);
   console.log("termOrderMap", termOrderMap);
   console.log("combinedSubjectMap", combinedSubjectMap);
+  console.log("courseTaken", courseTaken);
 
   const isGroupSatisfied = (
     input: ReqGroup | string,
@@ -486,10 +487,10 @@ export const isSatisfied = (args: {
         const requiredCreditFloat = parseFloat(requiredCredit);
         // closures
         const isCourseValid = (courseId: string) => {
+          if (isCourseTaken(courseId)) return "Course Taken";
           if (!isCourseInGraph(graph, courseId)) {
             throw new Error("Course not in graph: " + courseId);
           }
-          if (isCourseTaken(courseId)) return "Course Taken";
 
           const { termId: courseTermId } = depGraph.get(courseId)!;
           const courseOrder = termOrderMap.get(courseTermId)!;
@@ -569,16 +570,16 @@ export const updateAffectedCourses = (args: {
   } = args;
   const { depGraph, subjectMap } = graph;
 
-  const combinedSubjectMap = [...subjectMap.entries()].reduce(
-    (acc, [subject, courseIds]) => {
-      acc.set(
-        subject,
-        new Set(Array.from(courseIds).concat(courseTaken.get(subject) ?? [])),
-      );
+  const uniqueSubjects = new Set([...courseTaken.keys(), ...subjectMap.keys()]);
 
-      return acc;
-    },
-    new Map<string, Set<string>>(),
+  const combinedSubjectMap = new Map(
+    Array.from(uniqueSubjects).map((subject) => [
+      subject,
+      new Set([
+        ...(courseTaken.get(subject) ?? []),
+        ...(subjectMap.get(subject) ?? []),
+      ]),
+    ]),
   );
 
   courseToBeUpdated.forEach((c) => {

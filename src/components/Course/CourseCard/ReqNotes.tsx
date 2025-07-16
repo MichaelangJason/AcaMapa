@@ -5,6 +5,7 @@ import type { EnhancedRequisites, ReqGroup } from "@/types/local";
 import type { CSSProperties, JSX } from "react";
 import { useAppSelector } from "@/store/hooks";
 import { selectCourseDepMeta } from "@/store/selectors";
+import clsx from "clsx";
 
 const ReqNotes = ({
   parentCourse,
@@ -91,10 +92,6 @@ const ReqGroup = ({
               : reqType !== ReqType.ANTI_REQ && isValid
                 ? "satisfied"
                 : "unsatisfied";
-
-          if (source) {
-            console.log(isValid, source);
-          }
 
           return (
             <Tag
@@ -188,7 +185,8 @@ const ReqGroup = ({
         termId,
         includeCurrentTerm,
       );
-      const status = totalCredits >= parseFloat(req) ? "satisfied" : undefined;
+      const status =
+        totalCredits >= parseFloat(req) ? "satisfied" : "unsatisfied";
 
       const levels =
         scopes[0] === "0"
@@ -206,7 +204,9 @@ const ReqGroup = ({
             levels +
             `(${validSubjectMap[subject]?.totalCredits ?? 0})`
           }
-          className={status}
+          className={clsx([
+            validSubjectMap[subject]?.totalCredits > 0 && status,
+          ])}
         />
       ));
 

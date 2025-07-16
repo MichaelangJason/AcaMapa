@@ -302,6 +302,7 @@ startListening({
           const { depGraph, creditsReqMap } = state.localData.courseDepData;
 
           const affectedCourses = new Set<string>();
+
           courseIds.forEach((courseId) => {
             const course = depGraph.get(courseId);
             if (course) {
@@ -309,13 +310,13 @@ startListening({
               course.affectedCourseIds.forEach((id) => {
                 affectedCourses.add(id);
               });
-              const subject = getSubjectCode(courseId);
-              const creditsReq = creditsReqMap.get(subject);
-              if (creditsReq) {
-                creditsReq.forEach((req) => {
-                  affectedCourses.add(req);
-                });
-              }
+            }
+            const subject = getSubjectCode(courseId);
+            const creditsReq = creditsReqMap.get(subject);
+            if (creditsReq) {
+              creditsReq.forEach((req) => {
+                affectedCourses.add(req);
+              });
             }
           });
 
