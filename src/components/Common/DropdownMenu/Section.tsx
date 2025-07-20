@@ -9,7 +9,7 @@ const Section = ({
   items,
   handleCloseDropdownMenu,
 }: {
-  label: string;
+  label?: string;
   items: (ItemProps | SubSectionProps)[];
   handleCloseDropdownMenu: () => void;
 }) => {
@@ -17,7 +17,7 @@ const Section = ({
 
   return (
     <>
-      <DM.Label className="label">{label}</DM.Label>
+      {label && <DM.Label className="label">{label}</DM.Label>}
 
       <section className="dropdown-menu-section">
         {items.map((item, index) => {

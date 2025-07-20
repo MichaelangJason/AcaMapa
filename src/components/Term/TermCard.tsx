@@ -1,7 +1,7 @@
 "use client";
 
 import type { Term } from "@/types/db";
-import type { CachedDetailedCourse } from "@/types/local";
+import type { CachedDetailedCourse, DropdownOption } from "@/types/local";
 import HamburgerIcon from "@/public/icons/hamburger.svg";
 import PlusIcon from "@/public/icons/plus.svg";
 import clsx from "clsx";
@@ -10,6 +10,11 @@ import { useAppSelector } from "@/store/hooks";
 import DetailedCourseCard from "../Course/CourseCard/DetailedCourseCard";
 import { Droppable, Draggable } from "@hello-pangea/dnd";
 import { DraggingType } from "@/lib/enums";
+import {
+  DropdownMenuWrapper,
+  Section,
+  type ItemProps,
+} from "../Common/DropdownMenu";
 
 const AddTermButton = ({
   isBefore,
@@ -67,6 +72,7 @@ const TermCard = ({
 }) => {
   const isAddingCourse = useAppSelector((state) => state.global.isAddingCourse);
   const isDragging = useAppSelector((state) => state.global.isDragging);
+  const [isTermDMOpen, setIsTermDMOpen] = useState(false);
 
   const totalCredits = useMemo(() => {
     return courses.reduce((acc, course) => acc + course.credits, 0);
@@ -83,6 +89,29 @@ const TermCard = ({
   const handleAddTerm = (isBefore: boolean) => {
     addTerm(term._id.toString(), isBefore);
   };
+
+  const handleDeleteTerm = () => {
+    deleteTerm(term._id.toString(), idx);
+  };
+
+  const handleCloseTermDM = () => {
+    setIsTermDMOpen(false);
+  };
+
+  const termActions: ItemProps[] = useMemo(() => {
+    return [
+      {
+        self: {
+          id: "delete-term",
+          content: "Delete",
+          handleClick: handleDeleteTerm,
+          isHideIndicator: true,
+          isHideFiller: true,
+        } as DropdownOption,
+        handleCloseDropdownMenu: handleCloseTermDM,
+      },
+    ];
+  }, [handleDeleteTerm]);
 
   return (
     <Draggable draggableId={term._id} index={idx} isDragDisabled={false}>
@@ -110,7 +139,22 @@ const TermCard = ({
             ) : (
               <span>{term.name}</span>
             )}
-            <HamburgerIcon onClick={() => deleteTerm(term._id, idx)} />
+            <DropdownMenuWrapper
+              isOpen={isTermDMOpen}
+              handleClose={() => setIsTermDMOpen(false)}
+              trigger={{
+                node: <HamburgerIcon className="hamburger" />,
+                toggleIsOpen: () => setIsTermDMOpen((prev) => !prev),
+              }}
+              contentProps={{
+                align: "center",
+              }}
+            >
+              <Section
+                items={termActions}
+                handleCloseDropdownMenu={handleCloseTermDM}
+              />
+            </DropdownMenuWrapper>
           </header>
           <Droppable droppableId={term._id} type={DraggingType.COURSE}>
             {(droppableProvided, droppableSnapshot) => (
