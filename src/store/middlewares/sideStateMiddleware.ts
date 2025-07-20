@@ -16,8 +16,15 @@ import {
   deleteCoursesFromGraph,
   updateCoursesIsSatisfied,
   addCoursesToGraph,
+  setCurrentPlanId,
+  clearCourseDepData,
 } from "../slices/localDataSlice";
-import { addTerm, deleteTerm } from "../slices/userDataSlice";
+import {
+  addPlan,
+  addTerm,
+  deletePlan,
+  deleteTerm,
+} from "../slices/userDataSlice";
 import { scrollTermCardToView } from "@/lib/utils";
 import {
   isCourseAction,
@@ -91,17 +98,46 @@ startListening({
 
 // prevent empty term list from being created
 startListening({
-  actionCreator: deleteTerm,
+  matcher: isAnyOf(deleteTerm, deletePlan, addPlan),
   effect: (action, listenerApi) => {
-    const { planId } = action.payload;
-    const terms = listenerApi
-      .getState()
-      .userData.planData.get(planId)!.termOrder;
-    if (terms.length === 0) {
-      // prevent empty term list from being created
-      listenerApi.dispatch(
-        addTerm({ planId, idx: 0, termData: { name: "New Term" } }),
-      );
+    const dispatch = listenerApi.dispatch;
+    const state = listenerApi.getState();
+
+    if (action.type === addPlan.type) {
+      // set as current planId
+      const planId = state.userData.planOrder[0];
+      dispatch(setCurrentPlanId(planId));
+    }
+
+    if (action.type === deletePlan.type) {
+      // prevent deleting all plans
+      if (state.userData.planOrder.length === 0) {
+        // add a new plan with default term and name
+        dispatch(addPlan({}));
+      } else {
+        const deletedPlanId = action.payload as Parameters<
+          typeof deletePlan
+        >[0];
+
+        if (deletedPlanId === state.localData.currentPlanId) {
+          // set as current planId
+          const nextPlanId = state.userData.planOrder[0];
+          dispatch(setCurrentPlanId(nextPlanId));
+        }
+      }
+    }
+
+    if (action.type === deleteTerm.type) {
+      const { planId } = action.payload as Parameters<typeof deleteTerm>[0];
+      const terms = listenerApi
+        .getState()
+        .userData.planData.get(planId)!.termOrder;
+      if (terms.length === 0) {
+        // prevent empty term list from being created
+        listenerApi.dispatch(
+          addTerm({ planId, idx: 0, termData: { name: "New Term" } }),
+        );
+      }
     }
   },
 });
@@ -113,18 +149,22 @@ startListening({
     if (isCourseTakenAction(action)) return;
     const dispatch = listenerApi.dispatch;
     const originalState = listenerApi.getOriginalState();
+    const state = listenerApi.getState();
 
     if (isPlanAction(action)) {
-      const planId = listenerApi.getState().localData.currentPlanId;
       switch (action.type) {
-        case "userData/addPlan":
+        case "userData/addPlan": {
+          const planId = state.userData.planOrder[0];
           dispatch(initPlanIsCourseExpanded(planId));
           break;
-        case "userData/deletePlan":
+        }
+        case "userData/deletePlan": {
+          const planId = action.payload as string;
           dispatch(
             deleteIsCourseExpanded({ planId, courseIds: [], deletePlan: true }),
           );
           break;
+        }
         case "userData/setPlanData": // handled at initialization
         case "userData/movePlan":
         default:
@@ -187,11 +227,57 @@ startListening({
 // handle dep graph replated
 startListening({
   predicate: (action) =>
-    action.type.startsWith("userData/") || isCourseTakenAction(action),
+    action.type.startsWith("userData/") ||
+    isCourseTakenAction(action) ||
+    action.type === setCurrentPlanId.type,
   effect: (action, listenerApi) => {
     const dispatch = listenerApi.dispatch;
     const state = listenerApi.getState();
     const originalState = listenerApi.getOriginalState();
+
+    if (action.type === setCurrentPlanId.type) {
+      const planId = action.payload as string;
+      const plan = state.userData.planData.get(planId);
+      if (!plan) {
+        throw new Error(`Plan ${planId} not found`);
+      }
+      if (
+        plan.termOrder.some((termId) => !state.userData.termData.has(termId))
+      ) {
+        throw new Error(`Term ${plan.termOrder.join(", ")} not found`);
+      }
+      const termOrderMap = new Map(plan.termOrder.map((t, i) => [t, i]));
+      const courseTaken = state.userData.courseTaken;
+      const courses = Object.keys(plan.courseMetadata);
+
+      // REVIEW: cache course dep data
+      dispatch(clearCourseDepData());
+      // add courses to graph
+      plan.termOrder.forEach((termId) => {
+        const term = state.userData.termData.get(termId)!;
+        if (term.courseIds.length > 0) {
+          dispatch(
+            addCoursesToGraph({
+              courseIds: new Set(term.courseIds),
+              termId,
+              termOrderMap,
+              courseTaken,
+              isSkipUpdate: true,
+            }),
+          );
+        }
+      });
+      // update courses is satisfied
+      if (courses.length > 0) {
+        dispatch(
+          updateCoursesIsSatisfied({
+            courseToBeUpdated: new Set(courses),
+            courseTaken,
+            termOrderMap,
+          }),
+        );
+      }
+    }
 
     if (isPlanAction(action)) {
       switch (action.type) {

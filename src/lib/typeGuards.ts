@@ -113,6 +113,7 @@ export const isPlanAction = (action: unknown): action is PlanAction => {
   if (!isAction(action)) return false;
   const a = action as PlanAction;
   return (
+    a.type.startsWith("userData/") &&
     typeof a.type === "string" &&
     typeof a.payload === "object" &&
     a.type.split("/")[1].toLowerCase().includes("plan")

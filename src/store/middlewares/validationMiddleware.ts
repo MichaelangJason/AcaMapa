@@ -24,7 +24,7 @@ const validationMiddleware: Middleware<
   if (isPlanAction(action)) {
     switch (action.type) {
       case "userData/movePlan": {
-        const { planId, sourceIdx, destinationIdx } = action.payload;
+        const { planId, sourceIdx, destIdx: destinationIdx } = action.payload;
         if (!isValidObjectId(planId)) {
           throw new Error(`Invalid plan id: ${planId}`);
         }
@@ -44,13 +44,19 @@ const validationMiddleware: Middleware<
       }
       case "userData/addPlan": {
         const { name, termOrder, courseMetadata } = action.payload;
-        if (typeof name !== "string") {
+        if (name !== undefined && typeof name !== "string") {
           throw new Error(`Invalid name: ${name}`);
         }
-        if (typeof termOrder !== "object" || termOrder === null) {
+        if (
+          termOrder !== undefined &&
+          (typeof termOrder !== "object" || termOrder === null)
+        ) {
           throw new Error(`Invalid term order: ${termOrder}`);
         }
-        if (typeof courseMetadata !== "object" || courseMetadata === null) {
+        if (
+          courseMetadata !== undefined &&
+          (typeof courseMetadata !== "object" || courseMetadata === null)
+        ) {
           throw new Error(`Invalid course metadata: ${courseMetadata}`);
         }
 
@@ -160,7 +166,7 @@ const validationMiddleware: Middleware<
           throw new Error(`Invalid plan id: ${planId}`);
         }
         if (
-          idx < 0 ||
+          idx < -1 ||
           idx > state.userData.planData.get(planId)!.termOrder.length
         ) {
           throw new Error(`Invalid index: ${idx}`);

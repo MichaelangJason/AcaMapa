@@ -80,14 +80,34 @@ export const userDataSlice = createSlice({
     setPlanOrder: (state, action: PayloadAction<string[]>) => {
       state.planOrder = action.payload;
     },
-    addPlan: (state, action: PayloadAction<Partial<Plan>>) => {
+    addPlan: (
+      state,
+      action: PayloadAction<Partial<Plan> & { idx?: number }>,
+    ) => {
       const newId = new ObjectId().toString();
-      state.planData.set(newId, {
+      const newPlan: Plan = {
         name: action.payload.name ?? "New Plan",
-        termOrder: action.payload.termOrder ?? [],
+        termOrder: action.payload.termOrder ?? [], // an initial term will be added in the middleware
         courseMetadata: action.payload.courseMetadata ?? {},
         _id: newId,
-      });
+      };
+
+      if (action.payload.termOrder) {
+        action.payload.termOrder.forEach((termId) => {
+          state.termData.set(termId, state.termData.get(termId)!);
+        });
+      } else {
+        const newTerm: Term = {
+          name: "New Term",
+          courseIds: [],
+          _id: new ObjectId().toString(),
+        };
+        state.termData.set(newTerm._id, newTerm);
+        newPlan.termOrder.push(newTerm._id);
+      }
+
+      state.planData.set(newId, newPlan);
+      state.planOrder.splice(action.payload.idx ?? 0, 0, newId);
     },
     deletePlan: (state, action: PayloadAction<string>) => {
       const plan = state.planData.get(action.payload)!;
@@ -100,12 +120,12 @@ export const userDataSlice = createSlice({
       action: PayloadAction<{
         planId: string;
         sourceIdx: number;
-        destinationIdx: number;
+        destIdx: number;
       }>,
     ) => {
-      const { planId, sourceIdx, destinationIdx } = action.payload;
+      const { planId, sourceIdx, destIdx } = action.payload;
       state.planOrder.splice(sourceIdx, 1);
-      state.planOrder.splice(destinationIdx, 0, planId);
+      state.planOrder.splice(destIdx, 0, planId);
     },
 
     /* TERM RELATED */
@@ -134,7 +154,11 @@ export const userDataSlice = createSlice({
       };
 
       state.termData.set(newTerm._id, newTerm);
-      plan.termOrder.splice(idx, 0, newTerm._id);
+      if (idx === -1) {
+        plan.termOrder.push(newTerm._id);
+      } else {
+        plan.termOrder.splice(idx, 0, newTerm._id);
+      }
     },
     deleteTerm: (
       state,

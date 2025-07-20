@@ -1,3 +1,5 @@
+"use client";
+
 import Wrapper from "./Wrapper";
 import type { CachedDetailedCourse } from "@/types/local";
 import { formatCourseId } from "@/lib/utils";
@@ -14,6 +16,7 @@ import clsx from "clsx";
 import { MCGILL_URL_BASES } from "@/lib/constants";
 import { ReqType } from "@/lib/enums";
 
+// TODO: make is draggable independent
 const DetailedCourseCard = ({
   course,
   idx,

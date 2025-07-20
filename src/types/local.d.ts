@@ -52,3 +52,13 @@ export type CachedDetailedCourse = DetailedCourse & {
   corequisites: EnhancedRequisites;
   restrictions: EnhancedRequisites;
 };
+
+export type DropdownOption = {
+  id: string;
+  content: string;
+  handleClick: (content?: string) => void;
+  isKeepDMOpen?: boolean;
+  isHideIndicator?: boolean;
+  isHideFiller?: boolean;
+  isChecked?: boolean;
+};

@@ -149,7 +149,11 @@ export const scrollTermCardToView = (
   if (!termsBox) return;
 
   const termCardElement =
-    typeof termCard === "number" ? termsBox?.children[termCard] : termCard;
+    typeof termCard === "number"
+      ? termsBox?.children[
+          termCard === -1 ? termsBox.children.length - 1 : termCard
+        ]
+      : termCard;
 
   if (
     !termCardElement ||
@@ -176,4 +180,11 @@ export const scrollTermCardToView = (
     container: docElm,
     ...options,
   });
+};
+
+export const getCommandKey = () => {
+  if (navigator.userAgent.includes("Mac")) {
+    return "⌘";
+  }
+  return "Ctrl";
 };

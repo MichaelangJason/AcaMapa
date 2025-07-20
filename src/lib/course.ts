@@ -583,7 +583,7 @@ export const updateAffectedCourses = (args: {
   );
 
   courseToBeUpdated.forEach((c) => {
-    if (!depGraph.get(c)?.termId) return;
+    if (!depGraph.get(c)?.termId) return; // not planned
     const courseDetail = cachedDetailedCourseData[c];
     depGraph.get(c)!.isSatisfied = isSatisfied({
       course: courseDetail,

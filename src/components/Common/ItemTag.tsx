@@ -2,6 +2,7 @@ import { useState } from "react";
 import PinIcon from "@/public/icons/pin.svg";
 import PlusIcon from "@/public/icons/plus.svg";
 import clsx from "clsx";
+import { useAppSelector } from "@/store/hooks";
 
 const ItemTag = ({
   title,
@@ -18,22 +19,25 @@ const ItemTag = ({
 }) => {
   const [isHovering, setIsHovering] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const isDragging = useAppSelector((state) => state.global.isDragging);
+
+  const showExpanded = !isDragging && (isExpanded || isHovering);
 
   return (
     <article
-      className={clsx("item-tag", (isExpanded || isHovering) && "expanded")}
+      className={clsx("item-tag", showExpanded && "expanded")}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
     >
       <header
-        className="item-tag-header"
+        className={clsx("item-tag-header", isDragging && "dragging")}
         onClick={() => setIsExpanded((prev) => !prev)}
       >
         <div className="icon-container">
           <PinIcon
             className={clsx(
               "pin",
-              (isExpanded || isHovering) && "rotated",
+              showExpanded && "rotated",
               isExpanded && "pinned",
             )}
           />
@@ -46,7 +50,7 @@ const ItemTag = ({
           </div>
         )}
       </header>
-      {(isHovering || isExpanded) && (
+      {showExpanded && (
         <div className="item-tag-items">
           {items.map((item) => (
             <Item

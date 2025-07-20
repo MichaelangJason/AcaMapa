@@ -272,7 +272,9 @@ const localDataSlice = createSlice({
       const courseToBeUpdated = new Set<string>();
 
       courseIds.forEach((id) => {
-        depGraph.get(id)!.affectedCourseIds.forEach((c) => {
+        const depCourse = depGraph.get(id)!;
+        const affectedCourses = Array.from(depCourse.affectedCourseIds);
+        affectedCourses.forEach((c) => {
           courseToBeUpdated.add(c);
         });
 
@@ -283,8 +285,21 @@ const localDataSlice = createSlice({
           courseToBeUpdated.add(c); // update
         });
 
-        // delete from graph
-        depGraph.delete(id);
+        // delete from graph if non of its affected courses are in the graph
+        const removedAffectedCourses = affectedCourses.filter(
+          (c) => !isCourseInGraph(state.courseDepData, c),
+        );
+
+        // no affected courses left, acceptable overhead (usually very small number)
+        if (removedAffectedCourses.length === affectedCourses.length) {
+          depGraph.delete(id);
+        } else {
+          // REVIEW: should this cleanup be done each time an update is made?
+          removedAffectedCourses.forEach((c) => {
+            depGraph.get(c)!.affectedCourseIds.delete(id); // clear affected course id
+          });
+          depCourse.termId = "";
+        }
         subjectMap.get(subject)!.delete(id); // must exist
         if (subjectMap.get(subject)!.size === 0) {
           subjectMap.delete(subject);
