@@ -431,18 +431,13 @@ export const isSatisfied = (args: {
     return courseTaken.get(subjectCode)?.includes(courseId) ?? false;
   };
 
-  console.group("isSatisfied: " + course.id);
-  console.log("depGraph", depGraph);
-  console.log("termOrderMap", termOrderMap);
-  console.log("combinedSubjectMap", combinedSubjectMap);
-  console.log("courseTaken", courseTaken);
-
   const isGroupSatisfied = (
     input: ReqGroup | string,
     includeCurrentTerm: boolean,
   ): boolean => {
     if (typeof input === "string") {
-      if (isCourseTaken(input)) return true;
+      const isMultiTerm = input.match(COURSE_PATTERN.MULTI_TERM);
+      if (!isMultiTerm && isCourseTaken(input)) return true;
 
       const inputOrder = termOrderMap.get(depGraph.get(input)?.termId ?? "");
 
@@ -452,10 +447,7 @@ export const isSatisfied = (args: {
       }
 
       // consecutive requirements (i.e. COMP361D1, COMP361D2)
-      if (
-        input.match(COURSE_PATTERN.MULTI_TERM) &&
-        inputOrder !== currentOrder - 1
-      ) {
+      if (isMultiTerm && inputOrder !== currentOrder - 1) {
         return false;
       }
 
@@ -530,14 +522,6 @@ export const isSatisfied = (args: {
         return totalCredits >= requiredCreditFloat;
     }
   };
-  const isPrerequisiteSatisfied = isGroupSatisfied(prerequisites.group, false);
-  const isCorequisiteSatisfied = isGroupSatisfied(corequisites.group, true);
-  const isRestrictionSatisfied = !isGroupSatisfied(restrictions.group, true);
-
-  console.log("isPrerequisiteSatisfied", isPrerequisiteSatisfied);
-  console.log("isCorequisiteSatisfied", isCorequisiteSatisfied);
-  console.log("isRestrictionSatisfied", isRestrictionSatisfied);
-  console.groupEnd();
 
   // check prerequisites
   if (!isGroupSatisfied(prerequisites.group, false)) return false;

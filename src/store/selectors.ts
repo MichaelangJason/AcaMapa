@@ -292,12 +292,12 @@ export const selectCourseDepMeta = createSelector(
         const isLevelSatisfied =
           levels[0] === "0" || levels.includes(getCourseLevel(courseId));
 
-        console.group(
-          `isCourseValid(${courseId}, ${sourceTermId}, ${includeCurrentTerm}), levels: ${levels}`,
-        );
-        console.log(courseOrder, currentOrder);
-        console.log(isOrderSatisfied, isLevelSatisfied);
-        console.groupEnd();
+        // console.group(
+        //   `isCourseValid(${courseId}, ${sourceTermId}, ${includeCurrentTerm}), levels: ${levels}`,
+        // );
+        // console.log(courseOrder, currentOrder);
+        // console.log(isOrderSatisfied, isLevelSatisfied);
+        // console.groupEnd();
 
         if (!isOrderSatisfied || !isLevelSatisfied) {
           return "";
