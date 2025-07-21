@@ -31,5 +31,6 @@ export const MCGILL_URL_BASES = {
 };
 
 export const SCROLL_OFFSET = {
+  TERM_BODY_HEIGHT_COEF: 0.05,
   COURSE_CARD: 32,
 };

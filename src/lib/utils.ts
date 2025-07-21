@@ -201,28 +201,23 @@ export const scrollCourseCardToView = (
   }
 
   const termBodyScrollTop = termBodyElem.scrollTop;
-  const termBodyTop = termBodyElem.getBoundingClientRect().top;
-  const maxScrollTop = termBodyElem.scrollHeight - termBodyElem.clientHeight;
-
-  const courseCardElemHeight = courseCardElem.clientHeight;
-  const isLargerThanTermBody = courseCardElemHeight > termBodyElem.clientHeight;
+  const termBodyHeight = termBodyElem.clientHeight;
+  const termBodyTop =
+    termBodyElem.getBoundingClientRect().top +
+    SCROLL_OFFSET.TERM_BODY_HEIGHT_COEF * termBodyHeight;
+  const maxScrollTop = termBodyElem.scrollHeight - termBodyHeight;
 
   const courseCardTop = courseCardElem.getBoundingClientRect().top;
-  const courseCardCenterY = courseCardTop + courseCardElemHeight / 2;
   const courseCardBottomPadding = courseCardElem
     .computedStyleMap()
     .get("margin-bottom") as CSSUnitValue;
-  const clientCenterY = document.documentElement.clientWidth / 2;
-  const offsetY = termBodyElem.getBoundingClientRect().top;
 
-  const scrollDistance = isLargerThanTermBody
-    ? courseCardTop - termBodyTop
-    : courseCardCenterY - clientCenterY + offsetY + SCROLL_OFFSET.COURSE_CARD;
-  console.group("scrollCourseCardToView");
-  console.log(courseCardTop, termBodyTop, courseCardCenterY, clientCenterY);
-  console.log(isLargerThanTermBody);
-  console.log(scrollDistance);
-  console.groupEnd();
+  const scrollDistance = courseCardTop - termBodyTop;
+  // console.group("scrollCourseCardToView");
+  // console.log(courseCardTop, termBodyTop, courseCardCenterY, clientCenterY);
+  // console.log(isLargerThanTermBody);
+  // console.log(scrollDistance);
+  // console.groupEnd();
 
   const targetY = clamp(
     termBodyScrollTop + scrollDistance - courseCardBottomPadding.value,

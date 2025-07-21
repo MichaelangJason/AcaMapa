@@ -87,4 +87,25 @@
       stroke-width: 4;
     }
   }
+
+  &.seeking {
+    border-radius: 1rem;
+    border: 4px solid var(--gray-600);
+    background: var(--gray-500);
+
+    textarea {
+      color: var(--gray-000);
+      font-weight: bold;
+    }
+
+    .search-input-icon {
+      .delete {
+        stroke: var(--gray-200);
+
+        &:hover {
+          stroke: var(--gray-600);
+        }
+      }
+    }
+  }
 }

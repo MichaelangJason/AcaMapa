@@ -66,6 +66,7 @@ const DetailedCourseCard = ({
     } else {
       scrollCourseCardToView(id, { duration: 500 });
       dispatch(seekCourse(id));
+      setIsExpanded(id, true);
     }
   }, [dispatch, id, isSeekingCourse]);
 
@@ -96,7 +97,9 @@ const DetailedCourseCard = ({
           isSeeking={isSeekingSelf}
           isExpanded={isExpanded}
           disableMap={{
+            seek: isSeekingCourse && !isSeekingSelf,
             delete: isSeekingCourse,
+            expand: isSeekingCourse,
           }}
           toggleIsExpanded={() => setIsExpanded(id, !isExpanded)}
           handleDelete={() => handleDelete(id)}

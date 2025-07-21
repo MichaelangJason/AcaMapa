@@ -100,9 +100,9 @@
 
         &.active {
           svg > path {
-            stroke: var(--gray-1000);
+            stroke: var(--gray-800);
             fill-opacity: 1;
-            fill: var(--gray-900);
+            fill: var(--gray-800);
           }
         }
 

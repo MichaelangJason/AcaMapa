@@ -6,6 +6,8 @@ import { formatCourseId } from "@/lib/utils";
 import RemoveIcon from "@/public/icons/minus.svg";
 import AddIcon from "@/public/icons/plus.svg";
 import clsx from "clsx";
+import { selectCourseDepMeta } from "@/store/selectors";
+import { useAppSelector } from "@/store/hooks";
 
 const MiniCourseCard = ({
   data,
@@ -23,6 +25,8 @@ const MiniCourseCard = ({
   style?: React.CSSProperties;
 }) => {
   const { id, name, credits } = data;
+  const { getCourseSource } = useAppSelector(selectCourseDepMeta);
+  const { source } = getCourseSource(id, "", false);
 
   const handleClick = useCallback(
     async (e: React.MouseEvent<HTMLDivElement>) => {
@@ -39,7 +43,7 @@ const MiniCourseCard = ({
       className={clsx([
         "mini-course-card",
         isSelected && "selected",
-        isSatisfied && "satisfied",
+        (source !== "" || isSatisfied) && "satisfied",
       ])}
       style={style}
     >

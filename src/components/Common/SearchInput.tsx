@@ -42,15 +42,21 @@ const SearchInput = ({
   }, []);
 
   useEffect(() => {
-    resizeTextarea();
     debouncedCallback(value);
-  }, [value, debouncedCallback, resizeTextarea]);
+  }, [value, debouncedCallback]);
+
+  // acceptable overhead, no need to debounce
+  useEffect(() => {
+    resizeTextarea();
+  }, [value, displayText, resizeTextarea]);
 
   const handleClear = useCallback(() => {
     onClickIcon?.();
-    if (value === "") return;
-    dispatch(setSearchInput(""));
-  }, [dispatch, value, onClickIcon]);
+    if (value !== "") {
+      dispatch(setSearchInput(""));
+    }
+    resizeTextarea();
+  }, [dispatch, value, onClickIcon, resizeTextarea]);
 
   return (
     <div className={clsx(["search-input", className])}>

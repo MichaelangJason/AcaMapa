@@ -58,7 +58,7 @@ const SideBar = ({
   const displayText = useMemo(() => {
     switch (searchResult.type) {
       case ResultType.SEEKING:
-        return `Seeking ${searchResult.query}`;
+        return `Subsequent Courses \n${searchResult.query}`;
       default:
         return undefined;
     }
@@ -84,6 +84,9 @@ const SideBar = ({
           callback={handleSearchCourse}
           displayText={displayText}
           onClickIcon={handleClearSearchInput}
+          className={clsx([
+            searchResult.type === ResultType.SEEKING && "seeking",
+          ])}
         />
       </header>
       {/* courses to be added, data passed by global redux state */}

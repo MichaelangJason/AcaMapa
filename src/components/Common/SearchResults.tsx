@@ -46,6 +46,13 @@ const SearchResults = ({ result }: { result: SearchResult }) => {
     [hasMore],
   );
 
+  const handleNoResultText = useCallback(() => {
+    if (type === ResultType.SEEKING) {
+      return "NO SUBSEQUENT COURSES";
+    }
+    return "NO RESULTS";
+  }, [type]);
+
   // setup infinite scroll
   // OPTIMIZE: maybe switch to a virtualized list
   useEffect(() => {
@@ -107,7 +114,7 @@ const SearchResults = ({ result }: { result: SearchResult }) => {
 
         return null;
       })}
-      {displayData.length === 0 && <FootNote content="NO RESULTS" />}
+      {displayData.length === 0 && <FootNote content={handleNoResultText()} />}
       <div ref={loadingTriggerRef} />
       {hasMore && <div className="loading-placeholder">Loading more...</div>}
     </div>

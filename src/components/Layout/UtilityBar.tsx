@@ -175,7 +175,15 @@ const UtilityBar = () => {
           title="Plan Stats"
         />
       </section>
-      <GithubMark className="github-mark" />
+      <GithubMark
+        className="github-mark"
+        onClick={() => {
+          window.open(
+            "https://github.com/MichaelangJason/DegreeMapper",
+            "_blank",
+          );
+        }}
+      />
     </section>
   );
 };
