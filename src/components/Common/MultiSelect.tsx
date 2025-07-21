@@ -38,6 +38,7 @@ const getStyle = (idx: number, isHovering: boolean, isExpanded: boolean) => {
     boxShadow: idx <= 2 || isExpanded ? "" : "none",
     background: `var(--gray-${clamp(isExpanded ? 0 : idx, 0, 4)}00)`,
     opacity: isExpanded || idx <= 2 ? 1 : clamp(1 - idx * 0.05, 0.7, 1),
+    height: MULTI_SELECT_CONFIG.MIN_HEIGHT,
   };
 };
 
@@ -81,10 +82,14 @@ const MultiSelect = () => {
   if (selectedCourses.size <= 0) return null;
 
   return (
-    // REMINDER: flex-direction: column-reverse is used to use native css stacking
+    // REMINDER: flex-direction: column-reverse + .reverse() is used to use native css stacking
     <div className="multi-select-container">
       <div
-        className={clsx("multi-select", isExpanded && "expanded")}
+        className={clsx(
+          "multi-select",
+          isExpanded && "expanded",
+          selectedCourses.size >= 3 && "min-height-enabled",
+        )}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         onClick={toggleExpand}
