@@ -10,7 +10,7 @@ const FootNote = ({
   return (
     <div className="foot-note">
       <span>{content}</span>
-      {true && (
+      {handleDelete && (
         <button className="delete" onClick={handleDelete}>
           <DeleteIcon />
         </button>

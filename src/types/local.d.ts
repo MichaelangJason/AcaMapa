@@ -3,7 +3,7 @@ import type { Course, DetailedCourse, Requisite } from "./db";
 
 export type SearchResult = { query: string } & (
   | {
-      type: ResultType.DEFAULT | ResultType.COURSE;
+      type: ResultType.DEFAULT | ResultType.COURSE | ResultType.SEEKING;
       data: Course[];
     }
   | {

@@ -39,12 +39,20 @@ export const initialState = {
     creditsReqMap: new Map() as CourseDepData["creditsReqMap"],
     depGraph: new Map() as CourseDepData["depGraph"],
   } as CourseDepData,
+
+  seekingCourseId: "" as string,
 };
 
 const localDataSlice = createSlice({
   name: "localData",
   initialState,
   reducers: {
+    setSeekingCourseId: (state, action: PayloadAction<string>) => {
+      state.seekingCourseId = action.payload;
+    },
+    clearSeekingCourseId: (state) => {
+      state.seekingCourseId = "";
+    },
     setSearchResult: (state, action: PayloadAction<SearchResult>) => {
       state.searchResult = action.payload;
     },
@@ -436,6 +444,8 @@ const localDataSlice = createSlice({
 });
 
 export const {
+  setSeekingCourseId,
+  clearSeekingCourseId,
   setSearchResult,
   setSearchInput,
   setCourseData,

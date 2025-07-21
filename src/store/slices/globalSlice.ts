@@ -10,6 +10,7 @@ export const initialState = {
   isDragging: false as boolean,
   isInitialized: false as boolean,
   isUtilityDropdownMenuOpen: false as boolean,
+  isSeekingCourse: false as boolean,
 
   // draggingType: null as DraggingType | null,
   // addingCourseId: null as string | null,
@@ -61,6 +62,9 @@ const globalSlice = createSlice({
     },
     toggleIsUtilityDropdownMenuOpen: (state) => {
       state.isUtilityDropdownMenuOpen = !state.isUtilityDropdownMenuOpen;
+    },
+    setIsSeekingCourse: (state, action: PayloadAction<boolean>) => {
+      state.isSeekingCourse = action.payload;
     },
     // setDraggingType: (state, action: PayloadAction<DraggingType | null>) => {
     //   state.draggingType = action.payload;
@@ -145,6 +149,7 @@ export const {
   setIsDragging,
   setIsUtilityDropdownMenuOpen,
   toggleIsUtilityDropdownMenuOpen,
+  setIsSeekingCourse,
   // setDraggingType,
   // setAddingCourseId,
   // setDroppableId,

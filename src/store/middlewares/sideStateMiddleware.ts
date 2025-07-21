@@ -2,6 +2,7 @@ import { createListenerMiddleware, isAnyOf } from "@reduxjs/toolkit";
 import type { AppDispatch, RootState } from "..";
 import {
   setIsAddingCourse,
+  setIsSeekingCourse,
   setIsSideBarFolded,
   toggleIsSideBarFolded,
 } from "../slices/globalSlice";
@@ -18,6 +19,9 @@ import {
   addCoursesToGraph,
   setCurrentPlanId,
   clearCourseDepData,
+  setSeekingCourseId,
+  setSearchInput,
+  setSearchResult,
 } from "../slices/localDataSlice";
 import {
   addPlan,
@@ -33,6 +37,7 @@ import {
   isTermAction,
 } from "@/lib/typeGuards";
 import { getSubjectCode } from "@/lib/course";
+import { ResultType } from "@/lib/enums";
 
 const listenerMiddleware = createListenerMiddleware();
 const startListening = listenerMiddleware.startListening.withTypes<
@@ -93,6 +98,28 @@ startListening({
         duration: 500,
       });
     }, 100);
+  },
+});
+
+// handle seeking course updates only
+startListening({
+  actionCreator: setSeekingCourseId,
+  effect: (action, listenerApi) => {
+    const dispatch = listenerApi.dispatch;
+    const isSeekingCourse = action.payload !== "";
+    dispatch(setIsSeekingCourse(isSeekingCourse));
+
+    if (isSeekingCourse) {
+      // set body and term body scroll disabled
+      document.body.style.overflow = "hidden";
+      // document.querySelector(".terms-container")?.classList.add("scroll-disabled");
+    } else {
+      dispatch(setSearchInput(""));
+      dispatch(
+        setSearchResult({ type: ResultType.DEFAULT, query: "", data: [] }),
+      );
+      document.body.style.overflow = "auto";
+    }
   },
 });
 

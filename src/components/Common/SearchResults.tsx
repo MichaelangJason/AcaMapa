@@ -12,6 +12,7 @@ import type { Course } from "@/types/db";
 import type { SearchResult } from "@/types/local";
 import { useDebounce } from "@/lib/hooks";
 import { selectAllCourseData } from "@/store/selectors";
+import FootNote from "../Course/CourseCard/FootNote";
 
 const SearchResults = ({ result }: { result: SearchResult }) => {
   const defaultData = useAppSelector(selectAllCourseData);
@@ -88,7 +89,9 @@ const SearchResults = ({ result }: { result: SearchResult }) => {
     >
       {displayData.slice(0, page * RESULT_PER_PAGE).map((entry, idx) => {
         if (
-          (type === ResultType.COURSE || type === ResultType.DEFAULT) &&
+          (type === ResultType.COURSE ||
+            type === ResultType.DEFAULT ||
+            type === ResultType.SEEKING) &&
           isValidCourse(entry)
         ) {
           return (
@@ -104,6 +107,7 @@ const SearchResults = ({ result }: { result: SearchResult }) => {
 
         return null;
       })}
+      {displayData.length === 0 && <FootNote content="NO RESULTS" />}
       <div ref={loadingTriggerRef} />
       {hasMore && <div className="loading-placeholder">Loading more...</div>}
     </div>

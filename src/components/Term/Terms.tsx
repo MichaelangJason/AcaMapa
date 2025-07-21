@@ -19,6 +19,7 @@ import { addCourseToTerm } from "@/store/thunks";
 import {
   clearSelectedCourses,
   setIsCourseExpanded,
+  setSeekingCourseId,
 } from "@/store/slices/localDataSlice";
 import {
   DragDropContext,
@@ -29,6 +30,7 @@ import {
 } from "@hello-pangea/dnd";
 import { DraggingType } from "@/lib/enums";
 import { setIsDragging } from "@/store/slices/globalSlice";
+import clsx from "clsx";
 
 const Terms = () => {
   const currentPlan = useAppSelector(selectCurrentPlan);
@@ -39,6 +41,14 @@ const Terms = () => {
   );
   const dispatch = useAppDispatch();
   const termsContainerRef = useRef<HTMLDivElement>(null);
+  const isSeekingCourse = useAppSelector(
+    (state) => state.global.isSeekingCourse,
+  );
+
+  const handleClearSeekingCourseId = useCallback(() => {
+    if (!isSeekingCourse) return;
+    dispatch(setSeekingCourseId(""));
+  }, [dispatch, isSeekingCourse]);
 
   const handleAddCourse = useCallback(
     async (termId: string) => {
@@ -189,6 +199,12 @@ const Terms = () => {
               />
             ))}
             {provided.placeholder}
+            {
+              <div
+                className={clsx(["seeking-mask", isSeekingCourse && "active"])}
+                onClick={handleClearSeekingCourseId}
+              />
+            }
           </div>
         )}
       </Droppable>

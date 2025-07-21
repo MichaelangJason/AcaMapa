@@ -17,6 +17,7 @@ const Wrapper = ({
   handleDelete,
   handleSeek,
   className,
+  disableMap,
   style,
   draggableConfig,
   extraProps,
@@ -31,6 +32,12 @@ const Wrapper = ({
   toggleIsExpanded: () => void;
   handleDelete?: () => void;
   handleSeek?: () => void;
+
+  disableMap?: {
+    seek?: boolean;
+    expand?: boolean;
+    delete?: boolean;
+  };
 
   children?: React.ReactNode;
   className?: string;
@@ -71,17 +78,27 @@ const Wrapper = ({
         <section className="icons-container">
           {handleSeek && (
             <div
-              className={clsx(["seek", isSeeking && "active"])}
+              className={clsx([
+                "seek",
+                isSeeking && "active",
+                disableMap?.seek && "disabled",
+              ])}
               onClick={handleSeek}
             >
               <SeekIcon />
             </div>
           )}
-          <div className="expand" onClick={toggleIsExpanded}>
+          <div
+            className={clsx(["expand", disableMap?.expand && "disabled"])}
+            onClick={toggleIsExpanded}
+          >
             <ExpandIcon />
           </div>
           {handleDelete && (
-            <div className="delete" onClick={handleDelete}>
+            <div
+              className={clsx(["delete", disableMap?.delete && "disabled"])}
+              onClick={handleDelete}
+            >
               <DeleteIcon />
             </div>
           )}

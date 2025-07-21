@@ -118,6 +118,10 @@
     &.dragging-over {
       background: var(--gray-100);
     }
+
+    &.scroll-disabled {
+      overflow: hidden;
+    }
   }
 
   .term-footer {

@@ -2,9 +2,9 @@
 
 import Wrapper from "./Wrapper";
 import type { CachedDetailedCourse } from "@/types/local";
-import { formatCourseId } from "@/lib/utils";
+import { formatCourseId, scrollCourseCardToView } from "@/lib/utils";
 import { Draggable } from "@hello-pangea/dnd";
-import { useAppSelector } from "@/store/hooks";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
   selectCurrentPlanIsCourseExpanded,
   selectCourseDepGraph,
@@ -15,6 +15,9 @@ import ReqNotes from "./ReqNotes";
 import clsx from "clsx";
 import { MCGILL_URL_BASES } from "@/lib/constants";
 import { ReqType } from "@/lib/enums";
+import { useCallback, useMemo } from "react";
+import { setSeekingCourseId } from "@/store/slices/localDataSlice";
+import { seekCourse } from "@/store/thunks";
 
 // TODO: make is draggable independent
 const DetailedCourseCard = ({
@@ -48,10 +51,36 @@ const DetailedCourseCard = ({
   const isOverwritten = useAppSelector((state) =>
     selectIsOverwritten(state, id),
   );
+  const dispatch = useAppDispatch();
+
+  // may not need memoized selector
+  const isSeekingCourse = useAppSelector(
+    (state) => state.global.isSeekingCourse,
+  );
+  const isSeekingSelf =
+    useAppSelector((state) => state.localData.seekingCourseId) === id;
+
+  const handleSeek = useCallback(() => {
+    if (isSeekingCourse) {
+      dispatch(setSeekingCourseId(""));
+    } else {
+      scrollCourseCardToView(id, { duration: 500 });
+      dispatch(seekCourse(id));
+    }
+  }, [dispatch, id, isSeekingCourse]);
+
   const depGraph = useAppSelector(selectCourseDepGraph);
+  const hasNoChildren = useMemo(() => {
+    return (
+      !prerequisites?.raw &&
+      !corequisites?.raw &&
+      !restrictions?.raw &&
+      !notes?.length
+    );
+  }, [prerequisites, corequisites, restrictions, notes]);
 
   return (
-    <Draggable draggableId={id} index={idx}>
+    <Draggable draggableId={id} index={idx} isDragDisabled={isSeekingCourse}>
       {(provided, snapshot) => (
         <Wrapper
           heading={formatCourseId(id)}
@@ -62,10 +91,16 @@ const DetailedCourseCard = ({
             !snapshot.isDragging &&
               !isDragging &&
               (depGraph.get(id)?.isSatisfied ? "satisfied" : "unsatisfied"),
+            isSeekingSelf && "seeking",
           ])}
+          isSeeking={isSeekingSelf}
           isExpanded={isExpanded}
+          disableMap={{
+            delete: isSeekingCourse,
+          }}
           toggleIsExpanded={() => setIsExpanded(id, !isExpanded)}
           handleDelete={() => handleDelete(id)}
+          handleSeek={handleSeek}
           draggableConfig={provided}
           isDragging={snapshot.isDragging}
           extraProps={{
@@ -113,6 +148,9 @@ const DetailedCourseCard = ({
                 />
               )}
               {isOverwritten && <FootNote content={"OVERWRITTEN"} />}
+              {hasNoChildren && (
+                <FootNote content={"NO REQ/CO-REQ/ANTI-REQ/NOTES"} />
+              )}
             </>
           )}
         </Wrapper>

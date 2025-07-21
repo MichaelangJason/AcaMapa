@@ -44,10 +44,11 @@
   justify-content: center;
   cursor: pointer;
   height: fit-content;
+  margin-top: 4px;
 
   .mini-course-card {
     transition: all 0.4s ease;
-    height: 64px;
+    max-height: 64px;
 
     .name {
       max-width: 100%;

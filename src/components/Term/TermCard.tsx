@@ -5,7 +5,7 @@ import type { CachedDetailedCourse, DropdownOption } from "@/types/local";
 import HamburgerIcon from "@/public/icons/hamburger.svg";
 import PlusIcon from "@/public/icons/plus.svg";
 import clsx from "clsx";
-import { useMemo, useState, memo } from "react";
+import { useMemo, useState, memo, useCallback } from "react";
 import { useAppSelector } from "@/store/hooks";
 import DetailedCourseCard from "../Course/CourseCard/DetailedCourseCard";
 import { Droppable, Draggable } from "@hello-pangea/dnd";
@@ -25,13 +25,14 @@ const AddTermButton = ({
 }) => {
   const [isClicked, setIsClicked] = useState(false);
 
-  const handleClick = () => {
+  const handleClick = useCallback(() => {
     setIsClicked(true);
     onClick(isBefore);
     setTimeout(() => {
       setIsClicked(false);
     }, 100);
-  };
+  }, [isBefore, onClick]);
+
   return (
     <button
       className={clsx([
@@ -73,32 +74,41 @@ const TermCard = ({
   const isAddingCourse = useAppSelector((state) => state.global.isAddingCourse);
   const isDragging = useAppSelector((state) => state.global.isDragging);
   const [isTermDMOpen, setIsTermDMOpen] = useState(false);
+  const isSeekingCourse = useAppSelector(
+    (state) => state.global.isSeekingCourse,
+  );
 
   const totalCredits = useMemo(() => {
     return courses.reduce((acc, course) => acc + course.credits, 0);
   }, [courses]);
 
-  const handleAddCourse = async () => {
+  const handleAddCourse = useCallback(async () => {
     await addCourse(term._id.toString());
-  };
+  }, [addCourse, term._id]);
 
-  const handleDeleteCourse = (courseId: string) => {
-    deleteCourse(term._id.toString(), courseId);
-  };
+  const handleDeleteCourse = useCallback(
+    (courseId: string) => {
+      deleteCourse(term._id.toString(), courseId);
+    },
+    [deleteCourse, term._id],
+  );
 
-  const handleAddTerm = (isBefore: boolean) => {
-    addTerm(term._id.toString(), isBefore);
-  };
+  const handleAddTerm = useCallback(
+    (isBefore: boolean) => {
+      addTerm(term._id.toString(), isBefore);
+    },
+    [addTerm, term._id],
+  );
 
-  const handleDeleteTerm = () => {
-    deleteTerm(term._id.toString(), idx);
-  };
-
-  const handleCloseTermDM = () => {
+  const handleCloseTermDM = useCallback(() => {
     setIsTermDMOpen(false);
-  };
+  }, []);
 
   const termActions: ItemProps[] = useMemo(() => {
+    const handleDeleteTerm = () => {
+      deleteTerm(term._id.toString(), idx);
+    };
+
     return [
       {
         self: {
@@ -111,7 +121,7 @@ const TermCard = ({
         handleCloseDropdownMenu: handleCloseTermDM,
       },
     ];
-  }, [handleDeleteTerm]);
+  }, [deleteTerm, idx, handleCloseTermDM, term._id]);
 
   return (
     <Draggable draggableId={term._id} index={idx} isDragDisabled={false}>
@@ -163,6 +173,7 @@ const TermCard = ({
                   "term-body",
                   "scrollbar-custom",
                   droppableSnapshot.isDraggingOver && "dragging-over",
+                  isSeekingCourse && "scroll-disabled",
                 ])}
                 ref={droppableProvided.innerRef}
                 {...droppableProvided.droppableProps}

@@ -28,3 +28,7 @@ export const COURSE_PATTERN = {
 export const MCGILL_URL_BASES = {
   COURSE_CATALOGUE: "https://coursecatalogue.mcgill.ca/courses/",
 };
+
+export const SCROLL_OFFSET = {
+  COURSE_CARD: 32,
+};

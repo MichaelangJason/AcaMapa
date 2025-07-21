@@ -1,5 +1,6 @@
 export enum ResultType {
   DEFAULT = "default",
+  SEEKING = "seeking",
   COURSE = "course",
   PROGRAM = "program",
   AI = "ai",

@@ -1,5 +1,6 @@
 import type FlexSearch from "flexsearch";
 import type { Course } from "@/types/course";
+import { SCROLL_OFFSET } from "./constants";
 
 export const debounce = <T>(
   fn: (...args: any[]) => Promise<T>,
@@ -179,6 +180,68 @@ export const scrollTermCardToView = (
     targetX,
     container: docElm,
     ...options,
+  });
+};
+
+export const scrollCourseCardToView = (
+  courseId: string,
+  options: Omit<ScrollOptions, "container">,
+) => {
+  const courseCardElem = document.body.querySelector(`#${courseId}`);
+  if (!courseCardElem) return;
+
+  const termBodyElem = courseCardElem.parentElement;
+  if (!termBodyElem) {
+    throw new Error("Term body element not found");
+  }
+
+  const termCardElem = termBodyElem.parentElement;
+  if (!termCardElem) {
+    throw new Error("Term card element not found");
+  }
+
+  const termBodyScrollTop = termBodyElem.scrollTop;
+  const termBodyTop = termBodyElem.getBoundingClientRect().top;
+  const maxScrollTop = termBodyElem.scrollHeight - termBodyElem.clientHeight;
+
+  const courseCardElemHeight = courseCardElem.clientHeight;
+  const isLargerThanTermBody = courseCardElemHeight > termBodyElem.clientHeight;
+
+  const courseCardTop = courseCardElem.getBoundingClientRect().top;
+  const courseCardCenterY = courseCardTop + courseCardElemHeight / 2;
+  const courseCardBottomPadding = courseCardElem
+    .computedStyleMap()
+    .get("margin-bottom") as CSSUnitValue;
+  const clientCenterY = document.documentElement.clientWidth / 2;
+  const offsetY = termBodyElem.getBoundingClientRect().top;
+
+  const scrollDistance = isLargerThanTermBody
+    ? courseCardTop - termBodyTop
+    : courseCardCenterY - clientCenterY + offsetY + SCROLL_OFFSET.COURSE_CARD;
+  console.group("scrollCourseCardToView");
+  console.log(courseCardTop, termBodyTop, courseCardCenterY, clientCenterY);
+  console.log(isLargerThanTermBody);
+  console.log(scrollDistance);
+  console.groupEnd();
+
+  const targetY = clamp(
+    termBodyScrollTop + scrollDistance - courseCardBottomPadding.value,
+    0,
+    maxScrollTop,
+  );
+
+  const scrollCourseCard = () =>
+    smoothScrollTo({
+      targetY,
+      container: termBodyElem,
+      ...options,
+    });
+
+  scrollTermCardToView(termCardElem, {
+    duration: 300,
+    onComplete: () => {
+      scrollCourseCard();
+    },
   });
 };
 

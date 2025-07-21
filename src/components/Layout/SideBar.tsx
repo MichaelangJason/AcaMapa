@@ -4,8 +4,11 @@ import { SearchInput, SearchResults, MultiSelect } from "../Common";
 import { CourseTaken } from "../Course";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { toggleIsSideBarFolded } from "@/store/slices/globalSlice";
-import { setSearchResult } from "@/store/slices/localDataSlice";
-import { useCallback } from "react";
+import {
+  setSearchResult,
+  setSeekingCourseId,
+} from "@/store/slices/localDataSlice";
+import { useCallback, useMemo } from "react";
 import { ResultType } from "@/lib/enums";
 import type { Course } from "@/types/course";
 import Image from "next/image";
@@ -48,6 +51,19 @@ const SideBar = ({
     [searchCourseFn, dispatch],
   );
 
+  const handleClearSearchInput = useCallback(() => {
+    dispatch(setSeekingCourseId(""));
+  }, [dispatch]);
+
+  const displayText = useMemo(() => {
+    switch (searchResult.type) {
+      case ResultType.SEEKING:
+        return `Seeking ${searchResult.query}`;
+      default:
+        return undefined;
+    }
+  }, [searchResult]);
+
   return (
     <div className={clsx(["left-sidebar", isFolded && "folded"])}>
       {/* folding handle */}
@@ -64,7 +80,11 @@ const SideBar = ({
           height={303}
           priority={true}
         />
-        <SearchInput callback={handleSearchCourse} />
+        <SearchInput
+          callback={handleSearchCourse}
+          displayText={displayText}
+          onClickIcon={handleClearSearchInput}
+        />
       </header>
       {/* courses to be added, data passed by global redux state */}
       <MultiSelect />

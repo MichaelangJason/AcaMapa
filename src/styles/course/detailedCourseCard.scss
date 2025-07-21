@@ -30,6 +30,10 @@
     }
   }
 
+  &.seeking {
+    z-index: 550;
+  }
+
   .course-card-header {
     display: grid;
     width: 100%;
@@ -80,9 +84,31 @@
         align-items: center;
         cursor: pointer;
 
+        transition: opacity 0.2s ease;
+
         svg path {
           stroke: var(--gray-1000-50-opac);
           stroke-width: 2px;
+          transition: all 0.2s ease;
+        }
+
+        &:hover:not(.active):not(.disabled) {
+          svg > path {
+            stroke: var(--gray-800);
+          }
+        }
+
+        &.active {
+          svg > path {
+            stroke: var(--gray-1000);
+            fill-opacity: 1;
+            fill: var(--gray-900);
+          }
+        }
+
+        &.disabled {
+          cursor: not-allowed;
+          opacity: 0.5;
         }
       }
 
@@ -107,6 +133,12 @@
             fill: var(--gray-1000-50-opac);
             fill-opacity: 1;
             stroke-width: 0;
+          }
+        }
+
+        &:hover:not(.active):not(.disabled) {
+          svg > path {
+            fill: var(--gray-800);
           }
         }
       }

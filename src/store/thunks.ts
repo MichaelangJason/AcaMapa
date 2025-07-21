@@ -6,6 +6,8 @@ import {
   setCurrentPlanId,
   updateCachedDetailedCourseData,
   initPlanIsCourseExpanded,
+  setSeekingCourseId,
+  setSearchResult,
 } from "./slices/localDataSlice";
 import { addCourse, setPlanData, setTermData } from "./slices/userDataSlice";
 import { setIsInitialized } from "./slices/globalSlice";
@@ -13,6 +15,8 @@ import { mockNewPlan } from "@/lib/mock";
 import type { Term } from "@/types/db";
 import type { CachedDetailedCourse } from "@/types/local";
 import { parseGroup } from "@/lib/course";
+import { ResultType } from "@/lib/enums";
+import { formatCourseId } from "@/lib/utils";
 
 const createAppAsyncThunk = createAsyncThunk.withTypes<{
   state: RootState;
@@ -162,5 +166,36 @@ export const initApp = createAppAsyncThunk(
 
     dispatch(setIsInitialized(true));
     return fulfillWithValue(true);
+  },
+);
+
+export const seekCourse = createAppAsyncThunk(
+  "thunks/seekCourse",
+  async (courseId: string, { dispatch, getState }) => {
+    dispatch(setSeekingCourseId(courseId));
+    const state = getState();
+
+    if (!state.localData.cachedDetailedCourseData[courseId]) {
+      await dispatch(fetchCourseData([courseId])).unwrap();
+    }
+
+    const cachedCourse = state.localData.cachedDetailedCourseData[courseId];
+    const subseqCourses = cachedCourse.futureCourses.map(
+      (c) => state.localData.courseData[c],
+    );
+
+    if (subseqCourses.length !== cachedCourse.futureCourses.length) {
+      throw new Error("Seeking course missing future courses");
+    }
+
+    dispatch(
+      setSearchResult({
+        type: ResultType.SEEKING,
+        query: formatCourseId(courseId),
+        data: subseqCourses,
+      }),
+    );
+
+    // TODO
   },
 );
