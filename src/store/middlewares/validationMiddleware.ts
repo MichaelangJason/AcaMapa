@@ -23,6 +23,17 @@ const validationMiddleware: Middleware<
 
   if (isPlanAction(action)) {
     switch (action.type) {
+      case "userData/renamePlan": {
+        const { planId, newName } = action.payload;
+        if (!isValidObjectId(planId)) {
+          throw new Error(`Invalid plan id: ${planId}`);
+        }
+        if (typeof newName !== "string" || newName.length === 0) {
+          throw new Error(`Invalid new name: ${newName}`);
+        }
+
+        break;
+      }
       case "userData/movePlan": {
         const { planId, sourceIdx, destIdx: destinationIdx } = action.payload;
         if (!isValidObjectId(planId)) {
@@ -149,6 +160,16 @@ const validationMiddleware: Middleware<
 
   if (isTermAction(action)) {
     switch (action.type) {
+      case "userData/renameTerm": {
+        const { termId, newName } = action.payload;
+        if (!isValidObjectId(termId)) {
+          throw new Error(`Invalid term id: ${termId}`);
+        }
+        if (typeof newName !== "string" || newName.length === 0) {
+          throw new Error(`Invalid new name: ${newName}`);
+        }
+        break;
+      }
       case "userData/setTermData": {
         const { termData } = action.payload;
         const invalidTermIds = Object.keys(termData).filter(

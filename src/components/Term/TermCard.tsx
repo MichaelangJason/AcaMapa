@@ -6,7 +6,7 @@ import HamburgerIcon from "@/public/icons/hamburger.svg";
 import PlusIcon from "@/public/icons/plus.svg";
 import clsx from "clsx";
 import { useMemo, useState, memo, useCallback } from "react";
-import { useAppSelector } from "@/store/hooks";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import DetailedCourseCard from "../Course/CourseCard/DetailedCourseCard";
 import { Droppable, Draggable } from "@hello-pangea/dnd";
 import { DraggingType } from "@/lib/enums";
@@ -15,6 +15,8 @@ import {
   Section,
   type ItemProps,
 } from "../Common/DropdownMenu";
+import { renameTerm } from "@/store/slices/userDataSlice";
+import { setSimpleModalInfo } from "@/store/slices/localDataSlice";
 
 const AddTermButton = ({
   isBefore,
@@ -78,6 +80,8 @@ const TermCard = ({
     (state) => state.global.isSeekingCourse,
   );
 
+  const dispatch = useAppDispatch();
+
   const totalCredits = useMemo(() => {
     return courses.reduce((acc, course) => acc + course.credits, 0);
   }, [courses]);
@@ -106,7 +110,31 @@ const TermCard = ({
 
   const termActions: ItemProps[] = useMemo(() => {
     const handleDeleteTerm = () => {
-      deleteTerm(term._id.toString(), idx);
+      dispatch(
+        setSimpleModalInfo({
+          isOpen: true,
+          title: "Delete Term",
+          description: `Are you sure you want to delete ${term.name}?\n\nThis action cannot be undone.`,
+          confirmCb: () => deleteTerm(term._id.toString(), idx),
+          closeCb: () => {},
+        }),
+      );
+    };
+
+    const handleRenameTerm = () => {
+      dispatch(
+        setSimpleModalInfo({
+          isOpen: true,
+          title: "Rename Term",
+          description: "",
+          previousValue: term.name,
+          confirmCb: (newName?: string) => {
+            if (!newName) return;
+            dispatch(renameTerm({ termId: term._id.toString(), newName }));
+          },
+          closeCb: () => {},
+        }),
+      );
     };
 
     return [
@@ -120,8 +148,18 @@ const TermCard = ({
         } as DropdownOption,
         handleCloseDropdownMenu: handleCloseTermDM,
       },
+      {
+        self: {
+          id: "rename-term",
+          content: "Rename",
+          handleClick: handleRenameTerm,
+          isHideIndicator: true,
+          isHideFiller: true,
+        } as DropdownOption,
+        handleCloseDropdownMenu: handleCloseTermDM,
+      },
     ];
-  }, [deleteTerm, idx, handleCloseTermDM, term._id]);
+  }, [deleteTerm, idx, handleCloseTermDM, term._id, dispatch]);
 
   return (
     <Draggable draggableId={term._id} index={idx} isDragDisabled={false}>

@@ -47,7 +47,7 @@ const SimpleModal = () => {
         </button>
       </header>
 
-      <p>{description}</p>
+      {description && <p>{description}</p>}
 
       {previousValue && (
         <input

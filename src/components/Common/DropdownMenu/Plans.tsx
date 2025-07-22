@@ -3,13 +3,16 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { useCallback, useMemo } from "react";
 import DnDSection from "./DnDSection";
 import type { SubSectionProps } from "./SubSection";
-import { deletePlan } from "@/store/slices/userDataSlice";
+import { deletePlan, renamePlan } from "@/store/slices/userDataSlice";
 import { DropdownOption } from "@/types/local";
 import type { DropResult } from "@hello-pangea/dnd";
 import { setIsDragging } from "@/store/slices/globalSlice";
 import { DraggingType } from "@/lib/enums";
 import { movePlan } from "@/store/slices/userDataSlice";
-import { setCurrentPlanId } from "@/store/slices/localDataSlice";
+import {
+  setCurrentPlanId,
+  setSimpleModalInfo,
+} from "@/store/slices/localDataSlice";
 
 const Plans = ({
   handleCloseDropdownMenu,
@@ -32,9 +35,36 @@ const Plans = ({
 
   const handleDeletePlan = useCallback(
     (planId: string) => {
-      dispatch(deletePlan(planId));
+      dispatch(
+        setSimpleModalInfo({
+          isOpen: true,
+          title: "Delete Plan",
+          description: `Are you sure you want to delete ${plans.get(planId)?.name}?\n\nThis action cannot be undone.`,
+          confirmCb: () => dispatch(deletePlan(planId)),
+          closeCb: () => {},
+        }),
+      );
     },
-    [dispatch],
+    [dispatch, plans],
+  );
+
+  const handleRenamePlan = useCallback(
+    (planId: string) => {
+      dispatch(
+        setSimpleModalInfo({
+          isOpen: true,
+          title: "Rename Plan",
+          description: "",
+          previousValue: plans.get(planId)?.name ?? "",
+          confirmCb: (newName?: string) => {
+            if (!newName) return;
+            dispatch(renamePlan({ planId, newName }));
+          },
+          closeCb: () => {},
+        }),
+      );
+    },
+    [dispatch, plans],
   );
 
   const dragStart = useCallback(() => {
@@ -87,11 +117,13 @@ const Plans = ({
               isHideIndicator: true,
               isHideFiller: true,
             },
-            // {
-            //   id: 'rename',
-            //   content: 'Rename',
-            //   handleClick: () => {},
-            // },
+            {
+              id: planId,
+              content: "Rename",
+              handleClick: handleRenamePlan,
+              isHideIndicator: true,
+              isHideFiller: true,
+            },
           ] as DropdownOption[],
           handleCloseDropdownMenu,
           className: "plan-item",
@@ -104,6 +136,7 @@ const Plans = ({
       handleCloseDropdownMenu,
       handleDeletePlan,
       handleSelectPlan,
+      handleRenamePlan,
     ],
   );
 

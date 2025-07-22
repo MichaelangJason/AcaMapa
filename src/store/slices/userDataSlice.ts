@@ -127,6 +127,13 @@ export const userDataSlice = createSlice({
       state.planOrder.splice(sourceIdx, 1);
       state.planOrder.splice(destIdx, 0, planId);
     },
+    renamePlan: (
+      state,
+      action: PayloadAction<{ planId: string; newName: string }>,
+    ) => {
+      const { planId, newName } = action.payload;
+      state.planData.get(planId)!.name = newName;
+    },
 
     /* TERM RELATED */
     // TODO: add validation logic in middleware, only keeping native logics here
@@ -191,6 +198,13 @@ export const userDataSlice = createSlice({
 
       plan.termOrder.splice(sourceIdx, 1);
       plan.termOrder.splice(destIdx, 0, termId);
+    },
+    renameTerm: (
+      state,
+      action: PayloadAction<{ termId: string; newName: string }>,
+    ) => {
+      const { termId, newName } = action.payload;
+      state.termData.get(termId)!.name = newName;
     },
 
     /* COURSE RELATED */
@@ -279,12 +293,14 @@ export const {
   addPlan,
   deletePlan,
   movePlan,
+  renamePlan,
 
   /* TERM RELATED */
   setTermData,
   addTerm,
   deleteTerm,
   moveTerm,
+  renameTerm,
 
   /* COURSE RELATED */
   addCourse,
@@ -299,9 +315,14 @@ export type PlanAction = ReturnType<
   | typeof addPlan
   | typeof deletePlan
   | typeof movePlan
+  | typeof renamePlan
 >;
 export type TermAction = ReturnType<
-  typeof setTermData | typeof addTerm | typeof deleteTerm | typeof moveTerm
+  | typeof setTermData
+  | typeof addTerm
+  | typeof deleteTerm
+  | typeof moveTerm
+  | typeof renameTerm
 >;
 export type CourseAction = ReturnType<
   | typeof addCourse
