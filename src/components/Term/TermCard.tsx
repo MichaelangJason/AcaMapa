@@ -165,8 +165,10 @@ const TermCard = ({
   }, [deleteTerm, idx, handleCloseTermDM, term._id, dispatch]);
 
   return (
+    // outer draggable for the whole term card
     <Draggable draggableId={term._id} index={idx} isDragDisabled={false}>
       {(draggableProvided, draggableSnapshot) => (
+        // inner div for the whole term card
         <div
           className={clsx([
             "term-card",
@@ -179,6 +181,7 @@ const TermCard = ({
           {!isDragging && isFirst && (
             <AddTermButton isBefore={true} onClick={handleAddTerm} />
           )}
+          {/* header for the term card */}
           <header
             className="term-header"
             {...draggableProvided.dragHandleProps}
@@ -190,6 +193,7 @@ const TermCard = ({
             ) : (
               <span>{term.name}</span>
             )}
+            {/* dropdown menu for the term card */}
             <DropdownMenuWrapper
               isOpen={isTermDMOpen}
               handleClose={() => setIsTermDMOpen(false)}
@@ -207,6 +211,7 @@ const TermCard = ({
               />
             </DropdownMenuWrapper>
           </header>
+          {/* droppable for the courses in the term card */}
           <Droppable droppableId={term._id} type={DraggingType.COURSE}>
             {(droppableProvided, droppableSnapshot) => (
               <main
@@ -219,25 +224,39 @@ const TermCard = ({
                 ref={droppableProvided.innerRef}
                 {...droppableProvided.droppableProps}
               >
+                {/* draggable for the courses in the term card */}
                 {courses.map((course, idx) => (
-                  <DetailedCourseCard
-                    key={`${term._id}-${course.id}-${idx}`}
-                    course={course}
-                    idx={idx}
-                    termId={term._id}
-                    handleDelete={handleDeleteCourse}
-                    setIsExpanded={setIsCourseExpanded}
-                    isDragging={draggableSnapshot.isDragging}
-                  />
+                  <Draggable
+                    key={`draggable-${term._id}-${course.id}-${idx}`}
+                    draggableId={course.id}
+                    index={idx}
+                    isDragDisabled={isSeekingCourse}
+                  >
+                    {(courseDraggableProvided, courseDraggableSnapshot) => (
+                      <DetailedCourseCard
+                        key={`${term._id}-${course.id}-${idx}`}
+                        course={course}
+                        idx={idx}
+                        termId={term._id}
+                        handleDelete={handleDeleteCourse}
+                        setIsExpanded={setIsCourseExpanded}
+                        isDraggingTerm={draggableSnapshot.isDragging}
+                        draggableProvided={courseDraggableProvided}
+                        draggableSnapshot={courseDraggableSnapshot}
+                      />
+                    )}
+                  </Draggable>
                 ))}
                 {droppableProvided.placeholder}
               </main>
             )}
           </Droppable>
+          {/* footer for the term card */}
           <footer className="term-footer">
             <span>{totalCredits} credits</span>
           </footer>
 
+          {/* add term button for the term card */}
           {!isDragging && (
             <AddTermButton isBefore={false} onClick={handleAddTerm} />
           )}

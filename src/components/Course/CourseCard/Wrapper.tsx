@@ -3,7 +3,10 @@ import DeleteIcon from "@/public/icons/delete.svg";
 import SeekIcon from "@/public/icons/telescope.svg";
 import ExpandIcon from "@/public/icons/expand-single.svg";
 import ShovelIcon from "@/public/icons/shovel-2.svg";
-import type { DraggableProvided } from "@hello-pangea/dnd";
+import type {
+  DraggableProvided,
+  DraggableStateSnapshot,
+} from "@hello-pangea/dnd";
 import { TooltipId } from "@/lib/enums";
 
 const Wrapper = ({
@@ -13,7 +16,6 @@ const Wrapper = ({
   subheading,
   credits,
   isExpanded,
-  isDragging = false,
   isSeeking,
   toggleIsExpanded,
   handleDelete,
@@ -22,7 +24,8 @@ const Wrapper = ({
   className,
   disableMap,
   style,
-  draggableConfig,
+  draggableProvided,
+  draggableSnapshot,
   extraProps,
 }: {
   heading: string;
@@ -30,7 +33,6 @@ const Wrapper = ({
   subheading: string;
   credits: string;
   isExpanded: boolean;
-  isDragging?: boolean;
   isSeeking?: boolean;
   toggleIsExpanded: () => void;
   handleDelete?: () => void;
@@ -47,14 +49,15 @@ const Wrapper = ({
   children?: React.ReactNode;
   className?: string;
   style?: React.CSSProperties;
-  draggableConfig?: DraggableProvided;
+  draggableProvided?: DraggableProvided;
+  draggableSnapshot?: DraggableStateSnapshot;
   extraProps?: React.HTMLAttributes<HTMLElement>;
 }) => {
   const {
     draggableProps = {},
     dragHandleProps = {},
     innerRef = () => {},
-  } = draggableConfig || {};
+  } = draggableProvided || {};
 
   return (
     <article
@@ -62,7 +65,7 @@ const Wrapper = ({
         ["course-card"],
         className,
         isExpanded && "expanded",
-        isDragging && "dragging",
+        draggableSnapshot?.isDragging && "dragging",
       )}
       style={style}
       ref={innerRef}
