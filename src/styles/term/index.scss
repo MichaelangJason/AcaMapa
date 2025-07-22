@@ -144,10 +144,10 @@
   width: var(--terms-gap);
   height: 80%;
   border-radius: var(--border-radius-default);
-  opacity: 0;
+  opacity: 0.3;
   transition:
     all 0.2s ease,
-    height 0.1s ease;
+    height 0.2s ease;
   right: calc(-1 * var(--terms-gap) - var(--term-card-border-width));
   background: var(--gray-100);
 
@@ -160,7 +160,7 @@
 
   &:hover:not(.disabled):not(.clicked) {
     opacity: 1;
-    height: 85%;
+    height: 90%;
   }
 
   &.on-left {

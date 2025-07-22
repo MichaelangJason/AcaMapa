@@ -9,7 +9,7 @@ import { useMemo, useState, memo, useCallback } from "react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import DetailedCourseCard from "../Course/CourseCard/DetailedCourseCard";
 import { Droppable, Draggable } from "@hello-pangea/dnd";
-import { DraggingType } from "@/lib/enums";
+import { DraggingType, TooltipId } from "@/lib/enums";
 import {
   DropdownMenuWrapper,
   Section,
@@ -43,6 +43,9 @@ const AddTermButton = ({
         isClicked && "clicked",
       ])}
       onClick={handleClick}
+      data-tooltip-id={TooltipId.TOP}
+      data-tooltip-content={isBefore ? "Add term before" : "Add term after"}
+      data-tooltip-delay-show={500}
     >
       <PlusIcon />
     </button>

@@ -8,6 +8,7 @@ import AddIcon from "@/public/icons/plus.svg";
 import clsx from "clsx";
 import { selectCourseDepMeta } from "@/store/selectors";
 import { useAppSelector } from "@/store/hooks";
+import { TooltipId } from "@/lib/enums";
 
 const MiniCourseCard = ({
   data,
@@ -26,7 +27,7 @@ const MiniCourseCard = ({
 }) => {
   const { id, name, credits } = data;
   const { getCourseSource } = useAppSelector(selectCourseDepMeta);
-  const { source } = getCourseSource(id, "", false);
+  const { source } = getCourseSource(id, "", null, false);
 
   const handleClick = useCallback(
     async (e: React.MouseEvent<HTMLDivElement>) => {
@@ -62,6 +63,8 @@ const MiniCourseCard = ({
             href={`${MCGILL_URL_BASES.COURSE_CATALOGUE}${formatCourseId(id, "-", true)}`}
             target="_blank"
             rel="noopener noreferrer"
+            data-tooltip-id={TooltipId.TOP}
+            data-tooltip-content={`Open ${formatCourseId(id)} in new tab`}
           >
             <TextHighlighter source={formatCourseId(id)} target={query} />
           </a>
@@ -69,7 +72,16 @@ const MiniCourseCard = ({
       </section>
 
       {/* icon */}
-      <aside className="icon-container" onClick={handleClick}>
+      <aside
+        className="icon-container"
+        onClick={handleClick}
+        data-tooltip-id={TooltipId.RIGHT}
+        data-tooltip-content={
+          isSelected ? "Remove from selected courses" : "Select course"
+        }
+        data-tooltip-place="right"
+        data-tooltip-delay-show={500}
+      >
         {isSelected ? (
           <RemoveIcon className="icon" />
         ) : (

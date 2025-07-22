@@ -226,7 +226,7 @@ export const selectCourseDepMeta = createSelector(
     const getCourseSource = (
       courseId: string,
       sourceTermId: string,
-      reqType: ReqType,
+      reqType: ReqType | null,
       includeCurrentTerm: boolean,
     ) => {
       const currentTermOrder = termOrderMap.get(sourceTermId);

@@ -22,6 +22,7 @@ import { useCallback, useEffect, useMemo } from "react";
 import { getCommandKey } from "@/lib/utils";
 import { addPlan, addTerm, deletePlan } from "@/store/slices/userDataSlice";
 import type { ItemProps } from "../Common/DropdownMenu/Item";
+import { TooltipId } from "@/lib/enums";
 
 const UtilityBar = () => {
   const {
@@ -151,7 +152,13 @@ const UtilityBar = () => {
         isOpen={isUtilityDropdownMenuOpen}
         handleClose={handleCloseDropdownMenu}
         trigger={{
-          node: <HamburgerIcon className="hamburger" />,
+          node: (
+            <HamburgerIcon
+              className="hamburger"
+              data-tooltip-id={TooltipId.BOTTOM}
+              data-tooltip-content="Plans & Actions"
+            />
+          ),
           toggleIsOpen: handleToggleDropdownMenu,
         }}
       >
@@ -177,6 +184,9 @@ const UtilityBar = () => {
       </section>
       <GithubMark
         className="github-mark"
+        data-tooltip-id={TooltipId.BOTTOM}
+        data-tooltip-content="Open DegreemMapper Repo in new tab"
+        data-tooltip-delay-show={500}
         onClick={() => {
           window.open(
             "https://github.com/MichaelangJason/DegreeMapper",

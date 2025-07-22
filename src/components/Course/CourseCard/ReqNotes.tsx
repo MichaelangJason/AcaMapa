@@ -23,6 +23,7 @@ import { SCROLL_OFFSET } from "@/lib/constants";
 import { getTagStatus, getTagToolTip } from "@/lib/course";
 import { addCourseTaken } from "@/store/slices/userDataSlice";
 import { setIsCourseTakenExpanded } from "@/store/slices/globalSlice";
+import { TooltipId } from "@/lib/enums";
 
 const ReqNotes = ({
   parentCourse,
@@ -268,7 +269,7 @@ const ReqGroup = ({
               className={clsx(status, "clickable")}
               callback={(item) => addToCourseTakenOrJump(item, source)}
               tooltipOptions={{
-                "data-tooltip-id": "req-notes-tag",
+                "data-tooltip-id": TooltipId.TOP,
                 "data-tooltip-content": tooltipMsg,
               }}
             />
@@ -325,7 +326,7 @@ const ReqGroup = ({
             className={clsx(status, "clickable")}
             callback={(item) => addToCourseTakenOrJump(item, source)}
             tooltipOptions={{
-              "data-tooltip-id": "req-notes-tag",
+              "data-tooltip-id": TooltipId.TOP,
               "data-tooltip-content": tooltipMsg,
             }}
           />
@@ -386,7 +387,7 @@ const ReqGroup = ({
           subjectToolTipMsg === undefined
             ? {}
             : ({
-                "data-tooltip-id": "credit-map-tag",
+                "data-tooltip-id": TooltipId.TOP,
                 "data-tooltip-html": subjectToolTipMsg.join("<br />"),
               } as TooltipProps);
 

@@ -34,6 +34,12 @@ export enum ReqType {
 }
 
 export enum TooltipId {
+  TOP = "top",
+  BOTTOM = "bottom",
+  RIGHT = "right",
+  LEFT = "left",
   REQ_NOTES_TAG = "req-notes-tag",
-  CREDIT_MAP_TAG = "credit-map-tag",
+  SEEK_COURSE_ICON = "seek-course-icon",
+  UTILITY_BAR_DM = "utility-bar-dm-icon",
+  MINI_COURSE_CARD = "mini-course-card-icon",
 }

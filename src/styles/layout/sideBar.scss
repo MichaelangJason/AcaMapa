@@ -70,6 +70,7 @@
     width: auto;
     flex-shrink: 0;
     transition: transform 0.35s ease;
+    outline: none;
 
     path {
       stroke-width: 200px; // svg default

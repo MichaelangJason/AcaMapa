@@ -9,7 +9,7 @@ import {
   setSeekingCourseId,
 } from "@/store/slices/localDataSlice";
 import { useCallback, useMemo } from "react";
-import { ResultType } from "@/lib/enums";
+import { ResultType, TooltipId } from "@/lib/enums";
 import type { Course } from "@/types/course";
 import Image from "next/image";
 import clsx from "clsx";
@@ -68,7 +68,15 @@ const SideBar = ({
     <div className={clsx(["left-sidebar", isFolded && "folded"])}>
       {/* folding handle */}
       <div className="right-handle" onClick={toggleFolded}>
-        <ExpandIcon className={clsx(["expand", isFolded && "flipped"])} />
+        <ExpandIcon
+          className={clsx(["expand", isFolded && "flipped"])}
+          data-tooltip-id={TooltipId.RIGHT}
+          data-tooltip-content={
+            isFolded ? "Expand Sidebar" : "Collapse Sidebar"
+          }
+          data-tooltip-place="right"
+          data-tooltip-delay-show={500}
+        />
       </div>
 
       {/* header, including logo and search input */}

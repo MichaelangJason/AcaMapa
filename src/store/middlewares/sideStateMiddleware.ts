@@ -24,6 +24,7 @@ import {
   setSearchResult,
   setSimpleModalInfo,
   clearSimpleModalInfo,
+  clearSeekingCourseId,
 } from "../slices/localDataSlice";
 import {
   addPlan,
@@ -120,6 +121,26 @@ startListening({
     dispatch(
       setSearchResult({ type: ResultType.DEFAULT, query: "", data: [] }),
     );
+  },
+});
+
+// handle exit seeking course
+startListening({
+  matcher: isAnyOf(
+    clearSeekingCourseId,
+    addTerm,
+    addPlan,
+    deletePlan,
+    setCurrentPlanId,
+  ),
+  effect: (_, listenerApi) => {
+    const state = listenerApi.getState();
+    const isSeekingCourse = state.global.isSeekingCourse;
+
+    if (isSeekingCourse) {
+      const dispatch = listenerApi.dispatch;
+      dispatch(setSeekingCourseId(""));
+    }
   },
 });
 

@@ -4,6 +4,7 @@ import SeekIcon from "@/public/icons/telescope.svg";
 import ExpandIcon from "@/public/icons/expand-single.svg";
 import ShovelIcon from "@/public/icons/shovel-2.svg";
 import type { DraggableProvided } from "@hello-pangea/dnd";
+import { TooltipId } from "@/lib/enums";
 
 const Wrapper = ({
   children,
@@ -71,7 +72,13 @@ const Wrapper = ({
       <header className="course-card-header" {...dragHandleProps}>
         <h4 className="heading">
           {headingHref ? (
-            <a href={headingHref} target="_blank" rel="noopener noreferrer">
+            <a
+              href={headingHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-tooltip-id={TooltipId.TOP}
+              data-tooltip-content={`Open ${heading} in new tab`}
+            >
               {heading}
             </a>
           ) : (
@@ -79,6 +86,8 @@ const Wrapper = ({
           )}
           <ShovelIcon
             className={clsx(["shovel", disableMap?.shovel && "disabled"])}
+            data-tooltip-id={TooltipId.TOP}
+            data-tooltip-content={`Overwrite ${heading}`}
             onClick={disableMap?.shovel ? undefined : handleOverwrite}
           />
         </h4>
@@ -91,21 +100,36 @@ const Wrapper = ({
                 isSeeking && "active",
                 disableMap?.seek && "disabled",
               ])}
-              onClick={handleSeek}
+              data-tooltip-id={TooltipId.TOP}
+              data-tooltip-content="Subsequent Courses"
+              onClick={() => {
+                if (disableMap?.seek) return;
+                handleSeek();
+              }}
             >
               <SeekIcon />
             </div>
           )}
           <div
             className={clsx(["expand", disableMap?.expand && "disabled"])}
-            onClick={toggleIsExpanded}
+            data-tooltip-id={TooltipId.TOP}
+            data-tooltip-content="Expand"
+            onClick={() => {
+              if (disableMap?.expand) return;
+              toggleIsExpanded();
+            }}
           >
             <ExpandIcon />
           </div>
           {handleDelete && (
             <div
               className={clsx(["delete", disableMap?.delete && "disabled"])}
-              onClick={handleDelete}
+              data-tooltip-id={TooltipId.TOP}
+              data-tooltip-content="Delete"
+              onClick={() => {
+                if (disableMap?.delete) return;
+                handleDelete();
+              }}
             >
               <DeleteIcon />
             </div>

@@ -14,7 +14,7 @@ import FootNote from "./FootNote";
 import ReqNotes from "./ReqNotes";
 import clsx from "clsx";
 import { MCGILL_URL_BASES } from "@/lib/constants";
-import { ReqType } from "@/lib/enums";
+import { ReqType, TooltipId } from "@/lib/enums";
 import { useCallback, useMemo } from "react";
 import {
   setSimpleModalInfo,
@@ -182,6 +182,10 @@ const DetailedCourseCard = ({
                 <FootNote
                   content={"OVERWRITTEN"}
                   handleDelete={() => handleOverwrite(false)}
+                  deleteTooltipOptions={{
+                    "data-tooltip-id": TooltipId.TOP,
+                    "data-tooltip-content": "Remove overwrite",
+                  }}
                 />
               )}
               {hasNoChildren && <FootNote content={"EMPTY"} />}
