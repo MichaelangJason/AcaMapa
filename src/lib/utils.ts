@@ -147,13 +147,20 @@ export const scrollTermCardToView = (
 
   const termsBox = document.getElementById("terms");
 
+  console.log(termsBox);
+
   if (!termsBox) return;
 
   const termCardElement =
     typeof termCard === "number"
-      ? termsBox?.children[
-          termCard === -1 ? termsBox.children.length - 1 : termCard
-        ]
+      ? termCard === -1
+        ? Array.from(termsBox.children)
+            .reverse()
+            .find((child) => {
+              const termCardElement = child as HTMLDivElement;
+              return termCardElement.classList.contains("term-card");
+            })
+        : termsBox?.children[termCard]
       : termCard;
 
   if (

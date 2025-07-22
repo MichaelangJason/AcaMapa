@@ -1,11 +1,19 @@
 import { GroupType, ReqType } from "@/lib/enums";
 import { Tag } from "@/components/Common";
-import { formatCourseId } from "@/lib/utils";
+import { clamp, formatCourseId, smoothScrollTo } from "@/lib/utils";
 import type { EnhancedRequisites, ReqGroup } from "@/types/local";
-import type { CSSProperties, JSX } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type JSX,
+} from "react";
 import { useAppSelector } from "@/store/hooks";
 import { selectCourseDepMeta } from "@/store/selectors";
+import ScrollIcon from "@/public/icons/expand-single.svg";
 import clsx from "clsx";
+import { SCROLL_OFFSET } from "@/lib/constants";
 
 const ReqNotes = ({
   parentCourse,
@@ -24,18 +32,151 @@ const ReqNotes = ({
   termId: string;
   includeCurrentTerm?: boolean;
 }) => {
+  const [showScrollLeft, setShowScrollLeft] = useState(false);
+  const [showScrollRight, setShowScrollRight] = useState(false);
+  const [isOverflowing, setIsOverflowing] = useState(false);
+  const reqGroupRef = useRef<HTMLDivElement>(null);
+  const leftScrollIconRef = useRef<HTMLDivElement>(null);
+  const rightScrollIconRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (
+      !reqGroupRef.current ||
+      !leftScrollIconRef.current ||
+      !rightScrollIconRef.current
+    )
+      return;
+    const firstReqGroup = reqGroupRef.current.querySelector(".req-group");
+    const scrollIcon = reqGroupRef.current.querySelector(
+      ".scroll-icon-container",
+    );
+    if (!firstReqGroup || !scrollIcon) {
+      throw new Error("No req group or right scroll icon found");
+    }
+    // guaranteed to have at least one child to render
+    const container = reqGroupRef.current;
+    const leftScrollIcon = leftScrollIconRef.current;
+    const rightScrollIcon = rightScrollIconRef.current;
+    const firstReqGroupWidth = firstReqGroup.clientWidth;
+    const containerWidth = reqGroupRef.current.clientWidth;
+
+    const setScrollIcons = () => {
+      setShowScrollLeft(container.scrollLeft > 0);
+      setShowScrollRight(
+        container.scrollLeft + containerWidth <
+          firstReqGroupWidth + 2 * scrollIcon.clientWidth,
+      );
+    };
+
+    const containerMaxScrollLeft = container.scrollWidth - containerWidth;
+
+    const scrollLeft = (e: MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      smoothScrollTo({
+        container,
+        targetX: clamp(
+          container.scrollLeft - SCROLL_OFFSET.SCROLL_ICON,
+          0,
+          containerMaxScrollLeft,
+        ),
+        duration: 200,
+        onComplete: () => setScrollIcons(),
+      });
+    };
+
+    const scrollRight = (e: MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      smoothScrollTo({
+        container,
+        targetX: clamp(
+          container.scrollLeft + SCROLL_OFFSET.SCROLL_ICON,
+          0,
+          containerMaxScrollLeft,
+        ),
+        duration: 200,
+        onComplete: () => setScrollIcons(),
+      });
+    };
+
+    const verticalScrollCb = (e: WheelEvent) => {
+      const scrollAmount = e.deltaY + e.deltaX;
+      const prevScrollLeft = container.scrollLeft;
+      const containerMaxScrollLeft =
+        container.scrollWidth - container.clientWidth;
+      const nextScrollLeft = clamp(
+        prevScrollLeft + scrollAmount,
+        0,
+        containerMaxScrollLeft,
+      );
+
+      // Only prevent default if there is actually something to scroll
+      if (
+        (scrollAmount < 0 && prevScrollLeft > 0) ||
+        (scrollAmount > 0 && prevScrollLeft < containerMaxScrollLeft)
+      ) {
+        e.preventDefault();
+        container.scrollLeft = nextScrollLeft;
+        setScrollIcons();
+      }
+    };
+
+    // scroll needed, bind a scroll listener
+    if (firstReqGroupWidth > containerWidth) {
+      setIsOverflowing(true);
+      container.addEventListener("wheel", verticalScrollCb);
+      leftScrollIcon.addEventListener("click", scrollLeft);
+      rightScrollIcon.addEventListener("click", scrollRight);
+      setScrollIcons();
+    }
+
+    return () => {
+      setIsOverflowing(false);
+      container.removeEventListener("wheel", verticalScrollCb);
+      leftScrollIcon.removeEventListener("click", scrollLeft);
+      rightScrollIcon.removeEventListener("click", scrollRight);
+    };
+  }, []);
+
   return (
-    <div className="req-note">
+    <section className="req-note">
       <header>{title}:</header>
-      {requisites?.group && (
-        <ReqGroup
-          parentCourse={parentCourse}
-          group={requisites.group}
-          isOuterGroup={true}
-          includeCurrentTerm={includeCurrentTerm}
-          termId={termId}
-          reqType={type}
-        />
+      {requisites?.group && requisites.group.type !== GroupType.EMPTY && (
+        <section
+          className="req-group-container scrollbar-hidden"
+          ref={reqGroupRef}
+        >
+          <div
+            className={clsx(
+              "scroll-icon-container left",
+              !showScrollLeft && "transparent",
+              isOverflowing && "enabled",
+            )}
+            ref={leftScrollIconRef}
+          >
+            <ScrollIcon />
+          </div>
+          <ReqGroup
+            parentCourse={parentCourse}
+            group={requisites.group}
+            includeCurrentTerm={includeCurrentTerm}
+            termId={termId}
+            reqType={type}
+          />
+          <div
+            className={clsx(
+              "scroll-icon-container right",
+              !showScrollRight && "transparent",
+              isOverflowing && "enabled",
+            )}
+            ref={rightScrollIconRef}
+          >
+            <ScrollIcon />
+          </div>
+        </section>
       )}
       <ul className="notes">
         {requisites?.raw && <li>{requisites.raw}</li>}
@@ -43,7 +184,7 @@ const ReqNotes = ({
           <li key={idx}>{note}</li>
         ))}
       </ul>
-    </div>
+    </section>
   );
 };
 
@@ -51,7 +192,6 @@ const ReqGroup = ({
   parentCourse,
   group,
   flexDirection = "row",
-  isOuterGroup = false,
   includeCurrentTerm = false,
   termId,
   reqType,
@@ -59,7 +199,6 @@ const ReqGroup = ({
   parentCourse: string;
   group: ReqGroup;
   flexDirection?: CSSProperties["flexDirection"];
-  isOuterGroup?: boolean;
   includeCurrentTerm?: boolean;
   termId: string;
   reqType: ReqType;
@@ -223,13 +362,11 @@ const ReqGroup = ({
 
   return (
     <div
-      className="req-group scrollbar-hidden"
+      className="req-group"
       style={{
         flexDirection: [GroupType.PAIR, GroupType.CREDIT].includes(group.type)
           ? "column"
           : flexDirection,
-        width: isOuterGroup ? "100%" : "fit-content",
-        overflow: isOuterGroup ? "scroll" : "visible",
         gap:
           flexDirection === "column" && group.type !== GroupType.PAIR
             ? "0.125rem"

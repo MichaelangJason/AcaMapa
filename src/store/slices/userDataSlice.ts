@@ -252,7 +252,7 @@ export const userDataSlice = createSlice({
       sourceTerm.courseIds.splice(sourceIdx, 1);
       destTerm.courseIds.splice(destIdx, 0, courseId);
     },
-    setCourseIsOverwritten: (
+    setIsOverwritten: (
       state,
       action: PayloadAction<{
         courseId: string;
@@ -290,7 +290,7 @@ export const {
   addCourse,
   deleteCourse,
   moveCourse,
-  setCourseIsOverwritten,
+  setIsOverwritten,
 } = userDataSlice.actions;
 
 export type PlanAction = ReturnType<
@@ -307,7 +307,7 @@ export type CourseAction = ReturnType<
   | typeof addCourse
   | typeof deleteCourse
   | typeof moveCourse
-  | typeof setCourseIsOverwritten
+  | typeof setIsOverwritten
 >;
 export type CourseTakenAction = ReturnType<
   typeof setCourseTaken | typeof addCourseTaken | typeof removeCourseTaken

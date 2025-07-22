@@ -62,3 +62,12 @@ export type DropdownOption = {
   isHideFiller?: boolean;
   isChecked?: boolean;
 };
+
+export type SimpleModalProps = {
+  isOpen: boolean;
+  title: string;
+  description: string;
+  confirmCb: (newValue?: string) => void;
+  closeCb: () => void;
+  previousValue?: string;
+};

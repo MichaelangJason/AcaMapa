@@ -16,8 +16,11 @@ import clsx from "clsx";
 import { MCGILL_URL_BASES } from "@/lib/constants";
 import { ReqType } from "@/lib/enums";
 import { useCallback, useMemo } from "react";
-import { setSeekingCourseId } from "@/store/slices/localDataSlice";
-import { seekCourse } from "@/store/thunks";
+import {
+  setSimpleModalInfo,
+  setSeekingCourseId,
+} from "@/store/slices/localDataSlice";
+import { overwriteCourse, seekCourse } from "@/store/thunks";
 
 // TODO: make is draggable independent
 const DetailedCourseCard = ({
@@ -68,7 +71,7 @@ const DetailedCourseCard = ({
       dispatch(seekCourse(id));
       setIsExpanded(id, true);
     }
-  }, [dispatch, id, isSeekingCourse]);
+  }, [dispatch, id, isSeekingCourse, setIsExpanded]);
 
   const depGraph = useAppSelector(selectCourseDepGraph);
   const hasNoChildren = useMemo(() => {
@@ -79,6 +82,29 @@ const DetailedCourseCard = ({
       !notes?.length
     );
   }, [prerequisites, corequisites, restrictions, notes]);
+
+  const isSatisfied = useMemo(() => {
+    return depGraph.get(id)?.isSatisfied || isOverwritten;
+  }, [depGraph, id, isOverwritten]);
+
+  const handleOverwrite = useCallback(
+    (isOverwritten: boolean) => {
+      dispatch(overwriteCourse({ courseId: id, isOverwritten }));
+    },
+    [dispatch, id],
+  );
+
+  const handleOverwriteModal = useCallback(() => {
+    dispatch(
+      setSimpleModalInfo({
+        isOpen: true,
+        title: "Overwrite Course",
+        description: `Are you sure you want to overwrite ${formatCourseId(id)}?`,
+        confirmCb: () => handleOverwrite(true),
+        closeCb: () => {},
+      }),
+    );
+  }, [dispatch, id, handleOverwrite]);
 
   return (
     <Draggable draggableId={id} index={idx} isDragDisabled={isSeekingCourse}>
@@ -91,7 +117,7 @@ const DetailedCourseCard = ({
           className={clsx([
             !snapshot.isDragging &&
               !isDragging &&
-              (depGraph.get(id)?.isSatisfied ? "satisfied" : "unsatisfied"),
+              (isSatisfied ? "satisfied" : "unsatisfied"),
             isSeekingSelf && "seeking",
           ])}
           isSeeking={isSeekingSelf}
@@ -100,10 +126,12 @@ const DetailedCourseCard = ({
             seek: isSeekingCourse && !isSeekingSelf,
             delete: isSeekingCourse,
             expand: isSeekingCourse,
+            shovel: isSatisfied || isSeekingCourse,
           }}
           toggleIsExpanded={() => setIsExpanded(id, !isExpanded)}
           handleDelete={() => handleDelete(id)}
           handleSeek={handleSeek}
+          handleOverwrite={handleOverwriteModal}
           draggableConfig={provided}
           isDragging={snapshot.isDragging}
           extraProps={{
@@ -150,10 +178,13 @@ const DetailedCourseCard = ({
                   termId={termId}
                 />
               )}
-              {isOverwritten && <FootNote content={"OVERWRITTEN"} />}
-              {hasNoChildren && (
-                <FootNote content={"NO REQ/CO-REQ/ANTI-REQ/NOTES"} />
+              {!hasNoChildren && isOverwritten && (
+                <FootNote
+                  content={"OVERWRITTEN"}
+                  handleDelete={() => handleOverwrite(false)}
+                />
               )}
+              {hasNoChildren && <FootNote content={"EMPTY"} />}
             </>
           )}
         </Wrapper>

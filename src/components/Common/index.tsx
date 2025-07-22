@@ -6,3 +6,4 @@ export { default as TextHighlighter } from "./TextHighlighter";
 export { default as MultiSelect } from "./MultiSelect";
 export { default as Tag } from "./Tag";
 export { default as ItemTag } from "./ItemTag";
+export { default as SimpleModal } from "./SimpleModal";

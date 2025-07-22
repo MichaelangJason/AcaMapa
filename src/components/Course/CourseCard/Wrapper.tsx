@@ -2,6 +2,7 @@ import clsx from "clsx";
 import DeleteIcon from "@/public/icons/delete.svg";
 import SeekIcon from "@/public/icons/telescope.svg";
 import ExpandIcon from "@/public/icons/expand-single.svg";
+import ShovelIcon from "@/public/icons/shovel-2.svg";
 import type { DraggableProvided } from "@hello-pangea/dnd";
 
 const Wrapper = ({
@@ -16,6 +17,7 @@ const Wrapper = ({
   toggleIsExpanded,
   handleDelete,
   handleSeek,
+  handleOverwrite,
   className,
   disableMap,
   style,
@@ -32,11 +34,13 @@ const Wrapper = ({
   toggleIsExpanded: () => void;
   handleDelete?: () => void;
   handleSeek?: () => void;
+  handleOverwrite?: () => void;
 
   disableMap?: {
     seek?: boolean;
     expand?: boolean;
     delete?: boolean;
+    shovel?: boolean;
   };
 
   children?: React.ReactNode;
@@ -73,6 +77,10 @@ const Wrapper = ({
           ) : (
             heading
           )}
+          <ShovelIcon
+            className={clsx(["shovel", disableMap?.shovel && "disabled"])}
+            onClick={disableMap?.shovel ? undefined : handleOverwrite}
+          />
         </h4>
         <h5 className="subheading">{subheading}</h5>
         <section className="icons-container">

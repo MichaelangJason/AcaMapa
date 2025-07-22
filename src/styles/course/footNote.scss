@@ -45,6 +45,15 @@
       path {
         stroke: var(--gray-000);
         stroke-width: 2px;
+        transition: all 0.2s ease;
+      }
+    }
+
+    &:hover {
+      svg {
+        path {
+          stroke: var(--gray-200);
+        }
       }
     }
   }

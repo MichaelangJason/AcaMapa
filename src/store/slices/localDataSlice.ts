@@ -4,6 +4,7 @@ import type {
   CachedDetailedCourse,
   CourseDepData,
   SearchResult,
+  SimpleModalProps,
 } from "@/types/local";
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import {
@@ -41,6 +42,10 @@ export const initialState = {
   } as CourseDepData,
 
   seekingCourseId: "" as string,
+
+  simpleModalInfo: {
+    isOpen: false,
+  } as SimpleModalProps,
 };
 
 const localDataSlice = createSlice({
@@ -440,6 +445,12 @@ const localDataSlice = createSlice({
         creditsReqMap: new Map(),
       };
     },
+    setSimpleModalInfo: (state, action: PayloadAction<SimpleModalProps>) => {
+      state.simpleModalInfo = action.payload;
+    },
+    clearSimpleModalInfo: (state) => {
+      state.simpleModalInfo = { ...initialState.simpleModalInfo };
+    },
   },
 });
 
@@ -463,6 +474,8 @@ export const {
   moveCoursesInGraph,
   clearCourseDepData,
   updateCoursesIsSatisfied,
+  setSimpleModalInfo,
+  clearSimpleModalInfo,
 } = localDataSlice.actions;
 
 export type LocalDataAction = ReturnType<

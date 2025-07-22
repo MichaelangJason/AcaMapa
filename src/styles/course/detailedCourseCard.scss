@@ -66,6 +66,32 @@
       font-weight: normal;
     }
 
+    .shovel {
+      width: 14px;
+      height: 14px;
+      margin-left: 4px;
+      margin-top: -2px;
+      display: none;
+
+      cursor: pointer;
+
+      transition: all 0.2s ease;
+
+      path {
+        stroke: var(--gray-800);
+        fill: var(--gray-800);
+      }
+
+      &:hover:not(.disabled) {
+        opacity: 0.5;
+      }
+
+      &.disabled {
+        cursor: not-allowed;
+        opacity: 0.4;
+      }
+    }
+
     .icons-container {
       grid-area: icons-container;
       display: flex;
@@ -170,6 +196,12 @@
         font-weight: bold;
         line-height: 1rem;
       }
+    }
+  }
+
+  &:hover {
+    .course-card-header .shovel:not(.disabled) {
+      display: block;
     }
   }
 }

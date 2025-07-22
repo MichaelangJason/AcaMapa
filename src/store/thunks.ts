@@ -9,7 +9,12 @@ import {
   setSeekingCourseId,
   setSearchResult,
 } from "./slices/localDataSlice";
-import { addCourse, setPlanData, setTermData } from "./slices/userDataSlice";
+import {
+  addCourse,
+  setIsOverwritten,
+  setPlanData,
+  setTermData,
+} from "./slices/userDataSlice";
 import { setIsInitialized } from "./slices/globalSlice";
 import { mockNewPlan } from "@/lib/mock";
 import type { Term } from "@/types/db";
@@ -197,5 +202,17 @@ export const seekCourse = createAppAsyncThunk(
     );
 
     // TODO
+  },
+);
+
+export const overwriteCourse = createAppAsyncThunk(
+  "thunks/overwriteCourse",
+  async (
+    { courseId, isOverwritten }: { courseId: string; isOverwritten: boolean },
+    { dispatch, getState },
+  ) => {
+    // TODO: pop a modal to inform user that they are overwriting a course which also requires a confirmation
+    const planId = getState().localData.currentPlanId;
+    dispatch(setIsOverwritten({ courseId, planId, isOverwritten }));
   },
 );

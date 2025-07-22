@@ -22,6 +22,8 @@ import {
   setSeekingCourseId,
   setSearchInput,
   setSearchResult,
+  setSimpleModalInfo,
+  clearSimpleModalInfo,
 } from "../slices/localDataSlice";
 import {
   addPlan,
@@ -38,6 +40,7 @@ import {
 } from "@/lib/typeGuards";
 import { getSubjectCode } from "@/lib/course";
 import { ResultType } from "@/lib/enums";
+import type { SimpleModalProps } from "@/types/local";
 
 const listenerMiddleware = createListenerMiddleware();
 const startListening = listenerMiddleware.startListening.withTypes<
@@ -110,14 +113,34 @@ startListening({
     dispatch(setIsSeekingCourse(isSeekingCourse));
 
     if (isSeekingCourse) {
-      // set body and term body scroll disabled
+      return;
+    }
+
+    dispatch(setSearchInput(""));
+    dispatch(
+      setSearchResult({ type: ResultType.DEFAULT, query: "", data: [] }),
+    );
+  },
+});
+
+// handle disable body scroll:
+startListening({
+  matcher: isAnyOf(
+    setIsSeekingCourse,
+    setSimpleModalInfo,
+    clearSimpleModalInfo,
+  ),
+  effect: (action) => {
+    const isSeekingCourse =
+      action.type === setIsSeekingCourse.type && action.payload;
+    const isSimpleModalOpen =
+      action.type === setSimpleModalInfo.type &&
+      (action.payload as SimpleModalProps).isOpen;
+    const isSimpleModalClosed = action.type === clearSimpleModalInfo.type;
+
+    if (isSeekingCourse || isSimpleModalOpen || !isSimpleModalClosed) {
       document.body.style.overflow = "hidden";
-      // document.querySelector(".terms-container")?.classList.add("scroll-disabled");
     } else {
-      dispatch(setSearchInput(""));
-      dispatch(
-        setSearchResult({ type: ResultType.DEFAULT, query: "", data: [] }),
-      );
       document.body.style.overflow = "auto";
     }
   },
@@ -243,7 +266,6 @@ startListening({
           break;
         }
         case "userData/moveCourse":
-        case "userData/setCourseIsOverwritten":
         default:
           break;
       }

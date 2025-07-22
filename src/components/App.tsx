@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { SideBar, UtilityBar } from "./Layout";
+import { SimpleModal } from "./Common";
 import { Terms } from "./Term";
 import { Provider } from "react-redux";
 import { AppStore, makeStore } from "@/store";
@@ -38,6 +39,7 @@ const App = ({ courseData }: { courseData: Course[] }) => {
       <UtilityBar />
       <Terms />
       {/* <Assistant /> */}
+      <SimpleModal />
     </Provider>
   );
 };
