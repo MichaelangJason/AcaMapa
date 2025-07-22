@@ -32,3 +32,8 @@ export enum ReqType {
   CO_REQ = "Co-req",
   NOTES = "Notes",
 }
+
+export enum TooltipId {
+  REQ_NOTES_TAG = "req-notes-tag",
+  CREDIT_MAP_TAG = "credit-map-tag",
+}

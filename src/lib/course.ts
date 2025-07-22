@@ -523,17 +523,26 @@ export const isSatisfied = (args: {
     }
   };
 
+  // check restrictions (OR group), should not be satisfied
+  if (
+    restrictions.group.type !== GroupType.EMPTY &&
+    isGroupSatisfied(restrictions.group, true)
+  ) {
+    return false;
+  }
+
   // check prerequisites
-  if (!isGroupSatisfied(prerequisites.group, false)) return false;
+  if (!isGroupSatisfied(prerequisites.group, false)) {
+    return false;
+  }
 
   // check corequisites
-  if (!isGroupSatisfied(corequisites.group, true)) return false;
+  if (!isGroupSatisfied(corequisites.group, true)) {
+    return false;
+  }
 
-  // check restrictions (OR group), should not be satisfied
-  return (
-    restrictions.group.type === GroupType.EMPTY ||
-    !isGroupSatisfied(restrictions.group, true)
-  );
+  // can also return corequisites check, but it's more clear to return true here
+  return true;
 };
 
 export const updateAffectedCourses = (args: {
@@ -578,4 +587,16 @@ export const updateAffectedCourses = (args: {
       combinedSubjectMap,
     });
   });
+};
+
+export const getTagStatus = (source: string, isValid: boolean) => {
+  return source === "" ? undefined : isValid ? "satisfied" : "unsatisfied";
+};
+
+export const getTagToolTip = (source: string, isValid: boolean) => {
+  return source === ""
+    ? "Add to Course Taken"
+    : isValid
+      ? `Valid place: ${source}`
+      : `Invalid place: ${source}`;
 };

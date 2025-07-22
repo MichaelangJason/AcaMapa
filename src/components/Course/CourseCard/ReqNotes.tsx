@@ -1,19 +1,28 @@
 import { GroupType, ReqType } from "@/lib/enums";
 import { Tag } from "@/components/Common";
-import { clamp, formatCourseId, smoothScrollTo } from "@/lib/utils";
-import type { EnhancedRequisites, ReqGroup } from "@/types/local";
 import {
+  clamp,
+  formatCourseId,
+  scrollCourseCardToView,
+  smoothScrollTo,
+} from "@/lib/utils";
+import type { EnhancedRequisites, ReqGroup, TooltipProps } from "@/types/local";
+import {
+  useCallback,
   useEffect,
   useRef,
   useState,
   type CSSProperties,
   type JSX,
 } from "react";
-import { useAppSelector } from "@/store/hooks";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { selectCourseDepMeta } from "@/store/selectors";
 import ScrollIcon from "@/public/icons/expand-single.svg";
 import clsx from "clsx";
 import { SCROLL_OFFSET } from "@/lib/constants";
+import { getTagStatus, getTagToolTip } from "@/lib/course";
+import { addCourseTaken } from "@/store/slices/userDataSlice";
+import { setIsCourseTakenExpanded } from "@/store/slices/globalSlice";
 
 const ReqNotes = ({
   parentCourse,
@@ -34,10 +43,29 @@ const ReqNotes = ({
 }) => {
   const [showScrollLeft, setShowScrollLeft] = useState(false);
   const [showScrollRight, setShowScrollRight] = useState(false);
+  // REVIEW: switch to initialization state + skeleton?
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isOverflowing, setIsOverflowing] = useState(false);
   const reqGroupRef = useRef<HTMLDivElement>(null);
   const leftScrollIconRef = useRef<HTMLDivElement>(null);
   const rightScrollIconRef = useRef<HTMLDivElement>(null);
+  const dispatch = useAppDispatch();
+
+  const addToCourseTakenOrJump = useCallback(
+    (courseId?: string, source?: string) => {
+      if (!courseId) return;
+      if (!source) {
+        dispatch(addCourseTaken([courseId]));
+      } else {
+        if (source.toLowerCase() === "course taken") {
+          dispatch(setIsCourseTakenExpanded(true));
+        } else {
+          scrollCourseCardToView(courseId, { duration: 200 });
+        }
+      }
+    },
+    [dispatch],
+  );
 
   useEffect(() => {
     if (
@@ -153,7 +181,7 @@ const ReqNotes = ({
             className={clsx(
               "scroll-icon-container left",
               !showScrollLeft && "transparent",
-              isOverflowing && "enabled",
+              "enabled",
             )}
             ref={leftScrollIconRef}
           >
@@ -165,12 +193,13 @@ const ReqNotes = ({
             includeCurrentTerm={includeCurrentTerm}
             termId={termId}
             reqType={type}
+            addToCourseTakenOrJump={addToCourseTakenOrJump}
           />
           <div
             className={clsx(
               "scroll-icon-container right",
               !showScrollRight && "transparent",
-              isOverflowing && "enabled",
+              "enabled",
             )}
             ref={rightScrollIconRef}
           >
@@ -195,6 +224,7 @@ const ReqGroup = ({
   includeCurrentTerm = false,
   termId,
   reqType,
+  addToCourseTakenOrJump,
 }: {
   parentCourse: string;
   group: ReqGroup;
@@ -202,6 +232,7 @@ const ReqGroup = ({
   includeCurrentTerm?: boolean;
   termId: string;
   reqType: ReqType;
+  addToCourseTakenOrJump: (courseId?: string, source?: string) => void;
 }) => {
   let children: JSX.Element[] = [];
   const { getCourseSource, getValidCourses } =
@@ -223,21 +254,23 @@ const ReqGroup = ({
           const { isValid, source } = getCourseSource(
             item,
             termId,
+            reqType,
             includeCurrentTerm,
           );
-          const status =
-            source === ""
-              ? undefined
-              : reqType !== ReqType.ANTI_REQ && isValid
-                ? "satisfied"
-                : "unsatisfied";
+          const status = getTagStatus(source, isValid);
+          const tooltipMsg = getTagToolTip(source, isValid);
 
           return (
             <Tag
               key={`${parentCourse}-${group.type}-${idx}-${item}`}
               sourceText={item}
               displayText={formatCourseId(item)}
-              className={status}
+              className={clsx(status, "clickable")}
+              callback={(item) => addToCourseTakenOrJump(item, source)}
+              tooltipOptions={{
+                "data-tooltip-id": "req-notes-tag",
+                "data-tooltip-content": tooltipMsg,
+              }}
             />
           );
         } else {
@@ -249,6 +282,7 @@ const ReqGroup = ({
               flexDirection={flexDirection === "row" ? "column" : "row"}
               termId={termId}
               reqType={reqType}
+              addToCourseTakenOrJump={addToCourseTakenOrJump}
             />
           );
         }
@@ -278,20 +312,22 @@ const ReqGroup = ({
         const { isValid, source } = getCourseSource(
           item,
           termId,
+          reqType,
           includeCurrentTerm,
         );
-        const status =
-          source === ""
-            ? undefined
-            : reqType !== ReqType.ANTI_REQ && isValid
-              ? "satisfied"
-              : "unsatisfied";
+        const status = getTagStatus(source, isValid);
+        const tooltipMsg = getTagToolTip(source, isValid);
         return (
           <Tag
             key={`${parentCourse}-${group.type}-${idx}-${item}`}
             sourceText={item}
             displayText={formatCourseId(item)}
-            className={status}
+            className={clsx(status, "clickable")}
+            callback={(item) => addToCourseTakenOrJump(item, source)}
+            tooltipOptions={{
+              "data-tooltip-id": "req-notes-tag",
+              "data-tooltip-content": tooltipMsg,
+            }}
           />
         );
       });
@@ -334,20 +370,42 @@ const ReqGroup = ({
             ? `>=${scopes[0]}XX`
             : `-${scopes[0]}XX`;
 
-      children = subjects.map((subject, idx) => (
-        <Tag
-          key={`${parentCourse}-${group.type}-${idx}-${subject}`}
-          sourceText={subject}
-          displayText={
-            subject.toUpperCase() +
-            levels +
-            `(${validSubjectMap[subject]?.totalCredits ?? 0})`
-          }
-          className={clsx([
-            validSubjectMap[subject]?.totalCredits > 0 && status,
-          ])}
-        />
-      ));
+      children = subjects.map((subject, idx) => {
+        const subjectToolTipMsg =
+          validSubjectMap[subject] === undefined ||
+          validSubjectMap[subject].totalCredits === 0
+            ? ["No Valid Course"]
+            : Object.entries(validSubjectMap[subject].validCourses).map(
+                (val) => {
+                  const [courseId, { source, credits }] = val;
+                  return `${formatCourseId(courseId)} (${credits}): ${source}`;
+                },
+              );
+
+        const tooltipOptions =
+          subjectToolTipMsg === undefined
+            ? {}
+            : ({
+                "data-tooltip-id": "credit-map-tag",
+                "data-tooltip-html": subjectToolTipMsg.join("<br />"),
+              } as TooltipProps);
+
+        return (
+          <Tag
+            key={`${parentCourse}-${group.type}-${idx}-${subject}`}
+            sourceText={subject}
+            displayText={
+              subject.toUpperCase() +
+              levels +
+              `(${validSubjectMap[subject]?.totalCredits ?? 0})`
+            }
+            className={clsx([
+              validSubjectMap[subject]?.totalCredits > 0 && status,
+            ])}
+            tooltipOptions={tooltipOptions}
+          />
+        );
+      });
 
       children.unshift(
         <span

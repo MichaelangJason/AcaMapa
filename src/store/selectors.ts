@@ -12,6 +12,7 @@ import {
   isCourseInGraph,
 } from "@/lib/course";
 import { COURSE_PATTERN } from "@/lib/constants";
+import { ReqType } from "@/lib/enums";
 
 const createAppSelector = createSelector.withTypes<RootState>();
 
@@ -225,6 +226,7 @@ export const selectCourseDepMeta = createSelector(
     const getCourseSource = (
       courseId: string,
       sourceTermId: string,
+      reqType: ReqType,
       includeCurrentTerm: boolean,
     ) => {
       const currentTermOrder = termOrderMap.get(sourceTermId);
@@ -234,7 +236,8 @@ export const selectCourseDepMeta = createSelector(
       // here we assume such course must exist in the previous term.
       const isMultiTerm = !!courseId.match(COURSE_PATTERN.MULTI_TERM);
 
-      let isValid = !isMultiTerm && isCourseTaken(courseId);
+      let isValid =
+        !isMultiTerm && reqType !== ReqType.ANTI_REQ && isCourseTaken(courseId);
 
       if (
         !isValid &&
@@ -246,6 +249,9 @@ export const selectCourseDepMeta = createSelector(
           : includeCurrentTerm
             ? targetTermOrder <= currentTermOrder
             : targetTermOrder < currentTermOrder;
+        if (reqType === ReqType.ANTI_REQ) {
+          isValid = !isValid;
+        }
       }
 
       const source = isCourseTaken(courseId)
@@ -279,9 +285,9 @@ export const selectCourseDepMeta = createSelector(
         }
 
         const { termId: courseTermId } = depGraph.get(courseId)!;
-        const courseOrder = termOrderMap.get(courseTermId)!;
+        const courseOrder = termOrderMap.get(courseTermId);
 
-        if (courseOrder === undefined) {
+        if (courseOrder === undefined || courseOrder === null) {
           // not planned
           return "";
         }
@@ -303,7 +309,7 @@ export const selectCourseDepMeta = createSelector(
           return "";
         }
 
-        return courseTermId;
+        return userData.termData.get(courseTermId)!.name;
       };
 
       const isSubjectValid = (subject: string) => {

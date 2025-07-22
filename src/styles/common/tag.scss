@@ -25,4 +25,18 @@
   &.unsatisfied {
     background: var(--unsatisfy-red);
   }
+
+  &.clickable {
+    &:hover:not(.satisfied):not(.unsatisfied) {
+      background: var(--gray-400);
+    }
+
+    &.satisfied:hover {
+      background: var(--satisfy-green-hover);
+    }
+
+    &.unsatisfied:hover {
+      background: var(--unsatisfy-red-hover);
+    }
+  }
 }

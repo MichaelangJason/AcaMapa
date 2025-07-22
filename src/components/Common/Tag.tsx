@@ -1,4 +1,5 @@
 import clsx from "clsx";
+import type { TooltipProps } from "@/types/local";
 
 const Tag = ({
   sourceText,
@@ -7,6 +8,7 @@ const Tag = ({
   className,
   style,
   isDisabled = false,
+  tooltipOptions,
 }: {
   sourceText: string;
   displayText: string;
@@ -14,6 +16,7 @@ const Tag = ({
   className?: string;
   style?: React.CSSProperties;
   isDisabled?: boolean;
+  tooltipOptions?: TooltipProps;
 }) => {
   // TODO: TOAST, TOOLTIP, HOVER, CB
   return (
@@ -21,6 +24,7 @@ const Tag = ({
       className={clsx("tag", className, isDisabled && "disabled")}
       style={style}
       onClick={() => callback?.(sourceText)}
+      {...(tooltipOptions || {})}
     >
       {displayText}
     </span>

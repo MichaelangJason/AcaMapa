@@ -1,0 +1,8 @@
+.tooltip-container {
+  position: absolute;
+  width: 0;
+  height: 0;
+  .tooltip-common {
+    border-radius: 8px;
+  }
+}

@@ -1,5 +1,12 @@
 import type { GroupType, ResultType } from "@/lib/enums";
 import type { Course, DetailedCourse, Requisite } from "./db";
+import type {
+  DataAttribute,
+  PlacesType,
+  PositionStrategy,
+  VariantType,
+  WrapperType,
+} from "react-tooltip";
 
 export type SearchResult = { query: string } & (
   | {
@@ -70,4 +77,31 @@ export type SimpleModalProps = {
   confirmCb: (newValue?: string) => void;
   closeCb: () => void;
   previousValue?: string;
+};
+
+export type TooltipProps = Partial<
+  Omit<
+    {
+      [K in DataAttribute as `data-tooltip-${K}`]: K extends
+        | "id"
+        | "content"
+        | "html"
+        | "class-name"
+        ? string
+        : K extends "offset" | "delay-show" | "delay-hide"
+          ? number
+          : K extends "place"
+            ? PlacesType
+            : K extends "variant"
+              ? VariantType
+              : K extends "position-strategy"
+                ? PositionStrategy
+                : K extends "wrapper"
+                  ? WrapperType
+                  : boolean;
+    },
+    "data-tooltip-events"
+  >
+> & {
+  "data-tooltip-id"?: string;
 };

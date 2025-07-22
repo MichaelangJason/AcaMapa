@@ -136,9 +136,8 @@ startListening({
     const isSimpleModalOpen =
       action.type === setSimpleModalInfo.type &&
       (action.payload as SimpleModalProps).isOpen;
-    const isSimpleModalClosed = action.type === clearSimpleModalInfo.type;
 
-    if (isSeekingCourse || isSimpleModalOpen || !isSimpleModalClosed) {
+    if (isSeekingCourse || isSimpleModalOpen) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "auto";

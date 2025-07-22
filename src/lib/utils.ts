@@ -147,8 +147,6 @@ export const scrollTermCardToView = (
 
   const termsBox = document.getElementById("terms");
 
-  console.log(termsBox);
-
   if (!termsBox) return;
 
   const termCardElement =
