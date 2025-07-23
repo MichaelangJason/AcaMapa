@@ -176,16 +176,6 @@ const Terms = () => {
     [currentPlan, dispatch, isInitialized],
   );
 
-  if (!isInitialized) {
-    return (
-      <div id="terms" className="terms-container">
-        {Array.from({ length: 3 }).map((_, idx) => (
-          <TermCardSkeleton key={idx} isFirst={idx === 0} numCourses={3} />
-        ))}
-      </div>
-    );
-  }
-
   return (
     <DragDropContext
       onDragStart={onDragStart}
@@ -196,6 +186,7 @@ const Terms = () => {
         droppableId="terms"
         direction="horizontal"
         type={DraggingType.TERM}
+        isDropDisabled={!isInitialized}
       >
         {(provided) => (
           <div
@@ -207,20 +198,28 @@ const Terms = () => {
             }}
             {...provided.droppableProps}
           >
-            {currentTerms.map((term, idx) => (
-              <TermCard
-                key={term._id}
-                idx={idx}
-                term={term}
-                courses={currentCourseDataPerTerm[term._id]}
-                isFirst={idx === 0}
-                addTerm={handleAddTerm}
-                deleteTerm={handleDeleteTerm}
-                addCourse={handleAddCourse}
-                deleteCourse={handleDeleteCourse}
-                setIsCourseExpanded={handleSetIsCourseExpanded}
-              />
-            ))}
+            {!isInitialized
+              ? Array.from({ length: 3 }).map((_, idx) => (
+                  <TermCardSkeleton
+                    key={idx}
+                    isFirst={idx === 0}
+                    numCourses={3}
+                  />
+                ))
+              : currentTerms.map((term, idx) => (
+                  <TermCard
+                    key={term._id}
+                    idx={idx}
+                    term={term}
+                    courses={currentCourseDataPerTerm[term._id]}
+                    isFirst={idx === 0}
+                    addTerm={handleAddTerm}
+                    deleteTerm={handleDeleteTerm}
+                    addCourse={handleAddCourse}
+                    deleteCourse={handleDeleteCourse}
+                    setIsCourseExpanded={handleSetIsCourseExpanded}
+                  />
+                ))}
             {provided.placeholder}
             {
               <div

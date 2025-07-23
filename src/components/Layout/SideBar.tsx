@@ -10,24 +10,21 @@ import {
 } from "@/store/slices/localDataSlice";
 import { useCallback, useMemo } from "react";
 import { ResultType, TooltipId } from "@/lib/enums";
-import type { Course } from "@/types/db";
 import Image from "next/image";
 import clsx from "clsx";
 import ExpandIcon from "@/public/icons/expand.svg";
+import { selectCourseSearchFn } from "@/store/selectors";
 
-const SideBar = ({
-  searchCourseFn,
-}: {
-  searchCourseFn: (query: string) => Promise<Course[]>;
-}) => {
+const SideBar = () => {
   const dispatch = useAppDispatch();
-
+  const isInitialized = useAppSelector((state) => state.global.isInitialized);
   const isFolded = useAppSelector((state) => state.global.isSideBarFolded);
   const toggleFolded = useCallback(
     async () => dispatch(toggleIsSideBarFolded()),
     [dispatch],
   );
   const searchResult = useAppSelector((state) => state.localData.searchResult);
+  const searchCourseFn = useAppSelector(selectCourseSearchFn);
 
   const handleSearchCourse = useCallback(
     async (input: string) => {
@@ -39,10 +36,12 @@ const SideBar = ({
         return;
       }
 
+      if (!searchCourseFn) return;
+
       const result = await searchCourseFn(input);
       dispatch(
         setSearchResult({
-          type: ResultType.COURSE,
+          type: ResultType.COURSE_ID,
           query: input,
           data: result,
         }),
@@ -69,7 +68,11 @@ const SideBar = ({
       {/* folding handle */}
       <div className="right-handle" onClick={toggleFolded}>
         <ExpandIcon
-          className={clsx(["expand", isFolded && "flipped"])}
+          className={clsx([
+            "expand",
+            isFolded && "flipped",
+            !isInitialized && "disabled",
+          ])}
           data-tooltip-id={TooltipId.RIGHT}
           data-tooltip-content={
             isFolded ? "Expand Sidebar" : "Collapse Sidebar"

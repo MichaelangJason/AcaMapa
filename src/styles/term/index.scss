@@ -38,7 +38,7 @@
     align-items: center;
     width: 100%;
     flex-shrink: 0;
-    margin-top: -4px;
+    // margin-top: -4px;
 
     border-radius: var(--term-inner-border-radius)
       var(--term-inner-border-radius) 0px 0px;
@@ -81,7 +81,7 @@
 
     .hamburger {
       position: absolute;
-      right: 8px;
+      right: 12px;
 
       width: 20px;
       height: auto;
@@ -136,7 +136,6 @@
     justify-content: center;
     align-items: center;
     flex-shrink: 0;
-    margin-bottom: -4px;
 
     border-radius: 0 0 var(--term-inner-border-radius)
       var(--term-inner-border-radius);
@@ -180,6 +179,14 @@
       stroke: var(--gray-400);
       stroke-width: 3;
       transition: stroke 0.2s ease;
+    }
+  }
+
+  &.disabled {
+    svg {
+      path {
+        stroke: var(--gray-300);
+      }
     }
   }
 

@@ -21,16 +21,17 @@ export const debounce = <T>(
 export const processQuery = (
   query: FlexSearch.SimpleDocumentSearchResultSetUnit[],
 ) => {
-  const result = [] as Course[];
+  const result = [] as string[];
   const uniqueResult = new Set<string>();
 
   query
     .flatMap((i) => i.result)
     .forEach((r) => {
-      const course = (r as unknown as { doc: Course; id: string }).doc;
-      if (!uniqueResult.has(course.id)) {
-        result.push(course);
-        uniqueResult.add(course.id);
+      // match id first, then name
+      const courseId = r.toString();
+      if (!uniqueResult.has(courseId)) {
+        result.push(courseId);
+        uniqueResult.add(courseId);
       }
     });
 
@@ -252,9 +253,13 @@ export const getCommandKey = () => {
   return "Ctrl";
 };
 
-export const getSearchFn = (courseData: Course[]) => () => {
+// singleton search function
+let searchFn: ((query: string) => Promise<string[]>) | null = null;
+
+export const getSearchFn = (courseData: Course[]) => {
+  if (searchFn) return searchFn;
+
   const index = new FlexSearch.Document<Course>({
-    // tokenize: 'full',
     document: {
       id: "id",
       index: [
@@ -273,14 +278,14 @@ export const getSearchFn = (courseData: Course[]) => () => {
   });
 
   // synchronous indexing
-  courseData?.forEach((course) => {
+  courseData.forEach((course) => {
     index.add(course);
   });
 
-  const search = async (query: string) => {
+  searchFn = async (query: string) => {
     const result = await index.searchAsync(query, { enrich: true });
     return processQuery(result); // TODO: put into searchAsync callback?
   };
 
-  return search;
+  return searchFn;
 };

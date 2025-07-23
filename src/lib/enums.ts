@@ -2,6 +2,7 @@ export enum ResultType {
   DEFAULT = "default",
   SEEKING = "seeking",
   COURSE = "course",
+  COURSE_ID = "course-id",
   PROGRAM = "program",
   AI = "ai",
 }

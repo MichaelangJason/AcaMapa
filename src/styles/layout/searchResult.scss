@@ -48,7 +48,8 @@
 
   .mini-course-card {
     transition: all 0.4s ease;
-    max-height: 64px;
+    // TODO: fix this to 64px when min-height issue is resolved
+    height: 63px;
 
     .name {
       max-width: 100%;

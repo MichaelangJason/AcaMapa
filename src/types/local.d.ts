@@ -10,6 +10,10 @@ import type {
 
 export type SearchResult = { query: string } & (
   | {
+      type: ResultType.COURSE_ID;
+      data: string[];
+    }
+  | {
       type: ResultType.DEFAULT | ResultType.COURSE | ResultType.SEEKING;
       data: Course[];
     }
@@ -104,4 +108,11 @@ export type TooltipProps = Partial<
   >
 > & {
   "data-tooltip-id"?: string;
+};
+
+export type ValidSubjectMap = {
+  [subject: string]: {
+    totalCredits: number;
+    validCourses: { [courseId: string]: { source: string; credits: number } };
+  };
 };

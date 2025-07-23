@@ -82,11 +82,7 @@ const MiniCourseCard = ({
         data-tooltip-place="right"
         data-tooltip-delay-show={500}
       >
-        {isSelected ? (
-          <RemoveIcon className="icon" />
-        ) : (
-          <AddIcon className="icon" />
-        )}
+        {isSelected ? <RemoveIcon /> : <AddIcon />}
       </aside>
     </article>
   );

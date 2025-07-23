@@ -4,7 +4,7 @@ import type { Plan, Term } from "@/types/db";
 import type { initialState as userDataState } from "@/store/slices/userDataSlice";
 import type { initialState as localDataState } from "@/store/slices/localDataSlice";
 import { isValidObjectId } from "@/lib/typeGuards";
-import type { CachedDetailedCourse } from "@/types/local";
+import type { CachedDetailedCourse, ValidSubjectMap } from "@/types/local";
 import {
   getCourseLevel,
   getSubjectCode,
@@ -13,8 +13,20 @@ import {
 } from "@/lib/course";
 import { COURSE_PATTERN } from "@/lib/constants";
 import { ReqType } from "@/lib/enums";
+import { getSearchFn } from "@/lib/utils";
 
 const createAppSelector = createSelector.withTypes<RootState>();
+
+export const selectCourseSearchFn = createAppSelector(
+  (state) => state.global.isInitialized,
+  (state) => state.localData.courseData,
+  (isInitialized, courseData) => {
+    if (!isInitialized) {
+      return null;
+    }
+    return getSearchFn(courseData);
+  },
+);
 
 export const selectCurrentPlan = createAppSelector(
   [
@@ -226,7 +238,7 @@ export const selectCourseDepMeta = createSelector(
         getCourseSource: () => ({ isValid: false, source: "" }),
         getValidCourses: () => ({
           totalCredits: 0,
-          validSubjectMap: new Map(),
+          validSubjectMap: {} as ValidSubjectMap,
         }),
       };
     }

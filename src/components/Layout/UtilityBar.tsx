@@ -23,6 +23,8 @@ import { getCommandKey } from "@/lib/utils";
 import { addPlan, addTerm, deletePlan } from "@/store/slices/userDataSlice";
 import type { ItemProps } from "../Common/DropdownMenu/Item";
 import { TooltipId } from "@/lib/enums";
+import clsx from "clsx";
+import ItemTagSkeleton from "../Skeleton/ItemTagSkeleton";
 
 const UtilityBar = () => {
   const {
@@ -39,6 +41,7 @@ const UtilityBar = () => {
     (state) => state.global.isUtilityDropdownMenuOpen,
   );
   const dispatch = useAppDispatch();
+  const isInitialized = useAppSelector((state) => state.global.isInitialized);
 
   const handleCloseDropdownMenu = useCallback(() => {
     dispatch(setIsUtilityDropdownMenuOpen(false));
@@ -52,6 +55,7 @@ const UtilityBar = () => {
     (state) => state.localData.currentPlanId,
   );
   const actions = useMemo(() => {
+    if (!isInitialized) return [];
     return [
       {
         self: {
@@ -117,10 +121,11 @@ const UtilityBar = () => {
         },
       },
     ];
-  }, [dispatch, currentPlanId]) as ItemProps[];
+  }, [dispatch, currentPlanId, isInitialized]) as ItemProps[];
 
   // register shortcut keys
   useEffect(() => {
+    if (!isInitialized) return;
     const entries = actions
       .map((item) => [item.shortcut?.[1].toLowerCase() ?? "", item.self])
       .filter(([key]) => key !== "") as [string, ItemProps["self"]][];
@@ -144,17 +149,17 @@ const UtilityBar = () => {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [actions]);
+  }, [actions, isInitialized]);
 
   return (
     <section className="utility-bar">
       <DropdownMenuWrapper
-        isOpen={isUtilityDropdownMenuOpen}
+        isOpen={isUtilityDropdownMenuOpen && isInitialized}
         handleClose={handleCloseDropdownMenu}
         trigger={{
           node: (
             <HamburgerIcon
-              className="hamburger"
+              className={clsx("hamburger", !isInitialized && "disabled")}
               data-tooltip-id={TooltipId.BOTTOM}
               data-tooltip-content="Plans & Actions"
             />
@@ -172,15 +177,22 @@ const UtilityBar = () => {
       </DropdownMenuWrapper>
 
       <section className="contents">
-        <ItemTag
-          items={[
-            `# Courses: ${totalCourses} (${totalCredits} cr)`,
-            `# Planned Courses: ${totalPlannedCourses} (${totalPlanCredits} cr)`,
-            `# Course Taken: ${totalCourseTaken} (${totalCourseTakenCretids} cr)`,
-            `# Terms: ${totalTerm} (${averageCreditsPerTerm} cr/term)`,
-          ]}
-          title="Plan Stats"
-        />
+        {!isInitialized ? (
+          <>
+            <ItemTagSkeleton width="1" />
+            <ItemTagSkeleton width="2" />
+          </>
+        ) : (
+          <ItemTag
+            items={[
+              `# Courses: ${totalCourses} (${totalCredits} cr)`,
+              `# Planned Courses: ${totalPlannedCourses} (${totalPlanCredits} cr)`,
+              `# Course Taken: ${totalCourseTaken} (${totalCourseTakenCretids} cr)`,
+              `# Terms: ${totalTerm} (${averageCreditsPerTerm} cr/term)`,
+            ]}
+            title="Plan Stats"
+          />
+        )}
       </section>
       <GithubMark
         className="github-mark"

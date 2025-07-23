@@ -24,8 +24,20 @@
   }
 
   .hamburger {
+    &.disabled {
+      cursor: not-allowed;
+      path {
+        fill: var(--gray-400);
+      }
+    }
     path {
+      transition: fill 0.2s ease;
       fill: var(--gray-1000-50-opac);
+    }
+    &:hover:not(.disabled) {
+      path {
+        fill: var(--gray-500);
+      }
     }
   }
 

@@ -17,11 +17,11 @@ import {
 } from "./slices/userDataSlice";
 import { setIsInitialized } from "./slices/globalSlice";
 import { mockNewPlan } from "@/lib/mock";
-import type { Term } from "@/types/db";
+import type { Course, Term } from "@/types/db";
 import type { CachedDetailedCourse } from "@/types/local";
 import { parseGroup } from "@/lib/course";
 import { ResultType } from "@/lib/enums";
-import { formatCourseId } from "@/lib/utils";
+import { formatCourseId, getSearchFn } from "@/lib/utils";
 import { toast } from "react-toastify";
 
 const createAppAsyncThunk = createAsyncThunk.withTypes<{
@@ -159,7 +159,16 @@ export const addCourseToTerm = createAppAsyncThunk(
 
 export const initApp = createAppAsyncThunk(
   "thunks/initApp",
-  async (_, { dispatch, fulfillWithValue }) => {
+  async (
+    courseData: Course[],
+    { dispatch, fulfillWithValue, rejectWithValue },
+  ) => {
+    const searchFn = getSearchFn(courseData);
+
+    if (!searchFn) {
+      return rejectWithValue("Failed to get search function");
+    }
+
     const { plan, terms } = mockNewPlan(3, "Mock Plan");
 
     const termData = terms.reduce(

@@ -28,19 +28,23 @@ const CourseTaken = () => {
     (state) => state.localData.selectedCourses,
   );
   const courseTaken = useAppSelector((state) => state.userData.courseTaken);
+  const isInitialized = useAppSelector((state) => state.global.isInitialized);
 
   const handleExpand = useCallback(() => {
+    if (!isInitialized) return;
     dispatch(toggleIsCourseTakenExpanded());
-  }, [dispatch]);
+  }, [dispatch, isInitialized]);
   const handleRemoveCourseTaken = useCallback(
     (source?: string) => {
+      if (!isInitialized) return;
       if (!source) return;
       dispatch(removeCourseTaken([source]));
     },
-    [dispatch],
+    [dispatch, isInitialized],
   );
   const handleAddCourseTaken = useCallback(
     (e: React.MouseEvent<HTMLButtonElement>) => {
+      if (!isInitialized) return;
       e.stopPropagation();
       dispatch(
         addCourseTaken(
@@ -50,12 +54,16 @@ const CourseTaken = () => {
       dispatch(clearSelectedCourses());
       dispatch(setIsCourseTakenExpanded(true));
     },
-    [dispatch, selectedCourses],
+    [dispatch, selectedCourses, isInitialized],
   );
 
   return (
     <section
-      className={clsx(["course-taken", isCourseTakenExpanded && "expanded"])}
+      className={clsx([
+        "course-taken",
+        isCourseTakenExpanded && "expanded",
+        !isInitialized && "disabled",
+      ])}
     >
       <header onClick={handleExpand}>
         {hasSelectedCourses ? (

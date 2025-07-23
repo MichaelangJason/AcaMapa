@@ -73,6 +73,7 @@
     outline: none;
 
     path {
+      transition: stroke 0.2s ease;
       stroke-width: 200px; // svg default
       stroke: var(--gray-400);
       transition: stroke 0.2s ease;
@@ -80,6 +81,12 @@
 
     &.flipped {
       transform: scaleX(-1);
+    }
+
+    &.disabled {
+      path {
+        stroke: var(--gray-300);
+      }
     }
   }
 

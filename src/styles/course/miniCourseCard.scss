@@ -17,6 +17,16 @@
     color: var(--gray-000);
   }
 
+  &.skeleton {
+    height: 63px;
+    .info {
+      gap: 0px;
+    }
+    svg path {
+      stroke: var(--gray-100);
+    }
+  }
+
   .credits {
     height: 100%;
     width: 48px;
@@ -108,7 +118,7 @@
       stroke: var(--gray-500);
     }
 
-    .icon {
+    svg {
       width: 16px;
       height: auto;
     }
@@ -124,8 +134,5 @@
         stroke: var(--gray-500);
       }
     }
-  }
-
-  &.seeking {
   }
 }

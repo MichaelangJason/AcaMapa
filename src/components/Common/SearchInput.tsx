@@ -26,51 +26,66 @@ const SearchInput = ({
   const dispatch = useAppDispatch();
   const value = useAppSelector((state) => state.localData.searchInput);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const isInitialized = useAppSelector((state) => state.global.isInitialized);
 
   const debouncedCallback = useDebounce(callback, debounceTime);
 
-  // auto resize function, overhead acceptable
-  // TODO: switch to native resizing when it is widely supported
+  // auto resize function, acceptable overhead
+  // REVIEW: switch to native resizing when it is widely supported
   // https://developer.mozilla.org/en-US/docs/Web/CSS/field-sizing
   const resizeTextarea = useCallback(() => {
+    if (!isInitialized) return;
     const textarea = textareaRef.current;
     if (textarea) {
       textarea.style.height = "fit-content";
       textarea.style.height = textarea.scrollHeight + "px";
       textarea.scrollTop = textarea.scrollHeight;
     }
-  }, []);
+  }, [isInitialized]);
 
   useEffect(() => {
-    debouncedCallback(value);
-  }, [value, debouncedCallback]);
+    if (!isInitialized) return;
+    if (debounceTime > 0) {
+      debouncedCallback(value);
+    } else {
+      callback(value);
+    }
+  }, [value, callback, debounceTime, debouncedCallback, isInitialized]);
 
   // acceptable overhead, no need to debounce
   useEffect(() => {
+    if (!isInitialized) return;
     resizeTextarea();
-  }, [value, displayText, resizeTextarea]);
+  }, [value, displayText, resizeTextarea, isInitialized]);
 
   const handleClear = useCallback(() => {
+    if (!isInitialized) return;
     onClickIcon?.();
     if (value !== "") {
       dispatch(setSearchInput(""));
     }
     resizeTextarea();
-  }, [dispatch, value, onClickIcon, resizeTextarea]);
+  }, [dispatch, value, onClickIcon, resizeTextarea, isInitialized]);
 
   return (
-    <div className={clsx(["search-input", className])}>
+    <div
+      className={clsx([
+        "search-input",
+        className,
+        !isInitialized && "disabled",
+      ])}
+    >
       <textarea
         ref={textareaRef}
         className={clsx({
           "scrollbar-hover": true,
-          disabled: isDisabled,
+          disabled: isDisabled || !isInitialized,
         })}
         name="course-search"
-        placeholder="course id or name"
+        placeholder={isInitialized ? "course id or name" : "Initializing..."}
         onChange={(e) => dispatch(setSearchInput(e.target.value))}
         value={displayText || value}
-        disabled={isDisabled || !!displayText}
+        disabled={isDisabled || !!displayText || !isInitialized}
         rows={1}
       />
       <div className="search-input-icon" onClick={handleClear}>

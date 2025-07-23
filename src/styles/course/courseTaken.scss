@@ -19,6 +19,25 @@
   background: var(--gray-000);
   box-shadow: var(--shadow-default-heavy);
 
+  &.disabled {
+    background: var(--gray-100);
+    pointer-events: none;
+
+    .title {
+      color: var(--gray-400);
+    }
+
+    .add-button {
+      display: none;
+    }
+
+    .expand {
+      path {
+        stroke: var(--gray-200);
+      }
+    }
+  }
+
   .add-button {
     border-radius: var(--border-radius-default);
     border: 2px solid var(--gray-600);

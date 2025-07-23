@@ -4,12 +4,14 @@ export const MAX_SELECTED_COURSE = 7;
 
 export const MULTI_SELECT_CONFIG = {
   DISPLAYED_SELECTED_COURSE: 3,
-  MIN_HEIGHT: 64,
+  // TODO: fix this to 64px when min-height issue is resolved
+  MIN_HEIGHT: 63,
   MARGINS: {
     EXPANDED: 16,
     COLLAPSED_VISIBLE: -50,
     HOVER: -40,
-    COLLAPSED_HIDDEN: -64,
+    // TODO: fix this to 64px when min-height issue is resolved
+    COLLAPSED_HIDDEN: -63,
   },
   SCALE: {
     MAX: 1,
@@ -43,10 +45,13 @@ export const SKELETON_CONFIG = {
   },
   COURSE_CARD: {
     SUBHEADING_HEIGHT: 14,
+    NUM_MINI_CARD_SKELETON: 6,
+    MINI_CARD_HEIGHT: 63,
     HEADING: {
       WIDTH: 112,
       HEIGHT: 21,
       RADIUS: 4,
+      MINI_CARD_WIDTH: 168,
     },
     REQNOTES: {
       HEIGHT: 52,
@@ -59,7 +64,7 @@ export const SKELETON_CONFIG = {
       RADIUS: 4,
     },
   },
-  UTILITY_BAR: {
+  ITEM_TAG: {
     WIDTH_1: 160,
     WIDTH_2: 60,
     HEIGHT: 24,
