@@ -46,7 +46,7 @@ const App = ({ courseData }: { courseData: Course[] }) => {
         position="bottom-center"
         autoClose={3000}
         hideProgressBar={true}
-        newestOnTop={false}
+        newestOnTop={true}
         closeOnClick={true}
         pauseOnHover={false}
         rtl={false}

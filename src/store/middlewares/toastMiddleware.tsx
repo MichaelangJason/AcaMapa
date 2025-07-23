@@ -1,6 +1,6 @@
 import { createListenerMiddleware, isAnyOf } from "@reduxjs/toolkit";
 import { AppDispatch, RootState } from "..";
-import { toast } from "react-toastify";
+import { toast, type TypeOptions } from "react-toastify";
 import {
   isTermAction,
   isCourseTakenAction,
@@ -92,7 +92,7 @@ startListening({
       }
       case addCourseToTerm.rejected.type: {
         toast.update(ToastId.ADD_COURSE_TO_TERM, {
-          render: "Failed to add courses, please try again",
+          render: () => action.payload as string,
           type: "error",
           isLoading: false,
           autoClose: 3000,
@@ -101,6 +101,8 @@ startListening({
         });
         break;
       }
+      default:
+        break;
     }
   },
 });
@@ -160,36 +162,46 @@ startListening({
 
     switch (action.type) {
       case "userData/addCourse": {
-        toast.update(ToastId.ADD_COURSE_TO_TERM, {
-          render: () => {
-            const courseIds = action.payload.courseIds;
-            return (
-              <div>
-                {courseIds.flatMap((id, idx) => {
-                  return idx === 0
-                    ? [<span key={id}>{formatCourseId(id)}</span>]
-                    : [
-                        <br key={`${id}-br`} />,
-                        <span key={id}>{formatCourseId(id)}</span>,
-                      ];
-                })}
-                <br key={`content-end-br`} />
-                <span key={`content-end`}>
-                  added to{" "}
-                  {
-                    originalState.userData.termData.get(action.payload.termId)!
-                      .name
-                  }
-                </span>
-              </div>
-            );
-          },
-          type: "success",
+        const produceContent = () => {
+          const courseIds = action.payload.courseIds;
+          return (
+            <div>
+              {courseIds.flatMap((id, idx) => {
+                return idx === 0
+                  ? [<span key={id}>{formatCourseId(id)}</span>]
+                  : [
+                      <br key={`${id}-br`} />,
+                      <span key={id}>{formatCourseId(id)}</span>,
+                    ];
+              })}
+              <br key={`content-end-br`} />
+              <span key={`content-end`}>
+                added to{" "}
+                {
+                  originalState.userData.termData.get(action.payload.termId)!
+                    .name
+                }
+              </span>
+            </div>
+          );
+        };
+        const toastOptions = {
+          type: "success" as TypeOptions,
           isLoading: false,
           autoClose: 3000,
           closeOnClick: true,
           closeButton: true,
-        });
+        };
+
+        if (toast.isActive(ToastId.ADD_COURSE_TO_TERM)) {
+          toast.update(ToastId.ADD_COURSE_TO_TERM, {
+            render: produceContent,
+            ...toastOptions,
+          });
+        } else {
+          toast.success(produceContent, toastOptions);
+        }
+
         break;
       }
       case "userData/deleteCourse": {

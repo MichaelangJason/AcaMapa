@@ -141,6 +141,10 @@ export const addCourseToTerm = createAppAsyncThunk(
       // return rejectWithValue("Duplicate course ids");
     }
 
+    if (newCourseIds.length === 0) {
+      return rejectWithValue("No new courses to add");
+    }
+
     dispatch(
       addCourse({
         courseIds: newCourseIds,

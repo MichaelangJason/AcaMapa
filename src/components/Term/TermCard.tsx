@@ -44,7 +44,7 @@ const AddTermButton = ({
       ])}
       onClick={handleClick}
       data-tooltip-id={TooltipId.TOP}
-      data-tooltip-content={isBefore ? "Add term before" : "Add term after"}
+      data-tooltip-content={"Add new term here"}
       data-tooltip-delay-show={500}
     >
       <PlusIcon />
