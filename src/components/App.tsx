@@ -1,42 +1,37 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { SideBar, UtilityBar } from "./Layout";
 import { SimpleModal, ToolTips } from "./Common";
 import { Terms } from "./Term";
 import { Provider } from "react-redux";
 import { AppStore, makeStore } from "@/store";
 import type { Course } from "@/types/db";
-import { useCourseSearch } from "@/lib/hooks";
+import { getSearchFn } from "@/lib/utils";
 import { setCourseData } from "@/store/slices/localDataSlice";
 import { initApp } from "@/store/thunks";
 import { ToastContainer, Slide } from "react-toastify";
 
 const App = ({ courseData }: { courseData: Course[] }) => {
   // init redux store
-  const [isMounted, setIsMounted] = useState(false); // to control actual mounting
-  const storeRef = useRef<AppStore>(null);
-  if (!storeRef.current) {
-    // should only run once at init
-    storeRef.current = makeStore();
+  // REVIEW: useMemo & make it client side only
+  const storeRef = useRef<AppStore>(makeStore());
+  const searchCourseFnRef = useRef<(query: string) => Promise<Course[]>>(() =>
+    Promise.resolve([]),
+  );
+
+  // guaranteed to run only once at initialization for the whole life cycle of the app
+  useEffect(() => {
+    // get search function, run only once at initialization
+    searchCourseFnRef.current = getSearchFn(courseData)();
     storeRef.current.dispatch(setCourseData(courseData));
     storeRef.current.dispatch(initApp());
-  }
-
-  // get search function, run only once at initialization
-  const searchCourseAsync = useCourseSearch(courseData);
-
-  useEffect(() => {
-    const isInitialized = storeRef.current?.getState().global.isInitialized;
-    if (!isInitialized) return;
-    setIsMounted(true);
-  }, [storeRef]);
-
-  if (!isMounted) return null;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <Provider store={storeRef.current}>
-      <SideBar searchCourseFn={searchCourseAsync} />
+      <SideBar searchCourseFn={searchCourseFnRef.current} />
       <UtilityBar />
       <Terms />
       {/* <Assistant /> */}

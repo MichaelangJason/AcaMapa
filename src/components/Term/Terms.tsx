@@ -31,6 +31,7 @@ import {
 import { DraggingType } from "@/lib/enums";
 import { setIsDragging } from "@/store/slices/globalSlice";
 import clsx from "clsx";
+import { TermCardSkeleton } from "../Skeleton";
 
 const Terms = () => {
   const currentPlan = useAppSelector(selectCurrentPlan);
@@ -45,6 +46,7 @@ const Terms = () => {
     (state) => state.global.isSeekingCourse,
   );
   const isAddingCourse = useAppSelector((state) => state.global.isAddingCourse);
+  const isInitialized = useAppSelector((state) => state.global.isInitialized);
 
   const handleClearSeekingCourseId = useCallback(() => {
     if (!isSeekingCourse) return;
@@ -53,6 +55,7 @@ const Terms = () => {
 
   const handleAddCourse = useCallback(
     async (termId: string) => {
+      if (!isInitialized || !currentPlan) return;
       if (selectedCourses.size === 0 || isAddingCourse) return; // prevent adding course when adding course
       const result = await dispatch(
         addCourseToTerm({
@@ -65,11 +68,12 @@ const Terms = () => {
         dispatch(clearSelectedCourses());
       }
     },
-    [selectedCourses, dispatch, currentPlan, isAddingCourse],
+    [selectedCourses, dispatch, currentPlan, isAddingCourse, isInitialized],
   );
 
   const handleDeleteCourse = useCallback(
     (termId: string, courseId: string) => {
+      if (!isInitialized || !currentPlan) return;
       dispatch(
         deleteCourse({
           termId,
@@ -78,11 +82,12 @@ const Terms = () => {
         }),
       );
     },
-    [dispatch, currentPlan],
+    [dispatch, currentPlan, isInitialized],
   );
 
   const handleSetIsCourseExpanded = useCallback(
     (courseId: string, isExpanded: boolean) => {
+      if (!isInitialized || !currentPlan) return;
       dispatch(
         setIsCourseExpanded({
           planId: currentPlan._id,
@@ -91,34 +96,37 @@ const Terms = () => {
         }),
       );
     },
-    [dispatch, currentPlan],
+    [dispatch, currentPlan, isInitialized],
   );
 
   /* term related handlers */
   const handleAddTerm = useCallback(
     (termId: string, isBefore = false) => {
+      if (!isInitialized || !currentPlan) return;
       const idx =
         currentPlan.termOrder.findIndex((s) => s === termId) +
         (isBefore ? 0 : 1);
       dispatch(addTerm({ planId: currentPlan._id, idx }));
     },
-    [dispatch, currentPlan],
+    [dispatch, currentPlan, isInitialized],
   );
 
   const handleDeleteTerm = useCallback(
     (termId: string, termIdx: number) => {
+      if (!isInitialized || !currentPlan) return;
       dispatch(deleteTerm({ planId: currentPlan._id, termId, termIdx }));
     },
-    [dispatch, currentPlan],
+    [dispatch, currentPlan, isInitialized],
   );
 
   const onDragStart = useCallback(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (start: DragStart) => {
+      if (!isInitialized) return;
       // const { type } = start;
       dispatch(setIsDragging(true));
     },
-    [dispatch],
+    [dispatch, isInitialized],
   );
 
   const onDragUpdate = useCallback((update: DragUpdate) => {
@@ -130,6 +138,8 @@ const Terms = () => {
   const onDragEnd = useCallback(
     (result: DropResult) => {
       const { destination, source, draggableId, type } = result;
+
+      if (!isInitialized || !currentPlan) return;
 
       dispatch(setIsDragging(false));
       if (!destination) return;
@@ -163,8 +173,18 @@ const Terms = () => {
         );
       }
     },
-    [currentPlan, dispatch],
+    [currentPlan, dispatch, isInitialized],
   );
+
+  if (!isInitialized) {
+    return (
+      <div id="terms" className="terms-container">
+        {Array.from({ length: 3 }).map((_, idx) => (
+          <TermCardSkeleton key={idx} isFirst={idx === 0} numCourses={3} />
+        ))}
+      </div>
+    );
+  }
 
   return (
     <DragDropContext

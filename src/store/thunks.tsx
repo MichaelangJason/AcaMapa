@@ -189,7 +189,9 @@ export const initApp = createAppAsyncThunk(
       }),
     );
 
+    // simulate loading time
     dispatch(setIsInitialized(true));
+    document.body.style.overflow = "auto";
     return fulfillWithValue(true);
   },
 );
@@ -220,8 +222,6 @@ export const seekCourse = createAppAsyncThunk(
         data: subseqCourses,
       }),
     );
-
-    // TODO
   },
 );
 
@@ -231,7 +231,6 @@ export const overwriteCourse = createAppAsyncThunk(
     { courseId, isOverwritten }: { courseId: string; isOverwritten: boolean },
     { dispatch, getState },
   ) => {
-    // TODO: pop a modal to inform user that they are overwriting a course which also requires a confirmation
     const planId = getState().localData.currentPlanId;
     dispatch(setIsOverwritten({ courseId, planId, isOverwritten }));
   },

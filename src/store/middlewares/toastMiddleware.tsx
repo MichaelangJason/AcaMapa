@@ -9,7 +9,7 @@ import {
   isValidDetailedCourse,
 } from "@/lib/typeGuards";
 import { setSeekingCourseId, setCurrentPlanId } from "../slices/localDataSlice";
-import { addCourseToTerm, fetchCourseData } from "../thunks";
+import { addCourseToTerm, fetchCourseData, initApp } from "../thunks";
 import { formatCourseId } from "@/lib/utils";
 import { ToastId } from "@/lib/enums";
 
@@ -19,6 +19,37 @@ const startListening = listenerMiddleware.startListening.withTypes<
   AppDispatch
 >();
 
+startListening({
+  matcher: isAnyOf(initApp.fulfilled, initApp.rejected, initApp.pending),
+  effect: (action) => {
+    switch (action.type) {
+      case initApp.fulfilled.type: {
+        toast.dismiss(ToastId.INIT_APP);
+        break;
+      }
+      case initApp.rejected.type: {
+        toast.update(ToastId.INIT_APP, {
+          render: () =>
+            "Failed to initialize DegreeMapper, please refresh the page",
+          type: "error",
+          isLoading: false,
+          autoClose: 3000,
+          closeButton: false,
+        });
+        break;
+      }
+      case initApp.pending.type: {
+        toast.loading("Initializing DegreeMapper...", {
+          toastId: ToastId.INIT_APP,
+          autoClose: false,
+        });
+        break;
+      }
+      default:
+        break;
+    }
+  },
+});
 startListening({
   matcher: isAnyOf(
     fetchCourseData.fulfilled,

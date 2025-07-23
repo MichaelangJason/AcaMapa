@@ -108,7 +108,6 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        cursor: pointer;
 
         transition: opacity 0.2s ease;
 
@@ -119,6 +118,7 @@
         }
 
         &:hover:not(.active):not(.disabled) {
+          cursor: pointer;
           svg > path {
             stroke: var(--gray-800);
           }
@@ -176,7 +176,7 @@
       justify-content: flex-end;
       align-items: center;
 
-      span {
+      &:not(.skeleton) > span {
         flex-shrink: 0;
         width: fit-content;
         min-width: 28px;

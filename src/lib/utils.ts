@@ -1,5 +1,5 @@
-import type FlexSearch from "flexsearch";
-import type { Course } from "@/types/course";
+import FlexSearch from "flexsearch";
+import type { Course } from "@/types/db";
 import { SCROLL_OFFSET } from "./constants";
 
 export const debounce = <T>(
@@ -250,4 +250,37 @@ export const getCommandKey = () => {
     return "⌘";
   }
   return "Ctrl";
+};
+
+export const getSearchFn = (courseData: Course[]) => () => {
+  const index = new FlexSearch.Document<Course>({
+    // tokenize: 'full',
+    document: {
+      id: "id",
+      index: [
+        {
+          field: "id",
+          tokenize: "full",
+          resolution: 9,
+        },
+        {
+          field: "name",
+          tokenize: "full",
+          resolution: 9,
+        },
+      ],
+    },
+  });
+
+  // synchronous indexing
+  courseData?.forEach((course) => {
+    index.add(course);
+  });
+
+  const search = async (query: string) => {
+    const result = await index.searchAsync(query, { enrich: true });
+    return processQuery(result); // TODO: put into searchAsync callback?
+  };
+
+  return search;
 };

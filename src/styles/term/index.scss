@@ -38,6 +38,7 @@
     align-items: center;
     width: 100%;
     flex-shrink: 0;
+    margin-top: -4px;
 
     border-radius: var(--term-inner-border-radius)
       var(--term-inner-border-radius) 0px 0px;
@@ -78,20 +79,24 @@
       font-style: normal;
     }
 
-    svg {
+    .hamburger {
       position: absolute;
-      right: 12px;
-      cursor: pointer;
+      right: 8px;
 
       width: 20px;
       height: auto;
+
+      &.disabled path {
+        fill: var(--gray-400);
+      }
 
       path {
         fill: var(--gray-1000-50-opac);
         transition: fill 0.1s ease;
       }
 
-      &:hover {
+      &:hover:not(.disabled) {
+        cursor: pointer;
         path {
           fill: var(--gray-500);
         }
@@ -131,6 +136,7 @@
     justify-content: center;
     align-items: center;
     flex-shrink: 0;
+    margin-bottom: -4px;
 
     border-radius: 0 0 var(--term-inner-border-radius)
       var(--term-inner-border-radius);
@@ -151,14 +157,13 @@
   right: calc(-1 * var(--terms-gap) - var(--term-card-border-width));
   background: var(--gray-100);
 
-  cursor: pointer;
-
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
 
   &:hover:not(.disabled):not(.clicked) {
+    cursor: pointer;
     opacity: 1;
     height: 90%;
   }

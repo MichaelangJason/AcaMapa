@@ -10,7 +10,7 @@ import {
 } from "@/store/slices/localDataSlice";
 import { useCallback, useMemo } from "react";
 import { ResultType, TooltipId } from "@/lib/enums";
-import type { Course } from "@/types/course";
+import type { Course } from "@/types/db";
 import Image from "next/image";
 import clsx from "clsx";
 import ExpandIcon from "@/public/icons/expand.svg";

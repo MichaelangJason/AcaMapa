@@ -35,3 +35,34 @@ export const SCROLL_OFFSET = {
   COURSE_CARD: 32,
   SCROLL_ICON: 100,
 };
+
+export const SKELETON_CONFIG = {
+  TERM_CARD_CONTENT: {
+    WIDTH: 120,
+    HEIGHT: 20,
+  },
+  COURSE_CARD: {
+    SUBHEADING_HEIGHT: 14,
+    HEADING: {
+      WIDTH: 112,
+      HEIGHT: 21,
+      RADIUS: 4,
+    },
+    REQNOTES: {
+      HEIGHT: 52,
+      WIDTH: 260,
+      RADIUS: 10.5,
+    },
+    CREDITS: {
+      COMMON: 20,
+      DETAILED_WIDTH: 24,
+      RADIUS: 4,
+    },
+  },
+  UTILITY_BAR: {
+    WIDTH_1: 160,
+    WIDTH_2: 60,
+    HEIGHT: 24,
+    RADIUS: 6,
+  },
+};

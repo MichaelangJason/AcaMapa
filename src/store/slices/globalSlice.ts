@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export const initialState = {
   isSideBarFolded: false as boolean,
-  isCourseTakenExpanded: true as boolean,
+  isCourseTakenExpanded: false as boolean,
   // state controlled by selectedCourses, can be replaced by createSelector on selectedCourses.size
   hasSelectedCourses: false as boolean,
   isAddingCourse: false as boolean,

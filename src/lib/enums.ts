@@ -47,4 +47,5 @@ export enum TooltipId {
 export enum ToastId {
   ADD_COURSE_TO_TERM = "add-course-to-term",
   SEEKING_COURSE = "seeking-course",
+  INIT_APP = "init-app",
 }

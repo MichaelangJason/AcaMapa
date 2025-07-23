@@ -18,10 +18,15 @@ const createAppSelector = createSelector.withTypes<RootState>();
 
 export const selectCurrentPlan = createAppSelector(
   [
+    (state) => state.global.isInitialized,
     (state) => state.localData.currentPlanId,
     (state) => state.userData.planData,
   ],
-  (currentPlanId, planData) => {
+  (isInitialized, currentPlanId, planData) => {
+    if (!isInitialized) {
+      return null;
+    }
+
     if (
       !currentPlanId ||
       !isValidObjectId(currentPlanId) ||
@@ -35,11 +40,16 @@ export const selectCurrentPlan = createAppSelector(
 
 export const selectCurrentTerms = createAppSelector(
   [
+    (state) => state.global.isInitialized,
     (state) => state.localData.currentPlanId,
     (state) => state.userData.planData,
     (state) => state.userData.termData,
   ],
-  (currentPlanId, planData, termData) => {
+  (isInitialized, currentPlanId, planData, termData) => {
+    if (!isInitialized) {
+      return [];
+    }
+
     if (
       !currentPlanId ||
       !isValidObjectId(currentPlanId) ||
@@ -62,12 +72,23 @@ export const selectCurrentTerms = createAppSelector(
 
 export const selectCurrentCoursePerTerms = createAppSelector(
   [
+    (state) => state.global.isInitialized,
     (state) => state.userData.planData,
     (state) => state.userData.termData,
     (state) => state.localData.cachedDetailedCourseData,
     (state) => state.localData.currentPlanId,
   ],
-  (planData, termData, cachedDetailedCourseData, currentPlanId) => {
+  (
+    isInitialized,
+    planData,
+    termData,
+    cachedDetailedCourseData,
+    currentPlanId,
+  ) => {
+    if (!isInitialized) {
+      return {};
+    }
+
     const plan = planData.get(currentPlanId);
     if (!plan) {
       throw new Error(`Plan id not found in plan data: ${currentPlanId}`);
@@ -169,10 +190,15 @@ export const selectCurrentPlanIsCourseExpanded = createSelector(
 );
 
 export const selectIsOverwritten = createSelector(
+  (state) => state.global.isInitialized,
   (state) => state.userData.planData,
   (state) => state.localData.currentPlanId,
   (_: RootState, courseId: string) => courseId,
-  (planData, currentPlanId, courseId) => {
+  (isInitialized, planData, currentPlanId, courseId) => {
+    if (!isInitialized) {
+      return false;
+    }
+
     const plan = planData.get(currentPlanId);
     if (!plan) {
       throw new Error(`Plan id not found in plan data: ${currentPlanId}`);
@@ -189,11 +215,21 @@ export const selectCourseDepGraph = createSelector(
 );
 
 export const selectCourseDepMeta = createSelector(
+  (state: RootState) => state.global.isInitialized,
   (state: RootState) => state.localData.currentPlanId,
   (state: RootState) => state.localData.courseData,
   (state: RootState) => state.localData.courseDepData,
   (state: RootState) => state.userData,
-  (currentPlanId, courseData, courseDepData, userData) => {
+  (isInitialized, currentPlanId, courseData, courseDepData, userData) => {
+    if (!isInitialized) {
+      return {
+        getCourseSource: () => ({ isValid: false, source: "" }),
+        getValidCourses: () => ({
+          totalCredits: 0,
+          validSubjectMap: new Map(),
+        }),
+      };
+    }
     const currentPlan = userData.planData.get(currentPlanId);
     const courseTaken = userData.courseTaken;
     if (!currentPlan) {
@@ -385,12 +421,24 @@ export const selectTermOrderMap = createSelector(
 );
 
 export const selectPlanStats = createSelector(
+  (state: RootState) => state.global.isInitialized,
   (state: RootState) => state.localData.courseData,
   (state: RootState) => state.localData.currentPlanId,
   (state: RootState) => state.userData.planData,
-  (state: RootState) => state.userData.termData,
   (state: RootState) => state.userData.courseTaken,
-  (courseData, currentPlanId, planData, termData, courseTaken) => {
+  (isInitialized, courseData, currentPlanId, planData, courseTaken) => {
+    if (!isInitialized) {
+      return {
+        totalPlanCredits: 0,
+        totalCourseTakenCretids: 0,
+        totalCredits: 0,
+        totalCourseTaken: 0,
+        totalPlannedCourses: 0,
+        totalCourses: 0,
+        totalTerm: 0,
+        averageCreditsPerTerm: 0,
+      };
+    }
     const plan = planData.get(currentPlanId);
     if (!plan) {
       throw new Error(`Plan id not found in plan data: ${currentPlanId}`);

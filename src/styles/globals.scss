@@ -97,6 +97,8 @@ body {
   padding: 0 0 0 var(--sidebar-width);
   transition: padding 0.2s ease-in-out;
 
+  overflow: hidden; // default before initialized
+
   /* 
   * Due to technical issue of @hello-pangea/dnd library regarding nested Droppable
   * https://github.com/hello-pangea/dnd/issues/559
