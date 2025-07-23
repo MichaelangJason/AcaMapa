@@ -21,7 +21,9 @@ const CourseTaken = () => {
   const isCourseTakenExpanded = useAppSelector(
     (state) => state.global.isCourseTakenExpanded,
   );
-  const isAddingCourse = useAppSelector((state) => state.global.isAddingCourse);
+  const hasSelectedCourses = useAppSelector(
+    (state) => state.global.hasSelectedCourses,
+  );
   const selectedCourses = useAppSelector(
     (state) => state.localData.selectedCourses,
   );
@@ -56,7 +58,7 @@ const CourseTaken = () => {
       className={clsx(["course-taken", isCourseTakenExpanded && "expanded"])}
     >
       <header onClick={handleExpand}>
-        {isAddingCourse ? (
+        {hasSelectedCourses ? (
           <button className="add-button" onClick={handleAddCourseTaken}>
             Add to Course Taken
           </button>

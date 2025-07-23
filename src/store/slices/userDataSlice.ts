@@ -309,29 +309,47 @@ export const {
   setIsOverwritten,
 } = userDataSlice.actions;
 
+export const planActions = {
+  setPlanData,
+  setPlanOrder,
+  addPlan,
+  deletePlan,
+  movePlan,
+  renamePlan,
+};
+
+export const termActions = {
+  setTermData,
+  addTerm,
+  deleteTerm,
+  moveTerm,
+  renameTerm,
+};
+
+export const courseActions = {
+  addCourse,
+  deleteCourse,
+  moveCourse,
+  setIsOverwritten,
+};
+
+export const courseTakenActions = {
+  setCourseTaken,
+  addCourseTaken,
+  removeCourseTaken,
+};
+
 export type PlanAction = ReturnType<
-  | typeof setPlanData
-  | typeof setPlanOrder
-  | typeof addPlan
-  | typeof deletePlan
-  | typeof movePlan
-  | typeof renamePlan
+  (typeof planActions)[keyof typeof planActions]
 >;
 export type TermAction = ReturnType<
-  | typeof setTermData
-  | typeof addTerm
-  | typeof deleteTerm
-  | typeof moveTerm
-  | typeof renameTerm
+  (typeof termActions)[keyof typeof termActions]
 >;
 export type CourseAction = ReturnType<
-  | typeof addCourse
-  | typeof deleteCourse
-  | typeof moveCourse
-  | typeof setIsOverwritten
+  (typeof courseActions)[keyof typeof courseActions]
 >;
 export type CourseTakenAction = ReturnType<
-  typeof setCourseTaken | typeof addCourseTaken | typeof removeCourseTaken
+  (typeof courseTakenActions)[keyof typeof courseTakenActions]
 >;
 
 export default userDataSlice.reducer;

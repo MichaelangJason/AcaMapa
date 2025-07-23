@@ -4,3 +4,5 @@ export type {
   CourseAction,
   CourseTakenAction,
 } from "@/store/slices/userDataSlice";
+
+export type { LocalDataAction } from "@/store/slices/localDataSlice";

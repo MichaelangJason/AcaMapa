@@ -10,6 +10,7 @@ import type { Course } from "@/types/db";
 import { useCourseSearch } from "@/lib/hooks";
 import { setCourseData } from "@/store/slices/localDataSlice";
 import { initApp } from "@/store/thunks";
+import { ToastContainer, Slide } from "react-toastify";
 
 const App = ({ courseData }: { courseData: Course[] }) => {
   // init redux store
@@ -41,6 +42,19 @@ const App = ({ courseData }: { courseData: Course[] }) => {
       {/* <Assistant /> */}
       <SimpleModal />
       <ToolTips />
+      <ToastContainer
+        position="bottom-center"
+        autoClose={3000}
+        hideProgressBar={true}
+        newestOnTop={false}
+        closeOnClick={true}
+        pauseOnHover={false}
+        rtl={false}
+        draggable
+        theme="light"
+        transition={Slide}
+        stacked
+      />
     </Provider>
   );
 };

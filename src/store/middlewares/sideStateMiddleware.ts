@@ -1,6 +1,7 @@
 import { createListenerMiddleware, isAnyOf } from "@reduxjs/toolkit";
 import type { AppDispatch, RootState } from "..";
 import {
+  setHasSelectedCourses,
   setIsAddingCourse,
   setIsSeekingCourse,
   setIsSideBarFolded,
@@ -42,12 +43,30 @@ import {
 import { getSubjectCode } from "@/lib/course";
 import { ResultType } from "@/lib/enums";
 import type { SimpleModalProps } from "@/types/local";
+import { addCourseToTerm } from "../thunks";
 
 const listenerMiddleware = createListenerMiddleware();
 const startListening = listenerMiddleware.startListening.withTypes<
   RootState,
   AppDispatch
 >();
+
+startListening({
+  matcher: isAnyOf(
+    addCourseToTerm.pending,
+    addCourseToTerm.fulfilled,
+    addCourseToTerm.rejected,
+  ),
+  effect: (action, listenerApi) => {
+    const dispatch = listenerApi.dispatch;
+
+    if (action.type === addCourseToTerm.pending.type) {
+      dispatch(setIsAddingCourse(true));
+    } else {
+      dispatch(setIsAddingCourse(false));
+    }
+  },
+});
 
 // handle selected course updates only
 startListening({
@@ -60,9 +79,11 @@ startListening({
     const selectedCourseSize =
       listenerApi.getState().localData.selectedCourses.size;
 
-    const isAddingCourse = selectedCourseSize > 0;
-    if (isAddingCourse !== listenerApi.getState().global.isAddingCourse) {
-      listenerApi.dispatch(setIsAddingCourse(isAddingCourse));
+    const hasSelectedCourses = selectedCourseSize > 0;
+    if (
+      hasSelectedCourses !== listenerApi.getState().global.hasSelectedCourses
+    ) {
+      listenerApi.dispatch(setHasSelectedCourses(hasSelectedCourses));
     }
   },
 });

@@ -22,6 +22,7 @@ import type { CachedDetailedCourse } from "@/types/local";
 import { parseGroup } from "@/lib/course";
 import { ResultType } from "@/lib/enums";
 import { formatCourseId } from "@/lib/utils";
+import { toast } from "react-toastify";
 
 const createAppAsyncThunk = createAsyncThunk.withTypes<{
   state: RootState;
@@ -48,14 +49,13 @@ export const fetchCourseData = createAppAsyncThunk(
 
       const inputIds = new Set(courseIds);
       if (data.length !== courseIds.length) {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const errorIds = data
           .map((c) => c.id)
           .reduce((acc, val) => {
             if (!inputIds.has(val)) acc.push(val); // can create new array instead
             return acc;
           }, [] as string[]);
-        // TODO: toast for errorId
+        toast.error(`Failed to fetch course data for ${errorIds.join(", ")}`);
       }
 
       (data as CachedDetailedCourse[]).forEach((c) => {
@@ -63,16 +63,14 @@ export const fetchCourseData = createAppAsyncThunk(
         c.corequisites.group = parseGroup(c.corequisites.parsed);
         c.restrictions.group = parseGroup(c.restrictions.parsed);
 
-        console.log(c.prerequisites.group);
-        console.log(c.corequisites.group);
-        console.log(c.restrictions.group);
+        // console.log(c.prerequisites.group);
+        // console.log(c.corequisites.group);
+        // console.log(c.restrictions.group);
       });
 
       dispatch(updateCachedDetailedCourseData(data as CachedDetailedCourse[]));
       return fulfillWithValue(data);
-      // TODO: toast for success
     }
-    // TODO: toast error
     return rejectWithValue("Failed to fetch course data");
   },
 );
@@ -122,7 +120,25 @@ export const addCourseToTerm = createAppAsyncThunk(
     });
 
     if (duplicateCourseIds.length > 0) {
-      // TODO: toast for duplicate course ids
+      toast.error(() => {
+        return (
+          <div>
+            <span>
+              {duplicateCourseIds.flatMap((id, idx) =>
+                idx === 0
+                  ? [<span key={`${id}-${idx}`}>{formatCourseId(id)}</span>]
+                  : [
+                      <br key={`br-${id}-${idx}`} />,
+                      <span key={`${id}-${idx}`}>{formatCourseId(id)}</span>,
+                    ],
+              )}
+            </span>
+            <br />
+            <span>already in {plan.name}</span>
+          </div>
+        );
+      });
+      // return rejectWithValue("Duplicate course ids");
     }
 
     dispatch(

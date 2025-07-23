@@ -5,9 +5,16 @@ import type {
   TermAction,
   CourseAction,
   CourseTakenAction,
+  LocalDataAction,
 } from "@/types/actions";
-import type { LocalDataAction } from "@/store/slices/localDataSlice";
-import { isAction } from "@reduxjs/toolkit";
+import { localDataActions } from "@/store/slices/localDataSlice";
+import {
+  courseActions,
+  courseTakenActions,
+  planActions,
+  termActions,
+} from "@/store/slices/userDataSlice";
+import { isAction, isAnyOf } from "@reduxjs/toolkit";
 
 export const isValidCourse = (course: unknown): course is Course => {
   if (!course || typeof course !== "object") return false;
@@ -111,54 +118,29 @@ export const isValidObjectId = (
 
 export const isPlanAction = (action: unknown): action is PlanAction => {
   if (!isAction(action)) return false;
-  const a = action as PlanAction;
-  return (
-    a.type.startsWith("userData/") &&
-    typeof a.type === "string" &&
-    typeof a.payload === "object" &&
-    a.type.split("/")[1].toLowerCase().includes("plan")
-  );
+  return isAnyOf(...Object.values(planActions))(action);
 };
 
 export const isTermAction = (action: unknown): action is TermAction => {
   if (!isAction(action)) return false;
-  const a = action as TermAction;
-  return (
-    typeof a.type === "string" &&
-    typeof a.payload === "object" &&
-    a.type.startsWith("userData/") &&
-    a.type.split("/")[1].toLowerCase().includes("term")
-  );
+  return isAnyOf(...Object.values(termActions))(action);
 };
 
 export const isCourseAction = (action: unknown): action is CourseAction => {
   if (!isAction(action)) return false;
-  const a = action as CourseAction;
-  return (
-    typeof a.type === "string" &&
-    typeof a.payload === "object" &&
-    a.type.startsWith("userData/") &&
-    a.type.split("/")[1].toLowerCase().includes("course") &&
-    !a.type.split("/")[1].toLowerCase().includes("taken")
-  );
+  return isAnyOf(...Object.values(courseActions))(action);
 };
 
 export const isLocalDataAction = (
   action: unknown,
 ): action is LocalDataAction => {
   if (!isAction(action)) return false;
-  const a = action as LocalDataAction;
-  return a.type?.split("/")[0]?.toLowerCase() === "localdata";
+  return isAnyOf(...Object.values(localDataActions))(action);
 };
 
 export const isCourseTakenAction = (
   action: unknown,
 ): action is CourseTakenAction => {
   if (!isAction(action)) return false;
-  const a = action as CourseTakenAction;
-  return (
-    typeof a.type === "string" &&
-    a.type.startsWith("userData/") &&
-    a.type.split("/")[1].toLowerCase().includes("coursetaken")
-  );
+  return isAnyOf(...Object.values(courseTakenActions))(action);
 };

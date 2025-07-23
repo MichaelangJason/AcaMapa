@@ -44,6 +44,7 @@ const Terms = () => {
   const isSeekingCourse = useAppSelector(
     (state) => state.global.isSeekingCourse,
   );
+  const isAddingCourse = useAppSelector((state) => state.global.isAddingCourse);
 
   const handleClearSeekingCourseId = useCallback(() => {
     if (!isSeekingCourse) return;
@@ -52,17 +53,19 @@ const Terms = () => {
 
   const handleAddCourse = useCallback(
     async (termId: string) => {
-      if (selectedCourses.size === 0) return;
-      dispatch(
+      if (selectedCourses.size === 0 || isAddingCourse) return; // prevent adding course when adding course
+      const result = await dispatch(
         addCourseToTerm({
           termId,
           courseIds: Array.from(selectedCourses.keys()),
           planId: currentPlan._id,
         }),
       );
-      dispatch(clearSelectedCourses());
+      if (result.meta.requestStatus === "fulfilled") {
+        dispatch(clearSelectedCourses());
+      }
     },
-    [selectedCourses, dispatch, currentPlan],
+    [selectedCourses, dispatch, currentPlan, isAddingCourse],
   );
 
   const handleDeleteCourse = useCallback(

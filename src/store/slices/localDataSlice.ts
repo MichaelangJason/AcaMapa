@@ -478,6 +478,8 @@ export const {
   clearSimpleModalInfo,
 } = localDataSlice.actions;
 
+export const localDataActions = localDataSlice.actions;
+
 export type LocalDataAction = ReturnType<
   (typeof localDataSlice.actions)[keyof typeof localDataSlice.actions]
 >;

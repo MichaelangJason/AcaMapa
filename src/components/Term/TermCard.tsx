@@ -76,7 +76,9 @@ const TermCard = ({
   style?: React.CSSProperties;
   isDraggingOverlay?: boolean;
 }) => {
-  const isAddingCourse = useAppSelector((state) => state.global.isAddingCourse);
+  const hasSelectedCourses = useAppSelector(
+    (state) => state.global.hasSelectedCourses,
+  );
   const isDragging = useAppSelector((state) => state.global.isDragging);
   const [isTermDMOpen, setIsTermDMOpen] = useState(false);
   const isSeekingCourse = useAppSelector(
@@ -113,15 +115,19 @@ const TermCard = ({
 
   const termActions: ItemProps[] = useMemo(() => {
     const handleDeleteTerm = () => {
-      dispatch(
-        setSimpleModalInfo({
-          isOpen: true,
-          title: "Delete Term",
-          description: `Are you sure you want to delete ${term.name}?\n\nThis action cannot be undone.`,
-          confirmCb: () => deleteTerm(term._id.toString(), idx),
-          closeCb: () => {},
-        }),
-      );
+      if (courses.length > 0) {
+        dispatch(
+          setSimpleModalInfo({
+            isOpen: true,
+            title: "Delete Term",
+            description: `Are you sure you want to delete ${term.name}?\n\nThis action cannot be undone.`,
+            confirmCb: () => deleteTerm(term._id.toString(), idx),
+            closeCb: () => {},
+          }),
+        );
+      } else {
+        deleteTerm(term._id.toString(), idx);
+      }
     };
 
     const handleRenameTerm = () => {
@@ -162,7 +168,7 @@ const TermCard = ({
         handleCloseDropdownMenu: handleCloseTermDM,
       },
     ];
-  }, [deleteTerm, idx, handleCloseTermDM, term._id, dispatch]);
+  }, [deleteTerm, idx, handleCloseTermDM, term, dispatch, courses]);
 
   return (
     // outer draggable for the whole term card
@@ -186,7 +192,7 @@ const TermCard = ({
             className="term-header"
             {...draggableProvided.dragHandleProps}
           >
-            {isAddingCourse ? (
+            {hasSelectedCourses ? (
               <button className="add-course-button" onClick={handleAddCourse}>
                 Add to {term.name}
               </button>

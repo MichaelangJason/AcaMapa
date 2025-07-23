@@ -10,6 +10,7 @@ import {
   sideStateMiddleware,
   errorMiddleware,
   validationMiddleware,
+  toastMiddleware,
 } from "./middlewares";
 
 enableMapSet();
@@ -31,12 +32,12 @@ export const makeStore = () => {
       })
         .prepend(errorMiddleware)
         .concat(validationMiddleware)
+        .concat(toastMiddleware)
         .concat(sideStateMiddleware),
     // .concat(guardMiddleware)
     // .concat(localStorageMiddleware) // update at return
     // .concat(planSyncMiddleware)
     // .concat(interactionMiddleware)
-    // .concat(toastMiddleware)
   });
 };
 

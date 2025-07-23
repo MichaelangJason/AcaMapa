@@ -43,3 +43,8 @@ export enum TooltipId {
   UTILITY_BAR_DM = "utility-bar-dm-icon",
   MINI_COURSE_CARD = "mini-course-card-icon",
 }
+
+export enum ToastId {
+  ADD_COURSE_TO_TERM = "add-course-to-term",
+  SEEKING_COURSE = "seeking-course",
+}
