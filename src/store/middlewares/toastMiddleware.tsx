@@ -41,7 +41,24 @@ startListening({
           break;
         }
         const courseIds = payload.map((item) => formatCourseId(item.id));
-        toast.success(`${courseIds.join("\n")} fetched`);
+        toast.success(() => {
+          return (
+            <div>
+              <strong>
+                {courseIds.flatMap((id, idx) =>
+                  idx === 0
+                    ? [<span key={id}>{formatCourseId(id)}</span>]
+                    : [
+                        <br key={`${id}-br`} />,
+                        <span key={id}>{formatCourseId(id)}</span>,
+                      ],
+                )}
+              </strong>
+              <br />
+              <span>fetched</span>
+            </div>
+          );
+        });
         break;
       }
       case fetchCourseData.rejected.type: {
