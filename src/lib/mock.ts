@@ -18,8 +18,9 @@ export const mockNewPlan = (nTerms: number, name: string) => {
     _id: new ObjectId().toString(),
     name: name,
     termOrder: terms.map((term) => term._id),
-    courseMetadata: {},
+    courseMetadata: new Map(),
   };
+
   return {
     plan,
     terms,

@@ -25,6 +25,7 @@ import type { ItemProps } from "../Common/DropdownMenu/Item";
 import { TooltipId } from "@/lib/enums";
 import clsx from "clsx";
 import ItemTagSkeleton from "../Skeleton/ItemTagSkeleton";
+import UserSession from "../Common/Login";
 
 const UtilityBar = () => {
   const {
@@ -180,6 +181,7 @@ const UtilityBar = () => {
         {!isInitialized ? (
           <>
             <ItemTagSkeleton width="1" />
+            <div style={{ width: "12px" }} />
             <ItemTagSkeleton width="2" />
           </>
         ) : (
@@ -191,8 +193,14 @@ const UtilityBar = () => {
               `# Terms: ${totalTerm} (${averageCreditsPerTerm} cr/term)`,
             ]}
             title="Plan Stats"
+            tooltipProps={{
+              "data-tooltip-id": TooltipId.RIGHT,
+              "data-tooltip-content": "Plan Stats",
+            }}
           />
         )}
+        <div className="filler" />
+        {!isInitialized ? <ItemTagSkeleton width="2" /> : <UserSession />}
       </section>
       <GithubMark
         className="github-mark"

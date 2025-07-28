@@ -10,10 +10,18 @@ import type { Course } from "@/types/db";
 import { setCourseData } from "@/store/slices/localDataSlice";
 import { initApp } from "@/store/thunks";
 import { ToastContainer, Slide } from "react-toastify";
+import { SessionProvider } from "next-auth/react";
+import type { Session } from "@/types/local";
 
-const App = ({ courseData }: { courseData: Course[] }) => {
+const App = ({
+  courseData,
+  session,
+}: {
+  courseData: Course[];
+  session: Session | null;
+}) => {
   // init redux store
-  // REVIEW: useMemo & make it client side only
+  // REVIEW: make it client side only?
   const store = useMemo<AppStore>(makeStore, []);
 
   // guaranteed to run only once at initialization for the whole life cycle of the app
@@ -24,27 +32,29 @@ const App = ({ courseData }: { courseData: Course[] }) => {
   }, []);
 
   return (
-    <Provider store={store}>
-      <SideBar />
-      <UtilityBar />
-      <Terms />
-      {/* <Assistant /> */}
-      <SimpleModal />
-      <ToolTips />
-      <ToastContainer
-        position="bottom-center"
-        autoClose={3000}
-        hideProgressBar={true}
-        newestOnTop={true}
-        closeOnClick={true}
-        pauseOnHover={false}
-        rtl={false}
-        draggable
-        theme="light"
-        transition={Slide}
-        stacked
-      />
-    </Provider>
+    <SessionProvider session={session} refetchInterval={0}>
+      <Provider store={store}>
+        <SideBar />
+        <UtilityBar />
+        <Terms />
+        {/* <Assistant /> */}
+        <SimpleModal />
+        <ToolTips />
+        <ToastContainer
+          position="bottom-center"
+          autoClose={3000}
+          hideProgressBar={true}
+          newestOnTop={true}
+          closeOnClick={true}
+          pauseOnHover={false}
+          rtl={false}
+          draggable
+          theme="light"
+          transition={Slide}
+          stacked
+        />
+      </Provider>
+    </SessionProvider>
   );
 };
 

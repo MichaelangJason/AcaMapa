@@ -11,6 +11,7 @@ import {
   errorMiddleware,
   validationMiddleware,
   toastMiddleware,
+  syncMiddleware,
 } from "./middlewares";
 
 enableMapSet();
@@ -32,12 +33,10 @@ export const makeStore = () => {
       })
         .prepend(errorMiddleware)
         .concat(validationMiddleware)
+        // listener middlewares
         .concat(toastMiddleware)
+        .concat(syncMiddleware)
         .concat(sideStateMiddleware),
-    // .concat(guardMiddleware)
-    // .concat(localStorageMiddleware) // update at return
-    // .concat(planSyncMiddleware)
-    // .concat(interactionMiddleware)
   });
 };
 

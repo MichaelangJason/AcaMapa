@@ -165,6 +165,10 @@
     cursor: pointer;
     opacity: 1;
     height: 90%;
+
+    svg {
+      scale: 1.05;
+    }
   }
 
   &.on-left {
@@ -175,6 +179,7 @@
   svg {
     width: 16px;
     height: auto;
+    transition: scale 0.2s ease;
     path {
       stroke: var(--gray-400);
       stroke-width: 3;
@@ -196,6 +201,7 @@
     background: var(--gray-200);
 
     svg {
+      scale: 1;
       path {
         stroke: var(--gray-500);
       }

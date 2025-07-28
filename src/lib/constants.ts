@@ -71,3 +71,8 @@ export const SKELETON_CONFIG = {
     RADIUS: 6,
   },
 };
+
+export const SYNC_CONFIG = {
+  THROTTLE_WINDOW: 5000,
+  DEBOUNCE_DELAY: 1000,
+};

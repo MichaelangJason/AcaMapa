@@ -4,6 +4,7 @@
   left: 0;
   width: 100%;
   z-index: 950;
+  gap: 12px;
 
   box-sizing: border-box;
   display: flex;
@@ -17,6 +18,7 @@
 
   .hamburger,
   .github-mark {
+    flex-shrink: 0;
     width: 20px;
     height: auto;
     cursor: pointer;
@@ -43,11 +45,16 @@
 
   .contents {
     flex-grow: 1;
-    padding: 0 12px;
+    // padding: 0 12px;
     height: 24px;
     display: flex;
     align-items: flex-start;
     justify-content: flex-start;
-    gap: 12px;
+    overflow-x: visible;
+  }
+
+  .filler {
+    flex-grow: 1;
+    min-width: 12px;
   }
 }

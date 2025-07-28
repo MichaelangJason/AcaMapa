@@ -123,6 +123,20 @@ const validationMiddleware: Middleware<
               errors.push(`Invalid course metadata: ${plan.courseMetadata}`);
             }
 
+            const courseIds = plan.termOrder.flatMap(
+              (termId) => state.userData.termData.get(termId)?.courseIds ?? [],
+            );
+            if (courseIds.length !== plan.courseMetadata?.size) {
+              errors.push(
+                `Course metadata size mismatch: ${courseIds.length} !== ${plan.courseMetadata.size}`,
+              );
+            }
+            if (courseIds.some((id) => !plan.courseMetadata?.has(id))) {
+              errors.push(
+                `Course metadata size mismatch: ${courseIds.length} !== ${plan.courseMetadata.size}`,
+              );
+            }
+
             plan.termOrder?.forEach((termId: string) => {
               if (!isValidObjectId(termId)) {
                 errors.push(`Invalid term id in plan: ${termId}`);
@@ -297,8 +311,8 @@ const validationMiddleware: Middleware<
           throw new Error(`Invalid plan id: ${planId}`);
         }
         const plan = state.userData.planData.get(planId)!;
-        const duplicateCourseIds = courseIds.filter(
-          (id: string) => plan.courseMetadata[id] !== undefined,
+        const duplicateCourseIds = courseIds.filter((id: string) =>
+          plan.courseMetadata.has(id),
         );
         if (duplicateCourseIds.length > 0) {
           throw new Error(

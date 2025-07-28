@@ -75,11 +75,10 @@ const MiniCourseCard = ({
       <aside
         className="icon-container"
         onClick={handleClick}
-        data-tooltip-id={TooltipId.RIGHT}
+        data-tooltip-id={TooltipId.TOP}
         data-tooltip-content={
           isSelected ? "Remove from selected courses" : "Select course"
         }
-        data-tooltip-place="right"
         data-tooltip-delay-show={500}
       >
         {isSelected ? <RemoveIcon /> : <AddIcon />}

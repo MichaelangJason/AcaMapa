@@ -37,12 +37,12 @@ const CourseSchema = new Schema(
   },
 );
 
-export type Course = InferSchemaType<typeof CourseSchema>; // also includes a type for store usage
-export type Requisite = InferSchemaType<typeof RequisiteSchema>;
+export type CourseSchemaType = InferSchemaType<typeof CourseSchema>; // also includes a type for store usage
+export type RequisiteSchemaType = InferSchemaType<typeof RequisiteSchema>;
 
 // avoid multiple model registration in dev
-const Courses: Model<Course> =
+const Courses: Model<CourseSchemaType> =
   mongoose.models.Courses ||
-  model<Course>("Courses", CourseSchema, MongoCollection.COURSES);
+  model<CourseSchemaType>("Courses", CourseSchema, MongoCollection.COURSES);
 
 export default Courses;

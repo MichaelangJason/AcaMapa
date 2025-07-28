@@ -1,5 +1,5 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import type { CourseMetadata, Plan, Term } from "@/types/db";
+import type { Plan, Term } from "@/types/db";
 import { ObjectId } from "bson";
 
 export const initialState = {
@@ -58,24 +58,6 @@ export const userDataSlice = createSlice({
       // toString is called here to handle the case where the plan id is an ObjectId
       state.planData = new Map(Object.entries(action.payload.planData));
       state.planOrder = action.payload.planOrder;
-
-      // initialize course metadata for each plan
-      state.planData.forEach((plan) => {
-        // existence of term is guaranteed by middleware
-        const courseIds = plan.termOrder.flatMap(
-          (termId) => state.termData.get(termId)!.courseIds,
-        );
-        plan.courseMetadata = {
-          ...courseIds.reduce(
-            (acc, courseId) => {
-              acc[courseId] = { isOverwritten: false };
-              return acc;
-            },
-            {} as { [courseId: string]: CourseMetadata },
-          ),
-          ...plan.courseMetadata,
-        };
-      });
     },
     setPlanOrder: (state, action: PayloadAction<string[]>) => {
       state.planOrder = action.payload;
@@ -88,7 +70,7 @@ export const userDataSlice = createSlice({
       const newPlan: Plan = {
         name: action.payload.name ?? "New Plan",
         termOrder: action.payload.termOrder ?? [], // an initial term will be added in the middleware
-        courseMetadata: action.payload.courseMetadata ?? {},
+        courseMetadata: action.payload.courseMetadata ?? new Map(),
         _id: newId,
       };
 
@@ -178,7 +160,7 @@ export const userDataSlice = createSlice({
       const { planId, termId, termIdx } = action.payload;
       const term = state.termData.get(termId)!;
       term.courseIds.forEach((courseId) => {
-        delete state.planData.get(planId)!.courseMetadata[courseId];
+        state.planData.get(planId)!.courseMetadata.delete(courseId);
       });
       const plan = state.planData.get(planId)!;
       plan.termOrder.splice(termIdx, 1);
@@ -223,7 +205,7 @@ export const userDataSlice = createSlice({
       term.courseIds.unshift(...courseIds); // duplicate check among entire plan is handled in middleware
       const plan = state.planData.get(planId)!;
       courseIds.forEach((courseId) => {
-        plan.courseMetadata[courseId] = { isOverwritten: false };
+        plan.courseMetadata.set(courseId, { isOverwritten: false });
       });
 
       console.group(action.type);
@@ -244,7 +226,7 @@ export const userDataSlice = createSlice({
       const term = state.termData.get(termId)!;
       term.courseIds = term.courseIds.filter((id) => id !== courseId);
       const plan = state.planData.get(planId)!;
-      delete plan.courseMetadata[courseId];
+      plan.courseMetadata.delete(courseId);
     },
     moveCourse: (
       state,
@@ -277,7 +259,7 @@ export const userDataSlice = createSlice({
       const { courseId, planId, isOverwritten } = action.payload;
 
       const plan = state.planData.get(planId)!;
-      plan.courseMetadata[courseId].isOverwritten = isOverwritten;
+      plan.courseMetadata.get(courseId)!.isOverwritten = isOverwritten;
     },
   },
 });
@@ -308,6 +290,8 @@ export const {
   moveCourse,
   setIsOverwritten,
 } = userDataSlice.actions;
+
+export const userDataActions = userDataSlice.actions;
 
 export const planActions = {
   setPlanData,

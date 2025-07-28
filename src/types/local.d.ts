@@ -7,6 +7,7 @@ import type {
   VariantType,
   WrapperType,
 } from "react-tooltip";
+export type { Session } from "next-auth";
 
 export type SearchResult = { query: string } & (
   | {

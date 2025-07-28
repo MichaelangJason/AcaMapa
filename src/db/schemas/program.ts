@@ -17,11 +17,11 @@ const ProgramSchema = new Schema(
   },
 );
 
-export type Program = InferSchemaType<typeof ProgramSchema>;
+export type ProgramSchemaType = InferSchemaType<typeof ProgramSchema>;
 
 // avoid multiple model registration in dev
-const Programs: Model<Program> =
+const Programs: Model<ProgramSchemaType> =
   mongoose.models.Programs ||
-  model<Program>("Programs", ProgramSchema, MongoCollection.PROGRAMS);
+  model<ProgramSchemaType>("Programs", ProgramSchema, MongoCollection.PROGRAMS);
 
 export default Programs;

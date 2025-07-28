@@ -1,8 +1,18 @@
-import { Middleware } from "@reduxjs/toolkit";
+/* eslint-disable @typescript-eslint/no-empty-object-type */
+import type {
+  Middleware,
+  ThunkDispatch,
+  UnknownAction,
+} from "@reduxjs/toolkit";
+import type { RootState } from "..";
 import { toast } from "react-toastify";
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const errorMiddleware: Middleware = (store) => (next) => (action) => {
+const errorMiddleware: Middleware<
+  {},
+  RootState,
+  ThunkDispatch<RootState, undefined, UnknownAction>
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+> = (store) => (next) => (action) => {
   try {
     return next(action);
   } catch (error) {
@@ -10,7 +20,6 @@ const errorMiddleware: Middleware = (store) => (next) => (action) => {
     console.error(error);
     toast.error("Error in action: " + action);
     toast.error(error instanceof Error ? error.message : String(error));
-    throw error;
   }
 };
 

@@ -46,6 +46,11 @@ export const initialState = {
   simpleModalInfo: {
     isOpen: false,
   } as SimpleModalProps,
+
+  syncStatus: {
+    isSyncing: false,
+    lastSyncedAt: 0, // number of milliseconds
+  },
 };
 
 const localDataSlice = createSlice({

@@ -21,7 +21,7 @@ import type { Course, Term } from "@/types/db";
 import type { CachedDetailedCourse } from "@/types/local";
 import { parseGroup } from "@/lib/course";
 import { ResultType } from "@/lib/enums";
-import { formatCourseId, getSearchFn } from "@/lib/utils";
+import { formatCourseId, getSearchFn, mapStringfyReplacer } from "@/lib/utils";
 import { toast } from "react-toastify";
 
 const createAppAsyncThunk = createAsyncThunk.withTypes<{
@@ -85,6 +85,7 @@ export const addCourseToTerm = createAppAsyncThunk(
     }: { courseIds: string[]; termId: string; planId: string },
     { getState, dispatch, rejectWithValue, fulfillWithValue },
   ) => {
+    await new Promise((resolve) => setTimeout(resolve, 2000));
     const state = getState();
 
     const unCachedCourseIds = courseIds.filter(
@@ -112,7 +113,7 @@ export const addCourseToTerm = createAppAsyncThunk(
     const newCourseIds: string[] = [];
 
     courseIds.forEach((id) => {
-      if (plan.courseMetadata[id] !== undefined) {
+      if (plan.courseMetadata.has(id)) {
         duplicateCourseIds.push(id);
       } else {
         newCourseIds.push(id);
@@ -244,3 +245,20 @@ export const overwriteCourse = createAppAsyncThunk(
     dispatch(setIsOverwritten({ courseId, planId, isOverwritten }));
   },
 );
+
+export const fullSync = createAppAsyncThunk(
+  "thunks/fullSync",
+  async (_, { getState, rejectWithValue }) => {
+    const state = getState();
+    const data = state.userData;
+
+    try {
+      const serializedData = JSON.stringify(data, mapStringfyReplacer);
+      console.log(serializedData);
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  },
+);
+
+// TODO: update to use diffSync

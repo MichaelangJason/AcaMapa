@@ -10,6 +10,7 @@
   width: fit-content;
   box-sizing: border-box;
   min-height: 24px;
+  flex-shrink: 0;
 
   &.expanded {
     padding-bottom: 6px;
@@ -25,7 +26,10 @@
     color: var(--gray-000);
     font-size: 0.875rem;
     font-weight: bold;
-    cursor: pointer;
+
+    &.clickable:hover {
+      cursor: pointer;
+    }
 
     &.dragging {
       cursor: grabbing;

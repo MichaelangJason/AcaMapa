@@ -338,7 +338,7 @@ startListening({
       }
       const termOrderMap = new Map(plan.termOrder.map((t, i) => [t, i]));
       const courseTaken = state.userData.courseTaken;
-      const courses = Object.keys(plan.courseMetadata);
+      const courses = [...plan.courseMetadata.keys()];
 
       // REVIEW: cache course dep data
       dispatch(clearCourseDepData());

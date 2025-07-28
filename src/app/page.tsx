@@ -3,6 +3,7 @@ import type { Course } from "@/types/db";
 import { connectToDatabase, disconnectDatabase } from "@/db";
 import { Courses } from "@/db/schemas";
 import { unstable_cache as nextCache } from "next/cache";
+import { auth } from "@/auth";
 
 export async function generateStaticParams() {
   console.log("generating static params");
@@ -34,6 +35,7 @@ const getInitCourses = nextCache(async () => {
 
 export default async function Page() {
   const courseData = await getInitCourses();
+  const session = await auth();
 
-  return <App courseData={courseData} />;
+  return <App courseData={courseData} session={session} />;
 }

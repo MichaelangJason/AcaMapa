@@ -9,7 +9,7 @@ import {
   isValidDetailedCourse,
 } from "@/lib/typeGuards";
 import { setSeekingCourseId, setCurrentPlanId } from "../slices/localDataSlice";
-import { addCourseToTerm, fetchCourseData, initApp } from "../thunks";
+import { addCourseToTerm, fetchCourseData, fullSync, initApp } from "../thunks";
 import { formatCourseId } from "@/lib/utils";
 import { ToastId } from "@/lib/enums";
 
@@ -18,6 +18,24 @@ const startListening = listenerMiddleware.startListening.withTypes<
   RootState,
   AppDispatch
 >();
+
+startListening({
+  matcher: isAnyOf(fullSync.fulfilled, fullSync.rejected, fullSync.pending),
+  effect: (action) => {
+    switch (action.type) {
+      case fullSync.pending.type: {
+      }
+      case fullSync.fulfilled.type: {
+        toast.dismiss(ToastId.FULL_SYNC);
+        break;
+      }
+      case fullSync.rejected.type: {
+      }
+      default:
+        throw new Error("Invalid action type");
+    }
+  },
+});
 
 startListening({
   matcher: isAnyOf(initApp.fulfilled, initApp.rejected, initApp.pending),
@@ -123,7 +141,7 @@ startListening({
       }
       case addCourseToTerm.rejected.type: {
         toast.update(ToastId.ADD_COURSE_TO_TERM, {
-          render: () => action.payload as string,
+          render: () => (action.payload as string) ?? "Failed to add courses",
           type: "error",
           isLoading: false,
           autoClose: 3000,
