@@ -1,27 +1,45 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import type { RootState, AppDispatch } from ".";
-import { isValidDetailedCourse } from "@/lib/typeGuards";
 import {
-  setIsCourseExpanded,
+  isValidDetailedCourse,
+  isValidGuestData,
+  isValidSavingData,
+} from "@/lib/typeGuards";
+import {
   setCurrentPlanId,
   updateCachedDetailedCourseData,
   initPlanIsCourseExpanded,
   setSeekingCourseId,
   setSearchResult,
+  setSyncStatus,
+  setSession,
+  setSimpleModalInfo,
 } from "./slices/localDataSlice";
 import {
   addCourse,
   setIsOverwritten,
+  setLang,
   setPlanData,
   setTermData,
+  setChatThreadIds,
+  setCourseTaken,
 } from "./slices/userDataSlice";
 import { setIsInitialized } from "./slices/globalSlice";
-import { mockNewPlan } from "@/lib/mock";
-import type { Course, Term } from "@/types/db";
-import type { CachedDetailedCourse } from "@/types/local";
+import { mockPlanData } from "@/lib/mock";
+import type { Course, GuestUserData } from "@/types/db";
+import type { CachedDetailedCourse, Session } from "@/types/local";
 import { parseGroup } from "@/lib/course";
-import { ResultType } from "@/lib/enums";
-import { formatCourseId, getSearchFn, mapStringfyReplacer } from "@/lib/utils";
+import { Language, LocalStorageKey, ResultType, SyncMethod } from "@/lib/enums";
+import { formatCourseId, getSearchFn } from "@/lib/utils";
+import {
+  clearLocalData,
+  createRemoteUserData,
+  getLocalData,
+  getRemoteUserData,
+  mapStringfyReviver,
+  setLocalData,
+  updateRemoteUserData,
+} from "@/lib/sync";
 import { toast } from "react-toastify";
 
 const createAppAsyncThunk = createAsyncThunk.withTypes<{
@@ -161,45 +179,32 @@ export const addCourseToTerm = createAppAsyncThunk(
 export const initApp = createAppAsyncThunk(
   "thunks/initApp",
   async (
-    courseData: Course[],
-    { dispatch, fulfillWithValue, rejectWithValue },
+    { courseData, session }: { courseData: Course[]; session: Session | null },
+    { dispatch, fulfillWithValue, rejectWithValue, getState },
   ) => {
+    if (getState().global.isInitialized) {
+      return rejectWithValue(
+        "App already initialized, please refresh the page",
+      );
+    }
+
     const searchFn = getSearchFn(courseData);
 
     if (!searchFn) {
       return rejectWithValue("Failed to get search function");
     }
 
-    const { plan, terms } = mockNewPlan(3, "Mock Plan");
+    if (session) {
+      dispatch(setSession(session));
+    }
 
-    const termData = terms.reduce(
-      (acc, term) => {
-        acc[term._id] = term;
-        return acc;
-      },
-      {} as { [termId: string]: Term },
-    );
+    const result = await dispatch(fullSync(true));
 
-    const planData = {
-      [plan._id]: plan,
-    };
+    if (result.meta.requestStatus === "rejected") {
+      const { message } = result.payload as { message: string };
+      return rejectWithValue(message);
+    }
 
-    const planOrder = [plan._id];
-
-    dispatch(setTermData({ termData }));
-    dispatch(setPlanData({ planData, planOrder }));
-    dispatch(setCurrentPlanId(plan._id));
-    dispatch(initPlanIsCourseExpanded(plan._id));
-
-    dispatch(
-      setIsCourseExpanded({
-        planId: plan._id,
-        courseIds: Object.keys(plan.courseMetadata),
-        isExpanded: true,
-      }),
-    );
-
-    // simulate loading time
     dispatch(setIsInitialized(true));
     document.body.style.overflow = "auto";
     return fulfillWithValue(true);
@@ -248,15 +253,249 @@ export const overwriteCourse = createAppAsyncThunk(
 
 export const fullSync = createAppAsyncThunk(
   "thunks/fullSync",
-  async (_, { getState, rejectWithValue }) => {
+  async (
+    isInitializing: boolean = false,
+    { getState, rejectWithValue, fulfillWithValue, dispatch },
+  ) => {
     const state = getState();
     const data = state.userData;
+    const currentPlanId = state.localData.currentPlanId;
+
+    const initNewPlan = () => {
+      const { planData, termData, planOrder } = mockPlanData(3, "New Plan");
+      setLocalUserData({
+        planData,
+        termData,
+        planOrder,
+        lang: Language.EN,
+        courseTaken: new Map(),
+      });
+
+      return planOrder[0];
+    };
+
+    const setLocalUserData = (
+      data: GuestUserData,
+      chatThreadIds?: string[],
+    ) => {
+      const { planData, termData, planOrder, lang, courseTaken } = data;
+      dispatch(setTermData(termData));
+      dispatch(setPlanData({ planData, planOrder }));
+      const courseExpandPayload = [...planData.entries()].map(
+        ([planId, plan]) => ({
+          planId,
+          courseIds: [...plan.courseMetadata.keys()],
+          isExpanded: true,
+        }),
+      );
+      dispatch(initPlanIsCourseExpanded(courseExpandPayload));
+      dispatch(setLang(lang as Language));
+      dispatch(setChatThreadIds(chatThreadIds ?? []));
+      dispatch(setCourseTaken(courseTaken));
+    };
+
+    const restoreFrom = async (restoreData: any): Promise<boolean> => {
+      const { data } = restoreData || {};
+
+      const parsedData =
+        typeof data === "string"
+          ? JSON.parse(data, mapStringfyReviver)
+          : (data ?? {});
+
+      const savedCurrentPlanId = getLocalData(
+        LocalStorageKey.CURRENT_PLAN_ID,
+      )?.data;
+
+      if (isValidGuestData(parsedData, "full")) {
+        // fetch course data for all courses in all plans
+        const allCourseIds = [...parsedData.planData.values()].flatMap((p) => [
+          ...p.courseMetadata.keys(),
+        ]);
+        const distinctCourseIds = new Set(allCourseIds);
+        if (distinctCourseIds.size > 0) {
+          await dispatch(
+            fetchCourseData(Array.from(distinctCourseIds)),
+          ).unwrap();
+        }
+
+        setLocalUserData(parsedData);
+        if (parsedData.planData.has(savedCurrentPlanId)) {
+          dispatch(setCurrentPlanId(savedCurrentPlanId));
+        } else {
+          const newCurrentPlanId = parsedData.planOrder[0];
+          dispatch(setCurrentPlanId(newCurrentPlanId));
+          setLocalData(LocalStorageKey.CURRENT_PLAN_ID, newCurrentPlanId);
+        }
+
+        return true;
+      } else {
+        // create new user
+        const newPlanId = initNewPlan();
+        dispatch(setCurrentPlanId(newPlanId));
+        setLocalData(LocalStorageKey.CURRENT_PLAN_ID, newPlanId);
+        return false;
+      }
+    };
+
+    const session = state.localData.session;
+    const isLoggedIn = !!session && !!session.user && !!session.user.email;
+    const localUserData = getLocalData(LocalStorageKey.GUEST_DATA);
+    const isLocalDataPresent = !!localUserData;
+    const unsavedData = getLocalData(isLoggedIn ? session.user!.email! : "");
+    const isUnsavedDataPresent = !!unsavedData;
 
     try {
-      const serializedData = JSON.stringify(data, mapStringfyReplacer);
-      console.log(serializedData);
+      if (!isLoggedIn) {
+        console.log("not loggedin, isInitializing", isInitializing);
+        if (isInitializing) {
+          // restore from local data
+          console.log("not loggedin, restore from local data");
+          await restoreFrom(localUserData);
+        } else {
+          // save to local data
+          console.log("not loggedin, save to local data");
+          setLocalData(LocalStorageKey.GUEST_DATA, data);
+        }
+      } else {
+        // logged in
+        if (isInitializing) {
+          // 1. check if user exists in remote
+          const remoteUserData = await getRemoteUserData();
+          console.log("loggedin, remote user data", remoteUserData);
+
+          if (!remoteUserData) {
+            // 2.1 create new user
+            console.log("loggedin, create new user");
+            if (
+              !isLocalDataPresent ||
+              !isValidSavingData(localUserData, "full")
+            ) {
+              await createRemoteUserData(null);
+            } else {
+              await createRemoteUserData(localUserData.data);
+            }
+            // restore from local data, plan/term id matches with remote user data
+            console.log("loggedin, restore from local data");
+            await restoreFrom(localUserData);
+          } else if (
+            isUnsavedDataPresent &&
+            isValidSavingData(unsavedData, "full")
+          ) {
+            // 2.2 restore from unsaved data and clear
+            console.log("loggedin, restore from unsaved data");
+            await updateRemoteUserData(unsavedData, SyncMethod.OVERWRITE);
+            clearLocalData(session.user!.email!);
+          } else if (
+            isLocalDataPresent &&
+            isValidSavingData(localUserData, "full")
+          ) {
+            // 2.3 prompt user to keep or merge local data, rejectWithValue
+            console.log("loggedin, prompt user to keep or merge local data");
+            dispatch(
+              setSimpleModalInfo({
+                isOpen: true,
+                title: "Merge Local Data",
+                description: `
+                <span>How do you want to handle the local plan?</span>
+                <span>Click merge to merge local data with remote data.</span>
+              `,
+                confirmCb: async () => {
+                  // merge local data with remote data
+                  console.log("loggedin, merge local data with remote data");
+                  await updateRemoteUserData(localUserData, SyncMethod.MERGE);
+                  // get merged data from remote
+                  const mergedUserData = await getRemoteUserData();
+                  if (!mergedUserData) {
+                    throw new Error("Failed to get merged user data");
+                  }
+                  // restore from merged data
+                  await restoreFrom(mergedUserData);
+                  clearLocalData(LocalStorageKey.GUEST_DATA);
+                  dispatch(
+                    setSyncStatus({
+                      syncError: null,
+                      lastSyncedAt: Date.now(),
+                    }),
+                  );
+                  dispatch(setIsInitialized(true));
+                },
+                closeCb: async () => {
+                  // keep local data
+                  if (!(await restoreFrom(remoteUserData))) {
+                    throw new Error("Failed to restore from remote user data");
+                  }
+                  dispatch(
+                    setSyncStatus({
+                      syncError: null,
+                      lastSyncedAt: Date.now(),
+                    }),
+                  );
+                  dispatch(setIsInitialized(true));
+                },
+                confirmText: "Merge",
+                clearText: "Keep",
+                extraOptions: [
+                  {
+                    content: "Clear",
+                    onClick: async () => {
+                      // clear local data and set with remote data
+                      if (!(await restoreFrom(remoteUserData))) {
+                        throw new Error(
+                          "Failed to restore from remote user data",
+                        );
+                      }
+                      clearLocalData(LocalStorageKey.GUEST_DATA);
+                      dispatch(
+                        setSyncStatus({
+                          syncError: null,
+                          lastSyncedAt: Date.now(),
+                        }),
+                      );
+                      dispatch(setIsInitialized(true));
+                    },
+                  },
+                ],
+              }),
+            );
+
+            return rejectWithValue({
+              message: "Merge local data with remote data",
+              isMerging: true,
+            });
+          } else {
+            // restore from remote data
+            console.log("loggedin, restore from remote data");
+            console.log(localUserData);
+            console.log(isValidSavingData(localUserData, "full"));
+            if (!(await restoreFrom(remoteUserData))) {
+              console.log(remoteUserData);
+              throw new Error("Failed to restore from remote user data");
+            }
+            // clear any unsaved/local data
+            clearLocalData(LocalStorageKey.GUEST_DATA);
+            clearLocalData(isLoggedIn ? session.user!.email! : "");
+          }
+        } else {
+          // save to remote
+          setLocalData(LocalStorageKey.CURRENT_PLAN_ID, currentPlanId);
+          setLocalData(session.user!.email!, data);
+          await updateRemoteUserData(
+            { data, timestamp: Date.now() },
+            SyncMethod.OVERWRITE,
+          );
+          clearLocalData(session.user!.email!);
+        }
+      }
+
+      dispatch(setSyncStatus({ syncError: null, lastSyncedAt: Date.now() }));
+      return fulfillWithValue(true);
     } catch (error) {
-      return rejectWithValue(error);
+      const errMsg =
+        error instanceof Error
+          ? error.message
+          : String(error) || "Unknown error";
+      dispatch(setSyncStatus({ syncError: errMsg }));
+      return rejectWithValue({ message: errMsg });
     }
   },
 );

@@ -107,15 +107,20 @@
     justify-content: center;
     align-items: center;
 
-    cursor: pointer;
-
     path {
       stroke: var(--gray-300);
       transition: stroke 0.2s ease;
     }
 
-    &:hover path {
+    &:hover:not(.disabled) path {
       stroke: var(--gray-500);
+    }
+
+    &.disabled {
+      cursor: not-allowed;
+      path {
+        stroke: var(--gray-100);
+      }
     }
 
     svg {
@@ -126,11 +131,11 @@
 
   &.selected {
     .icon-container {
-      path {
+      &:not(.disabled) path {
         stroke: var(--gray-800);
       }
 
-      &:hover path {
+      &:hover:not(.disabled) path {
         stroke: var(--gray-500);
       }
     }

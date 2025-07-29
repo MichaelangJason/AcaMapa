@@ -13,6 +13,11 @@ import {
   isLocalDataAction,
   isValidObjectId,
 } from "@/lib/typeGuards";
+import {
+  MAX_PLAN,
+  MAX_TERM_PER_PLAN,
+  MAX_COURSE_PER_TERM,
+} from "@/lib/constants";
 
 const validationMiddleware: Middleware<
   {},
@@ -54,6 +59,10 @@ const validationMiddleware: Middleware<
         break;
       }
       case "userData/addPlan": {
+        const numPlan = state.userData.planData.size;
+        if (numPlan >= MAX_PLAN) {
+          throw new Error(`Max plan reached: ${numPlan}`);
+        }
         const { name, termOrder, courseMetadata } = action.payload;
         if (name !== undefined && typeof name !== "string") {
           throw new Error(`Invalid name: ${name}`);
@@ -87,7 +96,7 @@ const validationMiddleware: Middleware<
       case "userData/setPlanData": {
         const { planData, planOrder } = action.payload;
 
-        const planIds = new Set(Object.keys(planData)); // no duplicate plan ids guaranteed by dictionary
+        const planIds = new Set(planData.keys()); // no duplicate plan ids guaranteed by dictionary
         if (planIds.size !== planOrder.length) {
           throw new Error(
             `Plan ids and plan order length mismatch: ${planIds.size} !== ${planOrder.length}`,
@@ -105,39 +114,45 @@ const validationMiddleware: Middleware<
               errors.push(`Plan id not found in plan data: ${planId}`);
             }
             // check plan data
-            const plan = planData[planId];
+            const plan = planData.get(planId);
+            if (!plan) {
+              errors.push(`Plan id not found in plan data: ${planId}`);
+            }
             if (typeof plan !== "object" || plan === null) {
               errors.push(`Invalid plan data: ${plan}`);
             }
-            if (typeof plan.name !== "string" || plan.name.length === 0) {
-              errors.push(`Invalid plan name: ${plan.name}`);
+            if (typeof plan?.name !== "string" || plan?.name.length === 0) {
+              errors.push(`Invalid plan name: ${plan?.name}`);
             }
-            if (typeof plan.termOrder !== "object" || plan.termOrder === null) {
-              errors.push(`Invalid term order: ${plan.termOrder}`);
+            if (
+              typeof plan?.termOrder !== "object" ||
+              plan?.termOrder === null
+            ) {
+              errors.push(`Invalid term order: ${plan?.termOrder}`);
             }
             // TODO: better validation for course metadata
             if (
-              typeof plan.courseMetadata !== "object" ||
-              plan.courseMetadata === null
+              typeof plan?.courseMetadata !== "object" ||
+              plan?.courseMetadata === null
             ) {
-              errors.push(`Invalid course metadata: ${plan.courseMetadata}`);
+              errors.push(`Invalid course metadata: ${plan?.courseMetadata}`);
             }
 
-            const courseIds = plan.termOrder.flatMap(
+            const courseIds = plan?.termOrder?.flatMap(
               (termId) => state.userData.termData.get(termId)?.courseIds ?? [],
             );
-            if (courseIds.length !== plan.courseMetadata?.size) {
+            if (courseIds?.length !== plan?.courseMetadata?.size) {
               errors.push(
-                `Course metadata size mismatch: ${courseIds.length} !== ${plan.courseMetadata.size}`,
+                `Course metadata size mismatch: ${courseIds?.length} !== ${plan?.courseMetadata?.size}`,
               );
             }
-            if (courseIds.some((id) => !plan.courseMetadata?.has(id))) {
+            if (courseIds?.some((id) => !plan?.courseMetadata?.has(id))) {
               errors.push(
-                `Course metadata size mismatch: ${courseIds.length} !== ${plan.courseMetadata.size}`,
+                `Course metadata size mismatch: ${courseIds?.length} !== ${plan?.courseMetadata?.size}`,
               );
             }
 
-            plan.termOrder?.forEach((termId: string) => {
+            plan?.termOrder?.forEach((termId: string) => {
               if (!isValidObjectId(termId)) {
                 errors.push(`Invalid term id in plan: ${termId}`);
               }
@@ -145,8 +160,8 @@ const validationMiddleware: Middleware<
                 errors.push(`Term id not found in term data: ${termId}`);
               }
             });
-            const termSet = new Set(plan.termOrder);
-            if (termSet.size !== plan.termOrder.length) {
+            const termSet = new Set(plan?.termOrder);
+            if (termSet?.size !== plan?.termOrder?.length) {
               errors.push(`Duplicate term IDs found in plan: ${planId}`);
             }
 
@@ -185,7 +200,7 @@ const validationMiddleware: Middleware<
         break;
       }
       case "userData/setTermData": {
-        const { termData } = action.payload;
+        const termData = action.payload;
         const invalidTermIds = Object.keys(termData).filter(
           (id: string) => !isValidObjectId(id),
         ); // no duplicate term ids guaranteed by dictionary
@@ -196,6 +211,10 @@ const validationMiddleware: Middleware<
         break;
       }
       case "userData/addTerm": {
+        const numTerm = state.userData.termData.size;
+        if (numTerm >= MAX_TERM_PER_PLAN) {
+          throw new Error(`Max term per plan reached: ${numTerm}`);
+        }
         const { planId, idx, termData } = action.payload;
         if (!isValidObjectId(planId)) {
           throw new Error(`Invalid plan id: ${planId}`);
@@ -251,8 +270,8 @@ const validationMiddleware: Middleware<
             if (typeof subjectCode !== "string" || subjectCode.length !== 4) {
               errors.push(`Invalid subject code: ${subjectCode}`);
             }
-            const courseIds = new Set(action.payload[subjectCode]);
-            if (courseIds.size !== action.payload[subjectCode].length) {
+            const courseIds = new Set(action.payload.get(subjectCode));
+            if (courseIds.size !== action.payload.get(subjectCode)?.length) {
               errors.push(`Duplicate course ids in course taken: ${courseIds}`);
             }
             courseIds.forEach((courseId: string) => {
@@ -307,8 +326,19 @@ const validationMiddleware: Middleware<
         if (!isValidObjectId(termId)) {
           throw new Error(`Invalid term id: ${termId}`);
         }
+        if (!state.userData.termData.has(termId)) {
+          throw new Error(`Term id not found in term data: ${termId}`);
+        }
         if (!isValidObjectId(planId)) {
           throw new Error(`Invalid plan id: ${planId}`);
+        }
+        if (
+          state.userData.termData.get(termId)!.courseIds.length >=
+          MAX_COURSE_PER_TERM
+        ) {
+          throw new Error(
+            `Max course per term reached: ${MAX_COURSE_PER_TERM}`,
+          );
         }
         const plan = state.userData.planData.get(planId)!;
         const duplicateCourseIds = courseIds.filter((id: string) =>

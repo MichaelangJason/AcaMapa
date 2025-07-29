@@ -1,4 +1,12 @@
-import type { Course, DetailedCourse } from "@/types/db";
+import type {
+  Course,
+  CourseMetadata,
+  DetailedCourse,
+  GuestUserData,
+  MemberData,
+  Plan,
+  Term,
+} from "@/types/db";
 import { ObjectId } from "bson";
 import type {
   PlanAction,
@@ -15,6 +23,9 @@ import {
   termActions,
 } from "@/store/slices/userDataSlice";
 import { isAction, isAnyOf } from "@reduxjs/toolkit";
+import { checkObjectKeys } from "./utils";
+import { Language } from "./enums";
+import { CourseId, SavingData } from "@/types/local";
 
 export const isValidCourse = (course: unknown): course is Course => {
   if (!course || typeof course !== "object") return false;
@@ -116,6 +127,12 @@ export const isValidObjectId = (
   return ObjectId.isValid(id);
 };
 
+export const isValidCourseId = (id: unknown): id is CourseId => {
+  if (typeof id !== "string") return false;
+  // TODO: handle proper course id verification
+  return id.length <= 10;
+};
+
 export const isPlanAction = (action: unknown): action is PlanAction => {
   if (!isAction(action)) return false;
   return isAnyOf(...Object.values(planActions))(action);
@@ -143,4 +160,178 @@ export const isCourseTakenAction = (
 ): action is CourseTakenAction => {
   if (!isAction(action)) return false;
   return isAnyOf(...Object.values(courseTakenActions))(action);
+};
+
+export const isValidCourseTaken = (
+  courseTaken: unknown,
+): courseTaken is Map<string, string[]> => {
+  if (!(courseTaken instanceof Map)) return false;
+
+  if ([...courseTaken.keys()].some((key) => typeof key !== "string"))
+    return false;
+  if (
+    [...courseTaken.values()].some(
+      (value) =>
+        !Array.isArray(value) || value.some((v) => !isValidCourseId(v)),
+    )
+  )
+    return false;
+
+  return true;
+};
+
+export const isValidCourseMetadata = (
+  courseMetadata: unknown,
+): courseMetadata is CourseMetadata => {
+  if (typeof courseMetadata !== "object") return false;
+
+  const cm = courseMetadata as CourseMetadata;
+
+  if (!("isOverwritten" in cm)) return false;
+  if (typeof cm.isOverwritten !== "boolean") return false;
+  return true;
+};
+
+export const isValidPlan = (plan: unknown): plan is Plan => {
+  if (!plan || typeof plan !== "object") return false;
+
+  const p = plan as Plan;
+
+  if (!isValidObjectId(p._id)) return false;
+  if (typeof p.name !== "string") return false;
+  if (
+    !Array.isArray(p.termOrder) ||
+    p.termOrder.some((t) => typeof t !== "string" || !isValidObjectId(t))
+  )
+    return false;
+  if (
+    !(p.courseMetadata instanceof Map) ||
+    [...p.courseMetadata.keys()].some((key) => !isValidCourseId(key)) ||
+    [...p.courseMetadata.values()].some(
+      (value) => !isValidCourseMetadata(value),
+    )
+  )
+    return false;
+
+  return true;
+};
+
+export const isValidTerm = (term: unknown): term is Term => {
+  if (!term || typeof term !== "object") return false;
+
+  const t = term as Term;
+
+  if (!isValidObjectId(t._id)) return false;
+  if (typeof t.name !== "string") return false;
+  if (
+    !Array.isArray(t.courseIds) ||
+    t.courseIds.some((c) => !isValidCourseId(c))
+  )
+    return false;
+
+  return true;
+};
+
+export const isValidPlanData = (
+  planData: unknown,
+): planData is Map<string, Plan> => {
+  if (!(planData instanceof Map)) return false;
+  if (
+    [...planData.keys()].some(
+      (key) => typeof key !== "string" || !isValidObjectId(key),
+    )
+  )
+    return false;
+  if ([...planData.values()].some((value) => !isValidPlan(value))) return false;
+  return true;
+};
+
+export const isValidTermData = (
+  termData: unknown,
+): termData is Map<string, Term> => {
+  if (!(termData instanceof Map)) return false;
+  if (
+    [...termData.keys()].some(
+      (key) => typeof key !== "string" || !isValidObjectId(key),
+    )
+  )
+    return false;
+  if ([...termData.values()].some((value) => !isValidTerm(value))) return false;
+  return true;
+};
+
+export const isValidGuestData = (
+  data: unknown,
+  validateLvl: "basic" | "full" = "basic",
+): data is GuestUserData => {
+  if (!data || typeof data !== "object") return false;
+
+  const d = data as GuestUserData;
+
+  if (
+    !checkObjectKeys(d, [
+      "lang",
+      "courseTaken",
+      "planData",
+      "termData",
+      "planOrder",
+    ])
+  )
+    return false;
+
+  // can be simplified with chained type guards, but this is more readable
+  if (
+    typeof d.lang !== "string" ||
+    !Object.values(Language).includes(d.lang as Language)
+  )
+    return false;
+
+  // this is acceptable since userData operations are performed and controlled by well-defined redux actions and middlewares
+  if (!(d.courseTaken instanceof Map)) return false;
+  if (!(d.planData instanceof Map)) return false;
+  if (!(d.termData instanceof Map)) return false;
+  if (!Array.isArray(d.planOrder)) return false;
+
+  if (validateLvl === "basic") {
+    return true;
+  }
+
+  if (!isValidCourseTaken(d.courseTaken)) return false;
+  if (!isValidPlanData(d.planData)) return false;
+  if (!isValidTermData(d.termData)) return false;
+
+  return true;
+};
+
+export const isValidMemberData = (
+  data: unknown,
+  validateLvl: "basic" | "full" = "basic",
+): data is MemberData => {
+  if (!data || typeof data !== "object") return false;
+  if (!isValidGuestData(data, validateLvl)) return false;
+
+  const d = data as MemberData;
+
+  if (
+    !Array.isArray(d.chatThreadIds) ||
+    d.chatThreadIds.some((t) => typeof t !== "string" || !isValidObjectId(t))
+  )
+    return false;
+
+  return true;
+};
+
+export const isValidSavingData = (
+  savingData: unknown,
+  validateLvl: "basic" | "full" = "basic",
+): savingData is SavingData => {
+  if (!savingData || typeof savingData !== "object") return false;
+
+  const d = savingData as SavingData;
+
+  if (typeof d.timestamp !== "number" || new Date(d.timestamp) === null)
+    return false;
+  if (!isValidGuestData(d.data, validateLvl)) return false;
+
+  return true;
 };

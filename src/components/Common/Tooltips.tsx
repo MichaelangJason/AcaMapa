@@ -12,6 +12,7 @@ const Tooltips = () => {
       />
       <Tooltip id={TooltipId.RIGHT} place="right" className="tooltip-common" />
       <Tooltip id={TooltipId.LEFT} place="left" className="tooltip-common" />
+      <Tooltip id={TooltipId.SYNC} place="bottom" className="tooltip-common" />
     </div>
   );
 };

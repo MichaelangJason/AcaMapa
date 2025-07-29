@@ -72,7 +72,7 @@ export const throttledDebounce = <T>(
   }
 
   let nextExecDDL: number = 0;
-  let lastExec: number = Date.now();
+  let lastExec: number = 0;
   let timeOutId: NodeJS.Timeout | undefined;
   let isExecuting = false;
 
@@ -107,7 +107,7 @@ export const throttledDebounce = <T>(
       console.groupEnd();
     } else {
       // within throttle window, set execution time to be the beginning of the next throttle window
-      executionTime = lastExec + throttleWindow;
+      executionTime = (lastExec === 0 ? now : lastExec) + throttleWindow;
       // console.group("sync, within throttle window");
       // console.log("lastExec", lastExec);
       // console.log("timeSinceLastExec", timeSinceLastExec);
@@ -422,19 +422,8 @@ export const getSearchFn = (courseData: Course[]) => {
   return searchFn;
 };
 
-export const mapStringfyReplacer = (key: string, value: any) => {
-  if (value instanceof Map) {
-    return {
-      dataType: "Map",
-      value: Object.fromEntries(value.entries()),
-    };
-  }
-  return value;
-};
-
-export const mapStringfyReviver = (key: string, value: any) => {
-  if (value && typeof value === "object" && value.dataType === "Map") {
-    return new Map(value.value);
-  }
-  return value;
+export const checkObjectKeys = (obj: object, keys: string[]) => {
+  return (
+    typeof obj === "object" && obj !== null && keys.every((key) => key in obj)
+  );
 };

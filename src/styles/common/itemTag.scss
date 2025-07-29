@@ -72,7 +72,9 @@
   .item-tag-items {
     display: flex;
     flex-direction: column;
+    align-items: flex-end;
     gap: 4px;
+    width: 100%;
   }
 
   .item-tag-item {

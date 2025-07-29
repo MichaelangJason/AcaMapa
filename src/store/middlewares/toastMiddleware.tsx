@@ -30,6 +30,8 @@ startListening({
         break;
       }
       case fullSync.rejected.type: {
+        toast.error((action.payload as string) ?? "Failed to sync data");
+        break;
       }
       default:
         throw new Error("Invalid action type");
@@ -46,8 +48,10 @@ startListening({
         break;
       }
       case initApp.rejected.type: {
+        console.error(action.payload);
         toast.update(ToastId.INIT_APP, {
           render: () =>
+            (action.payload as string) ??
             "Failed to initialize DegreeMapper, please refresh the page",
           type: "error",
           isLoading: false,

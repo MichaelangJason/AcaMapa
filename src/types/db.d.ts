@@ -13,7 +13,6 @@ export type {
 export type { ProgramSchemaType } from "@/db/schemas/program";
 export type { ObjectId } from "bson";
 
-import { ReplaceObjectId, Override } from "./utils";
 import type {
   UserSchemaType,
   CourseMetadataSchemaType,
@@ -37,17 +36,11 @@ export type DetailedCourse = Omit<
 
 export type CourseMetadata = CourseMetadataSchemaType;
 
-export type Plan = ReplaceObjectId<PlanSchemaType>;
-export type Term = ReplaceObjectId<TermSchemaType>;
+export type Plan = PlanSchemaType;
+export type Term = TermSchemaType;
 
-type MemberBase = Omit<UserSchemaType, "createdAt" | "updatedAt" | "lastLogin">;
-export type Member = Override<
-  MemberBase,
-  {
-    planData: Map<string, Plan>;
-    termData: Map<string, Term>;
-    planOrder: string[];
-  }
+export type MemberData = Omit<
+  UserSchemaType,
+  "createdAt" | "updatedAt" | "lastLogin" | "email"
 >;
-
-export type GuestUser = Omit<Member, "email" | "chatThreadIds">;
+export type GuestUserData = Omit<MemberData, "chatThreadIds">;

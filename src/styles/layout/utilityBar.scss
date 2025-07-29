@@ -25,6 +25,10 @@
     outline: none;
   }
 
+  .github-mark {
+    background: var(--gray-300);
+  }
+
   .hamburger {
     &.disabled {
       cursor: not-allowed;
@@ -56,5 +60,50 @@
   .filler {
     flex-grow: 1;
     min-width: 12px;
+  }
+
+  .sync-container {
+    width: 24px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    svg {
+      width: 24px;
+      height: 24px;
+      fill: var(--gray-600);
+      opacity: 0.6;
+      rotate: -45deg;
+      transition:
+        fill 0.15s ease,
+        opacity 0.15s ease;
+
+      &:hover:not(.syncing):not(.disabled) {
+        opacity: 1;
+      }
+      &.syncing {
+        opacity: 1;
+        fill: var(--gray-600);
+        animation: sync-icon-spin 1s linear infinite;
+      }
+      &.success {
+        opacity: 1;
+        fill: var(--success-green);
+      }
+      &.error {
+        opacity: 1;
+        fill: var(--error-red);
+      }
+    }
+  }
+}
+
+@keyframes sync-icon-spin {
+  0% {
+    transform: rotate(0turn);
+  }
+  100% {
+    transform: rotate(1turn);
   }
 }

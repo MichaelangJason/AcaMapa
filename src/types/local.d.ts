@@ -1,5 +1,5 @@
 import type { GroupType, ResultType } from "@/lib/enums";
-import type { Course, DetailedCourse, Requisite } from "./db";
+import type { Course, DetailedCourse, GuestUserData, Requisite } from "./db";
 import type {
   DataAttribute,
   PlacesType,
@@ -9,6 +9,7 @@ import type {
 } from "react-tooltip";
 export type { Session } from "next-auth";
 
+export type CourseId = string;
 export type SearchResult = { query: string } & (
   | {
       type: ResultType.COURSE_ID;
@@ -79,9 +80,19 @@ export type SimpleModalProps = {
   isOpen: boolean;
   title: string;
   description: string;
-  confirmCb: (newValue?: string) => void;
-  closeCb: () => void;
+  confirmCb: (newValue?: string) => Promise<void>;
+  closeCb: () => Promise<void>;
+  confirmText?: string;
+  clearText?: string;
   previousValue?: string;
+  isConfirmOnly?: boolean; // not cancelable, just a notification.
+  isShowCloseButton?: boolean;
+  isPreventCloseOnOverlayClick?: boolean;
+  isPreventCloseOnEsc?: boolean;
+  extraOptions?: {
+    onClick: () => Promise<void>;
+    content: string;
+  }[];
 };
 
 export type TooltipProps = Partial<
@@ -116,4 +127,9 @@ export type ValidSubjectMap = {
     totalCredits: number;
     validCourses: { [courseId: string]: { source: string; credits: number } };
   };
+};
+
+export type SavingData = {
+  data: GuestUserData;
+  timestamp: number;
 };

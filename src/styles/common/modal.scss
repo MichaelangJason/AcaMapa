@@ -139,6 +139,11 @@
         }
       }
 
+      &.option-button {
+        background-color: var(--gray-600);
+        color: var(--gray-000);
+      }
+
       &.confirm-button {
         background-color: var(--gray-600);
         color: var(--gray-000);

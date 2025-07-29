@@ -7,3 +7,6 @@ export { default as MultiSelect } from "./MultiSelect";
 export { default as Tag } from "./Tag";
 export { default as ItemTag } from "./ItemTag";
 export { default as SimpleModal } from "./SimpleModal";
+export { default as UserSession } from "./UserSession";
+export { default as UserLang } from "./UserLang";
+export { default as Sync } from "./Sync";

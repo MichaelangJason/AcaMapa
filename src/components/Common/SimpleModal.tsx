@@ -1,9 +1,10 @@
 import Modal from "react-modal";
 import { useState } from "react";
-import DeleteIcon from "@/public/icons/delete.svg";
+import CloseIcon from "@/public/icons/delete.svg";
 import type { SimpleModalProps } from "@/types/local";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { clearSimpleModalInfo } from "@/store/slices/localDataSlice";
+import DOMPurify from "dompurify";
 
 Modal.setAppElement("html");
 
@@ -15,7 +16,14 @@ const SimpleModal = () => {
     confirmCb = () => {},
     closeCb = () => {},
     previousValue = "",
+    isConfirmOnly = false,
+    isShowCloseButton = true,
+    isPreventCloseOnOverlayClick = false,
+    isPreventCloseOnEsc = false,
     isOpen,
+    confirmText = "Confirm",
+    clearText = "Clear",
+    extraOptions = [],
   } = useAppSelector(
     (state) => state.localData.simpleModalInfo,
   ) as SimpleModalProps;
@@ -36,18 +44,26 @@ const SimpleModal = () => {
   return (
     <Modal
       isOpen={isOpen}
+      shouldCloseOnOverlayClick={!isPreventCloseOnOverlayClick}
+      shouldCloseOnEsc={!isPreventCloseOnEsc}
       onRequestClose={handleClose}
       className="simple-modal-content"
       overlayClassName="modal-overlay"
     >
       <header>
         <h3>{title}</h3>
-        <button onClick={handleClose}>
-          <DeleteIcon />
-        </button>
+        {isShowCloseButton && (
+          <button onClick={handleClose}>
+            <CloseIcon />
+          </button>
+        )}
       </header>
 
-      {description && <p>{description}</p>}
+      {description && (
+        <section
+          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(description) }}
+        />
+      )}
 
       {previousValue && (
         <input
@@ -59,11 +75,26 @@ const SimpleModal = () => {
       )}
 
       <footer>
-        <button className="cancel-button" onClick={handleClose}>
-          Cancel
-        </button>
+        {!isConfirmOnly && (
+          <button className="cancel-button" onClick={handleClose}>
+            {clearText}
+          </button>
+        )}
+        {extraOptions.length > 0 &&
+          extraOptions.map((option) => (
+            <button
+              key={option.content}
+              className="option-button"
+              onClick={() => {
+                option.onClick();
+                handleClose();
+              }}
+            >
+              {option.content}
+            </button>
+          ))}
         <button className="confirm-button" onClick={handleConfirm}>
-          Confirm
+          {confirmText}
         </button>
       </footer>
     </Modal>

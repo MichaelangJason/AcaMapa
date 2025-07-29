@@ -7,9 +7,23 @@ export enum ResultType {
   AI = "ai",
 }
 
+export enum SyncMethod {
+  MERGE = "merge",
+  OVERWRITE = "overwrite",
+}
+
+export const LocalStorageKey = {
+  GUEST_DATA: "guest-data",
+  CURRENT_PLAN_ID: "current-plan-id",
+};
+
+export enum SessionKey {
+  INITIALIZED = "initialized",
+}
+
 export enum Language {
-  EN = "en",
-  FR = "fr",
+  EN = "EN",
+  FR = "FR",
 }
 
 export enum DraggingType {
@@ -43,6 +57,7 @@ export enum TooltipId {
   SEEK_COURSE_ICON = "seek-course-icon",
   UTILITY_BAR_DM = "utility-bar-dm-icon",
   MINI_COURSE_CARD = "mini-course-card-icon",
+  SYNC = "sync",
 }
 
 export enum ToastId {

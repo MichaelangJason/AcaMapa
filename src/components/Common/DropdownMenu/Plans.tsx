@@ -40,8 +40,13 @@ const Plans = ({
           isOpen: true,
           title: "Delete Plan",
           description: `Are you sure you want to delete ${plans.get(planId)?.name}?\n\nThis action cannot be undone.`,
-          confirmCb: () => dispatch(deletePlan(planId)),
-          closeCb: () => {},
+          confirmCb: () => {
+            dispatch(deletePlan(planId));
+            return Promise.resolve();
+          },
+          closeCb: () => {
+            return Promise.resolve();
+          },
         }),
       );
     },
@@ -57,10 +62,13 @@ const Plans = ({
           description: "",
           previousValue: plans.get(planId)?.name ?? "",
           confirmCb: (newName?: string) => {
-            if (!newName) return;
+            if (!newName) return Promise.resolve();
             dispatch(renamePlan({ planId, newName }));
+            return Promise.resolve();
           },
-          closeCb: () => {},
+          closeCb: () => {
+            return Promise.resolve();
+          },
         }),
       );
     },

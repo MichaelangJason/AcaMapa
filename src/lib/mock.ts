@@ -1,28 +1,36 @@
 import type { Plan, Term } from "@/types/db";
 import { ObjectId } from "bson";
 
-export const mockNewTerm = (courseIds: string[], name: string) => {
-  const term: Term = {
-    _id: new ObjectId().toString(),
-    name: name,
-    courseIds: courseIds,
-  };
-  return term;
+export const mockTermData = (numTerms: number) => {
+  const termData = new Map<string, Term>();
+
+  Array.from({ length: numTerms }, (_, i) => {
+    const term: Term = {
+      _id: new ObjectId().toString(),
+      name: `Term ${i + 1}`,
+      courseIds: [],
+    };
+    termData.set(term._id, term);
+  });
+
+  return termData;
 };
 
-export const mockNewPlan = (nTerms: number, name: string) => {
-  const terms = Array.from({ length: nTerms }, (_, i) =>
-    mockNewTerm([], `Term ${i + 1}`),
-  );
-  const plan: Plan = {
-    _id: new ObjectId().toString(),
+export const mockPlanData = (nTerms: number, name: string) => {
+  const termData = mockTermData(nTerms);
+  const planData: Map<string, Plan> = new Map();
+  const newPlanId = new ObjectId().toString();
+
+  planData.set(newPlanId, {
+    _id: newPlanId,
     name: name,
-    termOrder: terms.map((term) => term._id),
+    termOrder: [...termData.keys()].sort(), // sort to ensure consistent order
     courseMetadata: new Map(),
-  };
+  });
 
   return {
-    plan,
-    terms,
+    planData,
+    termData,
+    planOrder: [newPlanId],
   };
 };

@@ -1,25 +1,34 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import type { Plan, Term } from "@/types/db";
+import type { MemberData, Plan, Term } from "@/types/db";
 import { ObjectId } from "bson";
+import { Language } from "@/lib/enums";
 
 export const initialState = {
+  lang: Language.EN,
   courseTaken: new Map<string, string[]>(),
 
   planData: new Map<string, Plan>(),
   termData: new Map<string, Term>(),
 
   planOrder: [] as string[],
-};
+  chatThreadIds: [] as string[],
+} as MemberData;
 
 export const userDataSlice = createSlice({
   name: "userData",
   initialState,
   reducers: {
-    setCourseTaken: (
-      state,
-      action: PayloadAction<{ [subjectCode: string]: string[] }>,
-    ) => {
-      state.courseTaken = new Map(Object.entries(action.payload));
+    setLang: (state, action: PayloadAction<Language>) => {
+      state.lang = action.payload;
+    },
+    toggleLang: (state) => {
+      state.lang = state.lang === Language.EN ? Language.FR : Language.EN;
+    },
+    setChatThreadIds: (state, action: PayloadAction<string[]>) => {
+      state.chatThreadIds = [...action.payload];
+    },
+    setCourseTaken: (state, action: PayloadAction<Map<string, string[]>>) => {
+      state.courseTaken = new Map(action.payload);
     },
     addCourseTaken: (state, action: PayloadAction<string[]>) => {
       action.payload.forEach((id) => {
@@ -51,16 +60,16 @@ export const userDataSlice = createSlice({
     setPlanData: (
       state,
       action: PayloadAction<{
-        planData: { [planId: string]: Plan };
+        planData: Map<string, Plan>;
         planOrder: string[];
       }>,
     ) => {
       // toString is called here to handle the case where the plan id is an ObjectId
-      state.planData = new Map(Object.entries(action.payload.planData));
+      state.planData = new Map(action.payload.planData);
       state.planOrder = action.payload.planOrder;
     },
     setPlanOrder: (state, action: PayloadAction<string[]>) => {
-      state.planOrder = action.payload;
+      state.planOrder = [...action.payload];
     },
     addPlan: (
       state,
@@ -119,11 +128,8 @@ export const userDataSlice = createSlice({
 
     /* TERM RELATED */
     // TODO: add validation logic in middleware, only keeping native logics here
-    setTermData: (
-      state,
-      action: PayloadAction<{ termData: { [termId: string]: Term } }>,
-    ) => {
-      state.termData = new Map(Object.entries(action.payload.termData));
+    setTermData: (state, action: PayloadAction<Map<string, Term>>) => {
+      state.termData = new Map(action.payload);
     },
     addTerm: (
       state,
@@ -265,6 +271,11 @@ export const userDataSlice = createSlice({
 });
 
 export const {
+  setLang,
+  toggleLang,
+  setChatThreadIds,
+
+  /* COURSE TAKEN RELATED */
   setCourseTaken,
   addCourseTaken,
   removeCourseTaken,

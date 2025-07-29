@@ -1,14 +1,16 @@
 import { createListenerMiddleware, isAnyOf } from "@reduxjs/toolkit";
 import type { RootState, AppDispatch } from "..";
-import { fullSync } from "../thunks";
-import { throttledDebounce } from "@/lib/utils";
-import { SYNC_CONFIG } from "@/lib/constants";
 import {
   userDataActions,
   setCourseTaken,
   setPlanData,
   setTermData,
+  setLang,
+  setChatThreadIds,
 } from "../slices/userDataSlice";
+import { setSyncStatus } from "../slices/localDataSlice";
+import { getDebouncedSync } from "@/lib/sync";
+import { fullSync } from "../thunks";
 
 const listenerMiddleware = createListenerMiddleware();
 const startListening = listenerMiddleware.startListening.withTypes<
@@ -16,35 +18,39 @@ const startListening = listenerMiddleware.startListening.withTypes<
   AppDispatch
 >();
 
-let debouncedSync: (() => void) | undefined;
-
-const getDebouncedSync = (dispatch: AppDispatch) => {
-  if (!debouncedSync) {
-    debouncedSync = throttledDebounce(
-      async () => {
-        dispatch(fullSync());
-      },
-      SYNC_CONFIG.DEBOUNCE_DELAY,
-      SYNC_CONFIG.THROTTLE_WINDOW,
-    );
-  }
-  return debouncedSync;
-};
-
 const matchUserDataActions = isAnyOf(...Object.values(userDataActions));
 const matchUserDataSetActions = isAnyOf(
   setPlanData,
   setTermData,
   setCourseTaken,
+  setLang,
+  setChatThreadIds,
 );
 
 startListening({
   predicate: (action) => {
     return !matchUserDataSetActions(action) && matchUserDataActions(action);
   },
-  effect: (_, listenerApi) => {
+  effect: (action, listenerApi) => {
     const dispatch = listenerApi.dispatch;
+    const isSyncing = listenerApi.getState().localData.syncStatus.isSyncing;
+    if (!isSyncing) {
+      dispatch(setSyncStatus({ isSyncing: true }));
+    }
+    console.log("syncing triggered by action:", action.type);
     getDebouncedSync(dispatch)();
+  },
+});
+
+startListening({
+  matcher: isAnyOf(fullSync.fulfilled, fullSync.rejected),
+  effect: (action, listenerApi) => {
+    const dispatch = listenerApi.dispatch;
+    const isSyncing = listenerApi.getState().localData.syncStatus.isSyncing;
+    if (isSyncing) {
+      dispatch(setSyncStatus({ isSyncing: false }));
+    }
+    console.log(action);
   },
 });
 

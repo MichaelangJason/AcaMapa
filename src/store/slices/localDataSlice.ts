@@ -4,6 +4,7 @@ import type {
   CachedDetailedCourse,
   CourseDepData,
   SearchResult,
+  Session,
   SimpleModalProps,
 } from "@/types/local";
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
@@ -49,8 +50,11 @@ export const initialState = {
 
   syncStatus: {
     isSyncing: false,
+    syncError: null as string | null,
     lastSyncedAt: 0, // number of milliseconds
   },
+
+  session: null as Session | null,
 };
 
 const localDataSlice = createSlice({
@@ -116,8 +120,18 @@ const localDataSlice = createSlice({
     setCurrentPlanId: (state, action: PayloadAction<string>) => {
       state.currentPlanId = action.payload;
     },
-    initPlanIsCourseExpanded: (state, action: PayloadAction<string>) => {
-      state.isCourseExpanded[action.payload] = {};
+    initPlanIsCourseExpanded: (
+      state,
+      action: PayloadAction<
+        { planId: string; courseIds: string[]; isExpanded: boolean }[]
+      >,
+    ) => {
+      action.payload.forEach(({ planId, courseIds, isExpanded }) => {
+        state.isCourseExpanded[planId] = {};
+        courseIds.forEach((courseId) => {
+          state.isCourseExpanded[planId][courseId] = isExpanded;
+        });
+      });
     },
     setIsCourseExpanded: (
       state,
@@ -202,8 +216,6 @@ const localDataSlice = createSlice({
           GroupType.CREDIT,
         );
         if (creditGroup !== undefined) {
-          console.log("course", course.id, "has credit group", creditGroup);
-
           const subjects = creditGroup.inner.slice(2) as string[];
           subjects.forEach((s) => {
             if (!creditsReqMap.has(s)) {
@@ -253,12 +265,6 @@ const localDataSlice = createSlice({
         allCourseData: state.courseData,
         courseTaken,
       });
-
-      console.group("addCoursesToGraph");
-      console.log("depGraph", depGraph);
-      console.log("subjectMap", subjectMap);
-      console.log("creditsReqMap", creditsReqMap);
-      console.groupEnd();
     },
 
     deleteCoursesFromGraph: (
@@ -349,12 +355,6 @@ const localDataSlice = createSlice({
         allCourseData: state.courseData,
         courseTaken,
       });
-
-      console.group("deleteCoursesFromGraph");
-      console.log("depGraph", depGraph);
-      console.log("subjectMap", subjectMap);
-      console.log("creditsReqMap", creditsReqMap);
-      console.groupEnd();
     },
 
     moveCoursesInGraph: (
@@ -410,12 +410,6 @@ const localDataSlice = createSlice({
         allCourseData: state.courseData,
         courseTaken,
       });
-
-      console.group("moveCoursesInGraph");
-      console.log("depGraph", depGraph);
-      console.log("subjectMap", state.courseDepData.subjectMap);
-      console.log("creditsReqMap", state.courseDepData.creditsReqMap);
-      console.groupEnd();
     },
 
     updateCoursesIsSatisfied: (
@@ -436,11 +430,6 @@ const localDataSlice = createSlice({
         allCourseData: state.courseData,
         courseTaken,
       });
-
-      console.group("updateCoursesIsSatisfied");
-      console.log("depGraph", state.courseDepData.depGraph);
-      console.log("subjectMap", state.courseDepData.subjectMap);
-      console.groupEnd();
     },
 
     clearCourseDepData: (state) => {
@@ -455,6 +444,21 @@ const localDataSlice = createSlice({
     },
     clearSimpleModalInfo: (state) => {
       state.simpleModalInfo = { ...initialState.simpleModalInfo };
+    },
+    setSyncStatus: (
+      state,
+      action: PayloadAction<Partial<typeof initialState.syncStatus>>,
+    ) => {
+      state.syncStatus = {
+        ...state.syncStatus,
+        ...action.payload,
+      };
+    },
+    setSession: (state, action: PayloadAction<Session>) => {
+      state.session = action.payload;
+    },
+    clearSession: (state) => {
+      state.session = null;
     },
   },
 });
@@ -481,6 +485,9 @@ export const {
   updateCoursesIsSatisfied,
   setSimpleModalInfo,
   clearSimpleModalInfo,
+  setSyncStatus,
+  setSession,
+  clearSession,
 } = localDataSlice.actions;
 
 export const localDataActions = localDataSlice.actions;

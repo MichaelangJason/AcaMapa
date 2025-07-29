@@ -18,7 +18,6 @@ const errorMiddleware: Middleware<
   } catch (error) {
     console.error("Error in action:", action);
     console.error(error);
-    toast.error("Error in action: " + action);
     toast.error(error instanceof Error ? error.message : String(error));
   }
 };

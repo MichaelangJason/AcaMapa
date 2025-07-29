@@ -121,8 +121,13 @@ const TermCard = ({
             isOpen: true,
             title: "Delete Term",
             description: `Are you sure you want to delete ${term.name}?\n\nThis action cannot be undone.`,
-            confirmCb: () => deleteTerm(term._id.toString(), idx),
-            closeCb: () => {},
+            confirmCb: () => {
+              deleteTerm(term._id.toString(), idx);
+              return Promise.resolve();
+            },
+            closeCb: () => {
+              return Promise.resolve();
+            },
           }),
         );
       } else {
@@ -138,10 +143,13 @@ const TermCard = ({
           description: "",
           previousValue: term.name,
           confirmCb: (newName?: string) => {
-            if (!newName) return;
+            if (!newName) return Promise.resolve();
             dispatch(renameTerm({ termId: term._id.toString(), newName }));
+            return Promise.resolve();
           },
-          closeCb: () => {},
+          closeCb: () => {
+            return Promise.resolve();
+          },
         }),
       );
     };

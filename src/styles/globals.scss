@@ -12,6 +12,8 @@
   --unsatisfy-red: #ed7155;
   --unsatisfy-red-hover: #d14e2a;
 
+  --sync-green: #207f4c;
+
   --gray-000: #ffffff;
   --gray-100: #efefef;
   --gray-200: #d9d9d9;
@@ -126,7 +128,7 @@ a {
   }
 }
 
-.clickable:hover {
+.clickable:hover:not(.disabled) {
   cursor: pointer;
 }
 

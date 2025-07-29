@@ -17,6 +17,7 @@ const ItemTag = ({
   className,
   style,
   tooltipProps,
+  alignItems = "flex-start",
   itemClassName,
 }: {
   title: string;
@@ -27,6 +28,7 @@ const ItemTag = ({
   handleDeleteItem?: (item: string) => void;
   isPinnable?: boolean;
   isExpandable?: boolean;
+  alignItems?: "center" | "flex-start" | "flex-end";
   tooltipProps?: TooltipProps;
   className?: string;
   itemClassName?: string;
@@ -87,7 +89,7 @@ const ItemTag = ({
         )}
       </header>
       {showExpanded && items.length > 0 && (
-        <div className="item-tag-items">
+        <div className="item-tag-items" style={{ alignItems }}>
           {items.map((item) => (
             <Item
               key={item}

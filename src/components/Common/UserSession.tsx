@@ -20,7 +20,6 @@ const UserSession = () => {
     } else {
       signIn();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

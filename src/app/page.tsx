@@ -5,12 +5,8 @@ import { Courses } from "@/db/schemas";
 import { unstable_cache as nextCache } from "next/cache";
 import { auth } from "@/auth";
 
-export async function generateStaticParams() {
-  console.log("generating static params");
-  return [{}]; // empty, just to ensure the page is generated at build time
-}
-
-const getInitCourses = nextCache(async () => {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const getInitCourses = nextCache(async (school?: string) => {
   try {
     await connectToDatabase(
       process.env.MONGODB_URI!,

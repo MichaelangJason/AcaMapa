@@ -8,6 +8,9 @@ import { MongoClient, ServerApiVersion } from "mongodb";
 // mongoose.connection.on('error', (err) => {
 //   console.error('\nMongoDB connection error:', err);
 // });
+// mongoose.set('debug', { shell: true });
+
+let connectionPromise: Promise<typeof mongoose> | null = null;
 
 export const connectToDatabase = async (
   databaseUri: string,
@@ -25,7 +28,8 @@ export const connectToDatabase = async (
       socketTimeoutMS: 30000,
     };
 
-    await mongoose.connect(databaseUri, options);
+    connectionPromise = mongoose.connect(databaseUri, options);
+    await connectionPromise;
   } catch (error) {
     console.error("\nError connecting to the database:", error);
     throw error;
@@ -50,16 +54,17 @@ export async function withDatabase<T>(
       process.env.MONGODB_URI!,
       process.env.MONGODB_DATABASE_NAME!,
     );
+
     const result = await queryFn();
-    await disconnectDatabase();
     return result;
   } catch (error) {
-    await disconnectDatabase();
+    console.error("\nError in withDatabase:", error);
     if (errorHandler) {
       return errorHandler(error);
     }
     return undefined as unknown as T;
   }
+  // disconnect database handling by serverless env
 }
 
 // asynchronous function to get a connected client, suitable for use in serverless functions

@@ -25,7 +25,7 @@ import type { ItemProps } from "../Common/DropdownMenu/Item";
 import { TooltipId } from "@/lib/enums";
 import clsx from "clsx";
 import ItemTagSkeleton from "../Skeleton/ItemTagSkeleton";
-import UserSession from "../Common/Login";
+import { UserSession, Sync } from "../Common";
 
 const UtilityBar = () => {
   const {
@@ -200,7 +200,19 @@ const UtilityBar = () => {
           />
         )}
         <div className="filler" />
-        {!isInitialized ? <ItemTagSkeleton width="2" /> : <UserSession />}
+        {!isInitialized ? (
+          <>
+            <ItemTagSkeleton width="2" />
+            <div style={{ width: "12px" }} />
+            <ItemTagSkeleton width="2" />
+          </>
+        ) : (
+          <>
+            <Sync />
+            <div style={{ width: "8px" }} />
+            <UserSession />
+          </>
+        )}
       </section>
       <GithubMark
         className="github-mark"

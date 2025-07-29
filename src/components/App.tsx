@@ -27,7 +27,7 @@ const App = ({
   // guaranteed to run only once at initialization for the whole life cycle of the app
   useEffect(() => {
     store.dispatch(setCourseData(courseData));
-    store.dispatch(initApp(courseData));
+    store.dispatch(initApp({ courseData, session }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -44,14 +44,13 @@ const App = ({
           position="bottom-center"
           autoClose={3000}
           hideProgressBar={true}
-          newestOnTop={true}
+          newestOnTop={false}
           closeOnClick={true}
           pauseOnHover={false}
           rtl={false}
           draggable
           theme="light"
           transition={Slide}
-          stacked
         />
       </Provider>
     </SessionProvider>

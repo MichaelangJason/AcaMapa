@@ -2,7 +2,7 @@ import mongoose, { InferSchemaType, Schema, model, Model } from "mongoose";
 import { MongoCollection } from "../enums";
 
 const TermSchema = new Schema({
-  _id: { type: Schema.Types.ObjectId, required: true },
+  _id: { type: String, required: true },
   name: { type: String, required: true },
   courseIds: { type: [String], required: true },
 });
@@ -12,16 +12,16 @@ const CourseMetadataSchema = new Schema({
 });
 
 const PlanSchema = new Schema({
-  _id: { type: Schema.Types.ObjectId, required: true },
+  _id: { type: String, required: true },
   name: { type: String, required: true },
-  termOrder: { type: [Schema.Types.ObjectId], required: true }, // foreign key to TermDataSchema, should be manually maintained
+  termOrder: { type: [String], required: true }, // foreign key to TermDataSchema, should be manually maintained
   courseMetadata: { type: Map, of: CourseMetadataSchema, required: true },
 });
 
+// REMINDER: all ids are valid ObjectId strings
 const UserSchema = new Schema(
   {
     email: { type: String, required: true, unique: true },
-    lastLogin: { type: Date, required: true },
 
     courseTaken: {
       type: Map,
@@ -52,13 +52,13 @@ const UserSchema = new Schema(
     },
 
     planOrder: {
-      type: [Schema.Types.ObjectId],
+      type: [String],
       required: true,
       default: [],
     },
 
     chatThreadIds: {
-      type: [Schema.Types.ObjectId],
+      type: [String],
       required: true,
       default: [],
     },

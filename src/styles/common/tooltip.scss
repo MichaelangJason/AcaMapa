@@ -7,4 +7,19 @@
   .tooltip-common {
     border-radius: 8px;
   }
+
+  .sync-message-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    .sync-error {
+      color: var(--error-red);
+    }
+
+    .sync-time {
+      color: var(--gray-600);
+    }
+  }
 }

@@ -28,15 +28,17 @@ const MiniCourseCard = ({
   const { id, name, credits } = data;
   const { getCourseSource } = useAppSelector(selectCourseDepMeta);
   const { source } = getCourseSource(id, "", null, false);
+  const isAddingCourse = useAppSelector((state) => state.global.isAddingCourse);
 
   const handleClick = useCallback(
     async (e: React.MouseEvent<HTMLDivElement>) => {
       e.stopPropagation();
+      if (isAddingCourse) return;
       if (callback) {
         await callback(data, isSelected);
       }
     },
-    [callback, data, isSelected],
+    [callback, data, isSelected, isAddingCourse],
   );
 
   return (
@@ -73,7 +75,11 @@ const MiniCourseCard = ({
 
       {/* icon */}
       <aside
-        className="icon-container"
+        className={clsx(
+          "icon-container",
+          "clickable",
+          isAddingCourse && "disabled",
+        )}
         onClick={handleClick}
         data-tooltip-id={TooltipId.TOP}
         data-tooltip-content={

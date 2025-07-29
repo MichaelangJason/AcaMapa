@@ -41,9 +41,10 @@ import {
   isTermAction,
 } from "@/lib/typeGuards";
 import { getSubjectCode } from "@/lib/course";
-import { ResultType } from "@/lib/enums";
+import { LocalStorageKey, ResultType } from "@/lib/enums";
 import type { SimpleModalProps } from "@/types/local";
 import { addCourseToTerm } from "../thunks";
+import { setLocalData } from "@/lib/sync";
 
 const listenerMiddleware = createListenerMiddleware();
 const startListening = listenerMiddleware.startListening.withTypes<
@@ -246,7 +247,11 @@ startListening({
       switch (action.type) {
         case "userData/addPlan": {
           const planId = state.userData.planOrder[0];
-          dispatch(initPlanIsCourseExpanded(planId));
+          dispatch(
+            initPlanIsCourseExpanded([
+              { planId, courseIds: [], isExpanded: false },
+            ]),
+          );
           break;
         }
         case "userData/deletePlan": {
@@ -367,6 +372,9 @@ startListening({
           }),
         );
       }
+
+      // save current plan id to local storage
+      setLocalData(LocalStorageKey.CURRENT_PLAN_ID, planId);
     }
 
     if (isPlanAction(action)) {

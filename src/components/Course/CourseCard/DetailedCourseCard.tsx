@@ -105,8 +105,13 @@ const DetailedCourseCard = ({
         isOpen: true,
         title: "Overwrite Course",
         description: `Are you sure you want to overwrite ${formatCourseId(id)}?`,
-        confirmCb: () => handleOverwrite(true),
-        closeCb: () => {},
+        confirmCb: () => {
+          handleOverwrite(true);
+          return Promise.resolve();
+        },
+        closeCb: () => {
+          return Promise.resolve();
+        },
       }),
     );
   }, [dispatch, id, handleOverwrite]);
