@@ -2,7 +2,7 @@
 
 import HamburgerIcon from "@/public/icons/hamburger.svg";
 import GithubMark from "@/public/icons/github-mark.svg";
-import { ItemTag } from "../Common";
+import { ItemTag, UserLang } from "../Common";
 import { useSelector } from "react-redux";
 import { selectPlanStats } from "@/store/selectors";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -181,7 +181,6 @@ const UtilityBar = () => {
         {!isInitialized ? (
           <>
             <ItemTagSkeleton width="1" />
-            <div style={{ width: "12px" }} />
             <ItemTagSkeleton width="2" />
           </>
         ) : (
@@ -203,14 +202,13 @@ const UtilityBar = () => {
         {!isInitialized ? (
           <>
             <ItemTagSkeleton width="2" />
-            <div style={{ width: "12px" }} />
             <ItemTagSkeleton width="2" />
           </>
         ) : (
           <>
             <Sync />
-            <div style={{ width: "8px" }} />
             <UserSession />
+            <UserLang />
           </>
         )}
       </section>

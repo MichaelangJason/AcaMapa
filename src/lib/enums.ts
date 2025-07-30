@@ -58,6 +58,7 @@ export enum TooltipId {
   UTILITY_BAR_DM = "utility-bar-dm-icon",
   MINI_COURSE_CARD = "mini-course-card-icon",
   SYNC = "sync",
+  LANG = "lang",
 }
 
 export enum ToastId {

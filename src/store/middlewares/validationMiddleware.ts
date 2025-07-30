@@ -18,6 +18,7 @@ import {
   MAX_TERM_PER_PLAN,
   MAX_COURSE_PER_TERM,
 } from "@/lib/constants";
+import { getSubjectCode } from "@/lib/course";
 
 const validationMiddleware: Middleware<
   {},
@@ -302,6 +303,29 @@ const validationMiddleware: Middleware<
         const courseIds = action.payload;
         if (courseIds.some((id: string) => typeof id !== "string")) {
           throw new Error(`Invalid course id: ${courseIds}`);
+        }
+        const courseTaken = state.userData.courseTaken;
+
+        const errors: string[] = [];
+        const cachedSubjectMap = new Map<string, Set<string>>();
+        courseIds.toSorted().forEach((id: string) => {
+          const subjectCode = getSubjectCode(id);
+          if (subjectCode === undefined) {
+            errors.push(`Invalid course id: ${id}`);
+          }
+          if (!cachedSubjectMap.has(subjectCode)) {
+            const vals = courseTaken.has(subjectCode)
+              ? courseTaken.get(subjectCode)
+              : [];
+            cachedSubjectMap.set(subjectCode, new Set(vals));
+          }
+          if (cachedSubjectMap.get(subjectCode)?.has(id)) {
+            errors.push(id);
+          }
+          cachedSubjectMap.get(subjectCode)?.add(id);
+        });
+        if (errors.length > 0) {
+          throw new Error(`Duplicate course ids: ${errors.join(", ")}`);
         }
 
         break;

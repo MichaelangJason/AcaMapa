@@ -80,7 +80,16 @@ const ItemTag = ({
             />
           </div>
         )}
-        <span {...tooltipProps}>{title}</span>
+        <span
+          {...{
+            ...(tooltipProps || {}),
+            "data-tooltip-content":
+              (isPinnable ? (isExpanded ? "Unpin " : "Pin ") : "") +
+              (tooltipProps?.["data-tooltip-content"] || title),
+          }}
+        >
+          {title}
+        </span>
         {handleAddItem && isExpanded && <div className="filler" />}
         {handleAddItem && (
           <div className="icon-container">

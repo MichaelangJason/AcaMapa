@@ -27,6 +27,12 @@ const matchUserDataSetActions = isAnyOf(
   setChatThreadIds,
 );
 
+const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+  e.preventDefault();
+  e.returnValue = "";
+  return "You are about to leave the page. Please save your work before leaving.";
+};
+
 startListening({
   predicate: (action) => {
     return !matchUserDataSetActions(action) && matchUserDataActions(action);
@@ -36,6 +42,7 @@ startListening({
     const isSyncing = listenerApi.getState().localData.syncStatus.isSyncing;
     if (!isSyncing) {
       dispatch(setSyncStatus({ isSyncing: true }));
+      document.addEventListener("visibilitychange", handleBeforeUnload);
     }
     console.log("syncing triggered by action:", action.type);
     getDebouncedSync(dispatch)();
@@ -49,8 +56,27 @@ startListening({
     const isSyncing = listenerApi.getState().localData.syncStatus.isSyncing;
     if (isSyncing) {
       dispatch(setSyncStatus({ isSyncing: false }));
+      document.removeEventListener("visibilitychange", handleBeforeUnload);
     }
     console.log(action);
+  },
+});
+
+startListening({
+  actionCreator: setSyncStatus,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  effect: (action, _) => {
+    const payload = action.payload;
+
+    if (payload?.isSyncing === undefined) return;
+
+    if (payload?.isSyncing) {
+      console.log("adding beforeunload event listener");
+      window.addEventListener("beforeunload", handleBeforeUnload);
+    } else {
+      console.log("removing beforeunload event listener");
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    }
   },
 });
 
