@@ -24,6 +24,7 @@ import {
   setSeekingCourseId,
 } from "@/store/slices/localDataSlice";
 import { overwriteCourse, seekCourse } from "@/store/thunks";
+import { I18nKey, Language, t } from "@/lib/i18n";
 
 // TODO: make is draggable independent
 const DetailedCourseCard = ({
@@ -44,6 +45,7 @@ const DetailedCourseCard = ({
   draggableProvided?: DraggableProvided;
   draggableSnapshot?: DraggableStateSnapshot;
 }) => {
+  const lang = useAppSelector((state) => state.userData.lang) as Language;
   const {
     id,
     name,
@@ -103,8 +105,10 @@ const DetailedCourseCard = ({
     dispatch(
       setSimpleModalInfo({
         isOpen: true,
-        title: "Overwrite Course",
-        description: `Are you sure you want to overwrite ${formatCourseId(id)}?`,
+        title: t([I18nKey.OVERWRITE_COURSE_TITLE], lang),
+        description: t([I18nKey.OVERWRITE_COURSE_DESC], lang, {
+          item1: formatCourseId(id),
+        }),
         confirmCb: () => {
           handleOverwrite(true);
           return Promise.resolve();
@@ -114,7 +118,7 @@ const DetailedCourseCard = ({
         },
       }),
     );
-  }, [dispatch, id, handleOverwrite]);
+  }, [dispatch, id, handleOverwrite, lang]);
 
   return (
     <Wrapper
@@ -151,7 +155,7 @@ const DetailedCourseCard = ({
           {prerequisites?.raw && (
             <ReqNotes
               parentCourse={id}
-              title={ReqType.PRE_REQ.valueOf()}
+              title={t([I18nKey.PRE_REQ], lang)}
               type={ReqType.PRE_REQ}
               requisites={prerequisites}
               termId={termId}
@@ -160,7 +164,7 @@ const DetailedCourseCard = ({
           {corequisites?.raw && (
             <ReqNotes
               parentCourse={id}
-              title={ReqType.CO_REQ.valueOf()}
+              title={t([I18nKey.CO_REQ], lang)}
               type={ReqType.CO_REQ}
               requisites={corequisites}
               termId={termId}
@@ -170,7 +174,7 @@ const DetailedCourseCard = ({
           {restrictions?.raw && (
             <ReqNotes
               parentCourse={id}
-              title={ReqType.ANTI_REQ.valueOf()}
+              title={t([I18nKey.ANTI_REQ], lang)}
               type={ReqType.ANTI_REQ}
               requisites={restrictions}
               termId={termId}
@@ -180,7 +184,7 @@ const DetailedCourseCard = ({
           {notes && notes.length > 0 && (
             <ReqNotes
               parentCourse={id}
-              title={ReqType.NOTES.valueOf()}
+              title={t([I18nKey.NOTES], lang)}
               type={ReqType.NOTES}
               notes={notes}
               termId={termId}
@@ -188,15 +192,18 @@ const DetailedCourseCard = ({
           )}
           {!hasNoChildren && isOverwritten && (
             <FootNote
-              content={"OVERWRITTEN"}
+              content={t([I18nKey.OVERWRITTEN_M], lang).toUpperCase()}
               handleDelete={() => handleOverwrite(false)}
               deleteTooltipOptions={{
                 "data-tooltip-id": TooltipId.DETAILED_COURSE_CARD,
-                "data-tooltip-content": "Remove overwrite",
+                "data-tooltip-content": t(
+                  [I18nKey.REMOVE, I18nKey.OVERWRITTEN_M],
+                  lang,
+                ),
               }}
             />
           )}
-          {hasNoChildren && <FootNote content={"EMPTY"} />}
+          {hasNoChildren && <FootNote content={t([I18nKey.EMPTY], lang)} />}
         </>
       )}
     </Wrapper>

@@ -24,7 +24,7 @@ import {
 } from "@/store/slices/userDataSlice";
 import { isAction, isAnyOf } from "@reduxjs/toolkit";
 import { checkObjectKeys } from "./utils";
-import { Language } from "./enums";
+import { Language } from "./i18n";
 import { CourseId, SavingData } from "@/types/local";
 
 export const isValidCourse = (course: unknown): course is Course => {

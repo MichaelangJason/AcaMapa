@@ -12,6 +12,7 @@ import {
   validationMiddleware,
   toastMiddleware,
   syncMiddleware,
+  depGraphMiddleware,
 } from "./middlewares";
 
 enableMapSet();
@@ -36,6 +37,7 @@ export const makeStore = () => {
         // listener middlewares
         .concat(toastMiddleware)
         .concat(syncMiddleware)
+        .concat(depGraphMiddleware)
         .concat(sideStateMiddleware),
   });
 };

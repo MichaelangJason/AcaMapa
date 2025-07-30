@@ -9,6 +9,7 @@ import { Course } from "@/types/db";
 import { clamp } from "@/lib/utils";
 import MiniCourseCard from "../Course/CourseCard/MiniCourseCard";
 import clsx from "clsx";
+import { I18nKey, Language, t } from "@/lib/i18n";
 
 const getMarginTop = (
   idx: number,
@@ -49,6 +50,7 @@ const MultiSelect = () => {
   const dispatch = useAppDispatch();
   const [isHovering, setIsHovering] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const lang = useAppSelector((state) => state.userData.lang) as Language;
 
   const handleRemoveCourse = useCallback(
     async (course: Course) => {
@@ -114,10 +116,11 @@ const MultiSelect = () => {
       </div>
       <span className="multi-select-info">
         <span className="multi-select-clear" onClick={handleClear}>
-          clear all
+          {t([I18nKey.CLEAR_ALL], lang)}
         </span>
-        <strong> {selectedCourses.size}</strong> selected course
-        {selectedCourses.size > 1 ? "s" : ""}
+        <strong> {selectedCourses.size}</strong>{" "}
+        {t([I18nKey.SELECTED_COURSE], lang)}
+        {selectedCourses.size > 1 && lang === Language.EN ? "s" : ""}
       </span>
     </div>
   );

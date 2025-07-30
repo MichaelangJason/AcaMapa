@@ -10,6 +10,7 @@ import { selectCourseDepMeta } from "@/store/selectors";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { TooltipId } from "@/lib/enums";
 import { setIsCourseTakenExpanded } from "@/store/slices/globalSlice";
+import { I18nKey, Language, t } from "@/lib/i18n";
 
 const MiniCourseCard = ({
   data,
@@ -32,6 +33,7 @@ const MiniCourseCard = ({
   const isAddingCourse = useAppSelector((state) => state.global.isAddingCourse);
   const isDragging = useAppSelector((state) => state.global.isDragging);
   const dispatch = useAppDispatch();
+  const lang = useAppSelector((state) => state.userData.lang) as Language;
 
   const handleClick = useCallback(
     async (e: React.MouseEvent<HTMLDivElement>) => {
@@ -57,7 +59,7 @@ const MiniCourseCard = ({
         });
       }
     },
-    [data, isSelected, isAddingCourse],
+    [data, isSelected, isAddingCourse, isDragging, source, id, dispatch],
   );
 
   return (
@@ -75,7 +77,7 @@ const MiniCourseCard = ({
           className={clsx(source && "clickable")}
           data-tooltip-id={TooltipId.MINI_COURSE_CARD}
           data-tooltip-delay-show={500}
-          data-tooltip-content={`Find in ${source}`}
+          data-tooltip-content={source}
           data-tooltip-place="top"
           onClick={handleClickCredits}
         >
@@ -95,7 +97,10 @@ const MiniCourseCard = ({
             rel="noopener noreferrer"
             data-tooltip-id={TooltipId.MINI_COURSE_CARD}
             data-tooltip-delay-show={500}
-            data-tooltip-content={`Open ${formatCourseId(id)} in new tab`}
+            data-tooltip-content={t([I18nKey.OPEN_IN], lang, {
+              item1: formatCourseId(id),
+              item2: t([I18nKey.NEW_TAB], lang),
+            })}
           >
             <TextHighlighter source={formatCourseId(id)} target={query} />
           </a>
@@ -112,7 +117,9 @@ const MiniCourseCard = ({
         onClick={handleClick}
         data-tooltip-id={TooltipId.MINI_COURSE_CARD}
         data-tooltip-content={
-          isSelected ? "Remove from selected courses" : "Select course"
+          isSelected
+            ? t([I18nKey.REMOVE], lang, { item1: t([I18nKey.COURSE], lang) })
+            : t([I18nKey.SELECT], lang)
         }
         data-tooltip-delay-show={500}
       >

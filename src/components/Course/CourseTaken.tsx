@@ -15,6 +15,8 @@ import {
   removeCourseTaken,
 } from "@/store/slices/userDataSlice";
 import { clearSelectedCourses } from "@/store/slices/localDataSlice";
+import { I18nKey, Language, t } from "@/lib/i18n";
+import { TooltipId } from "@/lib/enums";
 
 const CourseTaken = () => {
   const dispatch = useAppDispatch();
@@ -29,6 +31,7 @@ const CourseTaken = () => {
   );
   const courseTaken = useAppSelector((state) => state.userData.courseTaken);
   const isInitialized = useAppSelector((state) => state.global.isInitialized);
+  const lang = useAppSelector((state) => state.userData.lang) as Language;
 
   const handleExpand = useCallback(() => {
     if (!isInitialized) return;
@@ -68,10 +71,12 @@ const CourseTaken = () => {
       <header onClick={handleExpand}>
         {hasSelectedCourses ? (
           <button className="add-button" onClick={handleAddCourseTaken}>
-            Add to Course Taken
+            {t([I18nKey.ADD_TO], lang, {
+              item1: t([I18nKey.COURSE_TAKEN], lang),
+            })}
           </button>
         ) : (
-          <h4 className="title">Course Taken</h4>
+          <h4 className="title">{t([I18nKey.COURSE_TAKEN], lang)}</h4>
         )}
         <ExpandIcon className="expand" />
       </header>
@@ -92,6 +97,14 @@ const CourseTaken = () => {
                           sourceText={id}
                           displayText={formatCourseId(id)}
                           callback={handleRemoveCourseTaken}
+                          tooltipOptions={{
+                            "data-tooltip-id": TooltipId.COURSE_TAKEN,
+                            "data-tooltip-content": t(
+                              [I18nKey.REMOVED_FROM_M],
+                              lang,
+                              { item1: t([I18nKey.COURSE_TAKEN], lang) },
+                            ),
+                          }}
                         />
                       );
                     })}

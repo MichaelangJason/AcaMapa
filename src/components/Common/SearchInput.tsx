@@ -7,6 +7,7 @@ import MagnifierIcon from "@/public/icons/magnifier.svg";
 import { useDebounce } from "@/lib/hooks";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { setSearchInput } from "@/store/slices/localDataSlice";
+import { I18nKey, t, Language } from "@/lib/i18n";
 
 const SearchInput = ({
   callback = async () => {},
@@ -27,7 +28,7 @@ const SearchInput = ({
   const value = useAppSelector((state) => state.localData.searchInput);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const isInitialized = useAppSelector((state) => state.global.isInitialized);
-
+  const lang = useAppSelector((state) => state.userData.lang) as Language;
   const debouncedCallback = useDebounce(callback, debounceTime);
 
   // auto resize function, acceptable overhead
@@ -82,7 +83,11 @@ const SearchInput = ({
           disabled: isDisabled || !isInitialized,
         })}
         name="course-search"
-        placeholder={isInitialized ? "course id or name" : "Initializing..."}
+        placeholder={
+          isInitialized
+            ? t([I18nKey.SEARCH_INPUT_PLACEHOLDER], lang)
+            : t([I18nKey.INITIALIZING], lang) + "..."
+        }
         onChange={(e) => dispatch(setSearchInput(e.target.value))}
         value={displayText || value}
         disabled={isDisabled || !!displayText || !isInitialized}

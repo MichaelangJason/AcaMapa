@@ -6,6 +6,7 @@ import { useCallback, useMemo } from "react";
 import { getDebouncedSync } from "@/lib/sync";
 import { setSyncStatus } from "@/store/slices/localDataSlice";
 import { useSession } from "next-auth/react";
+import { I18nKey, Language, t } from "@/lib/i18n";
 
 const Sync = () => {
   const isInitialized = useAppSelector((state) => state.global.isInitialized);
@@ -14,6 +15,7 @@ const Sync = () => {
     (state) => state.localData.syncStatus,
   );
   const { data: session } = useSession();
+  const lang = useAppSelector((state) => state.userData.lang) as Language;
 
   const dispatch = useAppDispatch();
   const debouncedSync = useCallback(() => {
@@ -23,28 +25,32 @@ const Sync = () => {
 
   const lastSyncedAtStr = useMemo(() => {
     if (session) {
-      return `Last synced at ${new Date(lastSyncedAt).toLocaleString()}`;
+      return t([I18nKey.LAST_SYNCED_AT], lang, {
+        item1: new Date(lastSyncedAt).toLocaleString(),
+      });
     }
-    return `Last saved locally at ${new Date(lastSyncedAt).toLocaleString()}`;
-  }, [lastSyncedAt, session]);
+    return t([I18nKey.LAST_SAVED_LOCALLY_AT], lang, {
+      item1: new Date(lastSyncedAt).toLocaleString(),
+    });
+  }, [lastSyncedAt, session, lang]);
 
   const tooltipHtml = useMemo(() => {
-    if (isSyncing) return `<span>Syncing...</span>`;
+    if (isSyncing) return `<span>${t([I18nKey.SYNCING], lang)}...</span>`;
     if (syncError) {
       return `
       <div class="sync-message-container">
-        <span class="sync-error">${syncError}, please try again later.</span>
+        <span class="sync-error">${syncError}, ${t([I18nKey.TRY_AGAIN_LATER], lang)}</span>
         <span class="sync-time">${lastSyncedAtStr}</span>
       </div>
       `;
     }
     return `
     <div class="sync-message-container">
-      <span>Click to sync</span>
+      <span>${t([I18nKey.CLICK_TO_SYNC], lang)}</span>
       <span class="sync-time">${lastSyncedAtStr}</span>
     </div>
     `;
-  }, [isSyncing, syncError, lastSyncedAtStr]);
+  }, [isSyncing, syncError, lastSyncedAtStr, lang]);
 
   return (
     <section

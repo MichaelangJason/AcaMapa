@@ -26,6 +26,7 @@ import { TooltipId } from "@/lib/enums";
 import clsx from "clsx";
 import ItemTagSkeleton from "../Skeleton/ItemTagSkeleton";
 import { UserSession, Sync } from "../Common";
+import { I18nKey, Language, t } from "@/lib/i18n";
 
 const UtilityBar = () => {
   const {
@@ -43,6 +44,7 @@ const UtilityBar = () => {
   );
   const dispatch = useAppDispatch();
   const isInitialized = useAppSelector((state) => state.global.isInitialized);
+  const lang = useAppSelector((state) => state.userData.lang) as Language;
 
   const handleCloseDropdownMenu = useCallback(() => {
     dispatch(setIsUtilityDropdownMenuOpen(false));
@@ -61,7 +63,7 @@ const UtilityBar = () => {
       {
         self: {
           id: "add-plan",
-          content: "Add Plan",
+          content: t([I18nKey.ADD, I18nKey.PLAN], lang),
           handleClick: () => {
             dispatch(addPlan({}));
           }, // add an empty plan
@@ -71,7 +73,7 @@ const UtilityBar = () => {
       {
         self: {
           id: "add-term",
-          content: "Add Term",
+          content: t([I18nKey.ADD, I18nKey.SEMESTER], lang),
           handleClick: () =>
             dispatch(
               addTerm({
@@ -85,7 +87,7 @@ const UtilityBar = () => {
       {
         self: {
           id: "toggle-sidebar",
-          content: "Toggle Sidebar",
+          content: t([I18nKey.TOGGLE, I18nKey.SIDEBAR], lang),
           handleClick: () => {
             dispatch(toggleIsSideBarFolded());
           },
@@ -95,7 +97,7 @@ const UtilityBar = () => {
       {
         self: {
           id: "toggle-course-taken",
-          content: "Toggle Course Taken",
+          content: t([I18nKey.TOGGLE, I18nKey.COURSE_TAKEN], lang),
           handleClick: () => {
             dispatch(toggleIsCourseTakenExpanded());
           },
@@ -105,7 +107,7 @@ const UtilityBar = () => {
       {
         self: {
           id: "toggle-dropdown-menu",
-          content: "Toggle Dropdown Menu",
+          content: t([I18nKey.TOGGLE, I18nKey.DROPDOWN_MENU], lang),
           handleClick: () => {
             dispatch(toggleIsUtilityDropdownMenuOpen());
           },
@@ -115,14 +117,14 @@ const UtilityBar = () => {
       {
         self: {
           id: "delete-current-plan",
-          content: "Delete Current Plan",
+          content: t([I18nKey.DELETE, I18nKey.CURRENT_PLAN], lang),
           handleClick: () => {
             dispatch(deletePlan(currentPlanId));
           },
         },
       },
     ];
-  }, [dispatch, currentPlanId, isInitialized]) as ItemProps[];
+  }, [dispatch, currentPlanId, isInitialized, lang]) as ItemProps[];
 
   // register shortcut keys
   useEffect(() => {
@@ -162,7 +164,14 @@ const UtilityBar = () => {
             <HamburgerIcon
               className={clsx("hamburger", !isInitialized && "disabled")}
               data-tooltip-id={TooltipId.UTILITY_BAR}
-              data-tooltip-content="Plans & Actions"
+              data-tooltip-content={
+                t([I18nKey.PLAN], lang) +
+                "s " +
+                t([I18nKey.AND], lang) +
+                " " +
+                t([I18nKey.ACTION], lang) +
+                "s"
+              }
               data-tooltip-place="bottom"
             />
           ),
@@ -172,7 +181,7 @@ const UtilityBar = () => {
         <Plans handleCloseDropdownMenu={handleCloseDropdownMenu} />
         <Separator className="dropdown-menu-separator" />
         <Section
-          label="Actions"
+          label={t([I18nKey.ACTION], lang) + "s"}
           items={actions}
           handleCloseDropdownMenu={handleCloseDropdownMenu}
         />
@@ -187,15 +196,15 @@ const UtilityBar = () => {
         ) : (
           <ItemTag
             items={[
-              `# Courses: ${totalCourses} (${totalCredits} cr)`,
-              `# Planned Courses: ${totalPlannedCourses} (${totalPlanCredits} cr)`,
-              `# Course Taken: ${totalCourseTaken} (${totalCourseTakenCretids} cr)`,
-              `# Terms: ${totalTerm} (${averageCreditsPerTerm} cr/term)`,
+              `# ${t([I18nKey.COURSE], lang)}s: ${totalCourses} (${totalCredits} cr)`,
+              `# ${t([I18nKey.PLANNED_COURSES], lang)}: ${totalPlannedCourses} (${totalPlanCredits} cr)`,
+              `# ${t([I18nKey.COURSE_TAKEN], lang)}: ${totalCourseTaken} (${totalCourseTakenCretids} cr)`,
+              `# ${t([I18nKey.SEMESTER], lang)}s: ${totalTerm} (${averageCreditsPerTerm} cr/term)`,
             ]}
-            title="Plan Stats"
+            title={t([I18nKey.PLAN_STATS], lang)}
             tooltipProps={{
               "data-tooltip-id": TooltipId.ITEM_TAG,
-              "data-tooltip-content": "Plan Stats",
+              "data-tooltip-content": t([I18nKey.PLAN_STATS], lang),
               "data-tooltip-place": "right",
             }}
           />
@@ -217,7 +226,7 @@ const UtilityBar = () => {
       <GithubMark
         className="github-mark"
         data-tooltip-id={TooltipId.UTILITY_BAR}
-        data-tooltip-content="Open DegreemMapper Repo in new tab"
+        data-tooltip-content={t([I18nKey.GITHUB_MARK], lang)}
         data-tooltip-place="bottom"
         data-tooltip-delay-show={500}
         onClick={() => {

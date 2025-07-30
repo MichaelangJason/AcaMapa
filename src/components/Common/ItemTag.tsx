@@ -4,6 +4,7 @@ import PlusIcon from "@/public/icons/plus.svg";
 import clsx from "clsx";
 import { useAppSelector } from "@/store/hooks";
 import type { TooltipProps } from "@/types/local";
+import { I18nKey, Language, t } from "@/lib/i18n";
 
 const ItemTag = ({
   title,
@@ -37,7 +38,7 @@ const ItemTag = ({
   const [isHovering, setIsHovering] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const isDragging = useAppSelector((state) => state.global.isDragging);
-
+  const lang = useAppSelector((state) => state.userData.lang) as Language;
   const showExpanded = !isDragging && (isExpanded || isHovering);
 
   const handleClick = useCallback(() => {
@@ -84,8 +85,11 @@ const ItemTag = ({
           {...{
             ...(tooltipProps || {}),
             "data-tooltip-content":
-              (isPinnable ? (isExpanded ? "Unpin " : "Pin ") : "") +
-              (tooltipProps?.["data-tooltip-content"] || title),
+              (isPinnable
+                ? isExpanded
+                  ? t([I18nKey.UNPIN], lang) + " "
+                  : t([I18nKey.PIN], lang) + " "
+                : "") + (tooltipProps?.["data-tooltip-content"] || title),
           }}
         >
           {title}

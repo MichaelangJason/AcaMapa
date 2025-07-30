@@ -42,7 +42,6 @@ startListening({
     const isSyncing = listenerApi.getState().localData.syncStatus.isSyncing;
     if (!isSyncing) {
       dispatch(setSyncStatus({ isSyncing: true }));
-      document.addEventListener("visibilitychange", handleBeforeUnload);
     }
     getDebouncedSync(dispatch)();
   },
@@ -55,7 +54,6 @@ startListening({
     const isSyncing = listenerApi.getState().localData.syncStatus.isSyncing;
     if (isSyncing) {
       dispatch(setSyncStatus({ isSyncing: false }));
-      document.removeEventListener("visibilitychange", handleBeforeUnload);
     }
   },
 });

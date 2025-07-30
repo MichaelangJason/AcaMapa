@@ -1,7 +1,7 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { MemberData, Plan, Term } from "@/types/db";
 import { ObjectId } from "bson";
-import { Language } from "@/lib/enums";
+import { I18nKey, Language, t } from "@/lib/i18n";
 
 export const initialState = {
   lang: Language.EN,
@@ -77,7 +77,9 @@ export const userDataSlice = createSlice({
     ) => {
       const newId = new ObjectId().toString();
       const newPlan: Plan = {
-        name: action.payload.name ?? "New Plan",
+        name:
+          action.payload.name ??
+          t([I18nKey.NEW_M, I18nKey.PLAN], state.lang as Language),
         termOrder: action.payload.termOrder ?? [], // an initial term will be added in the middleware
         courseMetadata: action.payload.courseMetadata ?? new Map(),
         _id: newId,
@@ -89,7 +91,7 @@ export const userDataSlice = createSlice({
         });
       } else {
         const newTerm: Term = {
-          name: "New Term",
+          name: t([I18nKey.NEW_M, I18nKey.SEMESTER], state.lang as Language),
           courseIds: [],
           _id: new ObjectId().toString(),
         };
@@ -144,7 +146,9 @@ export const userDataSlice = createSlice({
       const plan = state.planData.get(planId)!; // existence should be guaranteed by middleware
       const newTerm: Term = {
         _id: new ObjectId().toString(),
-        name: termData?.name ?? "New Term",
+        name:
+          termData?.name ??
+          t([I18nKey.NEW_M, I18nKey.SEMESTER], state.lang as Language),
         courseIds: termData?.courseIds ?? [],
       };
 
@@ -214,10 +218,10 @@ export const userDataSlice = createSlice({
         plan.courseMetadata.set(courseId, { isOverwritten: false });
       });
 
-      console.group(action.type);
-      console.log(action.payload);
-      console.log("current term data", state.termData);
-      console.groupEnd();
+      // console.group(action.type);
+      // console.log(action.payload);
+      // console.log("current term data", state.termData);
+      // console.groupEnd();
     },
     deleteCourse: (
       state,

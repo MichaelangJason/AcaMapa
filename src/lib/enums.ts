@@ -21,11 +21,6 @@ export enum SessionKey {
   INITIALIZED = "initialized",
 }
 
-export enum Language {
-  EN = "EN",
-  FR = "FR",
-}
-
 export enum DraggingType {
   TERM = "term",
   COURSE = "course",
@@ -42,10 +37,10 @@ export enum GroupType {
 }
 
 export enum ReqType {
-  PRE_REQ = "Pre-req",
-  ANTI_REQ = "Anti-req / Restrictions",
-  CO_REQ = "Co-req",
-  NOTES = "Notes",
+  PRE_REQ = "pre-req",
+  ANTI_REQ = "anti-req",
+  CO_REQ = "co-req",
+  NOTES = "notes",
 }
 
 export enum TooltipId {
@@ -60,6 +55,7 @@ export enum TooltipId {
   SIDE_BAR_HANDLE = "side-bar-handle",
   ITEM_TAG = "item-tag",
   TERM_CARD = "term-card",
+  COURSE_TAKEN = "course-taken",
 }
 
 export enum ToastId {

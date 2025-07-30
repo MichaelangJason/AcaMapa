@@ -19,6 +19,7 @@ import {
 import { renameTerm } from "@/store/slices/userDataSlice";
 import { setSimpleModalInfo } from "@/store/slices/localDataSlice";
 import { MAX_TERM_NAME_LEN } from "@/lib/constants";
+import { I18nKey, Language, t } from "@/lib/i18n";
 
 const AddTermButton = ({
   isBefore,
@@ -28,6 +29,7 @@ const AddTermButton = ({
   onClick: (isBefore: boolean) => void;
 }) => {
   const [isClicked, setIsClicked] = useState(false);
+  const lang = useAppSelector((state) => state.userData.lang) as Language;
 
   const handleClick = useCallback(() => {
     setIsClicked(true);
@@ -46,7 +48,16 @@ const AddTermButton = ({
       ])}
       onClick={handleClick}
       data-tooltip-id={TooltipId.TERM_CARD}
-      data-tooltip-content={"Add new term here"}
+      data-tooltip-content={t(
+        [
+          I18nKey.ADD,
+          I18nKey.ONE_M,
+          I18nKey.NEW_M,
+          I18nKey.SEMESTER,
+          I18nKey.HERE,
+        ],
+        lang,
+      )}
       data-tooltip-delay-show={500}
     >
       <PlusIcon />
@@ -86,6 +97,7 @@ const TermCard = ({
   const isSeekingCourse = useAppSelector(
     (state) => state.global.isSeekingCourse,
   );
+  const lang = useAppSelector((state) => state.userData.lang) as Language;
 
   const dispatch = useAppDispatch();
 
@@ -120,8 +132,10 @@ const TermCard = ({
       dispatch(
         setSimpleModalInfo({
           isOpen: true,
-          title: "Delete Term",
-          description: `Are you sure you want to delete ${term.name}?\n\nThis action cannot be undone.`,
+          title: t([I18nKey.DELETE_TERM_TITLE], lang),
+          description: t([I18nKey.DELETE_TERM_DESC], lang, {
+            item1: term.name,
+          }),
           confirmCb: () => {
             deleteTerm(term._id.toString(), idx);
             return Promise.resolve();
@@ -134,13 +148,13 @@ const TermCard = ({
     } else {
       deleteTerm(term._id.toString(), idx);
     }
-  }, [deleteTerm, idx, dispatch, term._id, courses.length]);
+  }, [deleteTerm, idx, dispatch, term, courses.length, lang]);
 
   const handleRenameTerm = useCallback(() => {
     dispatch(
       setSimpleModalInfo({
         isOpen: true,
-        title: "Rename Term",
+        title: t([I18nKey.RENAME_TERM_TITLE], lang),
         description: "",
         inputConfig: {
           placeholder: term.name,
@@ -156,14 +170,14 @@ const TermCard = ({
         },
       }),
     );
-  }, [dispatch, term]);
+  }, [dispatch, term, lang]);
 
   const termActions: ItemProps[] = useMemo(() => {
     return [
       {
         self: {
           id: "delete-term",
-          content: "Delete",
+          content: t([I18nKey.DELETE], lang),
           handleClick: handleDeleteTerm,
           isHideIndicator: true,
           isHideFiller: true,
@@ -173,7 +187,7 @@ const TermCard = ({
       {
         self: {
           id: "rename-term",
-          content: "Rename",
+          content: t([I18nKey.RENAME], lang),
           handleClick: handleRenameTerm,
           isHideIndicator: true,
           isHideFiller: true,
@@ -181,7 +195,7 @@ const TermCard = ({
         handleCloseDropdownMenu: handleCloseTermDM,
       },
     ];
-  }, [deleteTerm, idx, handleCloseTermDM, term, dispatch, courses]);
+  }, [handleCloseTermDM, lang, handleDeleteTerm, handleRenameTerm]);
 
   return (
     // outer draggable for the whole term card
@@ -207,7 +221,7 @@ const TermCard = ({
           >
             {hasSelectedCourses ? (
               <button className="add-course-button" onClick={handleAddCourse}>
-                Add to {term.name}
+                {t([I18nKey.ADD_TO], lang, { item1: term.name })}
               </button>
             ) : (
               <span className="term-name-container">
@@ -283,7 +297,9 @@ const TermCard = ({
           </Droppable>
           {/* footer for the term card */}
           <footer className="term-footer">
-            <span>{totalCredits} credits</span>
+            <span>
+              {totalCredits} {t([I18nKey.CREDITS], lang)}
+            </span>
           </footer>
 
           {/* add term button for the term card */}

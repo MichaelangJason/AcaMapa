@@ -8,6 +8,8 @@ import type {
   DraggableStateSnapshot,
 } from "@hello-pangea/dnd";
 import { TooltipId } from "@/lib/enums";
+import { I18nKey, Language, t } from "@/lib/i18n";
+import { useAppSelector } from "@/store/hooks";
 
 const Wrapper = ({
   children,
@@ -58,6 +60,7 @@ const Wrapper = ({
     dragHandleProps = {},
     innerRef = () => {},
   } = draggableProvided || {};
+  const lang = useAppSelector((state) => state.userData.lang) as Language;
 
   return (
     <article
@@ -80,7 +83,10 @@ const Wrapper = ({
               target="_blank"
               rel="noopener noreferrer"
               data-tooltip-id={TooltipId.COURSE_CARD_WRAPPER}
-              data-tooltip-content={`Open ${heading} in new tab`}
+              data-tooltip-content={t([I18nKey.OPEN_IN], lang, {
+                item1: heading,
+                item2: t([I18nKey.NEW_TAB], lang),
+              })}
             >
               {heading}
             </a>
@@ -90,7 +96,9 @@ const Wrapper = ({
           <ShovelIcon
             className={clsx(["shovel", disableMap?.shovel && "disabled"])}
             data-tooltip-id={TooltipId.COURSE_CARD_WRAPPER}
-            data-tooltip-content={`Overwrite ${heading}`}
+            data-tooltip-content={t([I18nKey.OVERWRITE], lang, {
+              item1: heading,
+            })}
             onClick={disableMap?.shovel ? undefined : handleOverwrite}
           />
         </h4>
@@ -104,7 +112,9 @@ const Wrapper = ({
                 disableMap?.seek && "disabled",
               ])}
               data-tooltip-id={TooltipId.COURSE_CARD_WRAPPER}
-              data-tooltip-content="Subsequent Courses"
+              data-tooltip-content={t([I18nKey.SUBSEQUENT_COURSES_FOR], lang, {
+                item1: heading,
+              })}
               onClick={() => {
                 if (disableMap?.seek) return;
                 handleSeek();
@@ -116,7 +126,7 @@ const Wrapper = ({
           <div
             className={clsx(["expand", disableMap?.expand && "disabled"])}
             data-tooltip-id={TooltipId.COURSE_CARD_WRAPPER}
-            data-tooltip-content="Expand"
+            data-tooltip-content={t([I18nKey.EXPAND], lang)}
             onClick={() => {
               if (disableMap?.expand) return;
               toggleIsExpanded();
@@ -128,7 +138,7 @@ const Wrapper = ({
             <div
               className={clsx(["delete", disableMap?.delete && "disabled"])}
               data-tooltip-id={TooltipId.COURSE_CARD_WRAPPER}
-              data-tooltip-content="Delete"
+              data-tooltip-content={t([I18nKey.DELETE], lang)}
               onClick={() => {
                 if (disableMap?.delete) return;
                 handleDelete();

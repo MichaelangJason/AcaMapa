@@ -14,6 +14,7 @@ import {
   setSimpleModalInfo,
 } from "@/store/slices/localDataSlice";
 import { MAX_PLAN_NAME_LEN } from "@/lib/constants";
+import { I18nKey, Language, t } from "@/lib/i18n";
 
 const Plans = ({
   handleCloseDropdownMenu,
@@ -26,6 +27,7 @@ const Plans = ({
     (state) => state.localData.currentPlanId,
   );
   const dispatch = useAppDispatch();
+  const lang = useAppSelector((state) => state.userData.lang) as Language;
 
   const handleSelectPlan = useCallback(
     (planId: string) => {
@@ -39,8 +41,10 @@ const Plans = ({
       dispatch(
         setSimpleModalInfo({
           isOpen: true,
-          title: "Delete Plan",
-          description: `Are you sure you want to delete ${plans.get(planId)?.name}?\n\nThis action cannot be undone.`,
+          title: t([I18nKey.DELETE_PLAN_TITLE], lang),
+          description: t([I18nKey.DELETE_PLAN_DESC], lang, {
+            item1: plans.get(planId)!.name,
+          }),
           confirmCb: () => {
             dispatch(deletePlan(planId));
             return Promise.resolve();
@@ -51,7 +55,7 @@ const Plans = ({
         }),
       );
     },
-    [dispatch, plans],
+    [dispatch, plans, lang],
   );
 
   const handleRenamePlan = useCallback(
@@ -59,10 +63,10 @@ const Plans = ({
       dispatch(
         setSimpleModalInfo({
           isOpen: true,
-          title: "Rename Plan",
+          title: t([I18nKey.RENAME, I18nKey.PLAN], lang),
           description: "",
           inputConfig: {
-            placeholder: plans.get(planId)?.name ?? "",
+            placeholder: plans.get(planId)!.name,
             maxLength: MAX_PLAN_NAME_LEN,
           },
           confirmCb: (newName?: string) => {
@@ -76,7 +80,7 @@ const Plans = ({
         }),
       );
     },
-    [dispatch, plans],
+    [dispatch, plans, lang],
   );
 
   const dragStart = useCallback(() => {
@@ -115,7 +119,7 @@ const Plans = ({
         return {
           self: {
             id: planId,
-            content: plan?.name ?? `ERROR: ${planId}`,
+            content: plan?.name ?? t([I18nKey.ERROR], lang) + ": " + planId,
             handleClick: handleSelectPlan,
             isChecked: planId === currentPlanId,
             isKeepDMOpen: true,
@@ -124,14 +128,14 @@ const Plans = ({
           items: [
             {
               id: planId,
-              content: "Delete",
+              content: t([I18nKey.DELETE], lang),
               handleClick: handleDeletePlan,
               isHideIndicator: true,
               isHideFiller: true,
             },
             {
               id: planId,
-              content: "Rename",
+              content: t([I18nKey.RENAME], lang),
               handleClick: handleRenamePlan,
               isHideIndicator: true,
               isHideFiller: true,
@@ -149,12 +153,13 @@ const Plans = ({
       handleDeletePlan,
       handleSelectPlan,
       handleRenamePlan,
+      lang,
     ],
   );
 
   return (
     <DnDSection
-      label="Plans"
+      label={t([I18nKey.PLAN], lang) + "s"}
       items={items}
       dndContextProps={{
         onDragEnd: dragEnd,

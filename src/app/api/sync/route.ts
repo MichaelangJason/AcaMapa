@@ -5,7 +5,8 @@ import { withDatabase } from "@/db";
 import { mapStringfyReplacer, mapStringfyReviver } from "@/lib/sync";
 import { mockPlanData } from "@/lib/mock";
 import type { GuestUserData, Plan } from "@/types/db";
-import { Language, SyncMethod } from "@/lib/enums";
+import { SyncMethod } from "@/lib/enums";
+import { Language } from "@/lib/i18n";
 import { isValidGuestData } from "@/lib/typeGuards";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

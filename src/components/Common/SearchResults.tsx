@@ -14,6 +14,7 @@ import { useDebounce } from "@/lib/hooks";
 import { selectAllCourseData } from "@/store/selectors";
 import FootNote from "../Course/CourseCard/FootNote";
 import { MiniCourseCardSkeleton } from "@/components/Skeleton";
+import { I18nKey, Language, t } from "@/lib/i18n";
 
 const SearchResults = ({ result }: { result: SearchResult }) => {
   const courseData = useAppSelector((state) => state.localData.courseData);
@@ -28,6 +29,7 @@ const SearchResults = ({ result }: { result: SearchResult }) => {
   const dispatch = useAppDispatch();
   const { type, query, data } = result;
   const isInitialized = useAppSelector((state) => state.global.isInitialized);
+  const lang = useAppSelector((state) => state.userData.lang) as Language;
 
   const displayData = useMemo(() => {
     if (!isInitialized) {
@@ -60,10 +62,10 @@ const SearchResults = ({ result }: { result: SearchResult }) => {
 
   const handleNoResultText = useCallback(() => {
     if (type === ResultType.SEEKING) {
-      return "NO SUBSEQUENT COURSES";
+      return t([I18nKey.NO_SUBSEQUENT_COURSES], lang);
     }
-    return "NO RESULTS";
-  }, [type]);
+    return t([I18nKey.NO_RESULTS], lang);
+  }, [type, lang]);
 
   // setup infinite scroll
   // OPTIMIZE: maybe switch to a virtualized list
@@ -143,7 +145,11 @@ const SearchResults = ({ result }: { result: SearchResult }) => {
       })}
       {displayData.length === 0 && <FootNote content={handleNoResultText()} />}
       <div ref={loadingTriggerRef} />
-      {hasMore && <div className="loading-placeholder">Loading more...</div>}
+      {hasMore && (
+        <div className="loading-placeholder">
+          {t([I18nKey.LOADING_MORE], lang)}
+        </div>
+      )}
     </div>
   );
 };

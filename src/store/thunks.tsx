@@ -29,7 +29,7 @@ import { mockPlanData } from "@/lib/mock";
 import type { Course, GuestUserData } from "@/types/db";
 import type { CachedDetailedCourse, Session } from "@/types/local";
 import { parseGroup } from "@/lib/course";
-import { Language, LocalStorageKey, ResultType, SyncMethod } from "@/lib/enums";
+import { LocalStorageKey, ResultType, SyncMethod } from "@/lib/enums";
 import { formatCourseId, getSearchFn } from "@/lib/utils";
 import {
   clearLocalData,
@@ -41,6 +41,7 @@ import {
   updateRemoteUserData,
 } from "@/lib/sync";
 import { toast } from "react-toastify";
+import { t, I18nKey, Language } from "@/lib/i18n";
 
 const createAppAsyncThunk = createAsyncThunk.withTypes<{
   state: RootState;
@@ -51,45 +52,52 @@ export const fetchCourseData = createAppAsyncThunk(
   "thunks/fetchCourseData",
   async (
     courseIds: string[],
-    { dispatch, rejectWithValue, fulfillWithValue },
+    { dispatch, rejectWithValue, fulfillWithValue, getState },
   ) => {
+    const lang = getState().userData.lang as Language;
     const response = await fetch(`/api/courses?ids=${courseIds.join(",")}`, {
       method: "GET",
     });
 
-    if (response.ok) {
-      const data = await response.json();
-      if (
-        !(Array.isArray(data) && data.every((v) => isValidDetailedCourse(v)))
-      ) {
-        return rejectWithValue("Invalid Course Data");
-      }
-
-      const inputIds = new Set(courseIds);
-      if (data.length !== courseIds.length) {
-        const errorIds = data
-          .map((c) => c.id)
-          .reduce((acc, val) => {
-            if (!inputIds.has(val)) acc.push(val); // can create new array instead
-            return acc;
-          }, [] as string[]);
-        toast.error(`Failed to fetch course data for ${errorIds.join(", ")}`);
-      }
-
-      (data as CachedDetailedCourse[]).forEach((c) => {
-        c.prerequisites.group = parseGroup(c.prerequisites.parsed);
-        c.corequisites.group = parseGroup(c.corequisites.parsed);
-        c.restrictions.group = parseGroup(c.restrictions.parsed);
-
-        // console.log(c.prerequisites.group);
-        // console.log(c.corequisites.group);
-        // console.log(c.restrictions.group);
-      });
-
-      dispatch(updateCachedDetailedCourseData(data as CachedDetailedCourse[]));
-      return fulfillWithValue(data);
+    if (!response.ok) {
+      return rejectWithValue(
+        t([I18nKey.FETCH_COURSE_FAILED], lang, {
+          [I18nKey.COURSE_DATA]: courseIds.join(","),
+        }),
+      );
     }
-    return rejectWithValue("Failed to fetch course data");
+
+    const data = await response.json();
+    if (!(Array.isArray(data) && data.every((v) => isValidDetailedCourse(v)))) {
+      return rejectWithValue("Invalid Course Data");
+    }
+
+    const inputIds = new Set(courseIds);
+    if (data.length !== courseIds.length) {
+      const errorIds = data
+        .map((c) => c.id)
+        .reduce((acc, val) => {
+          if (!inputIds.has(val)) acc.push(val); // can create new array instead
+          return acc;
+        }, [] as string[]);
+      const errorIdsStr = errorIds.join(", ");
+      toast.error(
+        t(
+          [I18nKey.FETCH_COURSE_FAILED, I18nKey.FOR, I18nKey.P_ERROR_IDS],
+          lang,
+          { [I18nKey.P_ERROR_IDS]: errorIdsStr },
+        ),
+      );
+    }
+
+    (data as CachedDetailedCourse[]).forEach((c) => {
+      c.prerequisites.group = parseGroup(c.prerequisites.parsed);
+      c.corequisites.group = parseGroup(c.corequisites.parsed);
+      c.restrictions.group = parseGroup(c.restrictions.parsed);
+    });
+
+    dispatch(updateCachedDetailedCourseData(data as CachedDetailedCourse[]));
+    return fulfillWithValue(data);
   },
 );
 
@@ -103,7 +111,7 @@ export const addCourseToTerm = createAppAsyncThunk(
     }: { courseIds: string[]; termId: string; planId: string },
     { getState, dispatch, rejectWithValue, fulfillWithValue },
   ) => {
-    // await new Promise((resolve) => setTimeout(resolve, 2000));
+    const lang = getState().userData.lang as Language;
     const state = getState();
 
     const unCachedCourseIds = courseIds.filter(
@@ -115,16 +123,24 @@ export const addCourseToTerm = createAppAsyncThunk(
 
     const plan = state.userData.planData.get(planId);
     if (!plan) {
-      return rejectWithValue("Plan not found");
+      return rejectWithValue(t([I18nKey.PLAN, I18nKey.NOT_FOUND], lang));
     }
     const term = plan.termOrder.find((t) => t === termId);
     if (!term) {
-      return rejectWithValue(`Term not found in plan: ${plan.name}`);
+      return rejectWithValue(
+        t([I18nKey.NOT_FOUND_IN], lang, {
+          item1: t([I18nKey.SEMESTER], lang),
+          item2: t([I18nKey.PLAN], lang),
+          [I18nKey.PLAN]: plan.name,
+        }),
+      );
     }
 
     const termData = state.userData.termData.get(termId);
     if (!termData) {
-      return rejectWithValue("Term data not found");
+      return rejectWithValue(
+        t([I18nKey.SEMESTER_DATA, I18nKey.NOT_FOUND], lang),
+      );
     }
 
     const duplicateCourseIds: string[] = [];
@@ -153,7 +169,11 @@ export const addCourseToTerm = createAppAsyncThunk(
               )}
             </span>
             <br />
-            <span>already in {plan.name}</span>
+            <span>
+              {t([I18nKey.ALREADY_IN, I18nKey.P_PLAN], lang, {
+                [I18nKey.PLAN]: plan.name,
+              })}
+            </span>
           </div>
         );
       });
@@ -161,7 +181,7 @@ export const addCourseToTerm = createAppAsyncThunk(
     }
 
     if (newCourseIds.length === 0) {
-      return rejectWithValue("No new courses to add");
+      return rejectWithValue(t([I18nKey.NO_NEW_COURSES_TO_ADD], lang));
     }
 
     dispatch(
@@ -182,16 +202,15 @@ export const initApp = createAppAsyncThunk(
     { courseData, session }: { courseData: Course[]; session: Session | null },
     { dispatch, fulfillWithValue, rejectWithValue, getState },
   ) => {
+    const lang = getState().userData.lang as Language;
     if (getState().global.isInitialized) {
-      return rejectWithValue(
-        "App already initialized, please refresh the page",
-      );
+      return rejectWithValue(t([I18nKey.ALREADY_INITIALIZED], lang));
     }
 
     const searchFn = getSearchFn(courseData);
 
     if (!searchFn) {
-      return rejectWithValue("Failed to get search function");
+      return rejectWithValue(t([I18nKey.FAILED_TO_GET_SEARCH_FN], lang));
     }
 
     if (session) {
@@ -216,6 +235,7 @@ export const seekCourse = createAppAsyncThunk(
   async (courseId: string, { dispatch, getState }) => {
     dispatch(setSeekingCourseId(courseId));
     const state = getState();
+    const lang = state.userData.lang as Language;
 
     if (!state.localData.cachedDetailedCourseData[courseId]) {
       await dispatch(fetchCourseData([courseId])).unwrap();
@@ -227,7 +247,7 @@ export const seekCourse = createAppAsyncThunk(
     );
 
     if (subseqCourses.length !== cachedCourse.futureCourses.length) {
-      throw new Error("Seeking course missing future courses");
+      throw new Error(t([I18nKey.SEEK_MISSING_COURSE], lang));
     }
 
     dispatch(
@@ -260,6 +280,7 @@ export const fullSync = createAppAsyncThunk(
     const state = getState();
     const data = state.userData;
     const currentPlanId = state.localData.currentPlanId;
+    const lang = state.userData.lang as Language;
 
     const initNewPlan = () => {
       const { planData, termData, planOrder } = mockPlanData(3, "New Plan");
@@ -304,6 +325,7 @@ export const fullSync = createAppAsyncThunk(
 
       const savedCurrentPlanId = getLocalData(
         LocalStorageKey.CURRENT_PLAN_ID,
+        lang,
       )?.data;
 
       if (isValidGuestData(parsedData, "full")) {
@@ -312,6 +334,8 @@ export const fullSync = createAppAsyncThunk(
           ...p.courseMetadata.keys(),
         ]);
         const distinctCourseIds = new Set(allCourseIds);
+
+        dispatch(setLang(parsedData.lang as Language));
         if (distinctCourseIds.size > 0) {
           await dispatch(
             fetchCourseData(Array.from(distinctCourseIds)),
@@ -339,9 +363,12 @@ export const fullSync = createAppAsyncThunk(
 
     const session = state.localData.session;
     const isLoggedIn = !!session && !!session.user && !!session.user.email;
-    const localUserData = getLocalData(LocalStorageKey.GUEST_DATA);
+    const localUserData = getLocalData(LocalStorageKey.GUEST_DATA, lang);
     const isLocalDataPresent = !!localUserData;
-    const unsavedData = getLocalData(isLoggedIn ? session.user!.email! : "");
+    const unsavedData = getLocalData(
+      isLoggedIn ? session.user!.email! : "",
+      lang,
+    );
     const isUnsavedDataPresent = !!unsavedData;
 
     try {
@@ -370,9 +397,9 @@ export const fullSync = createAppAsyncThunk(
               !isLocalDataPresent ||
               !isValidSavingData(localUserData, "full")
             ) {
-              await createRemoteUserData(null);
+              await createRemoteUserData(null, lang);
             } else {
-              await createRemoteUserData(localUserData.data);
+              await createRemoteUserData(localUserData.data, lang);
             }
             // restore from local data, plan/term id matches with remote user data
             // console.log("loggedin, restore from local data");
@@ -383,7 +410,7 @@ export const fullSync = createAppAsyncThunk(
           ) {
             // 2.2 restore from unsaved data and clear
             // console.log("loggedin, restore from unsaved data");
-            await updateRemoteUserData(unsavedData, SyncMethod.OVERWRITE);
+            await updateRemoteUserData(unsavedData, SyncMethod.OVERWRITE, lang);
             clearLocalData(session.user!.email!);
           } else if (
             isLocalDataPresent &&
@@ -394,19 +421,23 @@ export const fullSync = createAppAsyncThunk(
             dispatch(
               setSimpleModalInfo({
                 isOpen: true,
-                title: "Merge Local Data",
+                title: t([I18nKey.MERGE_TITLE], lang),
                 description: `
-                <span>How do you want to handle the local plan?</span>
-                <span>Click merge to merge local data with remote data.</span>
+                <span>${t([I18nKey.KEEP_LOCAL_DATA], lang)}</span>
+                <span>${t([I18nKey.MERGE_LOCAL_DATA], lang)}</span>
               `,
                 confirmCb: async () => {
                   // merge local data with remote data
                   // console.log("loggedin, merge local data with remote data");
-                  await updateRemoteUserData(localUserData, SyncMethod.MERGE);
+                  await updateRemoteUserData(
+                    localUserData,
+                    SyncMethod.MERGE,
+                    lang,
+                  );
                   // get merged data from remote
                   const mergedUserData = await getRemoteUserData();
                   if (!mergedUserData) {
-                    throw new Error("Failed to get merged user data");
+                    throw new Error(t([I18nKey.MERGE_FAILED], lang));
                   }
                   // restore from merged data
                   await restoreFrom(mergedUserData);
@@ -422,7 +453,14 @@ export const fullSync = createAppAsyncThunk(
                 closeCb: async () => {
                   // keep local data
                   if (!(await restoreFrom(remoteUserData))) {
-                    throw new Error("Failed to restore from remote user data");
+                    throw new Error(
+                      t([I18nKey.FAILED_RESTORE_FROM], lang, {
+                        [I18nKey.REMOTE_USER_DATA]: t(
+                          [I18nKey.REMOTE_USER_DATA],
+                          lang,
+                        ),
+                      }),
+                    );
                   }
                   dispatch(
                     setSyncStatus({
@@ -432,16 +470,21 @@ export const fullSync = createAppAsyncThunk(
                   );
                   dispatch(setIsInitialized(true));
                 },
-                confirmText: "Merge",
-                clearText: "Keep",
+                confirmText: t([I18nKey.MERGE], lang),
+                clearText: t([I18nKey.KEEP], lang),
                 extraOptions: [
                   {
-                    content: "Clear",
+                    content: t([I18nKey.CLEAR], lang),
                     onClick: async () => {
                       // clear local data and set with remote data
                       if (!(await restoreFrom(remoteUserData))) {
                         throw new Error(
-                          "Failed to restore from remote user data",
+                          t([I18nKey.FAILED_RESTORE_FROM], lang, {
+                            [I18nKey.REMOTE_USER_DATA]: t(
+                              [I18nKey.REMOTE_USER_DATA],
+                              lang,
+                            ),
+                          }),
                         );
                       }
                       clearLocalData(LocalStorageKey.GUEST_DATA);
@@ -459,7 +502,7 @@ export const fullSync = createAppAsyncThunk(
             );
 
             return rejectWithValue({
-              message: "Merge local data with remote data",
+              message: t([I18nKey.MERGING_LOCAL_DATA], lang),
               isMerging: true,
             });
           } else {
@@ -469,7 +512,14 @@ export const fullSync = createAppAsyncThunk(
             // console.log(isValidSavingData(localUserData, "full"));
             if (!(await restoreFrom(remoteUserData))) {
               // console.log(remoteUserData);
-              throw new Error("Failed to restore from remote user data");
+              throw new Error(
+                t([I18nKey.FAILED_RESTORE_FROM], lang, {
+                  [I18nKey.REMOTE_USER_DATA]: t(
+                    [I18nKey.REMOTE_USER_DATA],
+                    lang,
+                  ),
+                }),
+              );
             }
             // clear any unsaved/local data
             clearLocalData(LocalStorageKey.GUEST_DATA);
@@ -482,6 +532,7 @@ export const fullSync = createAppAsyncThunk(
           await updateRemoteUserData(
             { data, timestamp: Date.now() },
             SyncMethod.OVERWRITE,
+            lang,
           );
           clearLocalData(session.user!.email!);
         }
@@ -493,7 +544,7 @@ export const fullSync = createAppAsyncThunk(
       const errMsg =
         error instanceof Error
           ? error.message
-          : String(error) || "Unknown error";
+          : String(error) || t([I18nKey.UNKNOWN_ERROR], lang);
       dispatch(setSyncStatus({ syncError: errMsg }));
       return rejectWithValue({ message: errMsg });
     }

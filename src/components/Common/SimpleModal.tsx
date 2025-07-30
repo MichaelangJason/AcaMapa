@@ -6,11 +6,13 @@ import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { clearSimpleModalInfo } from "@/store/slices/localDataSlice";
 import DOMPurify from "dompurify";
 import clsx from "clsx";
+import { I18nKey, Language, t } from "@/lib/i18n";
 
 Modal.setAppElement("html");
 
 const SimpleModal = () => {
   const dispatch = useAppDispatch();
+  const lang = useAppSelector((state) => state.userData.lang) as Language;
   const {
     title = "",
     description = "",
@@ -22,8 +24,8 @@ const SimpleModal = () => {
     isPreventCloseOnEsc = false,
     isOpen,
     inputConfig,
-    confirmText = "Confirm",
-    clearText = "Clear",
+    confirmText = t([I18nKey.CONFIRM], lang),
+    clearText = t([I18nKey.CLEAR], lang),
     extraOptions = [],
   } = useAppSelector(
     (state) => state.localData.simpleModalInfo,

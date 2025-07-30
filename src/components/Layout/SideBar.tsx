@@ -14,6 +14,7 @@ import Image from "next/image";
 import clsx from "clsx";
 import ExpandIcon from "@/public/icons/expand.svg";
 import { selectCourseSearchFn } from "@/store/selectors";
+import { I18nKey, Language, t } from "@/lib/i18n";
 
 const SideBar = () => {
   const dispatch = useAppDispatch();
@@ -25,6 +26,7 @@ const SideBar = () => {
   );
   const searchResult = useAppSelector((state) => state.localData.searchResult);
   const searchCourseFn = useAppSelector(selectCourseSearchFn);
+  const lang = useAppSelector((state) => state.userData.lang) as Language;
 
   const handleSearchCourse = useCallback(
     async (input: string) => {
@@ -57,11 +59,13 @@ const SideBar = () => {
   const displayText = useMemo(() => {
     switch (searchResult.type) {
       case ResultType.SEEKING:
-        return `Subsequent Courses \n${searchResult.query}`;
+        return t([I18nKey.SUBSEQUENT_COURSES_FOR], lang, {
+          item1: searchResult.query,
+        });
       default:
         return undefined;
     }
-  }, [searchResult]);
+  }, [searchResult, lang]);
 
   return (
     <div className={clsx(["left-sidebar", isFolded && "folded"])}>
@@ -75,7 +79,11 @@ const SideBar = () => {
           ])}
           data-tooltip-id={TooltipId.SIDE_BAR_HANDLE}
           data-tooltip-content={
-            isFolded ? "Expand Sidebar" : "Collapse Sidebar"
+            (isFolded
+              ? t([I18nKey.EXPAND], lang)
+              : t([I18nKey.COLLAPSE], lang)) +
+            " " +
+            t([I18nKey.SIDEBAR], lang)
           }
           data-tooltip-place="right"
           data-tooltip-delay-show={500}

@@ -5,7 +5,7 @@ import type { AppDispatch } from "@/store";
 import { throttledDebounce } from "./utils";
 import type { GuestUserData } from "@/types/db";
 import { SavingData } from "@/types/local";
-import { Schema } from "mongoose";
+import { I18nKey, Language, t } from "./i18n";
 
 let debouncedSync: (() => void) | undefined;
 
@@ -27,11 +27,6 @@ export const mapStringfyReplacer = (key: string, value: any) => {
     return {
       dataType: "Map",
       value: Object.fromEntries(value.entries()),
-    };
-  } else if (value instanceof Schema.Types.Map) {
-    return {
-      dataType: "Map",
-      value: value,
     };
   }
   return value;
@@ -80,7 +75,7 @@ export const clearLocalData = (key: string) => {
   localStorage.removeItem(key);
 };
 
-export const getLocalData = (key: string) => {
+export const getLocalData = (key: string, lang: Language) => {
   const item = localStorage.getItem(key);
   if (!item) return null;
 
@@ -88,7 +83,9 @@ export const getLocalData = (key: string) => {
   // console.log(data, timestamp);
 
   if (!data || !timestamp) {
-    throw new Error("Invalid local data");
+    throw new Error(
+      t([I18nKey.INVALID], lang, { item1: t([I18nKey.LOCAL_DATA], lang) }),
+    );
   }
 
   return {
@@ -98,7 +95,10 @@ export const getLocalData = (key: string) => {
 };
 
 /* all these functions attach the session cookie automatically */
-export const createRemoteUserData = async (data: GuestUserData | null) => {
+export const createRemoteUserData = async (
+  data: GuestUserData | null,
+  lang: Language,
+) => {
   const response = await fetch("/api/sync", {
     method: "POST",
     headers: {
@@ -113,7 +113,11 @@ export const createRemoteUserData = async (data: GuestUserData | null) => {
   });
 
   if (!response.ok) {
-    throw new Error("Failed to create remote user data");
+    throw new Error(
+      t([I18nKey.FAILED_TO_CREATE], lang, {
+        item1: t([I18nKey.REMOTE_USER], lang),
+      }),
+    );
   }
 
   return response.json();
@@ -122,6 +126,7 @@ export const createRemoteUserData = async (data: GuestUserData | null) => {
 export const updateRemoteUserData = async (
   savingData: SavingData,
   method: SyncMethod,
+  lang: Language,
 ) => {
   const { data, timestamp } = savingData;
   const response = await fetch("/api/sync", {
@@ -140,7 +145,9 @@ export const updateRemoteUserData = async (
   });
 
   if (!response.ok) {
-    throw new Error("Failed to post to remote");
+    throw new Error(
+      t([I18nKey.FAILED_TO_UPDATE], lang, { item1: t([I18nKey.USER], lang) }),
+    );
   }
 
   return response.json();

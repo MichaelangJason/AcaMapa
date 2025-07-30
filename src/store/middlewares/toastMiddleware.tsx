@@ -12,6 +12,7 @@ import { setSeekingCourseId, setCurrentPlanId } from "../slices/localDataSlice";
 import { addCourseToTerm, fetchCourseData, fullSync, initApp } from "../thunks";
 import { formatCourseId } from "@/lib/utils";
 import { ToastId } from "@/lib/enums";
+import { I18nKey, Language, t } from "@/lib/i18n";
 
 const listenerMiddleware = createListenerMiddleware();
 const startListening = listenerMiddleware.startListening.withTypes<
@@ -21,7 +22,8 @@ const startListening = listenerMiddleware.startListening.withTypes<
 
 startListening({
   matcher: isAnyOf(fullSync.fulfilled, fullSync.rejected, fullSync.pending),
-  effect: (action) => {
+  effect: (action, listenerApi) => {
+    const lang = listenerApi.getState().userData.lang as Language;
     switch (action.type) {
       case fullSync.pending.type: {
       }
@@ -30,18 +32,26 @@ startListening({
         break;
       }
       case fullSync.rejected.type: {
-        toast.error((action.payload as string) ?? "Failed to sync data");
+        toast.error(
+          (action.payload as string) ??
+            t([I18nKey.FAILED_TO_SYNC], lang, {
+              item1: t([I18nKey.DATA], lang),
+            }),
+        );
         break;
       }
       default:
-        throw new Error("Invalid action type");
+        throw new Error(
+          t([I18nKey.INVALID], lang, { item1: t([I18nKey.ACTION_TYPE], lang) }),
+        );
     }
   },
 });
 
 startListening({
   matcher: isAnyOf(initApp.fulfilled, initApp.rejected, initApp.pending),
-  effect: (action) => {
+  effect: (action, listenerApi) => {
+    const lang = listenerApi.getState().userData.lang as Language;
     switch (action.type) {
       case initApp.fulfilled.type: {
         toast.dismiss(ToastId.INIT_APP);
@@ -52,7 +62,7 @@ startListening({
         toast.update(ToastId.INIT_APP, {
           render: () =>
             (action.payload as string) ??
-            "Failed to initialize DegreeMapper, please refresh the page",
+            t([I18nKey.FAILED_TO_INITIALIZE], lang),
           type: "error",
           isLoading: false,
           autoClose: 3000,
@@ -61,7 +71,7 @@ startListening({
         break;
       }
       case initApp.pending.type: {
-        toast.loading("Initializing DegreeMapper...", {
+        toast.loading(t([I18nKey.APP_INITIALIZING], lang), {
           toastId: ToastId.INIT_APP,
           autoClose: false,
         });
@@ -79,6 +89,7 @@ startListening({
     fetchCourseData.pending,
   ),
   effect: (action, listenerApi) => {
+    const lang = listenerApi.getState().userData.lang as Language;
     const isToastEnabled = listenerApi.getState().global.isToastEnabled;
 
     if (!isToastEnabled) return;
@@ -90,7 +101,11 @@ startListening({
           !Array.isArray(payload) ||
           !payload.every((item) => isValidDetailedCourse(item))
         ) {
-          toast.error(`Failed to fetch course data`);
+          toast.error(
+            t([I18nKey.FAILED_TO_FETCH], lang, {
+              item1: t([I18nKey.COURSE_DATA], lang),
+            }),
+          );
           break;
         }
         const courseIds = payload.map((item) => formatCourseId(item.id));
@@ -108,14 +123,18 @@ startListening({
                 )}
               </strong>
               <br />
-              <span>fetched</span>
+              <span>{t([I18nKey.FETCHED_M], lang)}</span>
             </div>
           );
         });
         break;
       }
       case fetchCourseData.rejected.type: {
-        toast.error(`Failed to fetch course data`);
+        toast.error(
+          t([I18nKey.FAILED_TO_FETCH], lang, {
+            item1: t([I18nKey.COURSE_DATA], lang),
+          }),
+        );
         break;
       }
       default:
@@ -131,13 +150,14 @@ startListening({
     addCourseToTerm.pending,
   ),
   effect: (action, listenerApi) => {
+    const lang = listenerApi.getState().userData.lang as Language;
     const isToastEnabled = listenerApi.getState().global.isToastEnabled;
 
     if (!isToastEnabled) return;
 
     switch (action.type) {
       case addCourseToTerm.pending.type: {
-        toast.loading("Adding Courses...", {
+        toast.loading(t([I18nKey.ADDING_COURSES], lang), {
           toastId: ToastId.ADD_COURSE_TO_TERM,
           autoClose: false,
         });
@@ -145,7 +165,11 @@ startListening({
       }
       case addCourseToTerm.rejected.type: {
         toast.update(ToastId.ADD_COURSE_TO_TERM, {
-          render: () => (action.payload as string) ?? "Failed to add courses",
+          render: () =>
+            (action.payload as string) ??
+            t([I18nKey.FAILED_TO_ADD], lang, {
+              item1: t([I18nKey.COURSE], lang),
+            }),
           type: "error",
           isLoading: false,
           autoClose: 3000,
@@ -163,6 +187,7 @@ startListening({
 startListening({
   actionCreator: setSeekingCourseId,
   effect: (_, listenerApi) => {
+    const lang = listenerApi.getState().userData.lang as Language;
     const isToastEnabled = listenerApi.getState().global.isToastEnabled;
 
     if (!isToastEnabled) return;
@@ -180,13 +205,13 @@ startListening({
         () => {
           return (
             <div style={{ textAlign: "center", width: "100%" }}>
-              <span>Seeking subsequent courses of</span>
+              <span>{t([I18nKey.SEEKING_TITLE], lang)}</span>
               <br />
               <strong style={{ fontSize: "1.4rem" }}>
                 {formatCourseId(courseId)}
               </strong>
               <br />
-              <span>Click this message to exit</span>
+              <span>{t([I18nKey.SEEKING_CLICK], lang)}</span>
             </div>
           );
         },
@@ -207,6 +232,7 @@ startListening({
 startListening({
   predicate: (action) => isCourseAction(action),
   effect: (action, listenerApi) => {
+    const lang = listenerApi.getState().userData.lang as Language;
     const isToastEnabled = listenerApi.getState().global.isToastEnabled;
 
     if (!isToastEnabled) return;
@@ -217,6 +243,9 @@ startListening({
       case "userData/addCourse": {
         const produceContent = () => {
           const courseIds = action.payload.courseIds;
+          const termName = originalState.userData.termData.get(
+            action.payload.termId,
+          )!.name;
           return (
             <div>
               {courseIds.flatMap((id, idx) => {
@@ -229,11 +258,7 @@ startListening({
               })}
               <br key={`content-end-br`} />
               <span key={`content-end`}>
-                added to{" "}
-                {
-                  originalState.userData.termData.get(action.payload.termId)!
-                    .name
-                }
+                {t([I18nKey.ADDED_TO_M], lang, { item1: termName })}
               </span>
             </div>
           );
@@ -260,13 +285,18 @@ startListening({
       case "userData/deleteCourse": {
         const { courseId, termId } = action.payload;
         const termName = originalState.userData.termData.get(termId)!.name;
-        toast.success(`${formatCourseId(courseId)} removed from ${termName}`);
+        toast.success(
+          t([I18nKey.REMOVED_FROM_M], lang, {
+            item1: formatCourseId(courseId),
+            item2: termName,
+          }),
+        );
         break;
       }
       case "userData/setIsOverwritten": {
         const { courseId, isOverwritten } = action.payload;
         toast.success(
-          `${formatCourseId(courseId)} ${isOverwritten ? "overwritten" : "restored"}`,
+          `${formatCourseId(courseId)} ${isOverwritten ? t([I18nKey.OVERWRITTEN_M], lang) : t([I18nKey.RESTORED_M], lang)}`,
         );
         break;
       }
@@ -279,6 +309,7 @@ startListening({
 startListening({
   predicate: (action) => isTermAction(action),
   effect: (action, listenerApi) => {
+    const lang = listenerApi.getState().userData.lang as Language;
     const isToastEnabled = listenerApi.getState().global.isToastEnabled;
 
     if (!isToastEnabled) return;
@@ -286,14 +317,18 @@ startListening({
 
     switch (action.type) {
       case "userData/addTerm": {
-        toast.success("New term created");
+        toast.success(
+          t([I18nKey.NEW_M, I18nKey.SEMESTER, I18nKey.CREATED_M], lang),
+        );
         break;
       }
       case "userData/deleteTerm": {
         const { termId } = action.payload;
         const termName = originalState.userData.termData.get(termId)!.name;
         toast.success(
-          `${termName.toLowerCase().includes("term") ? termName : `Term ${termName}`} removed`,
+          t([I18nKey.SEMESTER, I18nKey.P_SEMESTER, I18nKey.REMOVED_M], lang, {
+            item1: termName,
+          }),
         );
         break;
       }
@@ -301,7 +336,10 @@ startListening({
         const { termId, newName } = action.payload;
         const oldName = originalState.userData.termData.get(termId)!.name;
         toast.success(
-          `${oldName.toLowerCase().includes("term") ? oldName : `Term ${oldName}`} renamed to ${newName}`,
+          t([I18nKey.SEMESTER, I18nKey.RENAMED_TO_M], lang, {
+            item1: oldName,
+            item2: newName,
+          }),
         );
         break;
       }
@@ -314,6 +352,7 @@ startListening({
 startListening({
   predicate: (action) => isCourseTakenAction(action),
   effect: (action, listenerApi) => {
+    const lang = listenerApi.getState().userData.lang as Language;
     const isToastEnabled = listenerApi.getState().global.isToastEnabled;
 
     if (!isToastEnabled) return;
@@ -321,12 +360,24 @@ startListening({
     switch (action.type) {
       case "userData/addCourseTaken": {
         const courseIds = action.payload;
-        toast.success(`${courseIds.join("\n")} added to course taken`);
+        const courseIdsStr = courseIds.join("\n");
+        toast.success(
+          t([I18nKey.ADDED_TO_M], lang, {
+            item1: courseIdsStr,
+            item2: t([I18nKey.COURSE_TAKEN], lang),
+          }),
+        );
         break;
       }
       case "userData/removeCourseTaken": {
         const courseIds = action.payload;
-        toast.success(`${courseIds.join("\n")} removed from course taken`);
+        const courseIdsStr = courseIds.join("\n");
+        toast.success(
+          t([I18nKey.REMOVED_FROM_M], lang, {
+            item1: courseIdsStr,
+            item2: t([I18nKey.COURSE_TAKEN], lang),
+          }),
+        );
         break;
       }
       default:
@@ -338,6 +389,7 @@ startListening({
 startListening({
   predicate: (action) => isPlanAction(action),
   effect: (action, listenerApi) => {
+    const lang = listenerApi.getState().userData.lang as Language;
     const isToastEnabled = listenerApi.getState().global.isToastEnabled;
 
     if (!isToastEnabled) return;
@@ -345,14 +397,18 @@ startListening({
 
     switch (action.type) {
       case "userData/addPlan": {
-        toast.success("New plan created");
+        toast.success(
+          t([I18nKey.NEW_M, I18nKey.PLAN, I18nKey.CREATED_M], lang),
+        );
         break;
       }
       case "userData/deletePlan": {
         const planId = action.payload;
         const planName = originalState.userData.planData.get(planId)!.name;
         toast.success(
-          `${planName.toLowerCase().includes("plan") ? planName : `Plan ${planName}`} removed`,
+          t([I18nKey.PLAN, I18nKey.P_PLAN, I18nKey.REMOVED_M], lang, {
+            item1: planName,
+          }),
         );
         break;
       }
@@ -360,7 +416,10 @@ startListening({
         const { planId, newName } = action.payload;
         const oldName = originalState.userData.planData.get(planId)!.name;
         toast.success(
-          `${oldName.toLowerCase().includes("plan") ? oldName : `Plan ${oldName}`} renamed to ${newName}`,
+          t([I18nKey.PLAN, I18nKey.RENAMED_TO_M], lang, {
+            item1: oldName,
+            item2: newName,
+          }),
         );
         break;
       }
@@ -373,6 +432,7 @@ startListening({
 startListening({
   actionCreator: setCurrentPlanId,
   effect: (action, listenerApi) => {
+    const lang = listenerApi.getState().userData.lang as Language;
     const isToastEnabled = listenerApi.getState().global.isToastEnabled;
 
     if (!isToastEnabled) return;
@@ -380,9 +440,7 @@ startListening({
 
     const planId = action.payload;
     const planName = state.userData.planData.get(planId)!.name;
-    toast.success(
-      `Switched to ${planName.toLowerCase().includes("plan") ? planName : `Plan ${planName}`}`,
-    );
+    toast.success(t([I18nKey.SWITCHED_TO_M], lang, { item1: planName }));
   },
 });
 
