@@ -7,6 +7,7 @@ import type {
 import type { Course } from "@/types/db";
 import type { WritableDraft } from "immer";
 import { COURSE_PATTERN } from "./constants";
+import { I18nKey, Language, t } from "./i18n";
 
 export const splitCourseIds = (val: string[]) => {
   const pattern = /^[a-zA-Z]{4}\d{3}([djnDJN][1-3])?$/;
@@ -593,10 +594,14 @@ export const getTagStatus = (source: string, isValid: boolean) => {
   return source === "" ? undefined : isValid ? "satisfied" : "unsatisfied";
 };
 
-export const getTagToolTip = (source: string, isValid: boolean) => {
+export const getTagToolTip = (
+  source: string,
+  isValid: boolean,
+  lang: Language,
+) => {
   return source === ""
-    ? "Add to Course Taken"
+    ? t([I18nKey.ADD_TO, I18nKey.COURSE_TAKEN], lang)
     : isValid
-      ? `Valid place: ${source}`
-      : `Invalid place: ${source}`;
+      ? t([I18nKey.VALID_PLACE], lang, { item1: source })
+      : t([I18nKey.INVALID_PLACE], lang, { item1: source });
 };

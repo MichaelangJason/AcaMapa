@@ -2,6 +2,8 @@
   "p-plan": "{{plan}}",
   "p-semester": "{{semester}}",
   "p-course": "{{course}}",
+  "p-item1": "{{item1}}",
+  "p-item2": "{{item2}}",
 
   "error-ids": "IDs d'erreur",
   "plan": "Plan",
@@ -20,7 +22,7 @@
   "initializing": "Initialisation",
   "exit": "Quitter",
   "click-to": "Cliquer pour",
-  "course-taken": "Cours suivi",
+  "course-taken": "Cours Suivi",
   "delete": "Supprimer",
   "rename": "Renommer",
   "here": "ici",
@@ -60,8 +62,8 @@
   "no-subsequent-courses": "Aucun cours subséquent",
 
   "seeking-title": "Recherche de cours subséquents pour",
-  "seeking-click": "Cliquer pour rechercher",
-  "subsequent-courses-for": "Cours subséquents pour",
+  "seeking-click": "Cliquer ce message pour quitter",
+  "subsequent-courses-for": "Cours subséquents pour {{item1}}",
 
   "merge-title": "Fusionner les données locales",
   "keep-local-data": "Conserver les données locales",
@@ -90,8 +92,8 @@
   "adding-courses": "Ajout de cours",
   "added-to-m": "Ajouté à {{item1}}",
   "added-to-f": "Ajoutée à {{item1}}",
-  "removed-m": "Retiré {{item1}}",
-  "removed-f": "Retirée {{item1}}",
+  "removed-m": "Retiré",
+  "removed-f": "Retirée",
   "remove-from": "Retirer de",
   "removed-from-m": "{{item1}} retiré de {{item2}}",
   "removed-from-f": "{{item1}} retirée de {{item2}}",
@@ -110,7 +112,7 @@
   "switched-to-m": "Basculé vers {{item1}}",
   "switched-to-f": "Basculée vers {{item1}}",
   "open-in": "Ouvrir {{item1}} dans {{item2}}",
-  "switch-to": "Basculer vers {{item1}}",
+  "switch-to": "Passer en {{item1}}",
   "selected-m": "Sélectionné",
   "selected-f": "Sélectionnée",
   "clear-all": "Tout effacer",
@@ -136,7 +138,7 @@
   "plan-stats": "Statistiques du plan",
   "dropdown-menu": "Liste déroulante",
   "action": "Action",
-  "github-mark": "GitHub",
+  "github-mark": "Ouvrir DegreeMapper sur GitHub",
   "new-tab": "Nouvel onglet",
   "pre-req": "Prérequis",
   "anti-req": "Anti-requis",
@@ -146,5 +148,7 @@
   "selected-course": "Cours sélectionné",
   "unpin": "Détacher",
   "pin": "Épingler",
-  "switch-lang": "Switch to English"
+  "switch-lang": "Switch to English",
+  "valid-place": "Lieu valide: {{item1}}",
+  "invalid-place": "Lieu invalide: {{item1}}"
 }

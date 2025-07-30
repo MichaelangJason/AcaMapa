@@ -2,6 +2,8 @@
   "p-plan": "{{plan}}",
   "p-semester": "{{semester}}",
   "p-course": "{{course}}",
+  "p-item1": "{{item1}}",
+  "p-item2": "{{item2}}",
 
   "error-ids": "Error IDs",
   "plan": "Plan",
@@ -20,7 +22,7 @@
   "initializing": "Initializing",
   "exit": "Exit",
   "click-to": "Click to",
-  "course-taken": "Course taken",
+  "course-taken": "Course Taken",
   "delete": "Delete",
   "rename": "Rename",
   "here": "here",
@@ -61,7 +63,7 @@
 
   "seeking-title": "Seeking subsequent courses for",
   "seeking-click": "Click to seek",
-  "subsequent-courses-for": "Subsequent courses for",
+  "subsequent-courses-for": "Subsequent courses for {{item1}}",
 
   "merge-title": "Merge Local Data",
   "keep-local-data": "Keep Local Data",
@@ -136,7 +138,7 @@
   "plan-stats": "Plan Stats",
   "dropdown-menu": "Dropdown Menu",
   "action": "Action",
-  "github-mark": "GitHub",
+  "github-mark": "Open DegreeMapper on GitHub",
   "new-tab": "New Tab",
   "pre-req": "Pre-req",
   "anti-req": "Anti-req",
@@ -146,5 +148,7 @@
   "selected-course": "Selected Course",
   "unpin": "Unpin",
   "pin": "Pin",
-  "switch-lang": "Passer en Français"
+  "switch-lang": "Passer en Français",
+  "valid-place": "Valid place: {{item1}}",
+  "invalid-place": "Invalid place: {{item1}}"
 }

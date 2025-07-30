@@ -164,6 +164,10 @@ export enum I18nKey {
   UNPIN = "unpin",
   PIN = "pin",
   SWITCH_LANG = "switch-lang",
+  VALID_PLACE = "valid-place",
+  INVALID_PLACE = "invalid-place",
+  P_ITEM1 = "p-item1",
+  P_ITEM2 = "p-item2",
 }
 
 import enStrings from "./localization/en.json";
@@ -188,7 +192,7 @@ export const t = (
         strings[lang][key] || strings[Language.EN][key] || key + " " + lang,
     )
     .join(" ");
-  str = str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  // str = str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 
   for (const [key, value] of Object.entries(replacements)) {
     str = str.replace(`{{${key}}}`, value);

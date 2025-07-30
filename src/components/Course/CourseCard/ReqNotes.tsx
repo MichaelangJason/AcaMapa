@@ -24,6 +24,7 @@ import { getTagStatus, getTagToolTip } from "@/lib/course";
 import { addCourseTaken } from "@/store/slices/userDataSlice";
 import { setIsCourseTakenExpanded } from "@/store/slices/globalSlice";
 import { TooltipId } from "@/lib/enums";
+import { Language } from "@/lib/i18n";
 
 const ReqNotes = ({
   parentCourse,
@@ -238,6 +239,7 @@ const ReqGroup = ({
   let children: JSX.Element[] = [];
   const { getCourseSource, getValidCourses } =
     useAppSelector(selectCourseDepMeta);
+  const lang = useAppSelector((state) => state.userData.lang) as Language;
 
   switch (group.type) {
     case GroupType.EMPTY: {
@@ -259,7 +261,7 @@ const ReqGroup = ({
             includeCurrentTerm,
           );
           const status = getTagStatus(source, isValid);
-          const tooltipMsg = getTagToolTip(source, isValid);
+          const tooltipMsg = getTagToolTip(source, isValid, lang);
 
           return (
             <Tag
@@ -317,7 +319,7 @@ const ReqGroup = ({
           includeCurrentTerm,
         );
         const status = getTagStatus(source, isValid);
-        const tooltipMsg = getTagToolTip(source, isValid);
+        const tooltipMsg = getTagToolTip(source, isValid, lang);
         return (
           <Tag
             key={`${parentCourse}-${group.type}-${idx}-${item}`}

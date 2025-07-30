@@ -407,7 +407,7 @@ startListening({
         const planName = originalState.userData.planData.get(planId)!.name;
         toast.success(
           t([I18nKey.PLAN, I18nKey.P_PLAN, I18nKey.REMOVED_M], lang, {
-            item1: planName,
+            plan: planName,
           }),
         );
         break;
