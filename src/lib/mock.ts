@@ -31,7 +31,7 @@ export const mockPlanData = (
 
   planData.set(newPlanId, {
     _id: newPlanId,
-    name: t([I18nKey.PLAN], lang) + " " + name,
+    name,
     termOrder: [...termData.keys()].sort(), // sort to ensure consistent order
     courseMetadata: new Map(),
   });

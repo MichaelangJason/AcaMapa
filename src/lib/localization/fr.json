@@ -20,6 +20,7 @@
   "data": "Données",
   "action-type": "Type d'action",
   "initializing": "Initialisation",
+  "app-initializing": "Initialisation de DegreeMapper",
   "exit": "Quitter",
   "click-to": "Cliquer pour",
   "course-taken": "Cours Suivi",
@@ -88,7 +89,7 @@
 
   "undo-warning": "Avertissement d'annulation",
 
-  "add-to": "Ajouter à",
+  "add-to": "Ajouter à {{item1}}",
   "adding-courses": "Ajout de cours",
   "added-to-m": "Ajouté à {{item1}}",
   "added-to-f": "Ajoutée à {{item1}}",
@@ -109,8 +110,8 @@
   "renamed-to-f": "{{item1}} renommée en {{item2}}",
   "renamed-m": "Renommé",
   "renamed-f": "Renommée",
-  "switched-to-m": "Basculé vers {{item1}}",
-  "switched-to-f": "Basculée vers {{item1}}",
+  "switched-to-m": "Passé en {{item1}}",
+  "switched-to-f": "Passée en {{item1}}",
   "open-in": "Ouvrir {{item1}} dans {{item2}}",
   "switch-to": "Passer en {{item1}}",
   "selected-m": "Sélectionné",

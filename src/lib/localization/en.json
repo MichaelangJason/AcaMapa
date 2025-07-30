@@ -20,6 +20,7 @@
   "data": "Data",
   "action-type": "Action Type",
   "initializing": "Initializing",
+  "app-initializing": "Initializing DegreeMapper",
   "exit": "Exit",
   "click-to": "Click to",
   "course-taken": "Course Taken",
@@ -88,7 +89,7 @@
 
   "undo-warning": "Undo warning",
 
-  "add-to": "Add to",
+  "add-to": "Add to {{item1}}",
   "adding-courses": "Adding courses",
   "added-to-m": "Added to {{item1}}",
   "added-to-f": "Added to {{item1}}",

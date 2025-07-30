@@ -71,22 +71,6 @@ const validationMiddleware: Middleware<
         if (numPlan >= MAX_PLAN) {
           throw new Error(`Max plan reached: ${numPlan}`);
         }
-        const { name, termOrder, courseMetadata } = action.payload;
-        if (name !== undefined && typeof name !== "string") {
-          throw new Error(`Invalid name: ${name}`);
-        }
-        if (
-          termOrder !== undefined &&
-          (typeof termOrder !== "object" || termOrder === null)
-        ) {
-          throw new Error(`Invalid term order: ${termOrder}`);
-        }
-        if (
-          courseMetadata !== undefined &&
-          (typeof courseMetadata !== "object" || courseMetadata === null)
-        ) {
-          throw new Error(`Invalid course metadata: ${courseMetadata}`);
-        }
 
         break;
       }

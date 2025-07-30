@@ -2,6 +2,7 @@ import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { MemberData, Plan, Term } from "@/types/db";
 import { ObjectId } from "bson";
 import { I18nKey, Language, t } from "@/lib/i18n";
+import { mockPlanData } from "@/lib/mock";
 
 export const initialState = {
   lang: Language.EN,
@@ -71,36 +72,25 @@ export const userDataSlice = createSlice({
     setPlanOrder: (state, action: PayloadAction<string[]>) => {
       state.planOrder = [...action.payload];
     },
-    addPlan: (
-      state,
-      action: PayloadAction<Partial<Plan> & { idx?: number }>,
-    ) => {
-      const newId = new ObjectId().toString();
-      const newPlan: Plan = {
-        name:
-          action.payload.name ??
-          t([I18nKey.NEW_M, I18nKey.PLAN], state.lang as Language),
-        termOrder: action.payload.termOrder ?? [], // an initial term will be added in the middleware
-        courseMetadata: action.payload.courseMetadata ?? new Map(),
-        _id: newId,
-      };
+    addPlan: (state) => {
+      const newPlanName = t(
+        [I18nKey.NEW_M, I18nKey.PLAN],
+        state.lang as Language,
+      );
+      const { planData, termData, planOrder } = mockPlanData(
+        3,
+        newPlanName,
+        state.lang as Language,
+      );
 
-      if (action.payload.termOrder) {
-        action.payload.termOrder.forEach((termId) => {
-          state.termData.set(termId, state.termData.get(termId)!);
-        });
-      } else {
-        const newTerm: Term = {
-          name: t([I18nKey.NEW_M, I18nKey.SEMESTER], state.lang as Language),
-          courseIds: [],
-          _id: new ObjectId().toString(),
-        };
-        state.termData.set(newTerm._id, newTerm);
-        newPlan.termOrder.push(newTerm._id);
-      }
+      termData.forEach((term) => {
+        state.termData.set(term._id, term);
+      });
+      planData.forEach((plan) => {
+        state.planData.set(plan._id, plan);
+      });
 
-      state.planData.set(newId, newPlan);
-      state.planOrder.splice(action.payload.idx ?? 0, 0, newId);
+      state.planOrder.unshift(...planOrder);
     },
     deletePlan: (state, action: PayloadAction<string>) => {
       const plan = state.planData.get(action.payload)!;

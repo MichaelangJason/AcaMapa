@@ -65,7 +65,7 @@ const UtilityBar = () => {
           id: "add-plan",
           content: t([I18nKey.ADD, I18nKey.PLAN], lang),
           handleClick: () => {
-            dispatch(addPlan({}));
+            dispatch(addPlan());
           }, // add an empty plan
         },
         shortcut: [getCommandKey(), "P"],

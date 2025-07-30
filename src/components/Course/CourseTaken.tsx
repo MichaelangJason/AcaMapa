@@ -83,7 +83,7 @@ const CourseTaken = () => {
       {isCourseTakenExpanded ? (
         <section className="course-taken-list scrollbar-custom scroll-mask">
           {courseTaken.size <= 0 ? (
-            <span className="empty">empty</span>
+            <span className="empty">{t([I18nKey.EMPTY], lang)}</span>
           ) : (
             [...courseTaken.entries()].map(([subjectCode, courseIds], idx) => {
               return (

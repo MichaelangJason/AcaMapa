@@ -200,7 +200,7 @@ startListening({
       // prevent deleting all plans
       if (state.userData.planOrder.length === 0) {
         // add a new plan with default term and name
-        dispatch(addPlan({}));
+        dispatch(addPlan());
       } else {
         const deletedPlanId = action.payload as Parameters<
           typeof deletePlan
