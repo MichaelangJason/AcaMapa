@@ -49,16 +49,17 @@ export enum ReqType {
 }
 
 export enum TooltipId {
-  TOP = "top",
-  BOTTOM = "bottom",
-  RIGHT = "right",
-  LEFT = "left",
   REQ_NOTES_TAG = "req-notes-tag",
   SEEK_COURSE_ICON = "seek-course-icon",
-  UTILITY_BAR_DM = "utility-bar-dm-icon",
+  UTILITY_BAR = "utility-bar-dm-icon",
   MINI_COURSE_CARD = "mini-course-card-icon",
   SYNC = "sync",
   LANG = "lang",
+  DETAILED_COURSE_CARD = "detailed-course-card",
+  COURSE_CARD_WRAPPER = "course-card-wrapper",
+  SIDE_BAR_HANDLE = "side-bar-handle",
+  ITEM_TAG = "item-tag",
+  TERM_CARD = "term-card",
 }
 
 export enum ToastId {

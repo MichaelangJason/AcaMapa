@@ -2,13 +2,14 @@ import type { Course } from "@/types/db";
 import { TextHighlighter } from "@/components/Common";
 import { useCallback } from "react";
 import { MCGILL_URL_BASES } from "@/lib/constants";
-import { formatCourseId } from "@/lib/utils";
+import { formatCourseId, scrollCourseCardToView } from "@/lib/utils";
 import RemoveIcon from "@/public/icons/minus.svg";
 import AddIcon from "@/public/icons/plus.svg";
 import clsx from "clsx";
 import { selectCourseDepMeta } from "@/store/selectors";
-import { useAppSelector } from "@/store/hooks";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { TooltipId } from "@/lib/enums";
+import { setIsCourseTakenExpanded } from "@/store/slices/globalSlice";
 
 const MiniCourseCard = ({
   data,
@@ -29,6 +30,8 @@ const MiniCourseCard = ({
   const { getCourseSource } = useAppSelector(selectCourseDepMeta);
   const { source } = getCourseSource(id, "", null, false);
   const isAddingCourse = useAppSelector((state) => state.global.isAddingCourse);
+  const isDragging = useAppSelector((state) => state.global.isDragging);
+  const dispatch = useAppDispatch();
 
   const handleClick = useCallback(
     async (e: React.MouseEvent<HTMLDivElement>) => {
@@ -39,6 +42,22 @@ const MiniCourseCard = ({
       }
     },
     [callback, data, isSelected, isAddingCourse],
+  );
+
+  const handleClickCredits = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      e.stopPropagation();
+      if (isDragging || !source) return;
+
+      if (source === "Course Taken") {
+        dispatch(setIsCourseTakenExpanded(true));
+      } else {
+        scrollCourseCardToView(id, {
+          duration: 300,
+        });
+      }
+    },
+    [data, isSelected, isAddingCourse],
   );
 
   return (
@@ -52,7 +71,16 @@ const MiniCourseCard = ({
     >
       {/* credits */}
       <aside className="credits">
-        <span>{credits}</span>
+        <span
+          className={clsx(source && "clickable")}
+          data-tooltip-id={TooltipId.MINI_COURSE_CARD}
+          data-tooltip-delay-show={500}
+          data-tooltip-content={`Find in ${source}`}
+          data-tooltip-place="top"
+          onClick={handleClickCredits}
+        >
+          {credits}
+        </span>
       </aside>
 
       {/* info */}
@@ -65,7 +93,8 @@ const MiniCourseCard = ({
             href={`${MCGILL_URL_BASES.COURSE_CATALOGUE}${formatCourseId(id, "-", true)}`}
             target="_blank"
             rel="noopener noreferrer"
-            data-tooltip-id={TooltipId.TOP}
+            data-tooltip-id={TooltipId.MINI_COURSE_CARD}
+            data-tooltip-delay-show={500}
             data-tooltip-content={`Open ${formatCourseId(id)} in new tab`}
           >
             <TextHighlighter source={formatCourseId(id)} target={query} />
@@ -81,7 +110,7 @@ const MiniCourseCard = ({
           isAddingCourse && "disabled",
         )}
         onClick={handleClick}
-        data-tooltip-id={TooltipId.TOP}
+        data-tooltip-id={TooltipId.MINI_COURSE_CARD}
         data-tooltip-content={
           isSelected ? "Remove from selected courses" : "Select course"
         }

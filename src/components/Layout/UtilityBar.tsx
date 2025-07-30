@@ -161,8 +161,9 @@ const UtilityBar = () => {
           node: (
             <HamburgerIcon
               className={clsx("hamburger", !isInitialized && "disabled")}
-              data-tooltip-id={TooltipId.BOTTOM}
+              data-tooltip-id={TooltipId.UTILITY_BAR}
               data-tooltip-content="Plans & Actions"
+              data-tooltip-place="bottom"
             />
           ),
           toggleIsOpen: handleToggleDropdownMenu,
@@ -193,8 +194,9 @@ const UtilityBar = () => {
             ]}
             title="Plan Stats"
             tooltipProps={{
-              "data-tooltip-id": TooltipId.RIGHT,
+              "data-tooltip-id": TooltipId.ITEM_TAG,
               "data-tooltip-content": "Plan Stats",
+              "data-tooltip-place": "right",
             }}
           />
         )}
@@ -214,8 +216,9 @@ const UtilityBar = () => {
       </section>
       <GithubMark
         className="github-mark"
-        data-tooltip-id={TooltipId.BOTTOM}
+        data-tooltip-id={TooltipId.UTILITY_BAR}
         data-tooltip-content="Open DegreemMapper Repo in new tab"
+        data-tooltip-place="bottom"
         data-tooltip-delay-show={500}
         onClick={() => {
           window.open(

@@ -269,7 +269,7 @@ const ReqGroup = ({
               className={clsx(status, "clickable")}
               callback={(item) => addToCourseTakenOrJump(item, source)}
               tooltipOptions={{
-                "data-tooltip-id": TooltipId.TOP,
+                "data-tooltip-id": TooltipId.REQ_NOTES_TAG,
                 "data-tooltip-content": tooltipMsg,
               }}
             />
@@ -326,7 +326,7 @@ const ReqGroup = ({
             className={clsx(status, "clickable")}
             callback={(item) => addToCourseTakenOrJump(item, source)}
             tooltipOptions={{
-              "data-tooltip-id": TooltipId.TOP,
+              "data-tooltip-id": TooltipId.REQ_NOTES_TAG,
               "data-tooltip-content": tooltipMsg,
             }}
           />
@@ -387,7 +387,7 @@ const ReqGroup = ({
           subjectToolTipMsg === undefined
             ? {}
             : ({
-                "data-tooltip-id": TooltipId.TOP,
+                "data-tooltip-id": TooltipId.REQ_NOTES_TAG,
                 "data-tooltip-html": subjectToolTipMsg.join("<br />"),
               } as TooltipProps);
 

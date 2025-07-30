@@ -79,7 +79,7 @@ const Wrapper = ({
               href={headingHref}
               target="_blank"
               rel="noopener noreferrer"
-              data-tooltip-id={TooltipId.TOP}
+              data-tooltip-id={TooltipId.COURSE_CARD_WRAPPER}
               data-tooltip-content={`Open ${heading} in new tab`}
             >
               {heading}
@@ -89,7 +89,7 @@ const Wrapper = ({
           )}
           <ShovelIcon
             className={clsx(["shovel", disableMap?.shovel && "disabled"])}
-            data-tooltip-id={TooltipId.TOP}
+            data-tooltip-id={TooltipId.COURSE_CARD_WRAPPER}
             data-tooltip-content={`Overwrite ${heading}`}
             onClick={disableMap?.shovel ? undefined : handleOverwrite}
           />
@@ -103,7 +103,7 @@ const Wrapper = ({
                 isSeeking && "active",
                 disableMap?.seek && "disabled",
               ])}
-              data-tooltip-id={TooltipId.TOP}
+              data-tooltip-id={TooltipId.COURSE_CARD_WRAPPER}
               data-tooltip-content="Subsequent Courses"
               onClick={() => {
                 if (disableMap?.seek) return;
@@ -115,7 +115,7 @@ const Wrapper = ({
           )}
           <div
             className={clsx(["expand", disableMap?.expand && "disabled"])}
-            data-tooltip-id={TooltipId.TOP}
+            data-tooltip-id={TooltipId.COURSE_CARD_WRAPPER}
             data-tooltip-content="Expand"
             onClick={() => {
               if (disableMap?.expand) return;
@@ -127,7 +127,7 @@ const Wrapper = ({
           {handleDelete && (
             <div
               className={clsx(["delete", disableMap?.delete && "disabled"])}
-              data-tooltip-id={TooltipId.TOP}
+              data-tooltip-id={TooltipId.COURSE_CARD_WRAPPER}
               data-tooltip-content="Delete"
               onClick={() => {
                 if (disableMap?.delete) return;

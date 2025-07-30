@@ -103,7 +103,7 @@ export const addCourseToTerm = createAppAsyncThunk(
     }: { courseIds: string[]; termId: string; planId: string },
     { getState, dispatch, rejectWithValue, fulfillWithValue },
   ) => {
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    // await new Promise((resolve) => setTimeout(resolve, 2000));
     const state = getState();
 
     const unCachedCourseIds = courseIds.filter(

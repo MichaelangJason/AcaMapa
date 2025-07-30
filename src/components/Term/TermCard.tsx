@@ -45,7 +45,7 @@ const AddTermButton = ({
         isClicked && "clicked",
       ])}
       onClick={handleClick}
-      data-tooltip-id={TooltipId.TOP}
+      data-tooltip-id={TooltipId.TERM_CARD}
       data-tooltip-content={"Add new term here"}
       data-tooltip-delay-show={500}
     >

@@ -191,7 +191,7 @@ const DetailedCourseCard = ({
               content={"OVERWRITTEN"}
               handleDelete={() => handleOverwrite(false)}
               deleteTooltipOptions={{
-                "data-tooltip-id": TooltipId.TOP,
+                "data-tooltip-id": TooltipId.DETAILED_COURSE_CARD,
                 "data-tooltip-content": "Remove overwrite",
               }}
             />

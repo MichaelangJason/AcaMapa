@@ -54,6 +54,7 @@ const Sync = () => {
       )}
       data-tooltip-id={TooltipId.SYNC}
       data-tooltip-html={tooltipHtml}
+      data-tooltip-place="bottom"
       onClick={debouncedSync}
     >
       <SyncIcon

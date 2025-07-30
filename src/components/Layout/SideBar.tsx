@@ -73,7 +73,7 @@ const SideBar = () => {
             isFolded && "flipped",
             !isInitialized && "disabled",
           ])}
-          data-tooltip-id={TooltipId.RIGHT}
+          data-tooltip-id={TooltipId.SIDE_BAR_HANDLE}
           data-tooltip-content={
             isFolded ? "Expand Sidebar" : "Collapse Sidebar"
           }

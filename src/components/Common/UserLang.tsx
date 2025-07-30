@@ -24,6 +24,7 @@ const UserLang = () => {
       )}
       data-tooltip-id={TooltipId.LANG}
       data-tooltip-content={`Switch to ${lang === Language.EN ? "Français" : "English"}`}
+      data-tooltip-place="bottom"
     >
       <span>{lang}</span>
     </span>
