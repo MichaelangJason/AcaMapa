@@ -84,7 +84,6 @@ export type SimpleModalProps = {
   closeCb: () => Promise<void>;
   confirmText?: string;
   clearText?: string;
-  previousValue?: string;
   isConfirmOnly?: boolean; // not cancelable, just a notification.
   isShowCloseButton?: boolean;
   isPreventCloseOnOverlayClick?: boolean;
@@ -93,6 +92,10 @@ export type SimpleModalProps = {
     onClick: () => Promise<void>;
     content: string;
   }[];
+  inputConfig?: {
+    placeholder: string;
+    maxLength?: number;
+  };
 };
 
 export type TooltipProps = Partial<

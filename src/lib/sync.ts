@@ -85,7 +85,7 @@ export const getLocalData = (key: string) => {
   if (!item) return null;
 
   const { data, timestamp } = JSON.parse(item, mapStringfyReviver);
-  console.log(data, timestamp);
+  // console.log(data, timestamp);
 
   if (!data || !timestamp) {
     throw new Error("Invalid local data");

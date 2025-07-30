@@ -17,6 +17,8 @@ import {
   MAX_PLAN,
   MAX_TERM_PER_PLAN,
   MAX_COURSE_PER_TERM,
+  MAX_PLAN_NAME_LEN,
+  MAX_TERM_NAME_LEN,
 } from "@/lib/constants";
 import { getSubjectCode } from "@/lib/course";
 
@@ -36,6 +38,11 @@ const validationMiddleware: Middleware<
         }
         if (typeof newName !== "string" || newName.length === 0) {
           throw new Error(`Invalid new name: ${newName}`);
+        }
+        if (newName.length > MAX_PLAN_NAME_LEN) {
+          throw new Error(
+            `Plan name too long: ${newName}, max length: ${MAX_PLAN_NAME_LEN}`,
+          );
         }
 
         break;
@@ -197,6 +204,11 @@ const validationMiddleware: Middleware<
         }
         if (typeof newName !== "string" || newName.length === 0) {
           throw new Error(`Invalid new name: ${newName}`);
+        }
+        if (newName.length > MAX_TERM_NAME_LEN) {
+          throw new Error(
+            `Term name too long: ${newName}, max length: ${MAX_TERM_NAME_LEN}`,
+          );
         }
         break;
       }

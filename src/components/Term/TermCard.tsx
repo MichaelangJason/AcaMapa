@@ -18,6 +18,7 @@ import {
 } from "../Common/DropdownMenu";
 import { renameTerm } from "@/store/slices/userDataSlice";
 import { setSimpleModalInfo } from "@/store/slices/localDataSlice";
+import { MAX_TERM_NAME_LEN } from "@/lib/constants";
 
 const AddTermButton = ({
   isBefore,
@@ -141,7 +142,10 @@ const TermCard = ({
         isOpen: true,
         title: "Rename Term",
         description: "",
-        previousValue: term.name,
+        inputConfig: {
+          placeholder: term.name,
+          maxLength: MAX_TERM_NAME_LEN,
+        },
         confirmCb: (newName?: string) => {
           if (!newName) return Promise.resolve();
           dispatch(renameTerm({ termId: term._id.toString(), newName }));

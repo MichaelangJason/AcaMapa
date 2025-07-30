@@ -5,6 +5,7 @@ import type { SimpleModalProps } from "@/types/local";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { clearSimpleModalInfo } from "@/store/slices/localDataSlice";
 import DOMPurify from "dompurify";
+import clsx from "clsx";
 
 Modal.setAppElement("html");
 
@@ -15,12 +16,12 @@ const SimpleModal = () => {
     description = "",
     confirmCb = () => {},
     closeCb = () => {},
-    previousValue = "",
     isConfirmOnly = false,
     isShowCloseButton = true,
     isPreventCloseOnOverlayClick = false,
     isPreventCloseOnEsc = false,
     isOpen,
+    inputConfig,
     confirmText = "Confirm",
     clearText = "Clear",
     extraOptions = [],
@@ -33,12 +34,14 @@ const SimpleModal = () => {
   const handleClose = () => {
     closeCb();
     dispatch(clearSimpleModalInfo());
+    setNewValue("");
   };
 
   const handleConfirm = () => {
     confirmCb(newValue);
     closeCb();
     dispatch(clearSimpleModalInfo());
+    setNewValue("");
   };
 
   return (
@@ -65,13 +68,33 @@ const SimpleModal = () => {
         />
       )}
 
-      {previousValue && (
-        <input
-          type="text"
-          placeholder={previousValue}
-          onChange={(e) => setNewValue(e.target.value)}
-          autoFocus
-        />
+      {inputConfig && (
+        <section className="input-container">
+          <input
+            type="text"
+            placeholder={inputConfig.placeholder}
+            onChange={(e) => setNewValue(e.target.value)}
+            autoFocus
+            maxLength={inputConfig.maxLength}
+            className={clsx(
+              "input",
+              inputConfig.maxLength &&
+                newValue.length >= inputConfig.maxLength &&
+                "max-length-exceeded",
+            )}
+          />
+          {inputConfig.maxLength && (
+            <span
+              className={clsx(
+                "max-length",
+                newValue.length >= inputConfig.maxLength &&
+                  "max-length-exceeded",
+              )}
+            >
+              {newValue.length}/{inputConfig.maxLength}
+            </span>
+          )}
+        </section>
       )}
 
       <footer>

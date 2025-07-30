@@ -13,6 +13,7 @@ import {
   setCurrentPlanId,
   setSimpleModalInfo,
 } from "@/store/slices/localDataSlice";
+import { MAX_PLAN_NAME_LEN } from "@/lib/constants";
 
 const Plans = ({
   handleCloseDropdownMenu,
@@ -60,7 +61,10 @@ const Plans = ({
           isOpen: true,
           title: "Rename Plan",
           description: "",
-          previousValue: plans.get(planId)?.name ?? "",
+          inputConfig: {
+            placeholder: plans.get(planId)?.name ?? "",
+            maxLength: MAX_PLAN_NAME_LEN,
+          },
           confirmCb: (newName?: string) => {
             if (!newName) return Promise.resolve();
             dispatch(renamePlan({ planId, newName }));

@@ -346,14 +346,14 @@ export const fullSync = createAppAsyncThunk(
 
     try {
       if (!isLoggedIn) {
-        console.log("not loggedin, isInitializing", isInitializing);
+        // console.log("not loggedin, isInitializing", isInitializing);
         if (isInitializing) {
           // restore from local data
-          console.log("not loggedin, restore from local data");
+          // console.log("not loggedin, restore from local data");
           await restoreFrom(localUserData);
         } else {
           // save to local data
-          console.log("not loggedin, save to local data");
+          // console.log("not loggedin, save to local data");
           setLocalData(LocalStorageKey.GUEST_DATA, data);
         }
       } else {
@@ -361,11 +361,11 @@ export const fullSync = createAppAsyncThunk(
         if (isInitializing) {
           // 1. check if user exists in remote
           const remoteUserData = await getRemoteUserData();
-          console.log("loggedin, remote user data", remoteUserData);
+          // console.log("loggedin, remote user data", remoteUserData);
 
           if (!remoteUserData) {
             // 2.1 create new user
-            console.log("loggedin, create new user");
+            // console.log("loggedin, create new user");
             if (
               !isLocalDataPresent ||
               !isValidSavingData(localUserData, "full")
@@ -375,14 +375,14 @@ export const fullSync = createAppAsyncThunk(
               await createRemoteUserData(localUserData.data);
             }
             // restore from local data, plan/term id matches with remote user data
-            console.log("loggedin, restore from local data");
+            // console.log("loggedin, restore from local data");
             await restoreFrom(localUserData);
           } else if (
             isUnsavedDataPresent &&
             isValidSavingData(unsavedData, "full")
           ) {
             // 2.2 restore from unsaved data and clear
-            console.log("loggedin, restore from unsaved data");
+            // console.log("loggedin, restore from unsaved data");
             await updateRemoteUserData(unsavedData, SyncMethod.OVERWRITE);
             clearLocalData(session.user!.email!);
           } else if (
@@ -390,7 +390,7 @@ export const fullSync = createAppAsyncThunk(
             isValidSavingData(localUserData, "full")
           ) {
             // 2.3 prompt user to keep or merge local data, rejectWithValue
-            console.log("loggedin, prompt user to keep or merge local data");
+            // console.log("loggedin, prompt user to keep or merge local data");
             dispatch(
               setSimpleModalInfo({
                 isOpen: true,
@@ -401,7 +401,7 @@ export const fullSync = createAppAsyncThunk(
               `,
                 confirmCb: async () => {
                   // merge local data with remote data
-                  console.log("loggedin, merge local data with remote data");
+                  // console.log("loggedin, merge local data with remote data");
                   await updateRemoteUserData(localUserData, SyncMethod.MERGE);
                   // get merged data from remote
                   const mergedUserData = await getRemoteUserData();
@@ -464,11 +464,11 @@ export const fullSync = createAppAsyncThunk(
             });
           } else {
             // restore from remote data
-            console.log("loggedin, restore from remote data");
-            console.log(localUserData);
-            console.log(isValidSavingData(localUserData, "full"));
+            // console.log("loggedin, restore from remote data");
+            // console.log(localUserData);
+            // console.log(isValidSavingData(localUserData, "full"));
             if (!(await restoreFrom(remoteUserData))) {
-              console.log(remoteUserData);
+              // console.log(remoteUserData);
               throw new Error("Failed to restore from remote user data");
             }
             // clear any unsaved/local data
