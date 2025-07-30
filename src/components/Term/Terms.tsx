@@ -6,7 +6,7 @@ import {
   selectCurrentPlan,
   selectCurrentTerms,
 } from "@/store/selectors";
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, memo } from "react";
 import {
   addTerm,
   deleteCourse,
@@ -234,4 +234,4 @@ const Terms = () => {
   );
 };
 
-export default Terms;
+export default memo(Terms);

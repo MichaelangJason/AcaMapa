@@ -4,6 +4,7 @@ import type { Term } from "@/types/db";
 import type { CachedDetailedCourse, DropdownOption } from "@/types/local";
 import HamburgerIcon from "@/public/icons/hamburger.svg";
 import PlusIcon from "@/public/icons/plus.svg";
+import EditIcon from "@/public/icons/edit.svg";
 import clsx from "clsx";
 import { useMemo, useState, memo, useCallback } from "react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -113,38 +114,15 @@ const TermCard = ({
     setIsTermDMOpen(false);
   }, []);
 
-  const termActions: ItemProps[] = useMemo(() => {
-    const handleDeleteTerm = () => {
-      if (courses.length > 0) {
-        dispatch(
-          setSimpleModalInfo({
-            isOpen: true,
-            title: "Delete Term",
-            description: `Are you sure you want to delete ${term.name}?\n\nThis action cannot be undone.`,
-            confirmCb: () => {
-              deleteTerm(term._id.toString(), idx);
-              return Promise.resolve();
-            },
-            closeCb: () => {
-              return Promise.resolve();
-            },
-          }),
-        );
-      } else {
-        deleteTerm(term._id.toString(), idx);
-      }
-    };
-
-    const handleRenameTerm = () => {
+  const handleDeleteTerm = useCallback(() => {
+    if (courses.length > 0) {
       dispatch(
         setSimpleModalInfo({
           isOpen: true,
-          title: "Rename Term",
-          description: "",
-          previousValue: term.name,
-          confirmCb: (newName?: string) => {
-            if (!newName) return Promise.resolve();
-            dispatch(renameTerm({ termId: term._id.toString(), newName }));
+          title: "Delete Term",
+          description: `Are you sure you want to delete ${term.name}?\n\nThis action cannot be undone.`,
+          confirmCb: () => {
+            deleteTerm(term._id.toString(), idx);
             return Promise.resolve();
           },
           closeCb: () => {
@@ -152,8 +130,31 @@ const TermCard = ({
           },
         }),
       );
-    };
+    } else {
+      deleteTerm(term._id.toString(), idx);
+    }
+  }, [deleteTerm, idx, dispatch, term._id, courses.length]);
 
+  const handleRenameTerm = useCallback(() => {
+    dispatch(
+      setSimpleModalInfo({
+        isOpen: true,
+        title: "Rename Term",
+        description: "",
+        previousValue: term.name,
+        confirmCb: (newName?: string) => {
+          if (!newName) return Promise.resolve();
+          dispatch(renameTerm({ termId: term._id.toString(), newName }));
+          return Promise.resolve();
+        },
+        closeCb: () => {
+          return Promise.resolve();
+        },
+      }),
+    );
+  }, [dispatch, term]);
+
+  const termActions: ItemProps[] = useMemo(() => {
     return [
       {
         self: {
@@ -205,7 +206,18 @@ const TermCard = ({
                 Add to {term.name}
               </button>
             ) : (
-              <span>{term.name}</span>
+              <span className="term-name-container">
+                <span className="term-name">{term.name}</span>
+                <EditIcon
+                  className={clsx([
+                    "edit",
+                    "clickable",
+                    (isSeekingCourse || hasSelectedCourses || isDragging) &&
+                      "hidden",
+                  ])}
+                  onClick={handleRenameTerm}
+                />
+              </span>
             )}
             {/* dropdown menu for the term card */}
             <DropdownMenuWrapper

@@ -8,7 +8,7 @@ import {
   setSearchResult,
   setSeekingCourseId,
 } from "@/store/slices/localDataSlice";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, memo } from "react";
 import { ResultType, TooltipId } from "@/lib/enums";
 import Image from "next/image";
 import clsx from "clsx";
@@ -112,4 +112,4 @@ const SideBar = () => {
   );
 };
 
-export default SideBar;
+export default memo(SideBar);
