@@ -99,11 +99,7 @@ const CourseTaken = () => {
                           callback={handleRemoveCourseTaken}
                           tooltipOptions={{
                             "data-tooltip-id": TooltipId.COURSE_TAKEN,
-                            "data-tooltip-content": t(
-                              [I18nKey.REMOVED_FROM_M],
-                              lang,
-                              { item1: t([I18nKey.COURSE_TAKEN], lang) },
-                            ),
+                            "data-tooltip-content": t([I18nKey.REMOVE], lang),
                           }}
                         />
                       );

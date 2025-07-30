@@ -599,9 +599,13 @@ export const getTagToolTip = (
   isValid: boolean,
   lang: Language,
 ) => {
-  return source === ""
-    ? t([I18nKey.ADD_TO, I18nKey.COURSE_TAKEN], lang)
-    : isValid
-      ? t([I18nKey.VALID_PLACE], lang, { item1: source })
-      : t([I18nKey.INVALID_PLACE], lang, { item1: source });
+  if (source === "") {
+    return t([I18nKey.ADD_TO, I18nKey.COURSE_TAKEN], lang);
+  }
+  if (source === "Course Taken") {
+    source = t([I18nKey.COURSE_TAKEN], lang);
+  }
+  return isValid
+    ? t([I18nKey.VALID_PLACE], lang, { item1: source })
+    : t([I18nKey.INVALID_PLACE], lang, { item1: source });
 };

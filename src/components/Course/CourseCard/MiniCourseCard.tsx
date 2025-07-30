@@ -77,7 +77,9 @@ const MiniCourseCard = ({
           className={clsx(source && "clickable")}
           data-tooltip-id={TooltipId.MINI_COURSE_CARD}
           data-tooltip-delay-show={500}
-          data-tooltip-content={source}
+          data-tooltip-content={
+            source === "Course Taken" ? t([I18nKey.COURSE_TAKEN], lang) : source
+          }
           data-tooltip-place="top"
           onClick={handleClickCredits}
         >
