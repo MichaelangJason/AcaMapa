@@ -36,7 +36,7 @@ const Wrapper = ({
   credits: string;
   isExpanded: boolean;
   isSeeking?: boolean;
-  toggleIsExpanded: () => void;
+  toggleIsExpanded?: () => void;
   handleDelete?: () => void;
   handleSeek?: () => void;
   handleOverwrite?: () => void;
@@ -123,17 +123,19 @@ const Wrapper = ({
               <SeekIcon />
             </div>
           )}
-          <div
-            className={clsx(["expand", disableMap?.expand && "disabled"])}
-            data-tooltip-id={TooltipId.COURSE_CARD_WRAPPER}
-            data-tooltip-content={t([I18nKey.EXPAND], lang)}
-            onClick={() => {
-              if (disableMap?.expand) return;
-              toggleIsExpanded();
-            }}
-          >
-            <ExpandIcon />
-          </div>
+          {toggleIsExpanded && (
+            <div
+              className={clsx(["expand", disableMap?.expand && "disabled"])}
+              data-tooltip-id={TooltipId.COURSE_CARD_WRAPPER}
+              data-tooltip-content={t([I18nKey.EXPAND], lang)}
+              onClick={() => {
+                if (disableMap?.expand) return;
+                toggleIsExpanded();
+              }}
+            >
+              <ExpandIcon />
+            </div>
+          )}
           {handleDelete && (
             <div
               className={clsx(["delete", disableMap?.delete && "disabled"])}

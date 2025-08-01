@@ -25,6 +25,7 @@ import {
   DragDropContext,
   type DragStart,
   type DragUpdate,
+  Draggable,
   type DropResult,
   Droppable,
 } from "@hello-pangea/dnd";
@@ -207,18 +208,41 @@ const Terms = () => {
                   />
                 ))
               : currentTerms.map((term, idx) => (
-                  <TermCard
-                    key={term._id}
-                    idx={idx}
-                    term={term}
-                    courses={currentCourseDataPerTerm[term._id]}
-                    isFirst={idx === 0}
-                    addTerm={handleAddTerm}
-                    deleteTerm={handleDeleteTerm}
-                    addCourse={handleAddCourse}
-                    deleteCourse={handleDeleteCourse}
-                    setIsCourseExpanded={handleSetIsCourseExpanded}
-                  />
+                  // term card is draggable
+                  <Draggable
+                    key={`draggable-${term._id}-${idx}`}
+                    draggableId={term._id}
+                    index={idx}
+                    isDragDisabled={false}
+                  >
+                    {(draggableProvided, draggableSnapshot) => (
+                      // term body is droppable for courses
+                      <Droppable
+                        droppableId={term._id}
+                        type={DraggingType.COURSE}
+                      >
+                        {(droppableProvided, droppableSnapshot) => (
+                          <TermCard
+                            key={term._id}
+                            idx={idx}
+                            term={term}
+                            courses={currentCourseDataPerTerm[term._id]}
+                            isFirst={idx === 0}
+                            isCourseDraggable={true}
+                            addTerm={handleAddTerm}
+                            deleteTerm={handleDeleteTerm}
+                            addCourse={handleAddCourse}
+                            deleteCourse={handleDeleteCourse}
+                            setIsCourseExpanded={handleSetIsCourseExpanded}
+                            draggableProvided={draggableProvided}
+                            draggableSnapshot={draggableSnapshot}
+                            droppableProvided={droppableProvided}
+                            droppableSnapshot={droppableSnapshot}
+                          />
+                        )}
+                      </Droppable>
+                    )}
+                  </Draggable>
                 ))}
             {provided.placeholder}
             {

@@ -9,8 +9,14 @@ import clsx from "clsx";
 import { useMemo, useState, memo, useCallback } from "react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import DetailedCourseCard from "../Course/CourseCard/DetailedCourseCard";
-import { Droppable, Draggable } from "@hello-pangea/dnd";
-import { DraggingType, TooltipId } from "@/lib/enums";
+import {
+  Draggable,
+  DraggableStateSnapshot,
+  DraggableProvided,
+  DroppableProvided,
+  DroppableStateSnapshot,
+} from "@hello-pangea/dnd";
+import { TooltipId } from "@/lib/enums";
 import {
   DropdownMenuWrapper,
   Section,
@@ -70,17 +76,23 @@ const TermCard = ({
   courses,
   idx,
   isFirst,
+  isCourseDraggable,
   addCourse,
   addTerm,
   deleteTerm,
   deleteCourse,
   setIsCourseExpanded,
   style,
+  draggableProvided,
+  draggableSnapshot,
+  droppableProvided,
+  droppableSnapshot,
 }: {
   term: Term;
   courses: CachedDetailedCourse[];
   idx: number;
   isFirst: boolean;
+  isCourseDraggable: boolean;
   addTerm: (termId: string, isBefore?: boolean) => void;
   deleteTerm: (termId: string, termIdx: number) => void;
   addCourse: (termId: string) => Promise<void>;
@@ -88,6 +100,10 @@ const TermCard = ({
   setIsCourseExpanded: (courseId: string, isExpanded: boolean) => void;
   style?: React.CSSProperties;
   isDraggingOverlay?: boolean;
+  draggableProvided?: DraggableProvided;
+  draggableSnapshot?: DraggableStateSnapshot;
+  droppableProvided?: DroppableProvided;
+  droppableSnapshot?: DroppableStateSnapshot;
 }) => {
   const hasSelectedCourses = useAppSelector(
     (state) => state.global.hasSelectedCourses,
@@ -197,118 +213,119 @@ const TermCard = ({
     ];
   }, [handleCloseTermDM, lang, handleDeleteTerm, handleRenameTerm]);
 
+  const isDraggingTerm = draggableSnapshot?.isDragging;
+
   return (
     // outer draggable for the whole term card
-    <Draggable draggableId={term._id} index={idx} isDragDisabled={false}>
-      {(draggableProvided, draggableSnapshot) => (
-        // inner div for the whole term card
-        <div
-          className={clsx([
-            "term-card",
-            draggableSnapshot.isDragging && "dragging",
-          ])}
-          style={style}
-          ref={draggableProvided.innerRef}
-          {...draggableProvided.draggableProps}
-        >
-          {!isDragging && isFirst && (
-            <AddTermButton isBefore={true} onClick={handleAddTerm} />
-          )}
-          {/* header for the term card */}
-          <header
-            className="term-header"
-            {...draggableProvided.dragHandleProps}
-          >
-            {hasSelectedCourses ? (
-              <button className="add-course-button" onClick={handleAddCourse}>
-                {t([I18nKey.ADD_TO], lang, { item1: term.name })}
-              </button>
-            ) : (
-              <span className="term-name-container">
-                <span className="term-name">{term.name}</span>
-                <EditIcon
-                  className={clsx([
-                    "edit",
-                    "clickable",
-                    (isSeekingCourse || hasSelectedCourses || isDragging) &&
-                      "hidden",
-                  ])}
-                  onClick={handleRenameTerm}
-                />
-              </span>
-            )}
-            {/* dropdown menu for the term card */}
-            <DropdownMenuWrapper
-              isOpen={isTermDMOpen}
-              handleClose={() => setIsTermDMOpen(false)}
-              trigger={{
-                node: <HamburgerIcon className="hamburger" />,
-                toggleIsOpen: () => setIsTermDMOpen((prev) => !prev),
-              }}
-              contentProps={{
-                align: "center",
-              }}
-            >
-              <Section
-                items={termActions}
-                handleCloseDropdownMenu={handleCloseTermDM}
-              />
-            </DropdownMenuWrapper>
-          </header>
-          {/* droppable for the courses in the term card */}
-          <Droppable droppableId={term._id} type={DraggingType.COURSE}>
-            {(droppableProvided, droppableSnapshot) => (
-              <main
-                className={clsx([
-                  "term-body",
-                  "scrollbar-custom",
-                  droppableSnapshot.isDraggingOver && "dragging-over",
-                  isSeekingCourse && "scroll-disabled",
-                ])}
-                ref={droppableProvided.innerRef}
-                {...droppableProvided.droppableProps}
-              >
-                {/* draggable for the courses in the term card */}
-                {courses.map((course, idx) => (
-                  <Draggable
-                    key={`draggable-${term._id}-${course.id}-${idx}`}
-                    draggableId={course.id}
-                    index={idx}
-                    isDragDisabled={isSeekingCourse}
-                  >
-                    {(courseDraggableProvided, courseDraggableSnapshot) => (
-                      <DetailedCourseCard
-                        key={`${term._id}-${course.id}-${idx}`}
-                        course={course}
-                        idx={idx}
-                        termId={term._id}
-                        handleDelete={handleDeleteCourse}
-                        setIsExpanded={setIsCourseExpanded}
-                        isDraggingTerm={draggableSnapshot.isDragging}
-                        draggableProvided={courseDraggableProvided}
-                        draggableSnapshot={courseDraggableSnapshot}
-                      />
-                    )}
-                  </Draggable>
-                ))}
-                {droppableProvided.placeholder}
-              </main>
-            )}
-          </Droppable>
-          {/* footer for the term card */}
-          <footer className="term-footer">
-            <span>
-              {totalCredits} {t([I18nKey.CREDITS], lang)}
-            </span>
-          </footer>
-
-          {/* add term button for the term card */}
-          {!isDragging && (
-            <AddTermButton isBefore={false} onClick={handleAddTerm} />
-          )}
-        </div>
+    // inner div for the whole term card
+    <article
+      className={clsx(["term-card", isDraggingTerm && "dragging"])}
+      style={style}
+      ref={draggableProvided?.innerRef}
+      {...draggableProvided?.draggableProps}
+    >
+      {!isDragging && isFirst && (
+        <AddTermButton isBefore={true} onClick={handleAddTerm} />
       )}
-    </Draggable>
+      {/* header for the term card */}
+      <header className="term-header" {...draggableProvided?.dragHandleProps}>
+        {hasSelectedCourses ? (
+          <button className="add-course-button" onClick={handleAddCourse}>
+            {t([I18nKey.ADD_TO], lang, { item1: term.name })}
+          </button>
+        ) : (
+          <span className="term-name-container">
+            <span className="term-name">{term.name}</span>
+            <EditIcon
+              className={clsx([
+                "edit",
+                "clickable",
+                (isSeekingCourse || hasSelectedCourses || isDragging) &&
+                  "hidden",
+              ])}
+              onClick={handleRenameTerm}
+            />
+          </span>
+        )}
+        {/* dropdown menu for the term card */}
+        <DropdownMenuWrapper
+          isOpen={isTermDMOpen}
+          handleClose={() => setIsTermDMOpen(false)}
+          trigger={{
+            node: <HamburgerIcon className="hamburger" />,
+            toggleIsOpen: () => setIsTermDMOpen((prev) => !prev),
+          }}
+          contentProps={{
+            align: "center",
+          }}
+        >
+          <Section
+            items={termActions}
+            handleCloseDropdownMenu={handleCloseTermDM}
+          />
+        </DropdownMenuWrapper>
+      </header>
+      {/* droppable for the courses in the term card */}
+      <main
+        className={clsx([
+          "term-body",
+          "scrollbar-custom",
+          droppableSnapshot?.isDraggingOver && "dragging-over",
+          isSeekingCourse && "scroll-disabled",
+        ])}
+        ref={droppableProvided?.innerRef}
+        {...droppableProvided?.droppableProps}
+      >
+        {courses.map((course, idx) =>
+          isCourseDraggable ? (
+            // draggable for the courses in the term card
+            <Draggable
+              key={`draggable-${term._id}-${course.id}-${idx}`}
+              draggableId={course.id}
+              index={idx}
+              isDragDisabled={isSeekingCourse}
+            >
+              {(courseDraggableProvided, courseDraggableSnapshot) => (
+                <DetailedCourseCard
+                  key={`${term._id}-${course.id}-${idx}`}
+                  course={course}
+                  idx={idx}
+                  termId={term._id}
+                  handleDelete={handleDeleteCourse}
+                  setIsExpanded={setIsCourseExpanded}
+                  isDraggingTerm={isDraggingTerm ?? false}
+                  draggableProvided={courseDraggableProvided}
+                  draggableSnapshot={courseDraggableSnapshot}
+                />
+              )}
+            </Draggable>
+          ) : (
+            // non-draggable for the courses in the term card
+            <DetailedCourseCard
+              key={`${term._id}-${course.id}-${idx}`}
+              course={course}
+              idx={idx}
+              termId={term._id}
+              handleDelete={handleDeleteCourse}
+              setIsExpanded={setIsCourseExpanded}
+              isDraggingTerm={isDraggingTerm ?? false}
+            />
+          ),
+        )}
+        {droppableProvided?.placeholder}
+      </main>
+      {/* footer for the term card */}
+      <footer className="term-footer">
+        <span>
+          {totalCredits} {t([I18nKey.CREDITS], lang)}
+        </span>
+      </footer>
+
+      {/* add term button for the term card */}
+      {!isDragging && (
+        <AddTermButton isBefore={false} onClick={handleAddTerm} />
+      )}
+    </article>
   );
 };
 
