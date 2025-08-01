@@ -3,7 +3,6 @@
 import HamburgerIcon from "@/public/icons/hamburger.svg";
 import GithubMark from "@/public/icons/github-mark.svg";
 import { ItemTag, UserLang } from "../Common";
-import { useSelector } from "react-redux";
 import { selectPlanStats } from "@/store/selectors";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
@@ -29,6 +28,9 @@ import { UserSession, Sync } from "../Common";
 import { I18nKey, Language, t } from "@/lib/i18n";
 
 const UtilityBar = () => {
+  const currentPlanId = useAppSelector(
+    (state) => state.localData.currentPlanId,
+  );
   const {
     totalCredits,
     totalCourses,
@@ -38,7 +40,7 @@ const UtilityBar = () => {
     totalCourseTakenCretids,
     totalTerm,
     averageCreditsPerTerm,
-  } = useSelector(selectPlanStats);
+  } = useAppSelector((state) => selectPlanStats(state, currentPlanId));
   const isUtilityDropdownMenuOpen = useAppSelector(
     (state) => state.global.isUtilityDropdownMenuOpen,
   );
@@ -54,9 +56,6 @@ const UtilityBar = () => {
     dispatch(toggleIsUtilityDropdownMenuOpen());
   }, [dispatch]);
 
-  const currentPlanId = useAppSelector(
-    (state) => state.localData.currentPlanId,
-  );
   const actions = useMemo(() => {
     if (!isInitialized) return [];
     return [

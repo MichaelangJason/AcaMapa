@@ -76,12 +76,14 @@ const TermCard = ({
   courses,
   idx,
   isFirst,
-  isCourseDraggable,
+  isCourseDraggable = true,
+  showButtons = true,
   addCourse,
   addTerm,
   deleteTerm,
   deleteCourse,
   setIsCourseExpanded,
+  className,
   style,
   draggableProvided,
   draggableSnapshot,
@@ -93,11 +95,13 @@ const TermCard = ({
   idx: number;
   isFirst: boolean;
   isCourseDraggable: boolean;
-  addTerm: (termId: string, isBefore?: boolean) => void;
-  deleteTerm: (termId: string, termIdx: number) => void;
-  addCourse: (termId: string) => Promise<void>;
-  deleteCourse: (termId: string, courseId: string) => void;
-  setIsCourseExpanded: (courseId: string, isExpanded: boolean) => void;
+  showButtons: boolean;
+  addTerm?: (termId: string, isBefore?: boolean) => void;
+  deleteTerm?: (termId: string, termIdx: number) => void;
+  addCourse?: (termId: string) => Promise<void>;
+  deleteCourse?: (termId: string, courseId: string) => void;
+  setIsCourseExpanded?: (courseId: string, isExpanded: boolean) => void;
+  className?: string;
   style?: React.CSSProperties;
   isDraggingOverlay?: boolean;
   draggableProvided?: DraggableProvided;
@@ -122,19 +126,19 @@ const TermCard = ({
   }, [courses]);
 
   const handleAddCourse = useCallback(async () => {
-    await addCourse(term._id.toString());
+    await addCourse?.(term._id.toString());
   }, [addCourse, term._id]);
 
   const handleDeleteCourse = useCallback(
     (courseId: string) => {
-      deleteCourse(term._id.toString(), courseId);
+      deleteCourse?.(term._id.toString(), courseId);
     },
     [deleteCourse, term._id],
   );
 
   const handleAddTerm = useCallback(
     (isBefore: boolean) => {
-      addTerm(term._id.toString(), isBefore);
+      addTerm?.(term._id.toString(), isBefore);
     },
     [addTerm, term._id],
   );
@@ -153,7 +157,7 @@ const TermCard = ({
             item1: term.name,
           }),
           confirmCb: () => {
-            deleteTerm(term._id.toString(), idx);
+            deleteTerm?.(term._id.toString(), idx);
             return Promise.resolve();
           },
           closeCb: () => {
@@ -162,7 +166,7 @@ const TermCard = ({
         }),
       );
     } else {
-      deleteTerm(term._id.toString(), idx);
+      deleteTerm?.(term._id.toString(), idx);
     }
   }, [deleteTerm, idx, dispatch, term, courses.length, lang]);
 
@@ -219,17 +223,19 @@ const TermCard = ({
     // outer draggable for the whole term card
     // inner div for the whole term card
     <article
-      className={clsx(["term-card", isDraggingTerm && "dragging"])}
+      className={clsx(["term-card", className, isDraggingTerm && "dragging"])}
       style={style}
       ref={draggableProvided?.innerRef}
       {...draggableProvided?.draggableProps}
     >
-      {!isDragging && isFirst && (
+      {!isDragging && isFirst && showButtons && (
         <AddTermButton isBefore={true} onClick={handleAddTerm} />
       )}
+
       {/* header for the term card */}
       <header className="term-header" {...draggableProvided?.dragHandleProps}>
-        {hasSelectedCourses ? (
+        {/* add course button for the term card */}
+        {hasSelectedCourses && showButtons ? (
           <button className="add-course-button" onClick={handleAddCourse}>
             {t([I18nKey.ADD_TO], lang, { item1: term.name })}
           </button>
@@ -248,23 +254,26 @@ const TermCard = ({
           </span>
         )}
         {/* dropdown menu for the term card */}
-        <DropdownMenuWrapper
-          isOpen={isTermDMOpen}
-          handleClose={() => setIsTermDMOpen(false)}
-          trigger={{
-            node: <HamburgerIcon className="hamburger" />,
-            toggleIsOpen: () => setIsTermDMOpen((prev) => !prev),
-          }}
-          contentProps={{
-            align: "center",
-          }}
-        >
-          <Section
-            items={termActions}
-            handleCloseDropdownMenu={handleCloseTermDM}
-          />
-        </DropdownMenuWrapper>
+        {showButtons && (
+          <DropdownMenuWrapper
+            isOpen={isTermDMOpen}
+            handleClose={() => setIsTermDMOpen(false)}
+            trigger={{
+              node: <HamburgerIcon className="hamburger" />,
+              toggleIsOpen: () => setIsTermDMOpen((prev) => !prev),
+            }}
+            contentProps={{
+              align: "center",
+            }}
+          >
+            <Section
+              items={termActions}
+              handleCloseDropdownMenu={handleCloseTermDM}
+            />
+          </DropdownMenuWrapper>
+        )}
       </header>
+
       {/* droppable for the courses in the term card */}
       <main
         className={clsx([
@@ -314,6 +323,7 @@ const TermCard = ({
         )}
         {droppableProvided?.placeholder}
       </main>
+
       {/* footer for the term card */}
       <footer className="term-footer">
         <span>
@@ -322,7 +332,7 @@ const TermCard = ({
       </footer>
 
       {/* add term button for the term card */}
-      {!isDragging && (
+      {!isDragging && showButtons && (
         <AddTermButton isBefore={false} onClick={handleAddTerm} />
       )}
     </article>

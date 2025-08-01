@@ -32,16 +32,16 @@ const DetailedCourseCard = ({
   termId,
   handleDelete,
   setIsExpanded,
-  isDraggingTerm,
+  isDraggingTerm = false,
   draggableProvided,
   draggableSnapshot,
 }: {
   course: CachedDetailedCourse;
   idx: number;
   termId: string;
-  handleDelete: (courseId: string) => void;
-  setIsExpanded: (courseId: string, isExpanded: boolean) => void;
-  isDraggingTerm: boolean;
+  handleDelete?: (courseId: string) => void;
+  setIsExpanded?: (courseId: string, isExpanded: boolean) => void;
+  isDraggingTerm?: boolean;
   draggableProvided?: DraggableProvided;
   draggableSnapshot?: DraggableStateSnapshot;
 }) => {
@@ -76,7 +76,7 @@ const DetailedCourseCard = ({
     } else {
       scrollCourseCardToView(id, { duration: 500 });
       dispatch(seekCourse(id));
-      setIsExpanded(id, true);
+      setIsExpanded?.(id, true);
     }
   }, [dispatch, id, isSeekingCourse, setIsExpanded]);
 
@@ -133,15 +133,15 @@ const DetailedCourseCard = ({
         isSeekingSelf && "seeking",
       ])}
       isSeeking={isSeekingSelf}
-      isExpanded={isExpanded}
+      isExpanded={!!setIsExpanded && isExpanded} // default to false if setIsExpanded is not provided
       disableMap={{
         seek: isSeekingCourse && !isSeekingSelf,
         delete: isSeekingCourse,
         expand: isSeekingCourse,
         shovel: isSatisfied || isSeekingCourse,
       }}
-      toggleIsExpanded={() => setIsExpanded(id, !isExpanded)}
-      handleDelete={() => handleDelete(id)}
+      toggleIsExpanded={() => setIsExpanded?.(id, !isExpanded)}
+      handleDelete={() => handleDelete?.(id)}
       handleSeek={handleSeek}
       handleOverwrite={handleOverwriteModal}
       draggableProvided={draggableProvided}

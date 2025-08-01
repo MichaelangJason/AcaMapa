@@ -93,14 +93,16 @@ const Wrapper = ({
           ) : (
             heading
           )}
-          <ShovelIcon
-            className={clsx(["shovel", disableMap?.shovel && "disabled"])}
-            data-tooltip-id={TooltipId.COURSE_CARD_WRAPPER}
-            data-tooltip-content={t([I18nKey.OVERWRITE], lang, {
-              item1: heading,
-            })}
-            onClick={disableMap?.shovel ? undefined : handleOverwrite}
-          />
+          {handleOverwrite && (
+            <ShovelIcon
+              className={clsx(["shovel", disableMap?.shovel && "disabled"])}
+              data-tooltip-id={TooltipId.COURSE_CARD_WRAPPER}
+              data-tooltip-content={t([I18nKey.OVERWRITE], lang, {
+                item1: heading,
+              })}
+              onClick={disableMap?.shovel ? undefined : handleOverwrite}
+            />
+          )}
         </h4>
         <h5 className="subheading">{subheading}</h5>
         <section className="icons-container">

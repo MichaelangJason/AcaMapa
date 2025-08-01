@@ -133,6 +133,18 @@ export const selectCurrentCoursePerTerms = createAppSelector(
   },
 );
 
+export const selectPlanById = createAppSelector(
+  (state: RootState) => state.userData.planData,
+  (_: RootState, planId: string) => planId,
+  (planData: typeof userDataState.planData, planId: string) => {
+    const plan = planData.get(planId);
+    if (!plan) {
+      throw new Error(`Plan id not found in plan data: ${planId}`);
+    }
+    return plan;
+  },
+);
+
 export const selectTerms = createSelector(
   (state: RootState) => state.userData.termData,
   (_, termOrder: string[]) => termOrder,
@@ -145,6 +157,30 @@ export const selectTerms = createSelector(
       acc.push(term);
       return acc;
     }, [] as Term[]);
+
+    return terms;
+  },
+);
+
+export const selectTermsByPlanId = createAppSelector(
+  (state: RootState) => state.userData.termData,
+  (state: RootState) => state.userData.planData,
+  (_: RootState, planId: string) => planId,
+  (
+    termData: typeof userDataState.termData,
+    planData: typeof userDataState.planData,
+    planId: string,
+  ) => {
+    const plan = planData.get(planId);
+    if (!plan) {
+      throw new Error(`Plan id not found in plan data: ${planId}`);
+    }
+    const terms = plan.termOrder
+      .map((termId) => termData.get(termId))
+      .filter((term) => Boolean(term));
+    if (terms.length !== plan.termOrder.length) {
+      throw new Error(`Some terms are missing in the plan: ${plan.termOrder}`);
+    }
 
     return terms;
   },
@@ -435,10 +471,10 @@ export const selectTermOrderMap = createSelector(
 export const selectPlanStats = createSelector(
   (state: RootState) => state.global.isInitialized,
   (state: RootState) => state.localData.courseData,
-  (state: RootState) => state.localData.currentPlanId,
   (state: RootState) => state.userData.planData,
   (state: RootState) => state.userData.courseTaken,
-  (isInitialized, courseData, currentPlanId, planData, courseTaken) => {
+  (_: RootState, planId: string) => planId,
+  (isInitialized, courseData, planData, courseTaken, planId) => {
     if (!isInitialized) {
       return {
         totalPlanCredits: 0,
@@ -451,9 +487,9 @@ export const selectPlanStats = createSelector(
         averageCreditsPerTerm: 0,
       };
     }
-    const plan = planData.get(currentPlanId);
+    const plan = planData.get(planId);
     if (!plan) {
-      throw new Error(`Plan id not found in plan data: ${currentPlanId}`);
+      throw new Error(`Plan id not found in plan data: ${planId}`);
     }
     const totalPlanCredits = [...plan.courseMetadata.keys()].reduce(
       (acc, courseId) => {
