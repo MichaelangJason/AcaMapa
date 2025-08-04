@@ -418,6 +418,26 @@ const validationMiddleware: Middleware<
 
         break;
       }
+      case "localData/setCourseDepDataDirty": {
+        const { planIds, isDirty } = action.payload;
+        if (!Array.isArray(planIds)) {
+          throw new Error(`Invalid plan ids: ${planIds}`);
+        }
+        if (typeof isDirty !== "boolean") {
+          throw new Error(`Invalid is dirty: ${isDirty}`);
+        }
+        if (planIds.some((id) => !isValidObjectId(id))) {
+          throw new Error(`Invalid plan ids: ${planIds}`);
+        }
+        if (planIds.some((id) => !state.userData.planData.has(id))) {
+          throw new Error(`Plan id not found in plan data: ${planIds}`);
+        }
+        if (planIds.some((id) => !state.localData.courseDepData.has(id))) {
+          throw new Error(`Plan id not found in course dep data: ${planIds}`);
+        }
+
+        break;
+      }
       default:
         break; // TODO add other validations
     }

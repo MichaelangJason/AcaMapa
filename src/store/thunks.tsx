@@ -300,6 +300,7 @@ export const fullSync = createAppAsyncThunk(
       chatThreadIds?: string[],
     ) => {
       const { planData, termData, planOrder, lang, courseTaken } = data;
+      dispatch(setCourseTaken(courseTaken));
       dispatch(setTermData(termData));
       dispatch(setPlanData({ planData, planOrder }));
       const courseExpandPayload = [...planData.entries()].map(
@@ -312,7 +313,6 @@ export const fullSync = createAppAsyncThunk(
       dispatch(initPlanIsCourseExpanded(courseExpandPayload));
       dispatch(setLang(lang as Language));
       dispatch(setChatThreadIds(chatThreadIds ?? []));
-      dispatch(setCourseTaken(courseTaken));
     };
 
     const restoreFrom = async (restoreData: any): Promise<boolean> => {
@@ -334,10 +334,6 @@ export const fullSync = createAppAsyncThunk(
           ...p.courseMetadata.keys(),
         ]);
         const distinctCourseIds = new Set(allCourseIds);
-
-        if (allCourseIds.length !== distinctCourseIds.size) {
-          throw new Error("Duplicate course ids found");
-        }
 
         dispatch(setLang(parsedData.lang as Language));
         if (distinctCourseIds.size > 0) {

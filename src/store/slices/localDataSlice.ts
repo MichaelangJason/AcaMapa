@@ -464,6 +464,7 @@ const localDataSlice = createSlice({
     },
     initCourseDepData: (state, action: PayloadAction<{ planId: string }>) => {
       state.courseDepData.set(action.payload.planId, {
+        isDirty: true,
         subjectMap: new Map(),
         depGraph: new Map(),
         creditsReqMap: new Map(),
@@ -472,6 +473,18 @@ const localDataSlice = createSlice({
     deleteCourseDepData: (state, action: PayloadAction<string>) => {
       state.courseDepData.delete(action.payload);
     },
+    setCourseDepDataDirty: (
+      state,
+      action: PayloadAction<{ planIds: string[]; isDirty: boolean }>,
+    ) => {
+      const { planIds, isDirty } = action.payload;
+      console.log("setCourseDepDataDirty", planIds, isDirty);
+      planIds.forEach((planId) => {
+        state.courseDepData.get(planId)!.isDirty = isDirty;
+      });
+    },
+
+    /* simple modal */
     setSimpleModalInfo: (state, action: PayloadAction<SimpleModalProps>) => {
       state.simpleModalInfo = action.payload;
     },
@@ -514,6 +527,7 @@ export const {
   addCoursesToGraph,
   deleteCoursesFromGraph,
   moveCoursesInGraph,
+  setCourseDepDataDirty,
   initCourseDepData,
   deleteCourseDepData,
   updateCoursesIsSatisfied,

@@ -17,6 +17,7 @@ import {
   updateCoursesIsSatisfied,
   moveCoursesInGraph,
   deleteCoursesFromGraph,
+  setCourseDepDataDirty,
 } from "../slices/localDataSlice";
 
 const listenerMiddleware = createListenerMiddleware();
@@ -54,7 +55,6 @@ startListening({
 
       if (!depData.has(planId)) {
         dispatch(initCourseDepData({ planId }));
-        console.log("init course dep data", planId);
         plan.termOrder.forEach((termId) => {
           const term = state.userData.termData.get(termId)!;
           if (term.courseIds.length > 0) {
@@ -72,16 +72,21 @@ startListening({
         });
       }
 
+      const updatedState = listenerApi.getState();
+      const isDirty = updatedState.localData.courseDepData.get(planId)!.isDirty;
       // update courses is satisfied
-      if (courses.length > 0) {
-        dispatch(
-          updateCoursesIsSatisfied({
-            planId,
-            courseToBeUpdated: new Set(courses),
-            courseTaken,
-            termOrderMap,
-          }),
-        );
+      if (isDirty) {
+        if (courses.length > 0) {
+          dispatch(
+            updateCoursesIsSatisfied({
+              planId,
+              courseToBeUpdated: new Set(courses),
+              courseTaken,
+              termOrderMap,
+            }),
+          );
+        }
+        dispatch(setCourseDepDataDirty({ planIds: [planId], isDirty: false }));
       }
 
       // save current plan id to local storage

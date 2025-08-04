@@ -21,6 +21,7 @@ import {
   setSimpleModalInfo,
   clearSimpleModalInfo,
   clearSeekingCourseId,
+  setCourseDepDataDirty,
 } from "../slices/localDataSlice";
 import {
   addPlan,
@@ -79,6 +80,28 @@ startListening({
       hasSelectedCourses !== listenerApi.getState().global.hasSelectedCourses
     ) {
       listenerApi.dispatch(setHasSelectedCourses(hasSelectedCourses));
+    }
+  },
+});
+
+// handle course taken updates only
+startListening({
+  predicate: (action) => isCourseTakenAction(action),
+  effect: (_, listenerApi) => {
+    const dispatch = listenerApi.dispatch;
+    const state = listenerApi.getState();
+    const currentPlanId = state.localData.currentPlanId;
+
+    // since maximum 10 plans are allowed, the overhead is acceptable
+    const nonDirtyPlanIds = state.userData.planOrder.filter(
+      (planId) =>
+        planId !== currentPlanId &&
+        state.localData.courseDepData.get(planId)?.isDirty === false, // TODO: handle undefined case
+    );
+    if (nonDirtyPlanIds.length > 0) {
+      dispatch(
+        setCourseDepDataDirty({ planIds: nonDirtyPlanIds, isDirty: true }),
+      );
     }
   },
 });
