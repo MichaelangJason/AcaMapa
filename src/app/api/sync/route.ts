@@ -96,7 +96,11 @@ export const POST = async (request: NextRequest) => {
   const body = await request.json();
   const { data } = body;
 
-  const parsedData = JSON.parse(data ?? "{}", mapStringfyReviver);
+  // re-parse data to ensure all Map objects are converted to plain objects
+  const parsedData = JSON.parse(
+    JSON.stringify(data, mapStringfyReplacer),
+    mapStringfyReviver,
+  );
   // if user not exists, create a new user from initial data or create a new user from scratch
 
   let newUserData: GuestUserData = parsedData;

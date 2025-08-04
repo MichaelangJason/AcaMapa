@@ -395,16 +395,43 @@ export const fullSync = createAppAsyncThunk(
             // 2.1 create new user
             // console.log("loggedin, create new user");
             if (
-              !isLocalDataPresent ||
-              !isValidSavingData(localUserData, "full")
+              isLocalDataPresent &&
+              isValidSavingData(localUserData, "full")
             ) {
-              await createRemoteUserData(null, lang);
+              // 2.1.1 prompt user to keep or merge local data and create remote user data
+              dispatch(
+                setSimpleModalInfo({
+                  isOpen: true,
+                  title: t([I18nKey.CREATE_WITH_LOCAL_DATA_TITLE], lang),
+                  description: `
+                  <span>${t([I18nKey.CREATE_WITH_LOCAL_DATA_DESC], lang)}</span>
+                `,
+                  confirmText: t([I18nKey.UPLOAD], lang),
+                  confirmCb: async () => {
+                    // upload and create remote user data
+                    await createRemoteUserData(localUserData.data, lang);
+                    clearLocalData(LocalStorageKey.GUEST_DATA);
+                    window.location.reload();
+                  },
+                  closeText: t([I18nKey.CLEAR], lang),
+                  closeCb: async () => {
+                    // create new remote user data and clear local data
+                    await createRemoteUserData(null, lang);
+                    clearLocalData(LocalStorageKey.GUEST_DATA);
+                    window.location.reload();
+                  },
+                }),
+              );
+
+              return rejectWithValue({
+                message: t([I18nKey.MERGING_LOCAL_DATA], lang),
+                isMerging: true,
+              });
             } else {
-              await createRemoteUserData(localUserData.data, lang);
+              initNewPlan();
+              const updatedState = getState();
+              await createRemoteUserData(updatedState.userData, lang);
             }
-            // restore from local data, plan/term id matches with remote user data
-            // console.log("loggedin, restore from local data");
-            await restoreFrom(localUserData);
           } else if (
             isUnsavedDataPresent &&
             isValidSavingData(unsavedData, "full")
@@ -472,7 +499,7 @@ export const fullSync = createAppAsyncThunk(
                   dispatch(setIsInitialized(true));
                 },
                 confirmText: t([I18nKey.MERGE], lang),
-                clearText: t([I18nKey.KEEP], lang),
+                closeText: t([I18nKey.KEEP], lang),
                 extraOptions: [
                   {
                     content: t([I18nKey.CLEAR], lang),

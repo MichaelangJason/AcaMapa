@@ -25,7 +25,7 @@ const SimpleModal = () => {
     isOpen,
     inputConfig,
     confirmText = t([I18nKey.CONFIRM], lang),
-    clearText = t([I18nKey.CLEAR], lang),
+    closeText = t([I18nKey.CLEAR], lang),
     extraOptions = [],
   } = useAppSelector(
     (state) => state.localData.simpleModalInfo,
@@ -102,7 +102,7 @@ const SimpleModal = () => {
       <footer>
         {!isConfirmOnly && (
           <button className="cancel-button" onClick={handleClose}>
-            {clearText}
+            {closeText}
           </button>
         )}
         {extraOptions.length > 0 &&

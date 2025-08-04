@@ -91,6 +91,9 @@ export enum I18nKey {
   SYNCING = "syncing",
   TRY_AGAIN_LATER = "try-again-later",
   CLICK_TO_SYNC = "click-to-sync",
+  CREATE_WITH_LOCAL_DATA_TITLE = "create-with-local-data-title",
+  CREATE_WITH_LOCAL_DATA_DESC = "create-with-local-data-desc",
+  UPLOAD = "upload",
 
   // fetch + fetch errors
   FETCH_COURSE_FAILED = "fetch-course-failed",

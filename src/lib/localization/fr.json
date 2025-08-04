@@ -82,6 +82,9 @@
   "syncing": "Synchronisation",
   "try-again-later": "Réessayez plus tard",
   "click-to-sync": "Cliquer pour synchroniser",
+  "create-with-local-data-title": "Données locales détectées",
+  "create-with-local-data-desc": "Vous êtes sur le point de créer un nouvel utilisateur, voulez-vous téléverser vos données locales ? Vos données locales seront effacées après le téléchargement.",
+  "upload": "Téléverser",
 
   "fetch-course-failed": "Échec de la récupération du cours",
   "fetched-m": "récupéré",

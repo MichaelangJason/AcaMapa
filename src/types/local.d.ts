@@ -84,7 +84,7 @@ export type SimpleModalProps = {
   confirmCb: (newValue?: string) => Promise<void>;
   closeCb: () => Promise<void>;
   confirmText?: string;
-  clearText?: string;
+  closeText?: string;
   isConfirmOnly?: boolean; // not cancelable, just a notification.
   isShowCloseButton?: boolean;
   isPreventCloseOnOverlayClick?: boolean;

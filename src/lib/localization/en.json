@@ -82,6 +82,9 @@
   "syncing": "Syncing",
   "try-again-later": "Try again later",
   "click-to-sync": "Click to sync",
+  "create-with-local-data-title": "Local Data Detected",
+  "create-with-local-data-desc": "You are about to create a new user, do you want to upload your local data? Your local data will be cleared after upload.",
+  "upload": "Upload",
 
   "fetch-course-failed": "Failed to fetch course",
   "fetched-m": "fetched",
