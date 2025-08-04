@@ -478,7 +478,7 @@ const localDataSlice = createSlice({
       action: PayloadAction<{ planIds: string[]; isDirty: boolean }>,
     ) => {
       const { planIds, isDirty } = action.payload;
-      console.log("setCourseDepDataDirty", planIds, isDirty);
+      // console.log("setCourseDepDataDirty", planIds, isDirty);
       planIds.forEach((planId) => {
         state.courseDepData.get(planId)!.isDirty = isDirty;
       });
