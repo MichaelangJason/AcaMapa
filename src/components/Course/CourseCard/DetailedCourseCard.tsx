@@ -29,6 +29,7 @@ import { I18nKey, Language, t } from "@/lib/i18n";
 // TODO: make is draggable independent
 const DetailedCourseCard = ({
   course,
+  planId,
   termId,
   handleDelete,
   setIsExpanded,
@@ -38,6 +39,7 @@ const DetailedCourseCard = ({
 }: {
   course: CachedDetailedCourse;
   idx: number;
+  planId: string;
   termId: string;
   handleDelete?: (courseId: string) => void;
   setIsExpanded?: (courseId: string, isExpanded: boolean) => void;
@@ -80,7 +82,9 @@ const DetailedCourseCard = ({
     }
   }, [dispatch, id, isSeekingCourse, setIsExpanded]);
 
-  const depGraph = useAppSelector(selectCourseDepGraph);
+  const depGraph = useAppSelector((state) =>
+    selectCourseDepGraph(state, planId),
+  );
   const hasNoChildren = useMemo(() => {
     return (
       !prerequisites?.raw &&
@@ -159,6 +163,7 @@ const DetailedCourseCard = ({
               type={ReqType.PRE_REQ}
               requisites={prerequisites}
               termId={termId}
+              planId={planId}
             />
           )}
           {corequisites?.raw && (
@@ -169,6 +174,7 @@ const DetailedCourseCard = ({
               requisites={corequisites}
               termId={termId}
               includeCurrentTerm
+              planId={planId}
             />
           )}
           {restrictions?.raw && (
@@ -179,6 +185,7 @@ const DetailedCourseCard = ({
               requisites={restrictions}
               termId={termId}
               includeCurrentTerm
+              planId={planId}
             />
           )}
           {notes && notes.length > 0 && (
@@ -188,6 +195,7 @@ const DetailedCourseCard = ({
               type={ReqType.NOTES}
               notes={notes}
               termId={termId}
+              planId={planId}
             />
           )}
           {!hasNoChildren && isOverwritten && (

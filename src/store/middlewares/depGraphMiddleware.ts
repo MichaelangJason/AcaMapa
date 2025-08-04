@@ -11,7 +11,8 @@ import { createListenerMiddleware } from "@reduxjs/toolkit";
 import type { RootState, AppDispatch } from "..";
 import {
   setCurrentPlanId,
-  clearCourseDepData,
+  deleteCourseDepData,
+  initCourseDepData,
   addCoursesToGraph,
   updateCoursesIsSatisfied,
   moveCoursesInGraph,
@@ -34,6 +35,7 @@ startListening({
     const dispatch = listenerApi.dispatch;
     const state = listenerApi.getState();
     const originalState = listenerApi.getOriginalState();
+    const depData = state.localData.courseDepData;
 
     if (action.type === setCurrentPlanId.type) {
       const planId = action.payload as string;
@@ -50,27 +52,31 @@ startListening({
       const courseTaken = state.userData.courseTaken;
       const courses = [...plan.courseMetadata.keys()];
 
-      // REVIEW: cache course dep data
-      dispatch(clearCourseDepData());
-      // add courses to graph
-      plan.termOrder.forEach((termId) => {
-        const term = state.userData.termData.get(termId)!;
-        if (term.courseIds.length > 0) {
-          dispatch(
-            addCoursesToGraph({
-              courseIds: new Set(term.courseIds),
-              termId,
-              termOrderMap,
-              courseTaken,
-              isSkipUpdate: true,
-            }),
-          );
-        }
-      });
+      if (!depData.has(planId)) {
+        dispatch(initCourseDepData({ planId }));
+        console.log("init course dep data", planId);
+        plan.termOrder.forEach((termId) => {
+          const term = state.userData.termData.get(termId)!;
+          if (term.courseIds.length > 0) {
+            dispatch(
+              addCoursesToGraph({
+                planId,
+                courseIds: new Set(term.courseIds),
+                termId,
+                termOrderMap,
+                courseTaken,
+                isSkipUpdate: true,
+              }),
+            );
+          }
+        });
+      }
+
       // update courses is satisfied
       if (courses.length > 0) {
         dispatch(
           updateCoursesIsSatisfied({
+            planId,
             courseToBeUpdated: new Set(courses),
             courseTaken,
             termOrderMap,
@@ -85,8 +91,14 @@ startListening({
     if (isPlanAction(action)) {
       switch (action.type) {
         case "userData/addPlan":
+          // this will be handled by the listener middleware for setCurrentPlanId
+          break;
         case "userData/deletePlan":
+          dispatch(deleteCourseDepData(action.payload));
+          break;
         case "userData/setPlanData":
+          // this will be handled by the listener middleware for setCurrentPlanId
+          break;
         default:
           break;
       }
@@ -102,6 +114,7 @@ startListening({
 
           dispatch(
             moveCoursesInGraph({
+              planId,
               courseIds: new Set(term.courseIds),
               newTermId: termId,
               termOrderMap,
@@ -130,6 +143,7 @@ startListening({
 
           dispatch(
             updateCoursesIsSatisfied({
+              planId,
               courseToBeUpdated: new Set(term.courseIds),
               courseTaken: state.userData.courseTaken,
               termOrderMap: newTermOrderMap,
@@ -149,6 +163,7 @@ startListening({
             // delete the course from the graph
             dispatch(
               deleteCoursesFromGraph({
+                planId,
                 courseIds: new Set(term.courseIds),
                 courseTaken,
                 // use new term order to calculate
@@ -170,6 +185,7 @@ startListening({
           if (nextTerm.courseIds.length > 0) {
             dispatch(
               updateCoursesIsSatisfied({
+                planId,
                 courseToBeUpdated: new Set(nextTerm.courseIds),
                 courseTaken,
                 termOrderMap: newTermOrderMap,
@@ -189,7 +205,11 @@ startListening({
         case "userData/addCourseTaken":
         case "userData/removeCourseTaken": {
           const courseIds = action.payload;
-          const { depGraph, creditsReqMap } = state.localData.courseDepData;
+          const planId = state.localData.currentPlanId;
+          if (!depData.has(planId)) {
+            throw new Error(`Plan id not found in course dep data: ${planId}`);
+          }
+          const { depGraph, creditsReqMap } = depData.get(planId)!;
 
           const affectedCourses = new Set<string>();
 
@@ -214,7 +234,6 @@ startListening({
             return;
           }
 
-          const planId = state.localData.currentPlanId;
           const termOrderMap = new Map(
             state.userData.planData
               .get(planId)!
@@ -224,6 +243,7 @@ startListening({
 
           dispatch(
             updateCoursesIsSatisfied({
+              planId,
               courseToBeUpdated: affectedCourses,
               courseTaken,
               termOrderMap,
@@ -255,6 +275,7 @@ startListening({
 
           dispatch(
             addCoursesToGraph({
+              planId,
               courseIds: new Set(courseIds),
               termId,
               termOrderMap,
@@ -274,6 +295,7 @@ startListening({
 
           dispatch(
             deleteCoursesFromGraph({
+              planId,
               courseIds: new Set([courseId]),
               courseTaken,
               termOrderMap,
@@ -292,6 +314,7 @@ startListening({
 
           dispatch(
             moveCoursesInGraph({
+              planId,
               courseIds: new Set([courseId]),
               newTermId: destTermId,
               termOrderMap,

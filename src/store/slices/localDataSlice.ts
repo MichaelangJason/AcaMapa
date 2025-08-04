@@ -36,11 +36,7 @@ export const initialState = {
     [planId: string]: { [courseId: string]: boolean };
   },
 
-  courseDepData: {
-    subjectMap: new Map() as CourseDepData["subjectMap"],
-    creditsReqMap: new Map() as CourseDepData["creditsReqMap"],
-    depGraph: new Map() as CourseDepData["depGraph"],
-  } as CourseDepData,
+  courseDepData: new Map<string, CourseDepData>(),
 
   seekingCourseId: "" as string,
 
@@ -166,6 +162,7 @@ const localDataSlice = createSlice({
     addCoursesToGraph: (
       state,
       action: PayloadAction<{
+        planId: string;
         courseIds: Set<string>;
         termId: string;
         courseTaken: Map<string, string[]>;
@@ -173,9 +170,21 @@ const localDataSlice = createSlice({
         isSkipUpdate?: boolean;
       }>,
     ) => {
-      const { subjectMap, depGraph, creditsReqMap } = state.courseDepData;
-      const { courseIds, termId, courseTaken, termOrderMap, isSkipUpdate } =
-        action.payload;
+      const {
+        planId,
+        courseIds,
+        termId,
+        courseTaken,
+        termOrderMap,
+        isSkipUpdate,
+      } = action.payload;
+
+      if (!state.courseDepData.has(planId)) {
+        throw new Error(`Plan id not found in course dep data: ${planId}`);
+      }
+
+      const depData = state.courseDepData.get(planId)!;
+      const { subjectMap, depGraph, creditsReqMap } = depData;
 
       if (
         Array.from(courseIds).some((c) => !state.cachedDetailedCourseData[c])
@@ -258,7 +267,7 @@ const localDataSlice = createSlice({
       }
 
       updateAffectedCourses({
-        graph: state.courseDepData,
+        graph: depData,
         courseToBeUpdated,
         cachedDetailedCourseData: state.cachedDetailedCourseData,
         termOrderMap,
@@ -270,21 +279,26 @@ const localDataSlice = createSlice({
     deleteCoursesFromGraph: (
       state,
       action: PayloadAction<{
+        planId: string;
         courseIds: Set<string>;
         courseTaken: Map<string, string[]>;
         termOrderMap: Map<string, number>;
         isSkipUpdate?: boolean;
       }>,
     ) => {
-      const { depGraph, subjectMap, creditsReqMap } = state.courseDepData;
-      const { courseTaken, courseIds, termOrderMap, isSkipUpdate } =
+      const { planId, courseTaken, courseIds, termOrderMap, isSkipUpdate } =
         action.payload;
+      if (!state.courseDepData.has(planId)) {
+        throw new Error(`Plan id not found in course dep data: ${planId}`);
+      }
+
+      const depData = state.courseDepData.get(planId)!;
+      const { depGraph, subjectMap, creditsReqMap } = depData;
 
       if (
         Array.from(courseIds).some(
           (c) =>
-            !isCourseInGraph(state.courseDepData, c) ||
-            !state.cachedDetailedCourseData[c],
+            !isCourseInGraph(depData, c) || !state.cachedDetailedCourseData[c],
         )
       ) {
         throw new Error(
@@ -311,7 +325,7 @@ const localDataSlice = createSlice({
 
         // delete from graph if non of its affected courses are in the graph
         const removedAffectedCourses = affectedCourses.filter(
-          (c) => !isCourseInGraph(state.courseDepData, c),
+          (c) => !isCourseInGraph(depData, c),
         );
 
         // no affected courses left, acceptable overhead (usually very small number)
@@ -348,7 +362,7 @@ const localDataSlice = createSlice({
       }
 
       updateAffectedCourses({
-        graph: state.courseDepData,
+        graph: depData,
         courseToBeUpdated,
         cachedDetailedCourseData: state.cachedDetailedCourseData,
         termOrderMap,
@@ -360,6 +374,7 @@ const localDataSlice = createSlice({
     moveCoursesInGraph: (
       state,
       action: PayloadAction<{
+        planId: string;
         courseIds: Set<string>;
         newTermId: string;
         termOrderMap: Map<string, number>;
@@ -367,15 +382,23 @@ const localDataSlice = createSlice({
         isSkipUpdate?: boolean;
       }>,
     ) => {
-      const { courseIds, newTermId, courseTaken, termOrderMap, isSkipUpdate } =
-        action.payload;
-      const { depGraph, creditsReqMap } = state.courseDepData;
+      const {
+        planId,
+        courseIds,
+        newTermId,
+        courseTaken,
+        termOrderMap,
+        isSkipUpdate,
+      } = action.payload;
 
-      if (
-        Array.from(courseIds).some(
-          (c) => !isCourseInGraph(state.courseDepData, c),
-        )
-      ) {
+      if (!state.courseDepData.has(planId)) {
+        throw new Error(`Plan id not found in course dep data: ${planId}`);
+      }
+
+      const depData = state.courseDepData.get(planId)!;
+      const { depGraph, creditsReqMap } = depData;
+
+      if (Array.from(courseIds).some((c) => !isCourseInGraph(depData, c))) {
         throw new Error(
           "Course not in dependency graph: " + Array.from(courseIds).join(", "),
         );
@@ -403,7 +426,7 @@ const localDataSlice = createSlice({
       }
 
       updateAffectedCourses({
-        graph: state.courseDepData,
+        graph: depData,
         courseToBeUpdated,
         cachedDetailedCourseData: state.cachedDetailedCourseData,
         termOrderMap,
@@ -415,15 +438,23 @@ const localDataSlice = createSlice({
     updateCoursesIsSatisfied: (
       state,
       action: PayloadAction<{
+        planId: string;
         courseToBeUpdated: Set<string>;
         courseTaken: Map<string, string[]>;
         termOrderMap: Map<string, number>;
       }>,
     ) => {
-      const { courseToBeUpdated, courseTaken, termOrderMap } = action.payload;
+      const { planId, courseToBeUpdated, courseTaken, termOrderMap } =
+        action.payload;
+
+      if (!state.courseDepData.has(planId)) {
+        throw new Error(`Plan id not found in course dep data: ${planId}`);
+      }
+
+      const depData = state.courseDepData.get(planId)!;
 
       updateAffectedCourses({
-        graph: state.courseDepData,
+        graph: depData,
         courseToBeUpdated,
         cachedDetailedCourseData: state.cachedDetailedCourseData,
         termOrderMap,
@@ -431,13 +462,15 @@ const localDataSlice = createSlice({
         courseTaken,
       });
     },
-
-    clearCourseDepData: (state) => {
-      state.courseDepData = {
+    initCourseDepData: (state, action: PayloadAction<{ planId: string }>) => {
+      state.courseDepData.set(action.payload.planId, {
         subjectMap: new Map(),
         depGraph: new Map(),
         creditsReqMap: new Map(),
-      };
+      });
+    },
+    deleteCourseDepData: (state, action: PayloadAction<string>) => {
+      state.courseDepData.delete(action.payload);
     },
     setSimpleModalInfo: (state, action: PayloadAction<SimpleModalProps>) => {
       state.simpleModalInfo = action.payload;
@@ -481,7 +514,8 @@ export const {
   addCoursesToGraph,
   deleteCoursesFromGraph,
   moveCoursesInGraph,
-  clearCourseDepData,
+  initCourseDepData,
+  deleteCourseDepData,
   updateCoursesIsSatisfied,
   setSimpleModalInfo,
   clearSimpleModalInfo,

@@ -72,6 +72,7 @@ const AddTermButton = ({
 };
 
 const TermCard = ({
+  planId,
   term,
   courses,
   idx,
@@ -90,6 +91,7 @@ const TermCard = ({
   droppableProvided,
   droppableSnapshot,
 }: {
+  planId: string;
   term: Term;
   courses: CachedDetailedCourse[];
   idx: number;
@@ -300,6 +302,7 @@ const TermCard = ({
                   course={course}
                   idx={idx}
                   termId={term._id}
+                  planId={planId}
                   handleDelete={handleDeleteCourse}
                   setIsExpanded={setIsCourseExpanded}
                   isDraggingTerm={isDraggingTerm ?? false}
@@ -315,6 +318,7 @@ const TermCard = ({
               course={course}
               idx={idx}
               termId={term._id}
+              planId={planId}
               handleDelete={handleDeleteCourse}
               setIsExpanded={setIsCourseExpanded}
               isDraggingTerm={isDraggingTerm ?? false}

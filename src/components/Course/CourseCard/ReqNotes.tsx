@@ -31,6 +31,7 @@ const ReqNotes = ({
   title,
   requisites,
   notes = [],
+  planId,
   termId,
   includeCurrentTerm = false,
   type,
@@ -40,6 +41,7 @@ const ReqNotes = ({
   type: ReqType;
   requisites?: EnhancedRequisites;
   notes?: string[];
+  planId: string;
   termId: string;
   includeCurrentTerm?: boolean;
 }) => {
@@ -196,6 +198,7 @@ const ReqNotes = ({
             termId={termId}
             reqType={type}
             addToCourseTakenOrJump={addToCourseTakenOrJump}
+            planId={planId}
           />
           <div
             className={clsx(
@@ -227,6 +230,7 @@ const ReqGroup = ({
   termId,
   reqType,
   addToCourseTakenOrJump,
+  planId,
 }: {
   parentCourse: string;
   group: ReqGroup;
@@ -235,10 +239,12 @@ const ReqGroup = ({
   termId: string;
   reqType: ReqType;
   addToCourseTakenOrJump: (courseId?: string, source?: string) => void;
+  planId: string;
 }) => {
   let children: JSX.Element[] = [];
-  const { getCourseSource, getValidCourses } =
-    useAppSelector(selectCourseDepMeta);
+  const { getCourseSource, getValidCourses } = useAppSelector((state) =>
+    selectCourseDepMeta(state, planId),
+  );
   const lang = useAppSelector((state) => state.userData.lang) as Language;
 
   switch (group.type) {
@@ -286,6 +292,7 @@ const ReqGroup = ({
               termId={termId}
               reqType={reqType}
               addToCourseTakenOrJump={addToCourseTakenOrJump}
+              planId={planId}
             />
           );
         }

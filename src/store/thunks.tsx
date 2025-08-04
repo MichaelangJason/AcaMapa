@@ -335,6 +335,10 @@ export const fullSync = createAppAsyncThunk(
         ]);
         const distinctCourseIds = new Set(allCourseIds);
 
+        if (allCourseIds.length !== distinctCourseIds.size) {
+          throw new Error("Duplicate course ids found");
+        }
+
         dispatch(setLang(parsedData.lang as Language));
         if (distinctCourseIds.size > 0) {
           await dispatch(

@@ -224,11 +224,13 @@ const Terms = () => {
                         {(droppableProvided, droppableSnapshot) => (
                           <TermCard
                             key={term._id}
+                            planId={currentPlan!._id}
                             idx={idx}
                             term={term}
                             courses={currentCourseDataPerTerm[term._id]}
                             isFirst={idx === 0}
                             isCourseDraggable={true}
+                            showButtons={true}
                             addTerm={handleAddTerm}
                             deleteTerm={handleDeleteTerm}
                             addCourse={handleAddCourse}

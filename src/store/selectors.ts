@@ -256,9 +256,17 @@ export const selectIsOverwritten = createSelector(
 );
 
 export const selectCourseDepGraph = createSelector(
+  (state: RootState) => state.global.isInitialized,
   (state: RootState) => state.localData.courseDepData,
-  (courseDepData) => {
-    return courseDepData.depGraph;
+  (_: RootState, planId: string) => planId,
+  (isInitialized, courseDepData, planId) => {
+    if (!isInitialized) {
+      return new Map();
+    }
+    if (!courseDepData.has(planId)) {
+      throw new Error(`Plan id not found in course dep data: ${planId}`);
+    }
+    return courseDepData.get(planId)!.depGraph;
   },
 );
 
@@ -268,7 +276,15 @@ export const selectCourseDepMeta = createSelector(
   (state: RootState) => state.localData.courseData,
   (state: RootState) => state.localData.courseDepData,
   (state: RootState) => state.userData,
-  (isInitialized, currentPlanId, courseData, courseDepData, userData) => {
+  (_: RootState, planId?: string) => planId,
+  (
+    isInitialized,
+    currentPlanId,
+    courseData,
+    courseDepData,
+    userData,
+    planId,
+  ) => {
     if (!isInitialized) {
       return {
         getCourseSource: () => ({ isValid: false, source: "" }),
@@ -278,16 +294,23 @@ export const selectCourseDepMeta = createSelector(
         }),
       };
     }
-    const currentPlan = userData.planData.get(currentPlanId);
+    planId = planId ?? currentPlanId;
+    const plan = userData.planData.get(planId);
     const courseTaken = userData.courseTaken;
-    if (!currentPlan) {
-      throw new Error(`Plan id not found in plan data: ${currentPlanId}`);
+    if (!plan) {
+      throw new Error(`Plan id not found in plan data: ${planId}`);
     }
     const termOrderMap = new Map(
-      currentPlan.termOrder.map((termId, idx) => [termId, idx]),
+      plan.termOrder.map((termId, idx) => [termId, idx]),
     );
 
-    const { depGraph, subjectMap } = courseDepData;
+    if (!courseDepData.has(planId)) {
+      throw new Error(`Plan id not found in course dep data: ${planId}`);
+    }
+
+    const depData = courseDepData.get(planId)!;
+
+    const { depGraph, subjectMap } = depData;
     const uniqueSubjects = new Set([
       ...courseTaken.keys(),
       ...subjectMap.keys(),
@@ -360,7 +383,7 @@ export const selectCourseDepMeta = createSelector(
 
       const isCourseValid = (courseId: string) => {
         if (isCourseTaken(courseId)) return "Course Taken";
-        if (!isCourseInGraph(courseDepData, courseId)) {
+        if (!isCourseInGraph(depData, courseId)) {
           throw new Error("Course not in graph: " + courseId);
         }
 
@@ -422,16 +445,24 @@ export const selectCourseDepMeta = createSelector(
 
 export const selectDepSubjectMap = createSelector(
   (state: RootState) => state.localData.courseDepData,
-  (courseDepData) => {
-    return courseDepData.subjectMap;
+  (_: RootState, planId: string) => planId,
+  (courseDepData, planId) => {
+    if (!courseDepData.has(planId)) {
+      throw new Error(`Plan id not found in course dep data: ${planId}`);
+    }
+    return courseDepData.get(planId)!.subjectMap;
   },
 );
 
 export const selectCombinedSubjectMap = createSelector(
   (state: RootState) => state.localData.courseDepData,
   (state: RootState) => state.userData.courseTaken,
-  (courseDepData, courseTaken) => {
-    const { subjectMap } = courseDepData;
+  (_: RootState, planId: string) => planId,
+  (courseDepData, courseTaken, planId) => {
+    if (!courseDepData.has(planId)) {
+      throw new Error(`Plan id not found in course dep data: ${planId}`);
+    }
+    const { subjectMap } = courseDepData.get(planId)!;
     const uniqueSubjects = new Set([
       ...courseTaken.keys(),
       ...subjectMap.keys(),
@@ -447,24 +478,6 @@ export const selectCombinedSubjectMap = createSelector(
     );
 
     return combinedSubjectMap;
-  },
-);
-
-export const selectTermOrderMap = createSelector(
-  (state: RootState) => state.localData.currentPlanId,
-  (state: RootState) => state.userData.planData,
-  (currentPlanId, planData) => {
-    const plan = planData.get(currentPlanId);
-    if (!plan) {
-      throw new Error(`Plan id not found in plan data: ${currentPlanId}`);
-    }
-    return plan.termOrder.reduce(
-      (acc, termId, idx) => {
-        acc[termId] = idx;
-        return acc;
-      },
-      {} as { [termId: string]: number },
-    );
   },
 );
 

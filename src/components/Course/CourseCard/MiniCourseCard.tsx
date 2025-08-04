@@ -59,7 +59,7 @@ const MiniCourseCard = ({
         });
       }
     },
-    [data, isSelected, isAddingCourse, isDragging, source, id, dispatch],
+    [isDragging, source, id, dispatch],
   );
 
   return (
