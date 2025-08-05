@@ -1,6 +1,6 @@
 .tag {
   display: flex;
-  padding: 0px 4px;
+  padding: 0rem 0.25rem;
   flex-direction: column;
   justify-content: center;
   align-items: center;
@@ -9,7 +9,7 @@
   height: fit-content;
   cursor: pointer;
 
-  border-radius: 4px;
+  border-radius: 0.25rem;
   background: var(--gray-200);
 
   color: var(--gray-1000);

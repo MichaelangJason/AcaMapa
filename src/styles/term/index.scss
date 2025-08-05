@@ -2,7 +2,7 @@
   position: relative;
   display: flex;
   width: var(--term-card-width);
-  min-height: 300px;
+  min-height: 18.75rem;
   flex-direction: column;
   justify-content: center;
   align-items: center;
@@ -33,21 +33,21 @@
   .term-header {
     position: relative;
     display: flex;
-    height: 40px;
+    height: 2.5rem;
     justify-content: center;
     align-items: center;
     width: 100%;
     flex-shrink: 0;
-    // margin-top: -4px;
+    // margin-top: -0.25rem;
 
     border-radius: var(--term-inner-border-radius)
-      var(--term-inner-border-radius) 0px 0px;
+      var(--term-inner-border-radius) 0rem 0rem;
     background: transparent;
     transition: all 0.2s ease;
 
     .add-course-button {
       border-radius: var(--border-radius-default);
-      // border: 2px solid var(--gray-600);
+      // border: 0.125rem solid var(--gray-600);
       background: var(--gray-600);
       box-shadow: var(--shadow-default-heavy);
       color: var(--gray-000);
@@ -100,7 +100,7 @@
         position: absolute;
         right: -1.25rem;
         flex-shrink: 0;
-        width: 14px;
+        width: 0.875rem;
         height: auto;
 
         path {
@@ -121,9 +121,9 @@
 
     .hamburger {
       position: absolute;
-      right: 12px;
+      right: 0.75rem;
 
-      width: 20px;
+      width: 1.25rem;
       height: auto;
 
       &.disabled path {
@@ -177,7 +177,7 @@
 
   .term-footer {
     display: flex;
-    height: 40px;
+    height: 2.5rem;
     width: 100%;
     justify-content: center;
     align-items: center;
@@ -223,12 +223,12 @@
   }
 
   svg {
-    width: 16px;
+    width: 1rem;
     height: auto;
     transition: scale 0.2s ease;
     path {
       stroke: var(--gray-400);
-      stroke-width: 3;
+      stroke-width: 0.1875rem;
       transition: stroke 0.2s ease;
     }
   }

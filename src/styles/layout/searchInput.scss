@@ -2,7 +2,7 @@
   width: var(--search-input-width);
   height: fit-content;
   min-height: var(--search-input-height);
-  border-radius: 20px;
+  border-radius: 1.25rem;
   border: var(--search-input-border);
   padding: 0.125rem 0.75rem;
 
@@ -30,7 +30,7 @@
     min-height: 100%;
     line-height: 1.5;
     transition: height 0.1s ease;
-    padding: 0px;
+    padding: 0rem;
 
     font-family: Arial, Helvetica, sans-serif;
     font-size: 1rem;
@@ -53,7 +53,7 @@
   }
 
   .search-input-icon {
-    width: 12px;
+    width: 0.75rem;
     height: 100%;
 
     display: flex;
@@ -75,12 +75,12 @@
 
     .delete {
       cursor: pointer;
-      width: 12px;
-      height: 12px;
+      width: 0.75rem;
+      height: 0.75rem;
       display: block;
 
       stroke: var(--gray-600);
-      stroke-width: 2;
+      stroke-width: 0.125rem;
     }
 
     .magnifier {
@@ -89,13 +89,13 @@
       display: block;
 
       stroke: var(--gray-600);
-      stroke-width: 4;
+      stroke-width: 0.25rem;
     }
   }
 
   &.seeking {
     border-radius: 1rem;
-    border: 4px solid var(--gray-600);
+    border: 0.25rem solid var(--gray-600);
     background: var(--gray-500);
 
     textarea {

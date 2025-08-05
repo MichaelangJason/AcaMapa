@@ -38,28 +38,28 @@
   --shadow-color: rgba(0, 0, 0, 0.25);
   --shadow-color-heavy: rgba(0, 0, 0, 0.35);
   --shadow-color-light: rgba(149, 149, 149, 0.25);
-  --shadow-default: 0px 3px 10px 0px var(--shadow-color);
-  --shadow-default-right: 2px 0px 10px 0px var(--shadow-color-light);
-  --shadow-default-heavy: 0px 3px 10px 0px var(--shadow-color-heavy);
-  --shadow-default-light: 0px 3px 10px 0px var(--shadow-color-light);
-  --border-radius-default-numeric: 16;
-  --border-radius-default: 16px;
+  --shadow-default: 0rem 0.1875rem 0.625rem 0rem var(--shadow-color);
+  --shadow-default-right: 0.125rem 0rem 0.625rem 0rem var(--shadow-color-light);
+  --shadow-default-heavy: 0rem 0.1875rem 0.625rem 0rem var(--shadow-color-heavy);
+  --shadow-default-light: 0rem 0.1875rem 0.625rem 0rem var(--shadow-color-light);
+  --border-radius-default-numeric: 16; // 1rem
+  --border-radius-default: 1rem;
 
   /* dimensions */
-  --sidebar-width: 300px;
+  --sidebar-width: 18.75rem;
 
-  --search-input-width: 240px;
-  --search-input-height: 32px;
-  --search-input-border: 2px solid var(--gray-500);
-  --input-max-width: 220px;
+  --search-input-width: 15rem;
+  --search-input-height: 2rem;
+  --search-input-border: 0.125rem solid var(--gray-500);
+  --input-max-width: 13.75rem;
 
-  --utility-bar-height: 44px;
+  --utility-bar-height: 2.75rem;
 
-  --terms-gap: 40px;
-  --terms-padding-topbottom: 30px;
-  --term-card-width-numeric: 308;
-  --term-card-width: calc(var(--term-card-width-numeric) * 1px);
-  --term-card-border-width: 4px;
+  --terms-gap: 2.5rem;
+  --terms-padding-topbottom: 1.875rem;
+  --term-card-width-numeric: 308; // 19.25 rem
+  --term-card-width: calc(var(--term-card-width-numeric) * 0.0625rem);
+  --term-card-border-width: 0.25rem;
   --term-inner-border-radius: calc(
     (
         var(--border-radius-default-numeric) / var(--term-card-width-numeric) *
@@ -68,8 +68,8 @@
       100%
   );
 
-  --course-card-width-numeric: 260;
-  --course-card-width: calc(var(--course-card-width-numeric) * 1px);
+  --course-card-width-numeric: 260; // 16.25 rem
+  --course-card-width: calc(var(--course-card-width-numeric) * 0.0625rem);
 }
 
 html {
@@ -81,6 +81,8 @@ html,
 body {
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE/Edge */
+
+  height: 100vh;
 }
 
 /* Webkit browsers */
@@ -93,9 +95,9 @@ body {
   position: relative;
   font-family: Arial, Helvetica, sans-serif;
 
-  height: 100vh;
+  // height: 100vh;
   width: fit-content;
-  margin: 0px;
+  margin: 0rem;
   padding: 0 0 0 var(--sidebar-width);
   transition: padding 0.2s ease-in-out;
 
@@ -138,8 +140,8 @@ h3,
 h4,
 h5,
 h6 {
-  margin: 0px;
-  padding: 0px;
+  margin: 0rem;
+  padding: 0rem;
 }
 
 .scroll-mask {

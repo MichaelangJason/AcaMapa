@@ -4,8 +4,8 @@
   scrollbar-color: var(--gray-1000-50-opac);
 
   &::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 0.375rem;
+    height: 0.375rem;
   }
 
   &::-webkit-scrollbar-track {
@@ -15,8 +15,8 @@
 
   &::-webkit-scrollbar-thumb {
     background: var(--gray-100);
-    border-radius: 4px;
-    border: 1px solid transparent;
+    border-radius: 0.25rem;
+    border: 0.0625rem solid transparent;
     background-clip: content-box;
   }
 
@@ -32,19 +32,19 @@
   overflow: overlay;
 
   &::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 0.5rem;
+    height: 0.5rem;
   }
 
   &::-webkit-scrollbar-track {
     background: var(--gray-100);
-    border-radius: 4px;
+    border-radius: 0.25rem;
   }
 
   &::-webkit-scrollbar-thumb {
     background: var(--theme-color);
-    border-radius: 4px;
-    border: 2px solid transparent;
+    border-radius: 0.25rem;
+    border: 0.125rem solid transparent;
     background-clip: content-box;
   }
 
@@ -80,14 +80,14 @@
     scrollbar-color: var(--gray-1000-50-opac);
 
     &::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
+      width: 0.375rem;
+      height: 0.375rem;
     }
 
     &::-webkit-scrollbar-thumb {
       background: var(--gray-100);
-      border-radius: 4px;
-      border: 1px solid transparent;
+      border-radius: 0.25rem;
+      border: 0.0625rem solid transparent;
       background-clip: content-box;
       transition: background 0.2s ease;
     }

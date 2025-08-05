@@ -1,9 +1,9 @@
 .common-content {
-  width: 448px;
+  width: 28rem;
   height: fit-content;
   background-color: #fff;
-  border-radius: 20px;
-  padding: 24px;
+  border-radius: 1.25rem;
+  padding: 1.5rem;
   position: relative;
   box-sizing: border-box;
 }
@@ -33,11 +33,11 @@
 
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 0.625rem;
 
   top: 15%;
-  border: 1px solid #e0e0e0;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 0.0625rem solid #e0e0e0;
+  box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1);
 
   .value {
     font-weight: 600;
@@ -49,7 +49,7 @@
     align-items: center;
     flex-direction: row;
     width: 100%;
-    margin-bottom: 8px;
+    margin-bottom: 0.5rem;
 
     color: var(--gray-500);
 
@@ -58,12 +58,12 @@
       border: none;
 
       svg {
-        width: 16px;
-        height: 16px;
+        width: 1rem;
+        height: 1rem;
         path {
           transition: all 0.2s ease;
           stroke: var(--gray-600);
-          stroke-width: 2px;
+          stroke-width: 0.125rem;
         }
       }
 
@@ -79,21 +79,21 @@
   }
 
   input {
-    width: calc(100% - 24px);
-    height: 30px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 0 10px;
+    width: calc(100% - 1.5rem);
+    height: 1.875rem;
+    border: 0.0625rem solid #ccc;
+    border-radius: 0.3125rem;
+    padding: 0 0.625rem;
 
     &:focus {
       border-color: #007bff;
       outline: none;
-      box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+      box-shadow: 0 0 0 0.125rem rgba(0, 123, 255, 0.25);
     }
 
     &.max-length-exceeded {
       border-color: var(--mcgill-red);
-      box-shadow: 0 0 0 2px rgba(255, 0, 0, 0.25);
+      box-shadow: 0 0 0 0.125rem rgba(255, 0, 0, 0.25);
     }
   }
 
@@ -108,7 +108,7 @@
 
   .max-length {
     position: absolute;
-    right: 12px;
+    right: 0.75rem;
     transform: translateY(-50%);
     top: 50%;
 
@@ -139,16 +139,16 @@
     justify-content: space-between;
     align-items: center;
     flex-direction: row;
-    margin-top: 10px;
+    margin-top: 0.625rem;
     width: 100%;
 
     button {
-      min-width: 80px;
+      min-width: 5rem;
       width: fit-content;
-      height: 30px;
+      height: 1.875rem;
       border: none;
-      border-radius: 13px;
-      padding: 0 10px;
+      border-radius: 0.8125rem;
+      padding: 0 0.625rem;
       transition: all 0.2s ease;
 
       font-weight: bold;
@@ -203,10 +203,10 @@
 
   .close-button {
     position: absolute;
-    top: 15px;
-    right: 15px;
-    width: 32px;
-    height: 32px;
+    top: 0.9375rem;
+    right: 0.9375rem;
+    width: 2rem;
+    height: 2rem;
     border-radius: 50%;
     background-color: #f0f0f0;
     border: none;
@@ -219,8 +219,8 @@
     padding: 0;
 
     img {
-      width: 14px;
-      height: 14px;
+      width: 0.875rem;
+      height: 0.875rem;
     }
 
     &:hover {
@@ -236,25 +236,25 @@
   }
 
   .toc-sidebar {
-    width: 250px;
-    min-width: 250px;
+    width: 15.625rem;
+    min-width: 15.625rem;
     height: 100%;
-    border-right: 1px solid #eaeaea;
-    padding: 20px 15px;
+    border-right: 0.0625rem solid #eaeaea;
+    padding: 1.25rem 0.9375rem;
     overflow-y: auto;
     background-color: #f9f9f9;
 
     .tab-selector {
       display: flex;
-      gap: 5px;
-      margin-bottom: 15px;
+      gap: 0.3125rem;
+      margin-bottom: 0.9375rem;
       flex-wrap: wrap;
 
       .tab-button {
-        padding: 6px 12px;
-        border: 1px solid #ddd;
+        padding: 0.375rem 0.75rem;
+        border: 0.0625rem solid #ddd;
         background-color: #f5f5f5;
-        border-radius: 4px;
+        border-radius: 0.25rem;
         font-size: 0.85rem;
         cursor: pointer;
         transition: all 0.2s ease;
@@ -276,19 +276,19 @@
       margin-top: 0;
       margin-bottom: 1rem;
       padding-bottom: 0.5rem;
-      border-bottom: 1px solid #eaeaea;
+      border-bottom: 0.0625rem solid #eaeaea;
     }
 
     .toc-links {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 0.5rem;
 
       .loading-toc,
       .no-headings {
         color: #777;
         font-style: italic;
-        padding: 10px 0;
+        padding: 0.625rem 0;
         text-align: center;
       }
     }
@@ -298,7 +298,7 @@
       color: #555;
       font-size: 0.95rem;
       line-height: 1.4;
-      padding: 4px 0;
+      padding: 0.25rem 0;
       transition: color 0.2s ease;
 
       &:hover {
@@ -311,18 +311,18 @@
       }
 
       &.level-2 {
-        padding-left: 12px;
+        padding-left: 0.75rem;
       }
 
       &.level-3 {
-        padding-left: 24px;
+        padding-left: 1.5rem;
         font-size: 0.9rem;
       }
 
       &.level-4,
       &.level-5,
       &.level-6 {
-        padding-left: 36px;
+        padding-left: 2.25rem;
         font-size: 0.85rem;
         color: #777;
       }
@@ -332,40 +332,40 @@
   .content-area {
     flex: 1;
     height: 100%;
-    padding: 20px 30px;
+    padding: 1.25rem 1.875rem;
     overflow-y: auto;
     position: relative;
 
     .back-to-top {
       position: absolute;
-      bottom: 30px;
-      right: 30px;
-      padding: 10px 15px;
+      bottom: 1.875rem;
+      right: 1.875rem;
+      padding: 0.625rem 0.9375rem;
       background-color: #007bff;
       color: white;
       border: none;
-      border-radius: 5px;
+      border-radius: 0.3125rem;
       font-size: 0.9rem;
       cursor: pointer;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.2);
       transition: all 0.2s ease;
       z-index: 100;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 0.375rem;
 
       .back-to-top-icon {
         transform: rotate(180deg);
         filter: invert(1);
-        width: 14px;
-        height: 14px;
-        margin-right: 4px;
+        width: 0.875rem;
+        height: 0.875rem;
+        margin-right: 0.25rem;
       }
 
       &:hover {
         background-color: #0056b3;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        transform: translateY(-0.125rem);
+        box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.3);
       }
     }
 
@@ -373,17 +373,17 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 200px;
+      height: 12.5rem;
       color: #777;
       font-style: italic;
 
       &::after {
         content: "";
-        width: 20px;
-        height: 20px;
-        margin-left: 10px;
-        border: 2px solid #ddd;
-        border-top: 2px solid #007bff;
+        width: 1.25rem;
+        height: 1.25rem;
+        margin-left: 0.625rem;
+        border: 0.125rem solid #ddd;
+        border-top: 0.125rem solid #007bff;
         border-radius: 50%;
         animation: spin 1s linear infinite;
       }
@@ -405,7 +405,7 @@
     position: fixed;
     left: 5%;
     right: 5%;
-    height: 30px;
+    height: 1.875rem;
     z-index: 1;
     pointer-events: none;
   }
@@ -417,7 +417,7 @@
       rgba(255, 255, 255, 1) 0%,
       rgba(255, 255, 255, 0) 100%
     );
-    border-radius: 15px 15px 0 0;
+    border-radius: 0.9375rem 0.9375rem 0 0;
   }
 
   &::after {
@@ -427,7 +427,7 @@
       rgba(255, 255, 255, 1) 0%,
       rgba(255, 255, 255, 0) 100%
     );
-    border-radius: 0 0 15px 15px;
+    border-radius: 0 0 0.9375rem 0.9375rem;
   }
 
   h2 {
@@ -435,7 +435,7 @@
     font-weight: 600;
     margin: 1.5rem 0 1rem;
     color: #333;
-    border-bottom: 1px solid #eaeaea;
+    border-bottom: 0.0625rem solid #eaeaea;
     padding-bottom: 0.5rem;
   }
 
@@ -477,12 +477,12 @@
 
   img {
     display: block;
-    height: 300px;
+    height: 18.75rem;
     width: auto;
     object-fit: contain;
     margin: 1rem auto;
-    border-radius: 5px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 0.3125rem;
+    box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.1);
   }
 
   table {
@@ -491,11 +491,11 @@
     margin: 1rem 0;
 
     td {
-      padding: 10px;
+      padding: 0.625rem;
       vertical-align: top;
 
       img {
-        height: 250px;
+        height: 15.625rem;
         width: auto;
         object-fit: contain;
       }

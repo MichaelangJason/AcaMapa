@@ -6,18 +6,18 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
+  gap: 1rem;
 
-  margin-top: 8px;
-  padding-top: 4px;
+  margin-top: 0.5rem;
+  padding-top: 0.25rem;
 }
 
 .multi-select-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 18px;
-  margin: 8px 0 8px 0;
+  gap: 1.125rem;
+  margin: 0.5rem 0 0.5rem 0;
 
   .multi-select-info {
     font-size: 0.75rem;
@@ -27,7 +27,7 @@
   .multi-select-clear {
     cursor: pointer;
     text-decoration: underline;
-    text-underline-offset: 2px;
+    text-underline-offset: 0.125rem;
     transition: color 0.15s ease;
 
     &:hover {
@@ -44,12 +44,12 @@
   justify-content: center;
   cursor: pointer;
   height: fit-content;
-  margin-top: 4px;
+  margin-top: 0.25rem;
 
   .mini-course-card {
     transition: all 0.4s ease;
-    // TODO: fix this to 64px when min-height issue is resolved
-    height: 63px;
+    // TODO: fix this to 4rem when min-height issue is resolved
+    height: 3.9375rem;
 
     .name {
       max-width: 100%;
@@ -65,6 +65,6 @@
   }
 
   &.min-height-enabled {
-    min-height: 90px;
+    min-height: 5.625rem;
   }
 }
