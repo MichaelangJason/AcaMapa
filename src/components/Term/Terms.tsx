@@ -2,9 +2,9 @@
 
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
-  selectCurrentCoursePerTerms,
+  selectCoursePerTerms,
   selectCurrentPlan,
-  selectCurrentTerms,
+  selectTermData,
 } from "@/store/selectors";
 import { useCallback, useRef, memo } from "react";
 import {
@@ -36,8 +36,8 @@ import { TermCardSkeleton } from "../Skeleton";
 
 const Terms = () => {
   const currentPlan = useAppSelector(selectCurrentPlan);
-  const currentTerms = useAppSelector(selectCurrentTerms);
-  const currentCourseDataPerTerm = useAppSelector(selectCurrentCoursePerTerms);
+  const currentTerms = useAppSelector(selectTermData);
+  const currentCourseDataPerTerm = useAppSelector(selectCoursePerTerms);
   const selectedCourses = useAppSelector(
     (state) => state.localData.selectedCourses,
   );

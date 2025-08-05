@@ -18,7 +18,13 @@ import { clearSelectedCourses } from "@/store/slices/localDataSlice";
 import { I18nKey, Language, t } from "@/lib/i18n";
 import { TooltipId } from "@/lib/enums";
 
-const CourseTaken = () => {
+const CourseTaken = ({
+  className,
+  style,
+}: {
+  className?: string;
+  style?: React.CSSProperties;
+}) => {
   const dispatch = useAppDispatch();
   const isCourseTakenExpanded = useAppSelector(
     (state) => state.global.isCourseTakenExpanded,
@@ -66,7 +72,9 @@ const CourseTaken = () => {
         "course-taken",
         isCourseTakenExpanded && "expanded",
         !isInitialized && "disabled",
+        className,
       ])}
+      style={style}
     >
       <header onClick={handleExpand}>
         {hasSelectedCourses ? (

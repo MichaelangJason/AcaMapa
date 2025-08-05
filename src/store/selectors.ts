@@ -50,26 +50,29 @@ export const selectCurrentPlan = createAppSelector(
   },
 );
 
-export const selectCurrentTerms = createAppSelector(
+export const selectTermData = createAppSelector(
   [
     (state) => state.global.isInitialized,
     (state) => state.localData.currentPlanId,
     (state) => state.userData.planData,
     (state) => state.userData.termData,
+    (_: RootState, planId?: string) => planId,
   ],
-  (isInitialized, currentPlanId, planData, termData) => {
+  (isInitialized, currentPlanId, planData, termData, planId) => {
     if (!isInitialized) {
       return [];
     }
 
+    const targetPlanId = planId ?? currentPlanId;
+
     if (
-      !currentPlanId ||
-      !isValidObjectId(currentPlanId) ||
-      !planData.has(currentPlanId)
+      !targetPlanId ||
+      !isValidObjectId(targetPlanId) ||
+      !planData.has(targetPlanId)
     ) {
-      throw new Error(`Invalid current plan id: ${currentPlanId}`);
+      throw new Error(`Invalid plan id: ${targetPlanId}`);
     }
-    const termOrder = planData.get(currentPlanId)!.termOrder;
+    const termOrder = planData.get(targetPlanId)!.termOrder;
     const terms = termOrder.reduce((acc, termId) => {
       const term = termData.get(termId);
       if (!term) {
@@ -82,13 +85,14 @@ export const selectCurrentTerms = createAppSelector(
   },
 );
 
-export const selectCurrentCoursePerTerms = createAppSelector(
+export const selectCoursePerTerms = createAppSelector(
   [
     (state) => state.global.isInitialized,
     (state) => state.userData.planData,
     (state) => state.userData.termData,
     (state) => state.localData.cachedDetailedCourseData,
     (state) => state.localData.currentPlanId,
+    (_: RootState, planId?: string) => planId,
   ],
   (
     isInitialized,
@@ -96,14 +100,17 @@ export const selectCurrentCoursePerTerms = createAppSelector(
     termData,
     cachedDetailedCourseData,
     currentPlanId,
+    planId,
   ) => {
     if (!isInitialized) {
       return {};
     }
 
-    const plan = planData.get(currentPlanId);
+    const plan = planData.get(planId ?? currentPlanId);
     if (!plan) {
-      throw new Error(`Plan id not found in plan data: ${currentPlanId}`);
+      throw new Error(
+        `Plan id not found in plan data: ${planId ?? currentPlanId}`,
+      );
     }
 
     const courseDataPerTerm = plan.termOrder.reduce(
