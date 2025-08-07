@@ -252,8 +252,54 @@
   }
 
   .export-options {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
+    flex-direction: column;
+    row-gap: 0.5rem;
+    justify-content: center;
+    align-items: center;
+
+    font-size: 0.875rem;
+    color: var(--gray-800);
+    font-weight: bold;
+
+    margin: 0.5rem 0;
+
+    label {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+
+      width: 86%;
+
+      input {
+        width: 1rem;
+        height: 1rem;
+        &:hover {
+          cursor: pointer;
+        }
+      }
+
+      &:hover {
+        cursor: pointer;
+      }
+    }
+
+    .lang-options {
+      margin-top: 0.5rem;
+      width: 86%;
+      display: flex;
+      flex-direction: row;
+      gap: 2rem;
+
+      label {
+        width: fit-content;
+      }
+    }
+
+    input {
+      width: fit-content;
+      margin: 0;
+    }
   }
 
   .preview-container {

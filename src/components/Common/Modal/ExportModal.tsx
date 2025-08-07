@@ -127,40 +127,68 @@ const ExportModal = () => {
       )}
 
       <form className="export-options">
-        <label>{t([I18nKey.INCLUDE_PLAN_STATS], formState.lang)}</label>
-        <input
-          type="checkbox"
-          checked={formState.includePlanStats}
-          onChange={(e) => handleChange("includePlanStats", e.target.checked)}
-        />
-        <label>{t([I18nKey.INCLUDE_COURSE_TAKEN], formState.lang)}</label>
-        <input
-          type="checkbox"
-          checked={formState.includeCourseTaken}
-          onChange={(e) => handleChange("includeCourseTaken", e.target.checked)}
-        />
-        <label>{t([I18nKey.EXPAND_COURSES], formState.lang)}</label>
-        <input
-          type="checkbox"
-          checked={formState.expandCourses}
-          onChange={(e) => handleChange("expandCourses", e.target.checked)}
-        />
-        <label>{Language.EN}</label>
-        <input
-          type="radio"
-          name="lang"
-          value={Language.EN}
-          checked={formState.lang === Language.EN}
-          onChange={() => handleChange("lang", Language.EN)}
-        />
-        <label>{Language.FR}</label>
-        <input
-          type="radio"
-          name="lang"
-          value={Language.FR}
-          checked={formState.lang === Language.FR}
-          onChange={() => handleChange("lang", Language.FR)}
-        />
+        <label htmlFor="includePlanStats">
+          <input
+            id="includePlanStats"
+            type="checkbox"
+            name="includePlanStats"
+            checked={formState.includePlanStats}
+            onChange={(e) => handleChange("includePlanStats", e.target.checked)}
+          />
+          {t([I18nKey.INCLUDE_PLAN_STATS], userLang)}
+        </label>
+
+        <label htmlFor="includeCourseTaken">
+          <input
+            id="includeCourseTaken"
+            type="checkbox"
+            name="includeCourseTaken"
+            checked={formState.includeCourseTaken}
+            onChange={(e) =>
+              handleChange("includeCourseTaken", e.target.checked)
+            }
+          />
+          {t([I18nKey.INCLUDE_COURSE_TAKEN], userLang)}
+        </label>
+
+        <label htmlFor="expandCourses">
+          <input
+            id="expandCourses"
+            name="expandCourses"
+            type="checkbox"
+            checked={formState.expandCourses}
+            onChange={(e) => handleChange("expandCourses", e.target.checked)}
+          />
+          {t([I18nKey.EXPAND_COURSES], userLang)}
+        </label>
+
+        <div />
+
+        <div className="lang-options">
+          <label htmlFor="langEn">
+            <input
+              id="langEn"
+              type="radio"
+              name="lang"
+              value={Language.EN}
+              checked={formState.lang === Language.EN}
+              onChange={() => handleChange("lang", Language.EN)}
+            />
+            {Language.EN}
+          </label>
+
+          <label htmlFor="langFr">
+            <input
+              id="langFr"
+              type="radio"
+              name="lang"
+              value={Language.FR}
+              checked={formState.lang === Language.FR}
+              onChange={() => handleChange("lang", Language.FR)}
+            />
+            {Language.FR}
+          </label>
+        </div>
       </form>
 
       {previewUrl ? (
