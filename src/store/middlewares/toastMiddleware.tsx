@@ -425,9 +425,9 @@ startListening({
         const courseIds = action.payload;
         const courseIdsStr = courseIds.join("\n");
         toast.success(
-          t([I18nKey.ADDED_TO_M], lang, {
-            item1: courseIdsStr,
-            item2: t([I18nKey.COURSE_TAKEN], lang),
+          t([I18nKey.P_ITEM2, I18nKey.ADDED_TO_M], lang, {
+            item1: t([I18nKey.COURSE_TAKEN], lang),
+            item2: courseIdsStr,
           }),
         );
         break;

@@ -298,9 +298,13 @@ const validationMiddleware: Middleware<
       }
       case "userData/addCourseTaken": {
         const courseIds = action.payload;
-        if (courseIds.some((id: string) => typeof id !== "string")) {
+        if (courseIds.some((id: string) => !isValidCourseId(id))) {
           throw new Error(`Invalid course id: ${courseIds}`);
         }
+        if (courseIds.some((id: string) => !state.localData.courseData[id])) {
+          throw new Error(`Course not found in local data: ${courseIds}`);
+        }
+
         const courseTaken = state.userData.courseTaken;
 
         const errors: string[] = [];
