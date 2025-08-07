@@ -1,6 +1,6 @@
 "use client";
 
-import HamburgerIcon from "@/public/icons/hamburger.svg";
+import PlanIcon from "@/public/icons/plan.svg";
 import GithubMark from "@/public/icons/github-mark.svg";
 import { ItemTag, UserLang } from "../Common";
 import { selectPlanStats } from "@/store/selectors";
@@ -170,7 +170,7 @@ const UtilityBar = () => {
         handleClose={handleCloseDropdownMenu}
         trigger={{
           node: (
-            <HamburgerIcon
+            <PlanIcon
               className={clsx("hamburger", !isInitialized && "disabled")}
               data-tooltip-id={TooltipId.UTILITY_BAR}
               data-tooltip-content={

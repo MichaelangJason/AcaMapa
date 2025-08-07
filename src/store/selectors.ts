@@ -317,7 +317,11 @@ export const selectCourseDepMeta = createSelector(
   ) => {
     if (!isInitialized) {
       return {
-        getCourseSource: () => ({ isValid: false, source: "" }),
+        getCourseSource: () => ({
+          isValid: false,
+          source: "",
+          isSatisfied: false,
+        }),
         getValidCourses: () => ({
           totalCredits: 0,
           validSubjectMap: {} as ValidSubjectMap,
@@ -397,9 +401,13 @@ export const selectCourseDepMeta = createSelector(
           ? (userData.termData.get(targetTermId)?.name ?? "")
           : "";
 
+      const isSatisfied =
+        source === "Course Taken" || !!depGraph.get(courseId)?.isSatisfied;
+
       return {
         isValid: !!isValid,
         source,
+        isSatisfied,
       };
     };
 

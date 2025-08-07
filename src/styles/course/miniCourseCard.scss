@@ -17,6 +17,11 @@
     color: var(--gray-000);
   }
 
+  &.unsatisfied .credits span {
+    background: var(--unsatisfy-red, #ff0000);
+    color: var(--gray-000);
+  }
+
   &.skeleton {
     height: 3.9375rem;
     .info {

@@ -29,7 +29,12 @@ const MiniCourseCard = ({
 }) => {
   const { id, name, credits } = data;
   const { getCourseSource } = useAppSelector(selectCourseDepMeta);
-  const { source } = getCourseSource(id, "", null, false);
+  const { source, isSatisfied: isSatisfiedSource } = getCourseSource(
+    id,
+    "",
+    null,
+    false,
+  );
   const isAddingCourse = useAppSelector((state) => state.global.isAddingCourse);
   const isDragging = useAppSelector((state) => state.global.isDragging);
   const dispatch = useAppDispatch();
@@ -64,11 +69,12 @@ const MiniCourseCard = ({
 
   return (
     <article
-      className={clsx([
-        "mini-course-card",
-        isSelected && "selected",
-        (source !== "" || isSatisfied) && "satisfied",
-      ])}
+      className={clsx({
+        "mini-course-card": true,
+        selected: isSelected,
+        satisfied: isSatisfied || (source !== "" && isSatisfiedSource),
+        unsatisfied: source !== "" && !isSatisfiedSource,
+      })}
       style={style}
     >
       {/* credits */}
