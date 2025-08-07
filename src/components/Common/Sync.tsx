@@ -2,7 +2,7 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import SyncIcon from "@/public/icons/sync-2.svg";
 import clsx from "clsx";
 import { TooltipId } from "@/lib/enums";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import { getDebouncedSync } from "@/lib/sync";
 import { setSyncStatus } from "@/store/slices/localDataSlice";
 import { useSession } from "next-auth/react";
@@ -16,6 +16,7 @@ const Sync = () => {
   );
   const { data: session } = useSession();
   const lang = useAppSelector((state) => state.userData.lang) as Language;
+  const syncRef = useRef<HTMLImageElement>(null);
 
   const dispatch = useAppDispatch();
   const debouncedSync = useCallback(() => {
@@ -54,22 +55,19 @@ const Sync = () => {
 
   return (
     <section
-      className={clsx(
-        "sync-container",
-        isInitialized && !isDragging && !isSyncing && "clickable",
-      )}
+      className={clsx({
+        "sync-container": true,
+        clickable: isInitialized && !isDragging && !isSyncing,
+        syncing: isSyncing,
+        error: !isSyncing && syncError !== null,
+      })}
       data-tooltip-id={TooltipId.SYNC}
       data-tooltip-html={tooltipHtml}
       data-tooltip-place="bottom"
       onClick={debouncedSync}
+      ref={syncRef}
     >
-      <SyncIcon
-        className={clsx(
-          "sync-icon",
-          isSyncing && "syncing",
-          syncError && "error",
-        )}
-      />
+      <SyncIcon className="sync-icon" />
     </section>
   );
 };

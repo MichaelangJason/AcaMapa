@@ -332,6 +332,7 @@ export const selectCourseDepMeta = createSelector(
     const plan = userData.planData.get(planId);
     const courseTaken = userData.courseTaken;
     if (!plan) {
+      console.log("plan not found", planId);
       throw new Error(`Plan id not found in plan data: ${planId}`);
     }
     const termOrderMap = new Map(

@@ -82,6 +82,22 @@
     align-items: center;
     justify-content: center;
 
+    &.error:not(.syncing) svg {
+      opacity: 1;
+      fill: var(--mcgill-red);
+    }
+
+    &.success:not(.syncing) svg {
+      opacity: 1;
+      fill: var(--sync-green);
+    }
+
+    &.syncing svg {
+      opacity: 1;
+      fill: var(--gray-600);
+      animation: sync-icon-spin 1s linear infinite;
+    }
+
     svg {
       width: 1.5rem;
       height: 1.5rem;
@@ -89,24 +105,11 @@
       opacity: 0.6;
       rotate: -45deg;
       transition:
-        fill 0.15s ease,
-        opacity 0.15s ease;
+        fill 0.2s ease,
+        opacity 0.2s ease;
 
       &:hover:not(.syncing):not(.disabled) {
         opacity: 1;
-      }
-      &.syncing {
-        opacity: 1;
-        fill: var(--gray-600);
-        animation: sync-icon-spin 1s linear infinite;
-      }
-      &.success {
-        opacity: 1;
-        fill: var(--success-green);
-      }
-      &.error {
-        opacity: 1;
-        fill: var(--error-red);
       }
     }
   }
