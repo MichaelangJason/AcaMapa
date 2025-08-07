@@ -44,7 +44,8 @@
   "loading-more": "Chargement...",
   "merge": "Fusionner",
   "keep": "Conserver",
-
+  "export": "Exporter",
+  
   "error": "Erreur",
   "not-found": "Non trouvé",
   "not-found-in": "Non trouvé dans",

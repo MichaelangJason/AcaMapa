@@ -30,6 +30,14 @@
     border-color: var(--gray-500);
   }
 
+  &.export {
+    height: 100%;
+    min-height: fit-content;
+    .term-body {
+      height: fit-content;
+    }
+  }
+
   .term-header {
     position: relative;
     display: flex;
@@ -172,6 +180,22 @@
 
     &.scroll-disabled {
       overflow: hidden;
+    }
+
+    .empty-term {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: auto;
+      max-height: max-content;
+      margin-bottom: 0.5rem;
+
+      & > span {
+        font-size: 1rem;
+        font-style: italic;
+        color: var(--gray-400);
+        align-self: center;
+      }
     }
   }
 

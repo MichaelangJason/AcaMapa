@@ -29,6 +29,7 @@ const Wrapper = ({
   draggableProvided,
   draggableSnapshot,
   extraProps,
+  isExport = false,
 }: {
   heading: string;
   headingHref?: string;
@@ -54,6 +55,7 @@ const Wrapper = ({
   draggableProvided?: DraggableProvided;
   draggableSnapshot?: DraggableStateSnapshot;
   extraProps?: React.HTMLAttributes<HTMLElement>;
+  isExport?: boolean;
 }) => {
   const {
     draggableProps = {},
@@ -106,7 +108,7 @@ const Wrapper = ({
         </h4>
         <h5 className="subheading">{subheading}</h5>
         <section className="icons-container">
-          {handleSeek && (
+          {!isExport && handleSeek && (
             <div
               className={clsx([
                 "seek",
@@ -125,7 +127,7 @@ const Wrapper = ({
               <SeekIcon />
             </div>
           )}
-          {toggleIsExpanded && (
+          {!isExport && toggleIsExpanded && (
             <div
               className={clsx(["expand", disableMap?.expand && "disabled"])}
               data-tooltip-id={TooltipId.COURSE_CARD_WRAPPER}
@@ -138,7 +140,7 @@ const Wrapper = ({
               <ExpandIcon />
             </div>
           )}
-          {handleDelete && (
+          {!isExport && handleDelete && (
             <div
               className={clsx(["delete", disableMap?.delete && "disabled"])}
               data-tooltip-id={TooltipId.COURSE_CARD_WRAPPER}

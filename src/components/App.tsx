@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo } from "react";
 import { SideBar, UtilityBar } from "./Layout";
-import { SimpleModal, ToolTips } from "./Common";
+import { SimpleModal, ToolTips, ExportModal } from "./Common";
 import { Terms } from "./Term";
 import { Provider } from "react-redux";
 import { AppStore, makeStore } from "@/store";
@@ -38,6 +38,7 @@ const App = ({
         <UtilityBar />
         <Terms />
         {/* <Assistant /> */}
+        <ExportModal />
         <SimpleModal />
         <ToolTips />
         <ToastContainer

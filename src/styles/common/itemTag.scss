@@ -11,10 +11,29 @@
   box-sizing: border-box;
   min-height: 1.5rem;
   flex-shrink: 0;
+  height: fit-content;
+  text-wrap: nowrap;
 
   &.expanded {
     padding-bottom: 0.375rem;
     box-shadow: var(--shadow-default);
+  }
+
+  &.export {
+    width: 100%;
+    min-width: fit-content;
+
+    border-radius: 0.6375rem;
+    padding: 0.5rem 0.75rem 0.75rem 0.75rem;
+    // .item-tag-items {
+    //   flex-direction: row;
+    //   width: fit-content;
+
+    //   .item-tag-item {
+    //     width: fit-content;
+    //     text-wrap: nowrap;
+    //   }
+    // }
   }
 
   .item-tag-header {

@@ -19,6 +19,12 @@
   background: var(--gray-000);
   box-shadow: var(--shadow-default-heavy);
 
+  &.export {
+    position: relative;
+    max-height: unset;
+    bottom: unset;
+  }
+
   &.disabled {
     background: var(--gray-100);
     pointer-events: none;

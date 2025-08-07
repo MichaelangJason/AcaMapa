@@ -15,6 +15,7 @@ import {
 } from "@/store/slices/localDataSlice";
 import { MAX_PLAN_NAME_LEN } from "@/lib/constants";
 import { I18nKey, Language, t } from "@/lib/i18n";
+import { prepareExport } from "@/store/thunks";
 
 const Plans = ({
   handleCloseDropdownMenu,
@@ -83,6 +84,14 @@ const Plans = ({
     [dispatch, plans, lang],
   );
 
+  const handleExportPlan = useCallback(
+    async (planId: string) => {
+      await dispatch(prepareExport(planId));
+      handleCloseDropdownMenu();
+    },
+    [dispatch, handleCloseDropdownMenu],
+  );
+
   const dragStart = useCallback(() => {
     dispatch(setIsDragging(true));
   }, [dispatch]);
@@ -140,6 +149,13 @@ const Plans = ({
               isHideIndicator: true,
               isHideFiller: true,
             },
+            {
+              id: planId,
+              content: t([I18nKey.EXPORT], lang),
+              handleClick: handleExportPlan, // TODO
+              isHideIndicator: true,
+              isHideFiller: true,
+            },
           ] as DropdownOption[],
           handleCloseDropdownMenu,
           className: "plan-item",
@@ -153,6 +169,7 @@ const Plans = ({
       handleDeletePlan,
       handleSelectPlan,
       handleRenamePlan,
+      handleExportPlan,
       lang,
     ],
   );

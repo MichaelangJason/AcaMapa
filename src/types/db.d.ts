@@ -44,3 +44,6 @@ export type MemberData = Omit<
   "createdAt" | "updatedAt" | "lastLogin" | "email"
 >;
 export type GuestUserData = Omit<MemberData, "chatThreadIds">;
+export type CourseTaken = GuestUserData["courseTaken"];
+export type TermData = GuestUserData["termData"];
+export type PlanData = GuestUserData["planData"];

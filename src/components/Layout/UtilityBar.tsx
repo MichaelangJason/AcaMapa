@@ -20,6 +20,7 @@ import {
 import { useCallback, useEffect, useMemo } from "react";
 import { getCommandKey } from "@/lib/utils";
 import { addPlan, addTerm, deletePlan } from "@/store/slices/userDataSlice";
+import { prepareExport } from "@/store/thunks";
 import type { ItemProps } from "../Common/DropdownMenu/Item";
 import { TooltipId } from "@/lib/enums";
 import clsx from "clsx";
@@ -119,6 +120,15 @@ const UtilityBar = () => {
           content: t([I18nKey.DELETE, I18nKey.CURRENT_PLAN], lang),
           handleClick: () => {
             dispatch(deletePlan(currentPlanId));
+          },
+        },
+      },
+      {
+        self: {
+          id: "export-current-plan",
+          content: t([I18nKey.EXPORT, I18nKey.CURRENT_PLAN], lang),
+          handleClick: () => {
+            dispatch(prepareExport(currentPlanId));
           },
         },
       },

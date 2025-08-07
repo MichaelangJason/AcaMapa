@@ -21,9 +21,13 @@ import { TooltipId } from "@/lib/enums";
 const CourseTaken = ({
   className,
   style,
+  isExport,
+  displayLang,
 }: {
   className?: string;
   style?: React.CSSProperties;
+  isExport?: boolean;
+  displayLang?: Language;
 }) => {
   const dispatch = useAppDispatch();
   const isCourseTakenExpanded = useAppSelector(
@@ -37,23 +41,24 @@ const CourseTaken = ({
   );
   const courseTaken = useAppSelector((state) => state.userData.courseTaken);
   const isInitialized = useAppSelector((state) => state.global.isInitialized);
-  const lang = useAppSelector((state) => state.userData.lang) as Language;
+  const userLang = useAppSelector((state) => state.userData.lang) as Language;
+  const lang = displayLang || userLang;
 
   const handleExpand = useCallback(() => {
-    if (!isInitialized) return;
+    if (!isInitialized || isExport) return;
     dispatch(toggleIsCourseTakenExpanded());
-  }, [dispatch, isInitialized]);
+  }, [dispatch, isInitialized, isExport]);
   const handleRemoveCourseTaken = useCallback(
     (source?: string) => {
-      if (!isInitialized) return;
+      if (!isInitialized || isExport) return;
       if (!source) return;
       dispatch(removeCourseTaken([source]));
     },
-    [dispatch, isInitialized],
+    [dispatch, isInitialized, isExport],
   );
   const handleAddCourseTaken = useCallback(
     (e: React.MouseEvent<HTMLButtonElement>) => {
-      if (!isInitialized) return;
+      if (!isInitialized || isExport) return;
       e.stopPropagation();
       dispatch(
         addCourseTaken(
@@ -63,16 +68,19 @@ const CourseTaken = ({
       dispatch(clearSelectedCourses());
       dispatch(setIsCourseTakenExpanded(true));
     },
-    [dispatch, selectedCourses, isInitialized],
+    [dispatch, selectedCourses, isInitialized, isExport],
   );
+
+  const isExpanded = isExport || isCourseTakenExpanded;
 
   return (
     <section
       className={clsx([
         "course-taken",
-        isCourseTakenExpanded && "expanded",
+        isExpanded && "expanded",
         !isInitialized && "disabled",
         className,
+        isExport && "export",
       ])}
       style={style}
     >
@@ -88,8 +96,14 @@ const CourseTaken = ({
         )}
         <ExpandIcon className="expand" />
       </header>
-      {isCourseTakenExpanded ? (
-        <section className="course-taken-list scrollbar-custom scroll-mask">
+      {isExpanded ? (
+        <section
+          className={clsx(
+            "course-taken-list scrollbar-custom",
+            !isExport && "scroll-mask",
+            isExport && "export",
+          )}
+        >
           {courseTaken.size <= 0 ? (
             <span className="empty">{t([I18nKey.EMPTY], lang)}</span>
           ) : (

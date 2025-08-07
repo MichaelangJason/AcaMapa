@@ -2,6 +2,8 @@ export const RESULT_PER_PAGE = 10;
 
 export const MAX_SELECTED_COURSE = 7;
 
+export const EXPORT_DELAY = 1500;
+
 export const MAX_PLAN = 10;
 export const MAX_TERM_PER_PLAN = 20;
 export const MAX_COURSE_PER_TERM = 10;
@@ -11,13 +13,13 @@ export const MAX_TERM_NAME_LEN = 20;
 
 export const MULTI_SELECT_CONFIG = {
   DISPLAYED_SELECTED_COURSE: 3,
-  // TODO: fix this to 64px when min-height issue is resolved
+  // FIX: fix this to 64px when min-height issue is resolved
   MIN_HEIGHT: 63,
   MARGINS: {
     EXPANDED: 16,
     COLLAPSED_VISIBLE: -50,
     HOVER: -40,
-    // TODO: fix this to 64px when min-height issue is resolved
+    // FIX: fix this to 64px when min-height issue is resolved
     COLLAPSED_HIDDEN: -63,
   },
   SCALE: {

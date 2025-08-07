@@ -4,7 +4,7 @@ import type { Plan, Term } from "@/types/db";
 import type { initialState as userDataState } from "@/store/slices/userDataSlice";
 import type { initialState as localDataState } from "@/store/slices/localDataSlice";
 import { isValidObjectId } from "@/lib/typeGuards";
-import type { CachedDetailedCourse, ValidSubjectMap } from "@/types/local";
+import type { ValidSubjectMap } from "@/types/local";
 import {
   getCourseLevel,
   getSubjectCode,
@@ -14,6 +14,7 @@ import {
 import { COURSE_PATTERN } from "@/lib/constants";
 import { ReqType } from "@/lib/enums";
 import { getSearchFn } from "@/lib/utils";
+import { getPlanCourseData, getPlanStats } from "@/lib/plan";
 
 const createAppSelector = createSelector.withTypes<RootState>();
 
@@ -85,7 +86,7 @@ export const selectTermData = createAppSelector(
   },
 );
 
-export const selectCoursePerTerms = createAppSelector(
+export const selectPlanCourseData = createAppSelector(
   [
     (state) => state.global.isInitialized,
     (state) => state.userData.planData,
@@ -113,30 +114,57 @@ export const selectCoursePerTerms = createAppSelector(
       );
     }
 
-    const courseDataPerTerm = plan.termOrder.reduce(
-      (acc, val) => {
-        const term = termData.get(val);
-        if (!term) {
-          throw new Error(`Term id not found in term data: ${val}`);
-        }
+    return getPlanCourseData(plan, termData, cachedDetailedCourseData);
+  },
+);
 
-        const courses = term.courseIds.map((courseId) => {
-          const course = cachedDetailedCourseData[courseId];
-          if (!course) {
-            throw new Error(
-              `Course id not found in cached detailed course data: ${courseId}`,
-            );
-          }
-          return course;
-        });
+export const selectExportInfo = createSelector(
+  (state: RootState) => state.global.isInitialized,
+  (state: RootState) => state.userData.planData,
+  (state: RootState) => state.userData.termData,
+  (state: RootState) => state.localData.courseData,
+  (state: RootState) => state.localData.cachedDetailedCourseData,
+  (state: RootState) => state.userData.courseTaken,
+  (_: RootState, planId: string) => planId,
+  (
+    isInitialized,
+    planData,
+    termData,
+    courseData,
+    cachedDetailedCourseData,
+    courseTaken,
+    planId,
+  ) => {
+    if (!isInitialized || !planId) {
+      return {};
+    }
 
-        acc[val] = courses;
-        return acc;
-      },
-      {} as { [termId: string]: CachedDetailedCourse[] },
+    const plan = planData.get(planId);
+    if (!plan) {
+      throw new Error(`Plan id not found in plan data: ${planId}`);
+    }
+
+    const terms = plan.termOrder
+      .map((termId) => termData.get(termId))
+      .filter((d) => d !== undefined);
+
+    if (terms.length !== plan.termOrder.length) {
+      throw new Error(`Some terms are missing in the plan: ${plan.termOrder}`);
+    }
+
+    const planStats = getPlanStats(plan, courseData, courseTaken);
+    const planCourseData = getPlanCourseData(
+      plan,
+      termData,
+      cachedDetailedCourseData,
     );
 
-    return courseDataPerTerm;
+    return {
+      terms,
+      plan,
+      planStats,
+      planCourseData,
+    };
   },
 );
 
@@ -235,12 +263,7 @@ export const selectCurrentPlanIsCourseExpanded = createSelector(
         `Course local metadata not found for plan: ${currentPlanId}`,
       );
     }
-    if (isCourseExpanded[currentPlanId][courseId] === undefined) {
-      throw new Error(
-        `Course local metadata not found for course: ${courseId}`,
-      );
-    }
-    return isCourseExpanded[currentPlanId][courseId];
+    return !!isCourseExpanded[currentPlanId][courseId];
   },
 );
 
@@ -511,62 +534,6 @@ export const selectPlanStats = createSelector(
     if (!plan) {
       throw new Error(`Plan id not found in plan data: ${planId}`);
     }
-    const totalPlanCredits = [...plan.courseMetadata.keys()].reduce(
-      (acc, courseId) => {
-        const course = courseData[courseId];
-        if (!course) {
-          throw new Error(`Course data not found: ${courseId}`);
-        }
-        return acc + course.credits;
-      },
-      0,
-    );
-
-    const totalCourseTakenCretids = [...courseTaken.keys()].reduce(
-      (acc, subject) => {
-        const courses = courseTaken.get(subject);
-        if (!courses) {
-          throw new Error(`Course taken not found for subject: ${subject}`);
-        }
-        return (
-          acc +
-          courses.reduce((acc, courseId) => {
-            const course = courseData[courseId];
-            if (!course) {
-              throw new Error(`Course data not found: ${courseId}`);
-            }
-            return acc + course.credits;
-          }, 0)
-        );
-      },
-      0,
-    );
-
-    const totalCredits = totalPlanCredits + totalCourseTakenCretids;
-
-    const totalCourseTaken = [...courseTaken.keys()].reduce((acc, subject) => {
-      const courses = courseTaken.get(subject);
-      if (!courses) {
-        throw new Error(`Course taken not found for subject: ${subject}`);
-      }
-      return acc + courses.length;
-    }, 0);
-    const totalPlannedCourses = Object.keys(plan.courseMetadata).length;
-    const totalCourses = totalPlannedCourses + totalCourseTaken;
-
-    const totalTerm = plan.termOrder.length;
-    const averageCreditsPerTerm =
-      Math.round((totalPlanCredits / totalTerm) * 100) / 100;
-
-    return {
-      totalPlanCredits,
-      totalCourseTakenCretids,
-      totalCredits,
-      totalCourseTaken,
-      totalPlannedCourses,
-      totalCourses,
-      totalTerm,
-      averageCreditsPerTerm,
-    };
+    return getPlanStats(plan, courseData, courseTaken);
   },
 );

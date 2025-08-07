@@ -77,7 +77,9 @@ const TermCard = ({
   courses,
   idx,
   isFirst,
+  isExport,
   isCourseDraggable = true,
+  displayLang,
   showButtons = true,
   addCourse,
   addTerm,
@@ -90,13 +92,16 @@ const TermCard = ({
   draggableSnapshot,
   droppableProvided,
   droppableSnapshot,
+  expandCourses,
 }: {
   planId: string;
   term: Term;
   courses: CachedDetailedCourse[];
   idx: number;
   isFirst: boolean;
+  isExport?: boolean;
   isCourseDraggable: boolean;
+  displayLang?: Language;
   showButtons: boolean;
   addTerm?: (termId: string, isBefore?: boolean) => void;
   deleteTerm?: (termId: string, termIdx: number) => void;
@@ -110,6 +115,7 @@ const TermCard = ({
   draggableSnapshot?: DraggableStateSnapshot;
   droppableProvided?: DroppableProvided;
   droppableSnapshot?: DroppableStateSnapshot;
+  expandCourses?: boolean;
 }) => {
   const hasSelectedCourses = useAppSelector(
     (state) => state.global.hasSelectedCourses,
@@ -119,7 +125,8 @@ const TermCard = ({
   const isSeekingCourse = useAppSelector(
     (state) => state.global.isSeekingCourse,
   );
-  const lang = useAppSelector((state) => state.userData.lang) as Language;
+  const userLang = useAppSelector((state) => state.userData.lang) as Language;
+  const lang = displayLang || userLang;
 
   const dispatch = useAppDispatch();
 
@@ -248,7 +255,10 @@ const TermCard = ({
               className={clsx([
                 "edit",
                 "clickable",
-                (isSeekingCourse || hasSelectedCourses || isDragging) &&
+                (isSeekingCourse ||
+                  hasSelectedCourses ||
+                  isDragging ||
+                  !showButtons) &&
                   "hidden",
               ])}
               onClick={handleRenameTerm}
@@ -308,6 +318,8 @@ const TermCard = ({
                   isDraggingTerm={isDraggingTerm ?? false}
                   draggableProvided={courseDraggableProvided}
                   draggableSnapshot={courseDraggableSnapshot}
+                  isExport={isExport}
+                  expandCourses={expandCourses}
                 />
               )}
             </Draggable>
@@ -322,10 +334,17 @@ const TermCard = ({
               handleDelete={handleDeleteCourse}
               setIsExpanded={setIsCourseExpanded}
               isDraggingTerm={isDraggingTerm ?? false}
+              isExport={isExport}
+              expandCourses={expandCourses}
             />
           ),
         )}
-        {droppableProvided?.placeholder}
+        {isExport && courses.length === 0 && (
+          <div className="empty-term">
+            <span>{t([I18nKey.EMPTY], lang)}</span>
+          </div>
+        )}
+        {!isExport && droppableProvided?.placeholder}
       </main>
 
       {/* footer for the term card */}

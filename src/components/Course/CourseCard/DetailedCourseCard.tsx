@@ -36,6 +36,8 @@ const DetailedCourseCard = ({
   isDraggingTerm = false,
   draggableProvided,
   draggableSnapshot,
+  isExport = false,
+  expandCourses,
 }: {
   course: CachedDetailedCourse;
   idx: number;
@@ -46,6 +48,8 @@ const DetailedCourseCard = ({
   isDraggingTerm?: boolean;
   draggableProvided?: DraggableProvided;
   draggableSnapshot?: DraggableStateSnapshot;
+  isExport?: boolean;
+  expandCourses?: boolean;
 }) => {
   const lang = useAppSelector((state) => state.userData.lang) as Language;
   const {
@@ -137,12 +141,13 @@ const DetailedCourseCard = ({
         isSeekingSelf && "seeking",
       ])}
       isSeeking={isSeekingSelf}
-      isExpanded={!!setIsExpanded && isExpanded} // default to false if setIsExpanded is not provided
+      isExport={isExport}
+      isExpanded={expandCourses || (!!setIsExpanded && isExpanded)} // default to false if setIsExpanded is not provided
       disableMap={{
-        seek: isSeekingCourse && !isSeekingSelf,
-        delete: isSeekingCourse,
-        expand: isSeekingCourse,
-        shovel: isSatisfied || isSeekingCourse,
+        seek: (isSeekingCourse && !isSeekingSelf) || isExport,
+        delete: isSeekingCourse || isExport,
+        expand: isSeekingCourse || isExport,
+        shovel: isSatisfied || isSeekingCourse || isExport,
       }}
       toggleIsExpanded={() => setIsExpanded?.(id, !isExpanded)}
       handleDelete={() => handleDelete?.(id)}
@@ -154,7 +159,7 @@ const DetailedCourseCard = ({
         id,
       }}
     >
-      {isExpanded && (
+      {(expandCourses || isExpanded) && (
         <>
           {prerequisites?.raw && (
             <ReqNotes

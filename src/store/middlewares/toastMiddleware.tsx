@@ -9,7 +9,13 @@ import {
   isValidDetailedCourse,
 } from "@/lib/typeGuards";
 import { setSeekingCourseId, setCurrentPlanId } from "../slices/localDataSlice";
-import { addCourseToTerm, fetchCourseData, fullSync, initApp } from "../thunks";
+import {
+  addCourseToTerm,
+  fetchCourseData,
+  fullSync,
+  initApp,
+  prepareExport,
+} from "../thunks";
 import { formatCourseId } from "@/lib/utils";
 import { ToastId } from "@/lib/enums";
 import { I18nKey, Language, t } from "@/lib/i18n";
@@ -19,6 +25,51 @@ const startListening = listenerMiddleware.startListening.withTypes<
   RootState,
   AppDispatch
 >();
+
+startListening({
+  matcher: isAnyOf(
+    prepareExport.pending,
+    prepareExport.fulfilled,
+    prepareExport.rejected,
+  ),
+  effect: (action, listenerApi) => {
+    const lang = listenerApi.getState().userData.lang as Language;
+    switch (action.type) {
+      case prepareExport.pending.type: {
+        toast.loading(t([I18nKey.PREPARING_EXPORT], lang), {
+          toastId: ToastId.PREPARE_EXPORT,
+          autoClose: false,
+        });
+        break;
+      }
+      case prepareExport.fulfilled.type: {
+        toast.update(ToastId.PREPARE_EXPORT, {
+          render: () => t([I18nKey.PREPARED_EXPORT], lang),
+          type: "success",
+          isLoading: false,
+          autoClose: 3000,
+          closeButton: true,
+        });
+        break;
+      }
+      case prepareExport.rejected.type: {
+        toast.update(ToastId.PREPARE_EXPORT, {
+          render: () =>
+            t([I18nKey.FAILED_TO_EXPORT], lang, {
+              item1: action.payload as string,
+            }),
+          type: "error",
+          isLoading: false,
+          autoClose: 3000,
+          closeButton: true,
+        });
+        break;
+      }
+      default:
+        break;
+    }
+  },
+});
 
 startListening({
   matcher: isAnyOf(fullSync.fulfilled, fullSync.rejected, fullSync.pending),
@@ -113,13 +164,25 @@ startListening({
           return (
             <div>
               <strong>
-                {courseIds.flatMap((id, idx) =>
-                  idx === 0
-                    ? [<span key={id}>{formatCourseId(id)}</span>]
-                    : [
-                        <br key={`${id}-br`} />,
-                        <span key={id}>{formatCourseId(id)}</span>,
-                      ],
+                {courseIds
+                  .slice(0, 3)
+                  .flatMap((id, idx) =>
+                    idx === 0
+                      ? [<span key={id}>{formatCourseId(id)}</span>]
+                      : [
+                          <br key={`${id}-br`} />,
+                          <span key={id}>{formatCourseId(id)}</span>,
+                        ],
+                  )}
+                {courseIds.length > 3 && (
+                  <>
+                    <br />
+                    <span>
+                      {t([I18nKey.AND], lang)}
+                      {courseIds.length - 3}
+                      {t([I18nKey.MORE], lang)}
+                    </span>
+                  </>
                 )}
               </strong>
               <br />

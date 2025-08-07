@@ -1,3 +1,5 @@
+"use client";
+
 import Modal from "react-modal";
 import { useState } from "react";
 import CloseIcon from "@/public/icons/delete.svg";
@@ -25,7 +27,7 @@ const SimpleModal = () => {
     isOpen,
     inputConfig,
     confirmText = t([I18nKey.CONFIRM], lang),
-    closeText = t([I18nKey.CLEAR], lang),
+    closeText = t([I18nKey.CLOSE], lang),
     extraOptions = [],
   } = useAppSelector(
     (state) => state.localData.simpleModalInfo,

@@ -17,6 +17,20 @@
   &.sidebar-folded {
     margin-left: 0;
   }
+
+  &.export {
+    width: fit-content;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    border: none !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+
+    grid-column: 2;
+    grid-row: 2 / 4;
+  }
 }
 
 .no-scroll-container {

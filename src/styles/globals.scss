@@ -94,6 +94,11 @@ body::-webkit-scrollbar {
 body {
   position: relative;
   font-family: Arial, Helvetica, sans-serif;
+  // Add these properties for better text rendering
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-smooth: never; // Prevent font smoothing issues
 
   // height: 100vh;
   width: fit-content;
@@ -114,6 +119,22 @@ body {
 
   &.left-sidebar-folded {
     padding: 0;
+  }
+}
+
+// Add a specific class for export elements to ensure consistent text rendering
+.export-container {
+  font-family: Arial, Helvetica, sans-serif !important;
+  text-rendering: optimizeLegibility !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+  font-smooth: never !important;
+
+  * {
+    font-family: Arial, Helvetica, sans-serif !important;
+    text-rendering: optimizeLegibility !important;
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
   }
 }
 
@@ -144,7 +165,7 @@ h6 {
   padding: 0rem;
 }
 
-.scroll-mask {
+.scroll-mask:not(.export) {
   mask-image: linear-gradient(
     to bottom,
     transparent,

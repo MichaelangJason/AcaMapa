@@ -2,7 +2,7 @@
 
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
-  selectCoursePerTerms,
+  selectPlanCourseData,
   selectCurrentPlan,
   selectTermData,
 } from "@/store/selectors";
@@ -37,7 +37,7 @@ import { TermCardSkeleton } from "../Skeleton";
 const Terms = () => {
   const currentPlan = useAppSelector(selectCurrentPlan);
   const currentTerms = useAppSelector(selectTermData);
-  const currentCourseDataPerTerm = useAppSelector(selectCoursePerTerms);
+  const currentCourseDataPerTerm = useAppSelector(selectPlanCourseData);
   const selectedCourses = useAppSelector(
     (state) => state.localData.selectedCourses,
   );

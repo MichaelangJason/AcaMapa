@@ -50,6 +50,11 @@ export enum I18nKey {
   LOADING_MORE = "loading-more",
   MERGE = "merge",
   KEEP = "keep",
+  EXPORT = "export",
+  CANCEL = "cancel",
+  EXPAND_COURSES = "expand-courses",
+  CLOSE = "close",
+  MORE = "more",
 
   // common errors
   ERROR = "error",
@@ -68,6 +73,7 @@ export enum I18nKey {
   FAILED_TO_ADD = "failed-to-add",
   NO_RESULTS = "no-results",
   NO_SUBSEQUENT_COURSES = "no-subsequent-courses",
+  FAILED_TO_EXPORT = "failed-to-export",
 
   // seek related
   SEEKING_TITLE = "seeking-title",
@@ -94,6 +100,12 @@ export enum I18nKey {
   CREATE_WITH_LOCAL_DATA_TITLE = "create-with-local-data-title",
   CREATE_WITH_LOCAL_DATA_DESC = "create-with-local-data-desc",
   UPLOAD = "upload",
+
+  // export related
+  INCLUDE_PLAN_STATS = "include-plan-stats",
+  INCLUDE_COURSE_TAKEN = "include-course-taken",
+  PREPARING_EXPORT = "preparing-export",
+  PREPARED_EXPORT = "prepared-export",
 
   // fetch + fetch errors
   FETCH_COURSE_FAILED = "fetch-course-failed",

@@ -20,6 +20,8 @@ const ItemTag = ({
   tooltipProps,
   alignItems = "flex-start",
   itemClassName,
+  isExport,
+  displayLang,
 }: {
   title: string;
   items: string[];
@@ -34,12 +36,16 @@ const ItemTag = ({
   className?: string;
   itemClassName?: string;
   style?: React.CSSProperties;
+  isExport?: boolean;
+  displayLang?: Language;
 }) => {
   const [isHovering, setIsHovering] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const isDragging = useAppSelector((state) => state.global.isDragging);
-  const lang = useAppSelector((state) => state.userData.lang) as Language;
-  const showExpanded = !isDragging && (isExpanded || isHovering);
+  const userLang = useAppSelector((state) => state.userData.lang) as Language;
+  const showExpanded = !isDragging && (isExpanded || isHovering || isExport);
+  const isTagExpanded = isExport || isExpanded;
+  const lang = displayLang || userLang;
 
   const handleClick = useCallback(() => {
     if (isPinnable && isExpandable) {
@@ -57,6 +63,7 @@ const ItemTag = ({
         "item-tag",
         showExpanded && items.length > 0 && "expanded",
         className,
+        isExport && "export",
       )}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
@@ -76,7 +83,7 @@ const ItemTag = ({
               className={clsx(
                 "pin",
                 showExpanded && "rotated",
-                isExpanded && "pinned",
+                isTagExpanded && "pinned",
               )}
             />
           </div>
@@ -86,7 +93,7 @@ const ItemTag = ({
             ...(tooltipProps || {}),
             "data-tooltip-content":
               (isPinnable
-                ? isExpanded
+                ? isTagExpanded
                   ? t([I18nKey.UNPIN], lang) + " "
                   : t([I18nKey.PIN], lang) + " "
                 : "") + (tooltipProps?.["data-tooltip-content"] || title),

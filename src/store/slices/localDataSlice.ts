@@ -51,6 +51,8 @@ export const initialState = {
   },
 
   session: null as Session | null,
+
+  exportPlanId: "" as string,
 };
 
 const localDataSlice = createSlice({
@@ -506,6 +508,14 @@ const localDataSlice = createSlice({
     clearSession: (state) => {
       state.session = null;
     },
+
+    /* export modal */
+    setExportPlanId: (state, action: PayloadAction<string>) => {
+      state.exportPlanId = action.payload;
+    },
+    clearExportPlanId: (state) => {
+      state.exportPlanId = "";
+    },
   },
 });
 
@@ -536,6 +546,8 @@ export const {
   setSyncStatus,
   setSession,
   clearSession,
+  setExportPlanId,
+  clearExportPlanId,
 } = localDataSlice.actions;
 
 export const localDataActions = localDataSlice.actions;
