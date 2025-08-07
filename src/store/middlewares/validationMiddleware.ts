@@ -12,6 +12,7 @@ import {
   isCourseTakenAction,
   isLocalDataAction,
   isValidObjectId,
+  isValidCourseId,
 } from "@/lib/typeGuards";
 import {
   MAX_PLAN,
@@ -398,6 +399,24 @@ const validationMiddleware: Middleware<
           throw new Error(`Invalid index: ${sourceIdx} or ${destIdx}`);
         }
 
+        break;
+      }
+      case "userData/setIsOverwritten": {
+        const { courseId, isOverwritten, planId } = action.payload;
+        if (!isValidCourseId(courseId)) {
+          throw new Error(`Invalid course id: ${courseId}`);
+        }
+        if (typeof isOverwritten !== "boolean") {
+          throw new Error(`Invalid is overwritten: ${isOverwritten}`);
+        }
+        if (!isValidObjectId(planId)) {
+          throw new Error(`Invalid plan id: ${planId}`);
+        }
+        if (
+          !state.userData.planData.get(planId)?.courseMetadata?.has(courseId)
+        ) {
+          throw new Error(`Course id not found in plan data: ${courseId}`);
+        }
         break;
       }
       default:
