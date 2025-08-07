@@ -116,6 +116,7 @@ const CourseTaken = ({
                       return (
                         <Tag
                           key={idx}
+                          id={`course-taken-${id}`}
                           sourceText={id}
                           displayText={formatCourseId(id)}
                           callback={handleRemoveCourseTaken}

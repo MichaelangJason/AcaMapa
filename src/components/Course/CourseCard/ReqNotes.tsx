@@ -19,7 +19,7 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { selectCourseDepMeta } from "@/store/selectors";
 import ScrollIcon from "@/public/icons/expand-single.svg";
 import clsx from "clsx";
-import { SCROLL_OFFSET } from "@/lib/constants";
+import { COURSE_TAKEN_SCROLL_DELAY, SCROLL_OFFSET } from "@/lib/constants";
 import { getTagStatus, getTagToolTip } from "@/lib/course";
 import { addCourseTaken } from "@/store/slices/userDataSlice";
 import { setIsCourseTakenExpanded } from "@/store/slices/globalSlice";
@@ -63,6 +63,14 @@ const ReqNotes = ({
       } else {
         if (source.toLowerCase() === "course taken") {
           dispatch(setIsCourseTakenExpanded(true));
+          setTimeout(() => {
+            document
+              .getElementById(`course-taken-${courseId}`)
+              ?.scrollIntoView({
+                behavior: "smooth",
+                block: "center",
+              });
+          }, COURSE_TAKEN_SCROLL_DELAY);
         } else {
           scrollCourseCardToView(courseId, { duration: 200 });
         }

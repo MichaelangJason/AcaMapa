@@ -12,7 +12,7 @@ export const MAX_PLAN_NAME_LEN = 20;
 export const MAX_TERM_NAME_LEN = 20;
 
 export const MAX_COURSE_IDS_TO_DISPLAY = 3;
-export const SUCCESS_ICON_DISPLAY_TIME = 1000;
+export const COURSE_TAKEN_SCROLL_DELAY = 100;
 
 export const MULTI_SELECT_CONFIG = {
   DISPLAYED_SELECTED_COURSE: 3,

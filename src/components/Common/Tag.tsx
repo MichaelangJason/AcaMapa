@@ -9,6 +9,7 @@ const Tag = ({
   style,
   isDisabled = false,
   tooltipOptions,
+  id,
 }: {
   sourceText: string;
   displayText: string;
@@ -17,6 +18,7 @@ const Tag = ({
   style?: React.CSSProperties;
   isDisabled?: boolean;
   tooltipOptions?: TooltipProps;
+  id?: string;
 }) => {
   // TODO: TOAST, TOOLTIP, HOVER, CB
   return (
@@ -24,6 +26,7 @@ const Tag = ({
       className={clsx("tag", className, isDisabled && "disabled")}
       style={style}
       onClick={() => callback?.(sourceText)}
+      id={id}
       {...(tooltipOptions || {})}
     >
       {displayText}

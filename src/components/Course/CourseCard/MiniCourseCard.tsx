@@ -1,7 +1,7 @@
 import type { Course } from "@/types/db";
 import { TextHighlighter } from "@/components/Common";
 import { useCallback } from "react";
-import { MCGILL_URL_BASES } from "@/lib/constants";
+import { COURSE_TAKEN_SCROLL_DELAY, MCGILL_URL_BASES } from "@/lib/constants";
 import { formatCourseId, scrollCourseCardToView } from "@/lib/utils";
 import RemoveIcon from "@/public/icons/minus.svg";
 import AddIcon from "@/public/icons/plus.svg";
@@ -58,6 +58,12 @@ const MiniCourseCard = ({
 
       if (source === "Course Taken") {
         dispatch(setIsCourseTakenExpanded(true));
+        setTimeout(() => {
+          document.getElementById(`course-taken-${id}`)?.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+          });
+        }, COURSE_TAKEN_SCROLL_DELAY);
       } else {
         scrollCourseCardToView(id, {
           duration: 300,
