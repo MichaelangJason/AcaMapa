@@ -32,7 +32,7 @@
   "one-f": "one",
   "credits": "Credits",
   "toggle": "Toggle",
-  "and": "&",
+  "and": "and",
   "expand": "Expand",
   "collapse": "Collapse",
   "select": "Select",
@@ -45,6 +45,10 @@
   "merge": "Merge",
   "keep": "Keep",
   "export": "Export",
+  "cancel": "Cancel",
+  "expand-courses": "Expand Courses",
+  "close": "Close",
+  "more": "More",
 
   "error": "Error",
   "not-found": "Not found",
@@ -86,6 +90,11 @@
   "create-with-local-data-title": "Local Data Detected",
   "create-with-local-data-desc": "You are about to create a new user, do you want to upload your local data? Your local data will be cleared after upload.",
   "upload": "Upload",
+
+  "include-plan-stats": "Include Plan Stats",
+  "include-course-taken": "Include Course Taken",
+  "preparing-export": "Preparing export",
+  "prepared-export": "Export ready",
 
   "fetch-course-failed": "Failed to fetch course",
   "fetched-m": "fetched",

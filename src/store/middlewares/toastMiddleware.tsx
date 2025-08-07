@@ -19,6 +19,7 @@ import {
 import { formatCourseId } from "@/lib/utils";
 import { ToastId } from "@/lib/enums";
 import { I18nKey, Language, t } from "@/lib/i18n";
+import { MAX_COURSE_IDS_TO_DISPLAY } from "@/lib/constants";
 
 const listenerMiddleware = createListenerMiddleware();
 const startListening = listenerMiddleware.startListening.withTypes<
@@ -165,7 +166,7 @@ startListening({
             <div>
               <strong>
                 {courseIds
-                  .slice(0, 3)
+                  .slice(0, MAX_COURSE_IDS_TO_DISPLAY)
                   .flatMap((id, idx) =>
                     idx === 0
                       ? [<span key={id}>{formatCourseId(id)}</span>]
@@ -174,13 +175,12 @@ startListening({
                           <span key={id}>{formatCourseId(id)}</span>,
                         ],
                   )}
-                {courseIds.length > 3 && (
+                {courseIds.length > MAX_COURSE_IDS_TO_DISPLAY && (
                   <>
                     <br />
                     <span>
-                      {t([I18nKey.AND], lang)}
-                      {courseIds.length - 3}
-                      {t([I18nKey.MORE], lang)}
+                      + {courseIds.length - MAX_COURSE_IDS_TO_DISPLAY}{" "}
+                      {t([I18nKey.MORE], lang).toLowerCase()}
                     </span>
                   </>
                 )}

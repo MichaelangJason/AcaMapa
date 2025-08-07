@@ -45,7 +45,11 @@
   "merge": "Fusionner",
   "keep": "Conserver",
   "export": "Exporter",
-  
+  "cancel": "Annuler",
+  "expand-courses": "Développer les cours",
+  "close": "Fermer",
+  "more": "Plus",
+
   "error": "Erreur",
   "not-found": "Non trouvé",
   "not-found-in": "Non trouvé dans",
@@ -86,6 +90,11 @@
   "create-with-local-data-title": "Données locales détectées",
   "create-with-local-data-desc": "Vous êtes sur le point de créer un nouvel utilisateur, voulez-vous téléverser vos données locales ? Vos données locales seront effacées après le téléchargement.",
   "upload": "Téléverser",
+
+  "include-plan-stats": "Inclure les statistiques du plan",
+  "include-course-taken": "Inclure les cours suivis",
+  "preparing-export": "Préparation de l'exportation",
+  "prepared-export": "Exportation prête",
 
   "fetch-course-failed": "Échec de la récupération du cours",
   "fetched-m": "récupéré",
