@@ -11,7 +11,6 @@ const AuthPage = async ({
     callbackUrl?: string;
   }>;
 }) => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { callbackUrl } = await searchParams;
 
   return (
@@ -32,7 +31,10 @@ const AuthPage = async ({
             }
 
             try {
-              await signIn(provider.id, formData);
+              await signIn(provider.id, {
+                email: formData.get("email") as string,
+                redirectTo: callbackUrl ?? "/",
+              });
             } catch (error) {
               // Signin can fail for a number of reasons, such as the user
               // not existing, or the user not having the correct role.
