@@ -26,6 +26,7 @@ const getMarginTop = (
     : MULTI_SELECT_CONFIG.MARGINS.COLLAPSED_HIDDEN;
 };
 
+// REVIEW
 const getStyle = (idx: number, isHovering: boolean, isExpanded: boolean) => {
   return {
     scale: isExpanded
@@ -35,11 +36,11 @@ const getStyle = (idx: number, isHovering: boolean, isExpanded: boolean) => {
           MULTI_SELECT_CONFIG.SCALE.MIN,
           1,
         ),
-    marginTop: `${getMarginTop(idx, isHovering, isExpanded)}px`,
+    marginTop: `${getMarginTop(idx, isHovering, isExpanded)}rem`,
     boxShadow: idx <= 2 || isExpanded ? "" : "none",
     background: `var(--gray-${clamp(isExpanded ? 0 : idx, 0, 4)}00)`,
     opacity: isExpanded || idx <= 2 ? 1 : clamp(1 - idx * 0.05, 0.7, 1),
-    height: MULTI_SELECT_CONFIG.MIN_HEIGHT,
+    height: `${MULTI_SELECT_CONFIG.MIN_HEIGHT}rem`,
   };
 };
 

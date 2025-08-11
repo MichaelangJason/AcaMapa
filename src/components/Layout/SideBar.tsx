@@ -8,7 +8,7 @@ import {
   setSearchResult,
   setSeekingCourseId,
 } from "@/store/slices/localDataSlice";
-import { useCallback, useMemo, memo } from "react";
+import { useCallback, useMemo, memo, useRef, useEffect } from "react";
 import { ResultType, TooltipId } from "@/lib/enums";
 import Image from "next/image";
 import clsx from "clsx";
@@ -27,6 +27,19 @@ const SideBar = () => {
   const searchResult = useAppSelector((state) => state.localData.searchResult);
   const searchCourseFn = useAppSelector(selectCourseSearchFn);
   const lang = useAppSelector((state) => state.userData.lang) as Language;
+  const sidebarRef = useRef<HTMLDivElement>(null);
+
+  const stopPropagation = useCallback((e: WheelEvent) => {
+    e.stopPropagation();
+  }, []);
+
+  useEffect(() => {
+    if (!sidebarRef.current) return;
+    sidebarRef.current.addEventListener("wheel", stopPropagation);
+    return () => {
+      sidebarRef.current?.removeEventListener("wheel", stopPropagation);
+    };
+  }, [stopPropagation]);
 
   const handleSearchCourse = useCallback(
     async (input: string) => {
@@ -69,6 +82,7 @@ const SideBar = () => {
 
   return (
     <div
+      ref={sidebarRef}
       className={clsx(["left-sidebar", isFolded && "folded"])}
       id="left-sidebar"
     >

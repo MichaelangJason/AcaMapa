@@ -20,10 +20,11 @@
     opacity: 0.75;
 
     .scroll-bar-thumb {
+      background-color: var(--gray-500);
+
       &:hover {
         cursor: pointer;
       }
-      background-color: var(--gray-500);
     }
   }
 

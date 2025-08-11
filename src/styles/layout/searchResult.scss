@@ -10,6 +10,15 @@
 
   margin-top: 0.5rem;
   padding-top: 0.25rem;
+
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: auth;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .multi-select-container {
@@ -61,6 +70,7 @@
   }
 
   &.expanded {
+    // overflow: scroll;
     cursor: pointer;
   }
 

@@ -14,16 +14,17 @@ export const MAX_TERM_NAME_LEN = 20;
 export const MAX_COURSE_IDS_TO_DISPLAY = 3;
 export const COURSE_TAKEN_SCROLL_DELAY = 100;
 
+// unit in rem
 export const MULTI_SELECT_CONFIG = {
   DISPLAYED_SELECTED_COURSE: 3,
   // FIX: fix this to 64px when min-height issue is resolved
-  MIN_HEIGHT: 63,
+  MIN_HEIGHT: 3.9375,
   MARGINS: {
-    EXPANDED: 16,
-    COLLAPSED_VISIBLE: -50,
-    HOVER: -40,
+    EXPANDED: 1.0625,
+    COLLAPSED_VISIBLE: -3.125,
+    HOVER: -2.5,
     // FIX: fix this to 64px when min-height issue is resolved
-    COLLAPSED_HIDDEN: -63,
+    COLLAPSED_HIDDEN: -3.9375,
   },
   SCALE: {
     MAX: 1,
