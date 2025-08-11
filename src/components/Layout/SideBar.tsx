@@ -68,7 +68,10 @@ const SideBar = () => {
   }, [searchResult, lang]);
 
   return (
-    <div className={clsx(["left-sidebar", isFolded && "folded"])}>
+    <div
+      className={clsx(["left-sidebar", isFolded && "folded"])}
+      id="left-sidebar"
+    >
       {/* folding handle */}
       <div className="right-handle" onClick={toggleFolded}>
         <ExpandIcon

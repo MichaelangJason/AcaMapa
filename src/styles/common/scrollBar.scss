@@ -1,0 +1,57 @@
+.scroll-track {
+  position: absolute;
+  width: 100%;
+  // background-color: var(--gray-100);
+  z-index: 1000;
+  transition:
+    width 0.2s ease-in-out,
+    left 0.2s ease-in-out,
+    height 0.2s ease-in-out,
+    background-color 0.2s ease,
+    border-radius 0.2s ease,
+    opacity 0.2s ease;
+  display: flex;
+  align-items: center;
+  opacity: 0;
+
+  &:hover:not(.hidden),
+  &.show {
+    // background-color: var(--gray-200);
+    opacity: 0.75;
+
+    .scroll-bar-thumb {
+      &:hover {
+        cursor: pointer;
+      }
+      background-color: var(--gray-500);
+    }
+  }
+
+  .scroll-bar-thumb {
+    position: absolute;
+    background-color: var(--gray-200);
+    border-radius: 0.25rem;
+    transition: background-color 0.2s ease;
+  }
+
+  &.horizontal {
+    height: 0.75rem;
+    left: 0;
+    bottom: 0;
+
+    &:hover,
+    &.dragging {
+      height: 1rem;
+    }
+
+    .scroll-bar-thumb {
+      border-radius: 0.4rem;
+      height: 50%;
+    }
+  }
+
+  &.vertical {
+    right: 0;
+    top: 0;
+  }
+}

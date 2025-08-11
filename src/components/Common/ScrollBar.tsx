@@ -1,0 +1,234 @@
+import { useCallback, useEffect, useRef, useState } from "react";
+import clsx from "clsx";
+import { clamp } from "@/lib/utils";
+import { useAppSelector } from "@/store/hooks";
+import { useDebounce } from "@/lib/hooks";
+
+export const ScrollBar = ({
+  targetContainerRef,
+  dependentContainerRef,
+  direction,
+  style,
+  bindScroll,
+  unbindScroll,
+}: {
+  targetContainerRef: React.RefObject<HTMLDivElement | HTMLBodyElement | null>;
+  dependentContainerRef?: React.RefObject<
+    HTMLDivElement | HTMLBodyElement | null
+  >;
+  direction: "horizontal" | "vertical";
+  bindScroll: (cb: () => void) => void;
+  unbindScroll: (cb: () => void) => void;
+  style?: React.CSSProperties;
+}) => {
+  const scrollBarRef = useRef<HTMLDivElement>(null);
+  const [progress, setProgress] = useState(0);
+  const [thumbRatio, setThumbRatio] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const isInitialized = useAppSelector((state) => state.global.isInitialized);
+  const [isShow, setIsShow] = useState(false);
+  const hideScrollBar = useDebounce(() => setIsShow(false), 500);
+  const isSideBarFolded = useAppSelector(
+    (state) => state.global.isSideBarFolded,
+  );
+
+  const maxScroll = useRef(0);
+  const scrollBarMaxScroll = useRef(0);
+  const lastX = useRef(0);
+  const lastY = useRef(0);
+
+  const handleScrollChange = useCallback(
+    (notShow?: boolean) => {
+      const parent = targetContainerRef.current;
+      const scrollBar = scrollBarRef.current;
+
+      if (!parent || !scrollBar) {
+        throw new Error("ScrollBar ref is not set");
+      }
+
+      let currentScroll: number;
+      // must be a boolean to avoid type error
+      if (notShow !== true) setIsShow(true);
+
+      if (direction === "horizontal") {
+        currentScroll = parent.scrollLeft;
+      } else {
+        currentScroll = parent.scrollTop;
+      }
+
+      let progress = currentScroll / parent.scrollWidth;
+      progress = clamp(Number(progress.toFixed(4)), 0, 1);
+
+      setProgress(progress * 100);
+      hideScrollBar();
+    },
+    [targetContainerRef, direction, hideScrollBar],
+  );
+
+  const handleScroll = useCallback(
+    (e: MouseEvent) => {
+      const parent = targetContainerRef.current;
+      const scrollBar = scrollBarRef.current;
+
+      if (!parent || !scrollBar) {
+        throw new Error("ScrollBar ref is not set");
+      }
+
+      const currentScroll =
+        direction === "horizontal" ? parent.scrollLeft : parent.scrollTop;
+
+      if (direction === "horizontal") {
+        const mouseDX = e.clientX - lastX.current;
+        const targetDX =
+          maxScroll.current * (mouseDX / scrollBarMaxScroll.current);
+
+        parent.scrollLeft = currentScroll + targetDX;
+        lastX.current = e.clientX;
+      } else {
+        const mouseDY = e.clientY - lastY.current;
+        const targetDY =
+          maxScroll.current * (mouseDY / scrollBarMaxScroll.current);
+
+        parent.scrollTop = currentScroll + targetDY;
+        lastY.current = e.clientY;
+      }
+    },
+    [targetContainerRef, direction],
+  );
+
+  const handleScrollEnd = useCallback(() => {
+    const parent = targetContainerRef.current;
+    const scrollBar = scrollBarRef.current;
+
+    if (!parent || !scrollBar) {
+      throw new Error("ScrollBar ref is not set");
+    }
+
+    lastX.current = 0;
+    lastY.current = 0;
+
+    setIsDragging(false);
+
+    window.removeEventListener("mousemove", handleScroll as EventListener);
+  }, [targetContainerRef, handleScroll]);
+
+  const handleScrollStart = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      const parent = targetContainerRef.current;
+      const scrollBar = scrollBarRef.current;
+
+      if (!parent || !scrollBar) {
+        throw new Error("ScrollBar ref is not set");
+      }
+
+      lastX.current = e.clientX;
+      lastY.current = e.clientY;
+
+      setIsDragging(true);
+
+      window.addEventListener("mousemove", handleScroll);
+      window.addEventListener("mouseup", handleScrollEnd, { once: true });
+      window.addEventListener("mouseleave", handleScrollEnd, { once: true });
+    },
+    [targetContainerRef, handleScroll, handleScrollEnd],
+  );
+
+  const handleResize = useCallback(() => {
+    const parent = targetContainerRef.current;
+    const scrollBar = scrollBarRef.current;
+
+    if (!parent || !scrollBar) {
+      throw new Error("ScrollBar ref is not set");
+    }
+
+    const clientSize =
+      direction === "horizontal" ? parent.clientWidth : parent.clientHeight;
+    const thumbRatio = clientSize / parent.scrollWidth;
+    const scrollBarSize =
+      direction === "horizontal"
+        ? scrollBar.getBoundingClientRect().width
+        : scrollBar.getBoundingClientRect().height;
+    maxScroll.current = parent.scrollWidth - parent.clientWidth;
+    scrollBarMaxScroll.current =
+      scrollBarSize * (maxScroll.current / parent.scrollWidth);
+    setThumbRatio(thumbRatio);
+    handleScrollChange(true);
+  }, [targetContainerRef, direction, handleScrollChange]);
+
+  useEffect(() => {
+    if (!scrollBarRef.current || !targetContainerRef.current) return;
+
+    // init maxScroll and thumbSize
+    handleResize();
+
+    bindScroll(handleScrollChange);
+    // bindResize(handleResize);
+    // use resizeObserver to update maxScroll and thumbSize
+
+    const resizeObserver = new ResizeObserver(handleResize);
+    resizeObserver.observe(targetContainerRef.current);
+    const mutationObserver = new MutationObserver(handleResize);
+
+    mutationObserver.observe(targetContainerRef.current, {
+      childList: true,
+    });
+    if (dependentContainerRef?.current) {
+      mutationObserver.observe(dependentContainerRef.current, {
+        childList: true,
+      });
+    }
+
+    return () => {
+      unbindScroll(handleScrollChange);
+      // unbindResize(handleResize);
+      resizeObserver.disconnect();
+      mutationObserver.disconnect();
+    };
+  }, [
+    isInitialized,
+    dependentContainerRef,
+    targetContainerRef,
+    direction,
+    handleResize,
+    handleScrollChange,
+    unbindScroll,
+  ]);
+
+  useEffect(() => {
+    if (!isInitialized) return;
+    setTimeout(() => {
+      handleResize();
+    }, 200); // wait for sidebar to be folded
+  }, [isSideBarFolded, handleResize]);
+
+  if (!isInitialized) return null;
+
+  return (
+    <div
+      ref={scrollBarRef}
+      className={clsx(
+        "scroll-track",
+        direction,
+        isShow && "show",
+        isDragging && "dragging",
+        thumbRatio === 1 && "hidden",
+      )}
+      style={style}
+    >
+      <div
+        className="scroll-bar-thumb"
+        onMouseDown={handleScrollStart}
+        style={{
+          left: direction === "horizontal" ? `${progress}%` : undefined,
+          top: direction === "vertical" ? `${progress}%` : undefined,
+          width:
+            direction === "horizontal" ? `${thumbRatio * 100}%` : undefined,
+          height: direction === "vertical" ? `${thumbRatio * 100}%` : undefined,
+        }}
+      />
+    </div>
+  );
+};
+
+export default ScrollBar;

@@ -12,3 +12,4 @@ export { default as UserSession } from "./UserSession";
 export { default as UserLang } from "./UserLang";
 export { default as Sync } from "./Sync";
 export { default as ExportElems } from "./ExportElems";
+export { default as ScrollBar } from "./ScrollBar";

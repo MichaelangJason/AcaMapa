@@ -33,6 +33,7 @@ import { DraggingType } from "@/lib/enums";
 import { setIsDragging } from "@/store/slices/globalSlice";
 import clsx from "clsx";
 import { TermCardSkeleton } from "../Skeleton";
+import { ScrollBar } from "../Common";
 
 const Terms = () => {
   const currentPlan = useAppSelector(selectCurrentPlan);
@@ -48,6 +49,13 @@ const Terms = () => {
   );
   const isAddingCourse = useAppSelector((state) => state.global.isAddingCourse);
   const isInitialized = useAppSelector((state) => state.global.isInitialized);
+  const docElRef = useRef<HTMLDivElement>(null);
+  if (!docElRef.current && typeof window !== "undefined") {
+    docElRef.current = document.documentElement as HTMLDivElement;
+  }
+  const isSideBarFolded = useAppSelector(
+    (state) => state.global.isSideBarFolded,
+  );
 
   const handleClearSeekingCourseId = useCallback(() => {
     if (!isSeekingCourse) return;
@@ -199,6 +207,27 @@ const Terms = () => {
             }}
             {...provided.droppableProps}
           >
+            <ScrollBar
+              dependentContainerRef={termsContainerRef}
+              bindScroll={(cb) => {
+                if (!docElRef.current) return;
+                document.onscroll = cb;
+              }}
+              unbindScroll={() => {
+                if (!docElRef.current) return;
+                document.onscroll = null;
+              }}
+              targetContainerRef={docElRef}
+              direction="horizontal"
+              style={{
+                width: isSideBarFolded
+                  ? "100vw"
+                  : "calc(100vw - var(--sidebar-width))",
+                left: isSideBarFolded ? "0" : "var(--sidebar-width)",
+                opacity: "0.65",
+                position: "fixed",
+              }}
+            />
             {!isInitialized
               ? Array.from({ length: 3 }).map((_, idx) => (
                   <TermCardSkeleton
