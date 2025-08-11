@@ -20,8 +20,19 @@ const errorMap = {
     <p>
       An unknown error occurred.
       <br />
+      <br />
       Please send an email to{" "}
-      <a href="mailto:support@degreemapper.ai">support@degreemapper.ai</a>.
+      <a className="clickable support" href="mailto:support@degreemapper.ai">
+        support@degreemapper.ai
+      </a>{" "}
+      or open an issue on{" "}
+      <a
+        className="clickable support"
+        href="https://github.com/MichaelangJason/DegreeMapper/issues"
+      >
+        GitHub
+      </a>
+      .
     </p>
   ),
   [AuthError.AccessDenied]: (
