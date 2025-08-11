@@ -6,7 +6,7 @@ import HamburgerIcon from "@/public/icons/hamburger.svg";
 import PlusIcon from "@/public/icons/plus.svg";
 import EditIcon from "@/public/icons/edit.svg";
 import clsx from "clsx";
-import { useMemo, useState, memo, useCallback } from "react";
+import { useMemo, useState, memo, useCallback, useRef, useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import DetailedCourseCard from "../Course/CourseCard/DetailedCourseCard";
 import {
@@ -127,12 +127,42 @@ const TermCard = ({
   );
   const userLang = useAppSelector((state) => state.userData.lang) as Language;
   const lang = displayLang || userLang;
+  const termBodyRef = useRef<HTMLDivElement>(null);
 
   const dispatch = useAppDispatch();
 
   const totalCredits = useMemo(() => {
     return courses.reduce((acc, course) => acc + course.credits, 0);
   }, [courses]);
+
+  const scrollCb = useCallback(
+    (e: WheelEvent) => {
+      if (!termBodyRef.current) return;
+      const termBody = termBodyRef.current;
+      const scrollAmount = e.deltaY;
+      const prevScrollTop = termBody.scrollTop;
+      const containerMaxScrollLeft =
+        termBody.scrollHeight - termBody.clientHeight;
+
+      // Only stop propagation if there is actually something to scroll
+      if (
+        (scrollAmount < 0 && prevScrollTop > 0) ||
+        (scrollAmount > 0 && prevScrollTop < containerMaxScrollLeft) ||
+        courses.length > 0
+      ) {
+        e.stopPropagation();
+      }
+    },
+    [courses.length],
+  );
+
+  useEffect(() => {
+    if (!termBodyRef.current) return;
+    termBodyRef.current.addEventListener("wheel", scrollCb);
+    return () => {
+      termBodyRef.current?.removeEventListener("wheel", scrollCb);
+    };
+  }, [scrollCb]);
 
   const handleAddCourse = useCallback(async () => {
     await addCourse?.(term._id.toString());
@@ -294,7 +324,10 @@ const TermCard = ({
           droppableSnapshot?.isDraggingOver && "dragging-over",
           isSeekingCourse && "scroll-disabled",
         ])}
-        ref={droppableProvided?.innerRef}
+        ref={(el) => {
+          droppableProvided?.innerRef(el);
+          termBodyRef.current = el as HTMLDivElement;
+        }}
         {...droppableProvided?.droppableProps}
       >
         {courses.map((course, idx) =>

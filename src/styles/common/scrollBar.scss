@@ -39,9 +39,17 @@
     left: 0;
     bottom: 0;
 
+    &.larger {
+      height: 0.9rem;
+    }
+
     &:hover,
     &.dragging {
       height: 1rem;
+
+      &.larger {
+        height: 1.2rem;
+      }
     }
 
     .scroll-bar-thumb {

@@ -11,6 +11,8 @@ export const ScrollBar = ({
   style,
   bindScroll,
   unbindScroll,
+  thumbStyle,
+  className,
 }: {
   targetContainerRef: React.RefObject<HTMLDivElement | HTMLBodyElement | null>;
   dependentContainerRef?: React.RefObject<
@@ -20,6 +22,8 @@ export const ScrollBar = ({
   bindScroll: (cb: () => void) => void;
   unbindScroll: (cb: () => void) => void;
   style?: React.CSSProperties;
+  thumbStyle?: React.CSSProperties;
+  className?: string;
 }) => {
   const scrollBarRef = useRef<HTMLDivElement>(null);
   const [progress, setProgress] = useState(0);
@@ -192,6 +196,7 @@ export const ScrollBar = ({
     direction,
     handleResize,
     handleScrollChange,
+    bindScroll,
     unbindScroll,
   ]);
 
@@ -200,7 +205,7 @@ export const ScrollBar = ({
     setTimeout(() => {
       handleResize();
     }, 200); // wait for sidebar to be folded
-  }, [isSideBarFolded, handleResize]);
+  }, [isSideBarFolded, handleResize, isInitialized]);
 
   if (!isInitialized) return null;
 
@@ -213,6 +218,7 @@ export const ScrollBar = ({
         isShow && "show",
         isDragging && "dragging",
         thumbRatio === 1 && "hidden",
+        className,
       )}
       style={style}
     >
@@ -220,6 +226,7 @@ export const ScrollBar = ({
         className="scroll-bar-thumb"
         onMouseDown={handleScrollStart}
         style={{
+          ...thumbStyle,
           left: direction === "horizontal" ? `${progress}%` : undefined,
           top: direction === "vertical" ? `${progress}%` : undefined,
           width:

@@ -6,7 +6,7 @@ import {
   selectCurrentPlan,
   selectTermData,
 } from "@/store/selectors";
-import { useCallback, useRef, memo } from "react";
+import { useCallback, useRef, memo, useEffect } from "react";
 import {
   addTerm,
   deleteCourse,
@@ -34,6 +34,7 @@ import { setIsDragging } from "@/store/slices/globalSlice";
 import clsx from "clsx";
 import { TermCardSkeleton } from "../Skeleton";
 import { ScrollBar } from "../Common";
+import { clamp } from "@/lib/utils";
 
 const Terms = () => {
   const currentPlan = useAppSelector(selectCurrentPlan);
@@ -56,6 +57,28 @@ const Terms = () => {
   const isSideBarFolded = useAppSelector(
     (state) => state.global.isSideBarFolded,
   );
+
+  const handleVerticalScroll = useCallback((e: WheelEvent) => {
+    if (!docElRef.current) return;
+    const scrollAmount = e.deltaY;
+    const prevScrollLeft = docElRef.current.scrollLeft;
+    const containerMaxScrollLeft =
+      docElRef.current.scrollWidth - docElRef.current.clientWidth;
+    const nextScrollLeft = clamp(
+      prevScrollLeft + scrollAmount,
+      0,
+      containerMaxScrollLeft,
+    );
+    docElRef.current.scrollLeft = nextScrollLeft;
+  }, []);
+
+  useEffect(() => {
+    if (!docElRef.current) return;
+    docElRef.current.addEventListener("wheel", handleVerticalScroll);
+    return () => {
+      docElRef.current?.removeEventListener("wheel", handleVerticalScroll);
+    };
+  }, [handleVerticalScroll]);
 
   const handleClearSeekingCourseId = useCallback(() => {
     if (!isSeekingCourse) return;
@@ -128,6 +151,7 @@ const Terms = () => {
     [dispatch, currentPlan, isInitialized],
   );
 
+  /* drag and drop handlers */
   const onDragStart = useCallback(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (start: DragStart) => {
@@ -227,6 +251,7 @@ const Terms = () => {
                 opacity: "0.65",
                 position: "fixed",
               }}
+              className="larger"
             />
             {!isInitialized
               ? Array.from({ length: 3 }).map((_, idx) => (
