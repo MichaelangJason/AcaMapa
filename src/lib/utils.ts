@@ -296,7 +296,7 @@ export const scrollTermCardToView = (
 
   if (
     !termCardElement ||
-    !(termCardElement instanceof HTMLDivElement) ||
+    !(termCardElement instanceof HTMLElement) ||
     !termCardElement.classList.contains("term-card")
   )
     return;
