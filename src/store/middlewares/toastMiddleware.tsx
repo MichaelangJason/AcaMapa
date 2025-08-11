@@ -390,7 +390,7 @@ startListening({
         const termName = originalState.userData.termData.get(termId)!.name;
         toast.success(
           t([I18nKey.SEMESTER, I18nKey.P_SEMESTER, I18nKey.REMOVED_M], lang, {
-            item1: termName,
+            semester: termName,
           }),
         );
         break;
