@@ -175,15 +175,15 @@ h6 {
   mask-image: linear-gradient(
     to bottom,
     transparent,
-    var(--gray-000) 1%,
-    var(--gray-000) 99%,
+    var(--gray-000) 0.25%,
+    var(--gray-000) 99.75%,
     transparent
   );
   -webkit-mask-image: linear-gradient(
     to bottom,
     transparent,
-    var(--gray-000) 1%,
-    var(--gray-000) 99%,
+    var(--gray-000) 0.25%,
+    var(--gray-000) 99.75%,
     transparent
   );
 }

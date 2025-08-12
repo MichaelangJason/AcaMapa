@@ -121,7 +121,7 @@ const SearchResults = ({ result }: { result: SearchResult }) => {
         }}
       />
       <div
-        className="inner-container scrollbar-hidden"
+        className="inner-container scrollbar-hidden scroll-mask"
         ref={resultContainerRef}
       >
         {displayData.slice(0, page * RESULT_PER_PAGE).map((entry, idx) => {
@@ -162,9 +162,8 @@ const SearchResults = ({ result }: { result: SearchResult }) => {
         {displayData.length === 0 && (
           <FootNote content={handleNoResultText()} />
         )}
-        <div ref={loadingTriggerRef} />
         {hasMore && (
-          <div className="loading-placeholder">
+          <div className="loading-placeholder" ref={loadingTriggerRef}>
             {t([I18nKey.LOADING_MORE], lang)}
           </div>
         )}

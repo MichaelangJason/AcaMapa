@@ -85,7 +85,7 @@ const CourseTaken = ({
       style={style}
     >
       <header onClick={handleExpand}>
-        {hasSelectedCourses ? (
+        {hasSelectedCourses && !isExport ? (
           <button className="add-button" onClick={handleAddCourseTaken}>
             {t([I18nKey.ADD_TO], lang, {
               item1: t([I18nKey.COURSE_TAKEN], lang),

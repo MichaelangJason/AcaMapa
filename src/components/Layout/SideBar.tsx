@@ -132,7 +132,7 @@ const SideBar = () => {
       <SearchResults result={searchResult} />
 
       {/* course taken */}
-      <CourseTaken />
+      <CourseTaken className="relative-position" />
     </div>
   );
 };

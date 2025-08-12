@@ -49,6 +49,11 @@
     }
   }
 
+  &.relative-position {
+    position: relative;
+    bottom: unset;
+  }
+
   .add-button {
     border-radius: var(--border-radius-default);
     border: 0.125rem solid var(--gray-600);
