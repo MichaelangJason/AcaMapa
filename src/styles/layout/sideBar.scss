@@ -8,12 +8,16 @@
   width: var(--sidebar-width);
   min-width: var(--sidebar-width);
   height: 100vh;
+  max-height: 100vh;
   padding: 1.25rem 0.75rem 1.5rem 0.75rem;
 
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex-shrink: 0;
+  // display: flex;
+  // flex-direction: column;
+  // align-items: center;
+  // flex-shrink: 0;
+
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
 
   box-sizing: border-box;
   transition: left 0.2s ease-in-out;
@@ -26,7 +30,7 @@
 
     margin-bottom: 0.5rem;
 
-    width: fit-content;
+    width: 100%;
     height: fit-content;
 
     img {

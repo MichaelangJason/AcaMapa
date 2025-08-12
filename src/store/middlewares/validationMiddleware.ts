@@ -20,6 +20,7 @@ import {
   MAX_COURSE_PER_TERM,
   MAX_PLAN_NAME_LEN,
   MAX_TERM_NAME_LEN,
+  MAX_COURSE_SELECTED,
 } from "@/lib/constants";
 import { getSubjectCode } from "@/lib/course";
 
@@ -459,6 +460,19 @@ const validationMiddleware: Middleware<
           throw new Error(`Plan id not found in course dep data: ${planIds}`);
         }
 
+        break;
+      }
+      // TODO: french support
+      case "localData/addSelectedCourse": {
+        const courseId = action.payload.id;
+        if (!isValidCourseId(courseId)) {
+          throw new Error(`Invalid course id: ${courseId}`);
+        }
+        if (state.localData.selectedCourses.size >= MAX_COURSE_SELECTED) {
+          throw new Error(
+            `Max course selected reached: ${MAX_COURSE_SELECTED}`,
+          );
+        }
         break;
       }
       default:

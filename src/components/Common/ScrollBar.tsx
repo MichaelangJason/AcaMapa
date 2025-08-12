@@ -11,6 +11,7 @@ export const ScrollBar = ({
   style,
   bindScroll,
   unbindScroll,
+  setScrollable,
   thumbStyle,
   className,
 }: {
@@ -21,6 +22,7 @@ export const ScrollBar = ({
   direction: "horizontal" | "vertical";
   bindScroll: (cb: () => void) => void;
   unbindScroll: (cb: () => void) => void;
+  setScrollable?: (scrollable: boolean) => void;
   style?: React.CSSProperties;
   thumbStyle?: React.CSSProperties;
   className?: string;
@@ -160,6 +162,7 @@ export const ScrollBar = ({
     scrollBarMaxScroll.current =
       scrollBarSize * (maxScroll.current / scrollSize);
     setThumbRatio(thumbRatio);
+    setScrollable?.(thumbRatio < 1);
     handleScrollChange(true);
   }, [targetContainerRef, direction, handleScrollChange]);
 

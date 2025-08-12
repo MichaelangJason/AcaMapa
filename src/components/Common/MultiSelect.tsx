@@ -1,15 +1,16 @@
-import { MULTI_SELECT_CONFIG } from "@/lib/constants";
+import { MAX_COURSE_SELECTED, MULTI_SELECT_CONFIG } from "@/lib/constants";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
   clearSelectedCourses,
   removeSelectedCourse,
 } from "@/store/slices/localDataSlice";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Course } from "@/types/db";
 import { clamp } from "@/lib/utils";
 import MiniCourseCard from "../Course/CourseCard/MiniCourseCard";
 import clsx from "clsx";
 import { I18nKey, Language, t } from "@/lib/i18n";
+import ScrollBar from "./ScrollBar";
 
 const getMarginTop = (
   idx: number,
@@ -40,7 +41,7 @@ const getStyle = (idx: number, isHovering: boolean, isExpanded: boolean) => {
     boxShadow: idx <= 2 || isExpanded ? "" : "none",
     background: `var(--gray-${clamp(isExpanded ? 0 : idx, 0, 4)}00)`,
     opacity: isExpanded || idx <= 2 ? 1 : clamp(1 - idx * 0.05, 0.7, 1),
-    height: `${MULTI_SELECT_CONFIG.MIN_HEIGHT}rem`,
+    zIndex: MAX_COURSE_SELECTED - idx,
   };
 };
 
@@ -52,6 +53,7 @@ const MultiSelect = () => {
   const [isHovering, setIsHovering] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const lang = useAppSelector((state) => state.userData.lang) as Language;
+  const multiSelectRef = useRef<HTMLDivElement>(null);
 
   const handleRemoveCourse = useCallback(
     async (course: Course) => {
@@ -86,20 +88,36 @@ const MultiSelect = () => {
 
   return (
     // REMINDER: flex-direction: column-reverse + .reverse() is used to use native css stacking
-    <div className="multi-select-container">
+    <div className={clsx("multi-select-container", isExpanded && "expanded")}>
       <div
-        className={clsx(
-          "multi-select",
-          isExpanded && "expanded",
-          selectedCourses.size >= 3 && "min-height-enabled",
-        )}
+        className="multi-select-container-inner"
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         onClick={toggleExpand}
       >
-        {[...selectedCourses.values()]
-          .reverse()
-          .map((course, idx) => {
+        <ScrollBar
+          targetContainerRef={multiSelectRef}
+          direction="vertical"
+          bindScroll={(cb) => {
+            if (!multiSelectRef.current) return;
+            multiSelectRef.current.onscroll = cb;
+          }}
+          unbindScroll={() => {
+            if (!multiSelectRef.current) return;
+            multiSelectRef.current.onscroll = null;
+          }}
+          style={{
+            zIndex: MAX_COURSE_SELECTED + 1,
+          }}
+        />
+        <div
+          className={clsx(
+            "multi-select scrollbar-hidden",
+            isExpanded && "expanded",
+          )}
+          ref={multiSelectRef}
+        >
+          {[...selectedCourses.values()].reverse().map((course, idx) => {
             // TODO: why pure CSS has stacking issue on credits?
             return (
               <MiniCourseCard
@@ -112,8 +130,8 @@ const MultiSelect = () => {
                 }}
               />
             );
-          })
-          .reverse()}
+          })}
+        </div>
       </div>
       <span className="multi-select-info">
         <span className="multi-select-clear" onClick={handleClear}>

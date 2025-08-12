@@ -137,7 +137,9 @@ const TermCard = ({
 
   const scrollCb = useCallback(
     (e: WheelEvent) => {
-      if (!termBodyRef.current) return;
+      if (!termBodyRef.current || Math.abs(e.deltaX) >= Math.abs(e.deltaY)) {
+        return;
+      }
       const termBody = termBodyRef.current;
       const scrollAmount = e.deltaY;
       const prevScrollTop = termBody.scrollTop;

@@ -52,6 +52,7 @@
   &.relative-position {
     position: relative;
     bottom: unset;
+    flex-shrink: 0;
   }
 
   .add-button {

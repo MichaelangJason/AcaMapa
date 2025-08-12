@@ -61,7 +61,13 @@ const Terms = () => {
 
   const handleVerticalScroll = useCallback(
     (e: WheelEvent) => {
-      if (!docElRef.current || isSeekingCourse || isModalOpen) return;
+      if (
+        !docElRef.current ||
+        isSeekingCourse ||
+        isModalOpen ||
+        Math.abs(e.deltaX) >= Math.abs(e.deltaY)
+      )
+        return;
       const scrollAmount = e.deltaY;
       const prevScrollLeft = docElRef.current.scrollLeft;
       const containerMaxScrollLeft =
