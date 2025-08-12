@@ -15,6 +15,7 @@ import { selectAllCourseData } from "@/store/selectors";
 import FootNote from "../Course/CourseCard/FootNote";
 import { MiniCourseCardSkeleton } from "@/components/Skeleton";
 import { I18nKey, Language, t } from "@/lib/i18n";
+import ScrollBar from "./ScrollBar";
 
 const SearchResults = ({ result }: { result: SearchResult }) => {
   const courseData = useAppSelector((state) => state.localData.courseData);
@@ -52,10 +53,12 @@ const SearchResults = ({ result }: { result: SearchResult }) => {
   // handle infinite scroll
   const handleIntersection = useCallback(
     (entries: IntersectionObserverEntry[]) => {
-      const first = entries[0];
-      if (first.isIntersecting && hasMore) {
-        setPage((prev) => prev + 1);
-      }
+      setTimeout(() => {
+        const first = entries[0];
+        if (first.isIntersecting && hasMore) {
+          setPage((prev) => prev + 1);
+        }
+      }, 500);
     },
     [hasMore],
   );
@@ -104,52 +107,68 @@ const SearchResults = ({ result }: { result: SearchResult }) => {
   );
 
   return (
-    <div
-      className="result-container scrollbar-custom scroll-mask"
-      ref={resultContainerRef}
-    >
-      {displayData.slice(0, page * RESULT_PER_PAGE).map((entry, idx) => {
-        if (!isInitialized) {
-          return (
-            <MiniCourseCardSkeleton
-              key={`search-result-${idx}`}
-              isSelected={idx % 2 !== 0}
-            />
-          );
-        }
+    <div className="result-container scrollbar-hidden">
+      <ScrollBar
+        targetContainerRef={resultContainerRef}
+        direction="vertical"
+        bindScroll={(cb) => {
+          if (!resultContainerRef.current) return;
+          resultContainerRef.current.onscroll = cb;
+        }}
+        unbindScroll={() => {
+          if (!resultContainerRef.current) return;
+          resultContainerRef.current.onscroll = null;
+        }}
+      />
+      <div
+        className="inner-container scrollbar-hidden"
+        ref={resultContainerRef}
+      >
+        {displayData.slice(0, page * RESULT_PER_PAGE).map((entry, idx) => {
+          if (!isInitialized) {
+            return (
+              <MiniCourseCardSkeleton
+                key={`search-result-${idx}`}
+                isSelected={idx % 2 !== 0}
+              />
+            );
+          }
 
-        if (
-          type === ResultType.COURSE ||
-          type === ResultType.DEFAULT ||
-          type === ResultType.SEEKING ||
-          type === ResultType.COURSE_ID
-        ) {
-          const course =
+          if (
+            type === ResultType.COURSE ||
+            type === ResultType.DEFAULT ||
+            type === ResultType.SEEKING ||
             type === ResultType.COURSE_ID
-              ? courseData[entry as string]
-              : (entry as Course);
-          if (!isValidCourse(course)) return null;
+          ) {
+            const course =
+              type === ResultType.COURSE_ID
+                ? courseData[entry as string]
+                : (entry as Course);
+            if (!isValidCourse(course)) return null;
 
-          return (
-            <MiniCourseCard
-              key={`search-result-${idx}`}
-              data={course}
-              query={query}
-              callback={handleAddCourse}
-              isSelected={selectedCourses.has(course.id)}
-            />
-          );
-        }
+            return (
+              <MiniCourseCard
+                key={`search-result-${idx}`}
+                data={course}
+                query={query}
+                callback={handleAddCourse}
+                isSelected={selectedCourses.has(course.id)}
+              />
+            );
+          }
 
-        return null;
-      })}
-      {displayData.length === 0 && <FootNote content={handleNoResultText()} />}
-      <div ref={loadingTriggerRef} />
-      {hasMore && (
-        <div className="loading-placeholder">
-          {t([I18nKey.LOADING_MORE], lang)}
-        </div>
-      )}
+          return null;
+        })}
+        {displayData.length === 0 && (
+          <FootNote content={handleNoResultText()} />
+        )}
+        <div ref={loadingTriggerRef} />
+        {hasMore && (
+          <div className="loading-placeholder">
+            {t([I18nKey.LOADING_MORE], lang)}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

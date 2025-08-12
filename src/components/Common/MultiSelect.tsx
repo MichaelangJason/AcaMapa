@@ -121,7 +121,7 @@ const MultiSelect = () => {
         </span>
         <strong> {selectedCourses.size}</strong>{" "}
         {t([I18nKey.SELECTED_COURSE], lang)}
-        {selectedCourses.size > 1 && lang === Language.EN ? "s" : ""}
+        {selectedCourses.size > 1 ? "s" : ""}
       </span>
     </div>
   );

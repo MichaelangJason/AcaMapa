@@ -6,6 +6,7 @@ import {
   setIsSeekingCourse,
   setIsSideBarFolded,
   toggleIsSideBarFolded,
+  setIsModalOpen,
 } from "../slices/globalSlice";
 import {
   addSelectedCourse,
@@ -168,7 +169,8 @@ startListening({
     setSimpleModalInfo,
     clearSimpleModalInfo,
   ),
-  effect: (action) => {
+  effect: (action, listenerApi) => {
+    const dispatch = listenerApi.dispatch;
     const isSeekingCourse =
       action.type === setIsSeekingCourse.type && action.payload;
     const isSimpleModalOpen =
@@ -177,8 +179,10 @@ startListening({
 
     if (isSeekingCourse || isSimpleModalOpen) {
       document.body.style.overflow = "hidden";
+      dispatch(setIsModalOpen(true));
     } else {
       document.body.style.overflow = "auto";
+      dispatch(setIsModalOpen(false));
     }
   },
 });

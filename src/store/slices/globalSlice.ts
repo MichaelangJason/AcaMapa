@@ -11,6 +11,7 @@ export const initialState = {
   isUtilityDropdownMenuOpen: false as boolean,
   isSeekingCourse: false as boolean,
   isToastEnabled: true as boolean,
+  isModalOpen: false as boolean,
 };
 
 const globalSlice = createSlice({
@@ -53,6 +54,9 @@ const globalSlice = createSlice({
     setHasSelectedCourses: (state, action: PayloadAction<boolean>) => {
       state.hasSelectedCourses = action.payload;
     },
+    setIsModalOpen: (state, action: PayloadAction<boolean>) => {
+      state.isModalOpen = action.payload;
+    },
   },
 });
 
@@ -69,6 +73,7 @@ export const {
   setIsSeekingCourse,
   setIsToastEnabled,
   setHasSelectedCourses,
+  setIsModalOpen,
 } = globalSlice.actions;
 
 export default globalSlice.reducer;

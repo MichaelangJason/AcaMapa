@@ -75,6 +75,7 @@ const DetailedCourseCard = ({
   );
   const isSeekingSelf =
     useAppSelector((state) => state.localData.seekingCourseId) === id;
+  const isAddingCourse = useAppSelector((state) => state.global.isAddingCourse);
 
   const handleSeek = useCallback(() => {
     if (isSeekingCourse) {
@@ -144,10 +145,10 @@ const DetailedCourseCard = ({
       isExport={isExport}
       isExpanded={expandCourses || (!!setIsExpanded && isExpanded)} // default to false if setIsExpanded is not provided
       disableMap={{
-        seek: (isSeekingCourse && !isSeekingSelf) || isExport,
+        seek: (isSeekingCourse && !isSeekingSelf) || isExport || isAddingCourse,
         delete: isSeekingCourse || isExport,
         expand: isSeekingCourse || isExport,
-        shovel: isSatisfied || isSeekingCourse || isExport,
+        shovel: isSatisfied || isSeekingCourse || isExport || isAddingCourse,
       }}
       toggleIsExpanded={() => setIsExpanded?.(id, !isExpanded)}
       handleDelete={() => handleDelete?.(id)}

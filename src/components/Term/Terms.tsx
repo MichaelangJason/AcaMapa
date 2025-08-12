@@ -43,6 +43,7 @@ const Terms = () => {
   const selectedCourses = useAppSelector(
     (state) => state.localData.selectedCourses,
   );
+  const isModalOpen = useAppSelector((state) => state.global.isModalOpen);
   const dispatch = useAppDispatch();
   const termsContainerRef = useRef<HTMLDivElement>(null);
   const isSeekingCourse = useAppSelector(
@@ -58,19 +59,22 @@ const Terms = () => {
     (state) => state.global.isSideBarFolded,
   );
 
-  const handleVerticalScroll = useCallback((e: WheelEvent) => {
-    if (!docElRef.current) return;
-    const scrollAmount = e.deltaY;
-    const prevScrollLeft = docElRef.current.scrollLeft;
-    const containerMaxScrollLeft =
-      docElRef.current.scrollWidth - docElRef.current.clientWidth;
-    const nextScrollLeft = clamp(
-      prevScrollLeft + scrollAmount,
-      0,
-      containerMaxScrollLeft,
-    );
-    docElRef.current.scrollLeft = nextScrollLeft;
-  }, []);
+  const handleVerticalScroll = useCallback(
+    (e: WheelEvent) => {
+      if (!docElRef.current || isSeekingCourse || isModalOpen) return;
+      const scrollAmount = e.deltaY;
+      const prevScrollLeft = docElRef.current.scrollLeft;
+      const containerMaxScrollLeft =
+        docElRef.current.scrollWidth - docElRef.current.clientWidth;
+      const nextScrollLeft = clamp(
+        prevScrollLeft + scrollAmount,
+        0,
+        containerMaxScrollLeft,
+      );
+      docElRef.current.scrollLeft = nextScrollLeft;
+    },
+    [isSeekingCourse, isModalOpen],
+  );
 
   useEffect(() => {
     if (!docElRef.current) return;

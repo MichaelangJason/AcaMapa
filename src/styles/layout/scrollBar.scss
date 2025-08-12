@@ -57,6 +57,8 @@
 .scrollbar-hidden {
   scrollbar-width: none;
   -ms-overflow-style: none;
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: auth;
 
   &::-webkit-scrollbar {
     display: none;

@@ -68,7 +68,7 @@
   "no-subsequent-courses": "No subsequent courses",
 
   "seeking-title": "Seeking subsequent courses for",
-  "seeking-click": "Click to seek",
+  "seeking-click": "Click to exit",
   "subsequent-courses-for": "Subsequent courses for {{item1}}",
 
   "merge-title": "Merge Local Data",

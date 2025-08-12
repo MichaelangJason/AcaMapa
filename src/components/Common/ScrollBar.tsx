@@ -48,20 +48,18 @@ export const ScrollBar = ({
       const scrollBar = scrollBarRef.current;
 
       if (!parent || !scrollBar) {
-        throw new Error("ScrollBar ref is not set");
+        return;
       }
-
-      let currentScroll: number;
       // must be a boolean to avoid type error
       if (notShow !== true) setIsShow(true);
 
+      let progress: number;
       if (direction === "horizontal") {
-        currentScroll = parent.scrollLeft;
+        progress = parent.scrollLeft / parent.scrollWidth;
       } else {
-        currentScroll = parent.scrollTop;
+        progress = parent.scrollTop / parent.scrollHeight;
       }
 
-      let progress = currentScroll / parent.scrollWidth;
       progress = clamp(Number(progress.toFixed(4)), 0, 1);
 
       setProgress(progress * 100);
@@ -76,7 +74,7 @@ export const ScrollBar = ({
       const scrollBar = scrollBarRef.current;
 
       if (!parent || !scrollBar) {
-        throw new Error("ScrollBar ref is not set");
+        return;
       }
 
       const currentScroll =
@@ -106,16 +104,17 @@ export const ScrollBar = ({
     const scrollBar = scrollBarRef.current;
 
     if (!parent || !scrollBar) {
-      throw new Error("ScrollBar ref is not set");
+      return;
     }
 
     lastX.current = 0;
     lastY.current = 0;
 
     setIsDragging(false);
+    hideScrollBar();
 
     window.removeEventListener("mousemove", handleScroll as EventListener);
-  }, [targetContainerRef, handleScroll]);
+  }, [targetContainerRef, handleScroll, hideScrollBar]);
 
   const handleScrollStart = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
@@ -123,7 +122,7 @@ export const ScrollBar = ({
       const scrollBar = scrollBarRef.current;
 
       if (!parent || !scrollBar) {
-        throw new Error("ScrollBar ref is not set");
+        return;
       }
 
       lastX.current = e.clientX;
@@ -143,19 +142,23 @@ export const ScrollBar = ({
     const scrollBar = scrollBarRef.current;
 
     if (!parent || !scrollBar) {
-      throw new Error("ScrollBar ref is not set");
+      return;
     }
 
+    // visible area
     const clientSize =
       direction === "horizontal" ? parent.clientWidth : parent.clientHeight;
-    const thumbRatio = clientSize / parent.scrollWidth;
+    // scrollable size
+    const scrollSize =
+      direction === "horizontal" ? parent.scrollWidth : parent.scrollHeight;
+    const thumbRatio = clientSize / scrollSize;
     const scrollBarSize =
       direction === "horizontal"
         ? scrollBar.getBoundingClientRect().width
         : scrollBar.getBoundingClientRect().height;
-    maxScroll.current = parent.scrollWidth - parent.clientWidth;
+    maxScroll.current = scrollSize - clientSize;
     scrollBarMaxScroll.current =
-      scrollBarSize * (maxScroll.current / parent.scrollWidth);
+      scrollBarSize * (maxScroll.current / scrollSize);
     setThumbRatio(thumbRatio);
     handleScrollChange(true);
   }, [targetContainerRef, direction, handleScrollChange]);

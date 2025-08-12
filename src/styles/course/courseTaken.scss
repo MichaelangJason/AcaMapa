@@ -19,6 +19,11 @@
   background: var(--gray-000);
   box-shadow: var(--shadow-default-heavy);
 
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: auth;
+
   &.export {
     position: relative;
     max-height: unset;
@@ -145,6 +150,15 @@
     gap: 0.5rem;
     overflow-y: scroll;
     margin: 0.25rem 0rem 0.5rem 0rem;
+
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+    overscroll-behavior: none;
+    -webkit-overflow-scrolling: auth;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
 
     .course-taken-item {
       flex-shrink: 0;
