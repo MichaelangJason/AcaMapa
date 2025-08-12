@@ -108,18 +108,6 @@ const SearchResults = ({ result }: { result: SearchResult }) => {
 
   return (
     <div className="result-container scrollbar-hidden">
-      <ScrollBar
-        targetContainerRef={resultContainerRef}
-        direction="vertical"
-        bindScroll={(cb) => {
-          if (!resultContainerRef.current) return;
-          resultContainerRef.current.onscroll = cb;
-        }}
-        unbindScroll={() => {
-          if (!resultContainerRef.current) return;
-          resultContainerRef.current.onscroll = null;
-        }}
-      />
       <div
         className="inner-container scrollbar-hidden scroll-mask"
         ref={resultContainerRef}
@@ -168,6 +156,18 @@ const SearchResults = ({ result }: { result: SearchResult }) => {
           </div>
         )}
       </div>
+      <ScrollBar
+        targetContainerRef={resultContainerRef}
+        direction="vertical"
+        bindScroll={(cb) => {
+          if (!resultContainerRef.current) return;
+          resultContainerRef.current.onscroll = cb;
+        }}
+        unbindScroll={() => {
+          if (!resultContainerRef.current) return;
+          resultContainerRef.current.onscroll = null;
+        }}
+      />
     </div>
   );
 };

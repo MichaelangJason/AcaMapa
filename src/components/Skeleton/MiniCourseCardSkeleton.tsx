@@ -33,7 +33,7 @@ const MiniCourseCardSkeleton = ({
           borderRadius={radius}
         />
       </section>
-      <aside className="icon-container skeleton">
+      <aside className="icon-container skeleton disabled">
         {isSelected ? <RemoveIcon /> : <AddIcon />}
       </aside>
     </article>

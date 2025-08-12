@@ -5,7 +5,7 @@ import {
   setIsCourseTakenExpanded,
 } from "@/store/slices/globalSlice";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
 import ExpandIcon from "@/public/icons/expand-single.svg";
 import { Tag } from "../Common";
 import clsx from "clsx";
@@ -17,6 +17,7 @@ import {
 import { clearSelectedCourses } from "@/store/slices/localDataSlice";
 import { I18nKey, Language, t } from "@/lib/i18n";
 import { TooltipId } from "@/lib/enums";
+import ScrollBar from "../Common/ScrollBar";
 
 const CourseTaken = ({
   className,
@@ -43,6 +44,7 @@ const CourseTaken = ({
   const isInitialized = useAppSelector((state) => state.global.isInitialized);
   const userLang = useAppSelector((state) => state.userData.lang) as Language;
   const lang = displayLang || userLang;
+  const courseTakenListRef = useRef<HTMLDivElement>(null);
 
   const handleExpand = useCallback(() => {
     if (!isInitialized || isExport) return;
@@ -99,39 +101,62 @@ const CourseTaken = ({
       {isExpanded ? (
         <section
           className={clsx(
-            "course-taken-list scrollbar-custom",
+            "course-taken-list scrollbar-hidden",
             !isExport && "scroll-mask",
             isExport && "export",
           )}
         >
-          {courseTaken.size <= 0 ? (
-            <span className="empty">{t([I18nKey.EMPTY], lang)}</span>
-          ) : (
-            [...courseTaken.entries()].map(([subjectCode, courseIds], idx) => {
-              return (
-                <div key={idx} className="course-taken-item">
-                  <h5 className="subject">{subjectCode.toUpperCase()}</h5>
-                  <div className="ids">
-                    {courseIds.map((id, idx) => {
-                      return (
-                        <Tag
-                          key={idx}
-                          id={`course-taken-${id}`}
-                          sourceText={id}
-                          displayText={formatCourseId(id)}
-                          callback={handleRemoveCourseTaken}
-                          tooltipOptions={{
-                            "data-tooltip-id": TooltipId.COURSE_TAKEN,
-                            "data-tooltip-content": t([I18nKey.REMOVE], lang),
-                          }}
-                        />
-                      );
-                    })}
-                  </div>
-                </div>
-              );
-            })
-          )}
+          <div
+            className="course-taken-list-inner scrollbar-hidden"
+            ref={courseTakenListRef}
+          >
+            {courseTaken.size <= 0 ? (
+              <span className="empty">{t([I18nKey.EMPTY], lang)}</span>
+            ) : (
+              [...courseTaken.entries()].map(
+                ([subjectCode, courseIds], idx) => {
+                  return (
+                    <div key={idx} className="course-taken-item">
+                      <h5 className="subject">{subjectCode.toUpperCase()}</h5>
+                      <div className="ids">
+                        {courseIds.map((id, idx) => {
+                          return (
+                            <Tag
+                              key={idx}
+                              id={`course-taken-${id}`}
+                              sourceText={id}
+                              displayText={formatCourseId(id)}
+                              callback={handleRemoveCourseTaken}
+                              tooltipOptions={{
+                                "data-tooltip-id": TooltipId.COURSE_TAKEN,
+                                "data-tooltip-content": t(
+                                  [I18nKey.REMOVE],
+                                  lang,
+                                ),
+                              }}
+                            />
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                },
+              )
+            )}
+          </div>
+
+          <ScrollBar
+            targetContainerRef={courseTakenListRef}
+            direction="vertical"
+            bindScroll={(cb) => {
+              if (!courseTakenListRef.current) return;
+              courseTakenListRef.current.onscroll = cb;
+            }}
+            unbindScroll={() => {
+              if (!courseTakenListRef.current) return;
+              courseTakenListRef.current.onscroll = null;
+            }}
+          />
         </section>
       ) : null}
     </section>

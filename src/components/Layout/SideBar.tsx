@@ -28,6 +28,9 @@ const SideBar = () => {
   const searchCourseFn = useAppSelector(selectCourseSearchFn);
   const lang = useAppSelector((state) => state.userData.lang) as Language;
   const sidebarRef = useRef<HTMLDivElement>(null);
+  const selectedCourses = useAppSelector(
+    (state) => state.localData.selectedCourses,
+  );
 
   const stopPropagation = useCallback((e: WheelEvent) => {
     e.stopPropagation();
@@ -83,7 +86,11 @@ const SideBar = () => {
   return (
     <div
       ref={sidebarRef}
-      className={clsx(["left-sidebar", isFolded && "folded"])}
+      className={clsx([
+        "left-sidebar",
+        isFolded && "folded",
+        selectedCourses.size > 0 && "has-selected-courses",
+      ])}
       id="left-sidebar"
     >
       {/* folding handle */}

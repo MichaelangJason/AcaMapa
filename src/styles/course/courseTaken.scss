@@ -149,6 +149,7 @@
   }
 
   .course-taken-list {
+    position: relative;
     width: 100%;
     display: flex;
     flex-direction: column;
@@ -207,5 +208,16 @@
       font-style: italic;
       color: var(--gray-400);
     }
+  }
+
+  .course-taken-list-inner {
+    width: 100%;
+    height: fit-content;
+    overflow-y: scroll;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    gap: 0.5rem;
   }
 }

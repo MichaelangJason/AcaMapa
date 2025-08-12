@@ -95,21 +95,6 @@ const MultiSelect = () => {
         onMouseLeave={handleMouseLeave}
         onClick={toggleExpand}
       >
-        <ScrollBar
-          targetContainerRef={multiSelectRef}
-          direction="vertical"
-          bindScroll={(cb) => {
-            if (!multiSelectRef.current) return;
-            multiSelectRef.current.onscroll = cb;
-          }}
-          unbindScroll={() => {
-            if (!multiSelectRef.current) return;
-            multiSelectRef.current.onscroll = null;
-          }}
-          style={{
-            zIndex: MAX_COURSE_SELECTED + 1,
-          }}
-        />
         <div
           className={clsx(
             "multi-select scrollbar-hidden",
@@ -132,6 +117,21 @@ const MultiSelect = () => {
             );
           })}
         </div>
+        <ScrollBar
+          targetContainerRef={multiSelectRef}
+          direction="vertical"
+          bindScroll={(cb) => {
+            if (!multiSelectRef.current) return;
+            multiSelectRef.current.onscroll = cb;
+          }}
+          unbindScroll={() => {
+            if (!multiSelectRef.current) return;
+            multiSelectRef.current.onscroll = null;
+          }}
+          style={{
+            zIndex: MAX_COURSE_SELECTED + 1,
+          }}
+        />
       </div>
       <span className="multi-select-info">
         <span className="multi-select-clear" onClick={handleClear}>

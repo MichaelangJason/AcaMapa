@@ -17,10 +17,14 @@
   // flex-shrink: 0;
 
   display: grid;
-  grid-template-rows: auto auto 1fr auto;
+  grid-template-rows: auto 1fr auto;
 
   box-sizing: border-box;
   transition: left 0.2s ease-in-out;
+
+  &.has-selected-courses {
+    grid-template-rows: auto auto 1fr auto;
+  }
 
   header {
     display: flex;
