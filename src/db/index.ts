@@ -10,6 +10,8 @@ import { MongoClient, ServerApiVersion } from "mongodb";
 // });
 // mongoose.set('debug', { shell: true });
 
+// REMINDER: mongoose.connect() returns a promise of the connection object
+// we keep this for edge runtime, where we reuse connections from warm container
 let connectionPromise: Promise<typeof mongoose> | null = null;
 
 export const connectToDatabase = async (
@@ -48,11 +50,13 @@ export const disconnectDatabase = async (): Promise<void> => {
 export async function withDatabase<T>(
   queryFn: () => Promise<T>,
   errorHandler?: (error: any) => any,
+  databaseUri?: string,
+  databaseName?: string,
 ): Promise<T> {
   try {
     await connectToDatabase(
-      process.env.MONGODB_URI!,
-      process.env.MONGODB_DATABASE_NAME!,
+      databaseUri ?? process.env.MONGODB_URI!,
+      databaseName ?? process.env.MONGODB_DATABASE_NAME!,
     );
 
     const result = await queryFn();
