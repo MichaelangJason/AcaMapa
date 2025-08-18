@@ -26,6 +26,7 @@ import { renameTerm } from "@/store/slices/userDataSlice";
 import { setSimpleModalInfo } from "@/store/slices/localDataSlice";
 import { MAX_TERM_NAME_LEN } from "@/lib/constants";
 import { I18nKey, Language, t } from "@/lib/i18n";
+import ScrollBar from "../Common/ScrollBar";
 
 const AddTermButton = ({
   isBefore,
@@ -318,69 +319,83 @@ const TermCard = ({
         )}
       </header>
 
-      {/* droppable for the courses in the term card */}
-      <main
-        className={clsx([
-          "term-body",
-          "scrollbar-custom",
-          droppableSnapshot?.isDraggingOver && "dragging-over",
-          isSeekingCourse && "scroll-disabled",
-        ])}
-        ref={(el) => {
-          droppableProvided?.innerRef(el);
-          termBodyRef.current = el as HTMLDivElement;
-        }}
-        {...droppableProvided?.droppableProps}
-      >
-        {courses.map((course, idx) =>
-          isCourseDraggable ? (
-            // draggable for the courses in the term card
-            <Draggable
-              key={`draggable-${term._id}-${course.id}-${idx}`}
-              draggableId={course.id}
-              index={idx}
-              isDragDisabled={isSeekingCourse}
-            >
-              {(courseDraggableProvided, courseDraggableSnapshot) => (
-                <DetailedCourseCard
-                  key={`${term._id}-${course.id}-${idx}`}
-                  course={course}
-                  idx={idx}
-                  termId={term._id}
-                  planId={planId}
-                  handleDelete={handleDeleteCourse}
-                  setIsExpanded={setIsCourseExpanded}
-                  isDraggingTerm={isDraggingTerm ?? false}
-                  draggableProvided={courseDraggableProvided}
-                  draggableSnapshot={courseDraggableSnapshot}
-                  isExport={isExport}
-                  expandCourses={expandCourses}
-                />
-              )}
-            </Draggable>
-          ) : (
-            // non-draggable for the courses in the term card
-            <DetailedCourseCard
-              key={`${term._id}-${course.id}-${idx}`}
-              course={course}
-              idx={idx}
-              termId={term._id}
-              planId={planId}
-              handleDelete={handleDeleteCourse}
-              setIsExpanded={setIsCourseExpanded}
-              isDraggingTerm={isDraggingTerm ?? false}
-              isExport={isExport}
-              expandCourses={expandCourses}
-            />
-          ),
-        )}
-        {isExport && courses.length === 0 && (
-          <div className="empty-term">
-            <span>{t([I18nKey.EMPTY], lang)}</span>
-          </div>
-        )}
-        {!isExport && droppableProvided?.placeholder}
-      </main>
+      <div className="term-body-container">
+        {/* droppable for the courses in the term card */}
+        <main
+          className={clsx([
+            "term-body",
+            "scrollbar-hidden",
+            droppableSnapshot?.isDraggingOver && "dragging-over",
+            isSeekingCourse && "scroll-disabled",
+          ])}
+          ref={(el) => {
+            droppableProvided?.innerRef(el);
+            termBodyRef.current = el as HTMLDivElement;
+          }}
+          {...droppableProvided?.droppableProps}
+        >
+          {courses.map((course, idx) =>
+            isCourseDraggable ? (
+              // draggable for the courses in the term card
+              <Draggable
+                key={`draggable-${term._id}-${course.id}-${idx}`}
+                draggableId={course.id}
+                index={idx}
+                isDragDisabled={isSeekingCourse}
+              >
+                {(courseDraggableProvided, courseDraggableSnapshot) => (
+                  <DetailedCourseCard
+                    key={`${term._id}-${course.id}-${idx}`}
+                    course={course}
+                    idx={idx}
+                    termId={term._id}
+                    planId={planId}
+                    handleDelete={handleDeleteCourse}
+                    setIsExpanded={setIsCourseExpanded}
+                    isDraggingTerm={isDraggingTerm ?? false}
+                    draggableProvided={courseDraggableProvided}
+                    draggableSnapshot={courseDraggableSnapshot}
+                    isExport={isExport}
+                    expandCourses={expandCourses}
+                  />
+                )}
+              </Draggable>
+            ) : (
+              // non-draggable for the courses in the term card
+              <DetailedCourseCard
+                key={`${term._id}-${course.id}-${idx}`}
+                course={course}
+                idx={idx}
+                termId={term._id}
+                planId={planId}
+                handleDelete={handleDeleteCourse}
+                setIsExpanded={setIsCourseExpanded}
+                isDraggingTerm={isDraggingTerm ?? false}
+                isExport={isExport}
+                expandCourses={expandCourses}
+              />
+            ),
+          )}
+          {isExport && courses.length === 0 && (
+            <div className="empty-term">
+              <span>{t([I18nKey.EMPTY], lang)}</span>
+            </div>
+          )}
+          {!isExport && droppableProvided?.placeholder}
+        </main>
+        <ScrollBar
+          targetContainerRef={termBodyRef}
+          direction="vertical"
+          bindScroll={(cb) => {
+            if (!termBodyRef.current) return;
+            termBodyRef.current.onscroll = cb;
+          }}
+          unbindScroll={() => {
+            if (!termBodyRef.current) return;
+            termBodyRef.current.onscroll = null;
+          }}
+        />
+      </div>
 
       {/* footer for the term card */}
       <footer className="term-footer">

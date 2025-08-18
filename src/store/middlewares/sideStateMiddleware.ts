@@ -22,6 +22,8 @@ import {
   setSimpleModalInfo,
   clearSimpleModalInfo,
   clearSeekingCourseId,
+  setExportPlanId,
+  clearExportPlanId,
 } from "../slices/localDataSlice";
 import {
   addPlan,
@@ -162,27 +164,42 @@ startListening({
   },
 });
 
-// handle disable body scroll:
+// handle modal open updates only
 startListening({
   matcher: isAnyOf(
-    setIsSeekingCourse,
     setSimpleModalInfo,
     clearSimpleModalInfo,
+    setExportPlanId,
+    clearExportPlanId,
   ),
   effect: (action, listenerApi) => {
-    const dispatch = listenerApi.dispatch;
-    const isSeekingCourse =
-      action.type === setIsSeekingCourse.type && action.payload;
     const isSimpleModalOpen =
       action.type === setSimpleModalInfo.type &&
       (action.payload as SimpleModalProps).isOpen;
+    const isExportModalOpen =
+      action.type === setExportPlanId.type && (action.payload as string) !== "";
+    const isModalOpen = listenerApi.getState().global.isModalOpen;
 
-    if (isSeekingCourse || isSimpleModalOpen) {
+    if (isModalOpen !== (isSimpleModalOpen || isExportModalOpen)) {
+      listenerApi.dispatch(
+        setIsModalOpen(isSimpleModalOpen || isExportModalOpen),
+      );
+    }
+  },
+});
+
+// handle disable body scroll:
+startListening({
+  matcher: isAnyOf(setIsSeekingCourse, setIsModalOpen),
+  effect: (action) => {
+    const isSeekingCourse =
+      action.type === setIsSeekingCourse.type && action.payload;
+    const isModalOpen = action.type === setIsModalOpen.type && action.payload;
+
+    if (isSeekingCourse || isModalOpen) {
       document.body.style.overflow = "hidden";
-      dispatch(setIsModalOpen(true));
     } else {
       document.body.style.overflow = "auto";
-      dispatch(setIsModalOpen(false));
     }
   },
 });

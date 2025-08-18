@@ -33,8 +33,6 @@ const ExportModal = () => {
     expandCourses: true,
   });
 
-  const isOpen = !!planId;
-
   const handleChange = (field: string, value: any) => {
     setFormState((prev) => ({ ...prev, [field]: value }));
   };
@@ -98,7 +96,7 @@ const ExportModal = () => {
 
   return (
     <Modal
-      isOpen={isOpen}
+      isOpen={!!planId}
       shouldCloseOnOverlayClick={true}
       shouldCloseOnEsc={true}
       onRequestClose={handleClose}
@@ -193,6 +191,7 @@ const ExportModal = () => {
 
       {previewUrl ? (
         <div className="preview-container">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={previewUrl} alt="Preview" />
         </div>
       ) : (
