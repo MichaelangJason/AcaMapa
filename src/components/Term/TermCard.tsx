@@ -129,6 +129,7 @@ const TermCard = ({
   const userLang = useAppSelector((state) => state.userData.lang) as Language;
   const lang = displayLang || userLang;
   const termBodyRef = useRef<HTMLDivElement>(null);
+  const termContainerRef = useRef<HTMLDivElement>(null);
 
   const dispatch = useAppDispatch();
 
@@ -136,34 +137,33 @@ const TermCard = ({
     return courses.reduce((acc, course) => acc + course.credits, 0);
   }, [courses]);
 
-  const scrollCb = useCallback(
-    (e: WheelEvent) => {
-      if (!termBodyRef.current || Math.abs(e.deltaX) >= Math.abs(e.deltaY)) {
-        return;
-      }
-      const termBody = termBodyRef.current;
-      const scrollAmount = e.deltaY;
-      const prevScrollTop = termBody.scrollTop;
-      const containerMaxScrollLeft =
-        termBody.scrollHeight - termBody.clientHeight;
+  const scrollCb = useCallback((e: WheelEvent) => {
+    // console.log(e)
+    if (!termBodyRef.current || Math.abs(e.deltaY) < 5) {
+      return;
+    }
+    const termBody = termBodyRef.current;
+    const scrollAmount = e.deltaY;
+    const prevScrollTop = termBody.scrollTop;
+    const containerMaxScrollLeft =
+      termBody.scrollHeight - termBody.clientHeight;
 
-      // Only stop propagation if there is actually something to scroll
-      if (
-        (scrollAmount < 0 && prevScrollTop > 0) ||
-        (scrollAmount > 0 && prevScrollTop < containerMaxScrollLeft) ||
-        courses.length > 0
-      ) {
-        e.stopPropagation();
-      }
-    },
-    [courses.length],
-  );
+    // Only stop propagation if there is actually something to scroll
+    if (
+      (scrollAmount < 0 && prevScrollTop > 0) ||
+      (scrollAmount > 0 && prevScrollTop < containerMaxScrollLeft)
+    ) {
+      e.stopPropagation();
+      e.preventDefault();
+      termBody.scrollTop = prevScrollTop + scrollAmount;
+    }
+  }, []);
 
   useEffect(() => {
-    if (!termBodyRef.current) return;
-    termBodyRef.current.addEventListener("wheel", scrollCb);
+    if (!termContainerRef.current) return;
+    termContainerRef.current.addEventListener("wheel", scrollCb);
     return () => {
-      termBodyRef.current?.removeEventListener("wheel", scrollCb);
+      termContainerRef.current?.removeEventListener("wheel", scrollCb);
     };
   }, [scrollCb]);
 
@@ -319,14 +319,20 @@ const TermCard = ({
         )}
       </header>
 
-      <div className="term-body-container">
+      <div
+        className={clsx([
+          "term-body-container",
+          "scrollbar-hidden",
+          isSeekingCourse && "scroll-disabled",
+        ])}
+        ref={termContainerRef}
+      >
         {/* droppable for the courses in the term card */}
         <main
           className={clsx([
             "term-body",
             "scrollbar-hidden",
             droppableSnapshot?.isDraggingOver && "dragging-over",
-            isSeekingCourse && "scroll-disabled",
           ])}
           ref={(el) => {
             droppableProvided?.innerRef(el);
@@ -388,11 +394,11 @@ const TermCard = ({
           direction="vertical"
           bindScroll={(cb) => {
             if (!termBodyRef.current) return;
-            termBodyRef.current.onscroll = cb;
+            termBodyRef.current.addEventListener("scroll", cb);
           }}
-          unbindScroll={() => {
+          unbindScroll={(cb) => {
             if (!termBodyRef.current) return;
-            termBodyRef.current.onscroll = null;
+            termBodyRef.current.removeEventListener("scroll", cb);
           }}
         />
       </div>

@@ -291,15 +291,16 @@ export const scrollTermCardToView = (
               const termCardElement = child as HTMLDivElement;
               return termCardElement.classList.contains("term-card");
             })
-        : termsBox?.children[termCard]
+        : termsBox?.children[termCard + 1]
       : termCard;
 
   if (
     !termCardElement ||
     !(termCardElement instanceof HTMLElement) ||
     !termCardElement.classList.contains("term-card")
-  )
+  ) {
     return;
+  }
 
   const termCardLeft = termCardElement.getBoundingClientRect().left;
   const termCardCenter = termCardLeft + termCardElement.clientWidth / 2;
@@ -328,7 +329,8 @@ export const scrollCourseCardToView = (
   const courseCardElem = document.body.querySelector(`#${courseId}`);
   if (!courseCardElem) return;
 
-  const termBodyElem = courseCardElem.parentElement;
+  const courseCardWrapper = courseCardElem.parentElement;
+  const termBodyElem = courseCardWrapper?.parentElement;
   if (!termBodyElem) {
     throw new Error("Term body element not found");
   }
@@ -338,27 +340,26 @@ export const scrollCourseCardToView = (
     throw new Error("Term card element not found");
   }
 
-  const termBodyScrollTop = termBodyElem.scrollTop;
-  const termBodyHeight = termBodyElem.clientHeight;
-  const termBodyTop =
-    termBodyElem.getBoundingClientRect().top +
-    SCROLL_OFFSET.TERM_BODY_HEIGHT_COEF * termBodyHeight;
-  const maxScrollTop = termBodyElem.scrollHeight - termBodyHeight;
+  const wrapperScrollTop = courseCardWrapper.scrollTop;
+  const wrapperHeight = courseCardWrapper.clientHeight;
+  const wrapperTop =
+    courseCardWrapper.getBoundingClientRect().top +
+    SCROLL_OFFSET.TERM_BODY_HEIGHT_COEF * wrapperHeight;
+  const maxScrollTop = courseCardWrapper.scrollHeight - wrapperHeight;
 
   const courseCardTop = courseCardElem.getBoundingClientRect().top;
   const courseCardBottomPadding = courseCardElem
     .computedStyleMap()
     .get("margin-bottom") as CSSUnitValue;
 
-  const scrollDistance = courseCardTop - termBodyTop;
+  const scrollDistance = courseCardTop - wrapperTop;
   // console.group("scrollCourseCardToView");
-  // console.log(courseCardTop, termBodyTop, courseCardCenterY, clientCenterY);
-  // console.log(isLargerThanTermBody);
+  // console.log(courseCardTop, termBodyTop);
   // console.log(scrollDistance);
   // console.groupEnd();
 
   const targetY = clamp(
-    termBodyScrollTop + scrollDistance - courseCardBottomPadding.value,
+    wrapperScrollTop + scrollDistance - courseCardBottomPadding.value,
     0,
     maxScrollTop,
   );
@@ -366,7 +367,7 @@ export const scrollCourseCardToView = (
   const scrollCourseCard = () =>
     smoothScrollTo({
       targetY,
-      container: termBodyElem,
+      container: courseCardWrapper,
       ...options,
     });
 

@@ -61,14 +61,15 @@ const Terms = () => {
 
   const handleVerticalScroll = useCallback(
     (e: WheelEvent) => {
+      // console.log(e)
       if (
         !docElRef.current ||
         isSeekingCourse ||
         isModalOpen ||
-        Math.abs(e.deltaX) >= Math.abs(e.deltaY)
+        Math.abs(e.deltaX) < 5
       )
         return;
-      const scrollAmount = e.deltaY;
+      const scrollAmount = e.deltaX;
       const prevScrollLeft = docElRef.current.scrollLeft;
       const containerMaxScrollLeft =
         docElRef.current.scrollWidth - docElRef.current.clientWidth;
@@ -245,11 +246,11 @@ const Terms = () => {
               dependentContainerRef={termsContainerRef}
               bindScroll={(cb) => {
                 if (!docElRef.current) return;
-                document.onscroll = cb;
+                document.addEventListener("scroll", cb);
               }}
-              unbindScroll={() => {
+              unbindScroll={(cb) => {
                 if (!docElRef.current) return;
-                document.onscroll = null;
+                document.removeEventListener("scroll", cb);
               }}
               targetContainerRef={docElRef}
               direction="horizontal"

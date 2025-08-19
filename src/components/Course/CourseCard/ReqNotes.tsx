@@ -159,6 +159,7 @@ const ReqNotes = ({
         (scrollAmount > 0 && prevScrollLeft < containerMaxScrollLeft)
       ) {
         e.preventDefault();
+        e.stopPropagation();
         container.scrollLeft = nextScrollLeft;
         setScrollIcons();
       }

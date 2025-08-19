@@ -9,7 +9,11 @@
   flex-shrink: 0;
   box-sizing: border-box;
 
+  // REMINDER: these are some workarounds that helps mobile devices to correctly display the term card
+  // TODO: fix terms-container css and remove these workarounds
   margin-right: var(--terms-gap);
+  margin-top: calc(var(--utility-bar-height) + var(--terms-padding-topbottom));
+  margin-bottom: var(--terms-padding-topbottom);
 
   border-radius: var(--border-radius-default);
   border: var(--term-card-border-width) solid var(--gray-300);
@@ -32,6 +36,9 @@
 
   &.export {
     height: 100%;
+    padding: 0;
+    margin-top: 0;
+    margin-bottom: 0;
     min-height: fit-content;
     .term-body {
       height: fit-content;

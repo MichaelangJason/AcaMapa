@@ -8,11 +8,13 @@
 
   width: 100%;
   flex-grow: 1;
+  max-height: 100%;
+  box-sizing: border-box;
 
-  // margin-left: var(--sidebar-width);
-  margin-top: var(--utility-bar-height);
-  padding: var(--terms-padding-topbottom) 0 var(--terms-padding-topbottom)
-    var(--terms-gap);
+  // margin-top: var(--utility-bar-height);
+  // padding: var(--terms-padding-topbottom) 0 var(--terms-padding-topbottom)
+  //   var(--terms-gap);
+  padding-left: var(--terms-gap);
 
   &.sidebar-folded {
     margin-left: 0;
@@ -31,6 +33,10 @@
     grid-column: 2;
     grid-row: 2 / 4;
   }
+
+  // & > .term-card:first-of-type {
+  //   margin-left: var(--terms-gap);
+  // }
 }
 
 .no-scroll-container {
