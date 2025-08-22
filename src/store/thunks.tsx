@@ -568,7 +568,7 @@ export const fullSync = createAppAsyncThunk(
         if (parsedData.planData.has(savedCurrentPlanId)) {
           dispatch(setCurrentPlanId(savedCurrentPlanId));
         } else {
-          console.log(parsedData);
+          // console.log(parsedData);
           const newCurrentPlanId = parsedData.planOrder[0];
           dispatch(setCurrentPlanId(newCurrentPlanId));
           setLocalData(LocalStorageKey.CURRENT_PLAN_ID, newCurrentPlanId);
@@ -721,6 +721,9 @@ export const fullSync = createAppAsyncThunk(
                 },
                 confirmText: t([I18nKey.MERGE], lang),
                 closeText: t([I18nKey.KEEP], lang),
+                isPreventCloseOnEsc: true,
+                isPreventCloseOnOverlayClick: true,
+                isShowCloseButton: false,
                 extraOptions: [
                   {
                     content: t([I18nKey.CLEAR], lang),

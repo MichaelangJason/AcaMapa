@@ -27,6 +27,7 @@
 
   .github-mark {
     background: var(--gray-300);
+    align-self: center;
   }
 
   .hamburger {
@@ -49,6 +50,18 @@
 
   .contents {
     flex-grow: 1;
+    // padding: 0 0.75rem;
+    height: 1.5rem;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    color: var(--gray-800);
+  }
+
+  .item-tag-container {
+    flex-grow: 1;
+    flex-shrink: 0;
     // padding: 0 0.75rem;
     min-width: fit-content;
     height: 1.5rem;

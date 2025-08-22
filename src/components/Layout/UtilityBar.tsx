@@ -230,45 +230,46 @@ const UtilityBar = () => {
         />
       </DropdownMenuWrapper>
 
+      {!isInitialized ? (
+        <>
+          <ItemTagSkeleton width="1" />
+          <ItemTagSkeleton width="2" />
+        </>
+      ) : (
+        <section className="item-tag-container">
+          <ItemTag
+            items={programs}
+            handleClickItem={handleClickProgram}
+            handleDeleteItem={handleDeleteProgram}
+            handleAddItem={handleAddProgram}
+            handleSeekItem={handleClickProgram}
+            className="program-tag"
+            title={t([I18nKey.RELATED_PROGRAMS], lang)}
+            tooltipProps={{
+              "data-tooltip-id": TooltipId.ITEM_TAG,
+              "data-tooltip-content": t([I18nKey.RELATED_PROGRAMS], lang),
+              "data-tooltip-place": "right",
+            }}
+          />
+          <ItemTag
+            items={[
+              `# ${t([I18nKey.COURSE], lang)}s: ${totalCourses} (${totalCredits} cr)`,
+              `# ${t([I18nKey.PLANNED_COURSES], lang)}: ${totalPlannedCourses} (${totalPlanCredits} cr)`,
+              `# ${t([I18nKey.COURSE_TAKEN], lang)}: ${totalCourseTaken} (${totalCourseTakenCretids} cr)`,
+              `# ${t([I18nKey.SEMESTER], lang)}s: ${totalTerm} (${averageCreditsPerTerm} cr/term)`,
+            ]}
+            title={t([I18nKey.PLAN_STATS], lang)}
+            tooltipProps={{
+              "data-tooltip-id": TooltipId.ITEM_TAG,
+              "data-tooltip-content": t([I18nKey.PLAN_STATS], lang),
+              "data-tooltip-place": "right",
+            }}
+          />
+        </section>
+      )}
+
       <section className="contents">
-        {!isInitialized ? (
-          <>
-            <ItemTagSkeleton width="1" />
-            <ItemTagSkeleton width="2" />
-          </>
-        ) : (
-          <>
-            <ItemTag
-              items={programs}
-              handleClickItem={handleClickProgram}
-              handleDeleteItem={handleDeleteProgram}
-              handleAddItem={handleAddProgram}
-              handleSeekItem={handleClickProgram}
-              className="program-tag"
-              title={t([I18nKey.RELATED_PROGRAMS], lang)}
-              tooltipProps={{
-                "data-tooltip-id": TooltipId.ITEM_TAG,
-                "data-tooltip-content": t([I18nKey.RELATED_PROGRAMS], lang),
-                "data-tooltip-place": "right",
-              }}
-            />
-            <ItemTag
-              items={[
-                `# ${t([I18nKey.COURSE], lang)}s: ${totalCourses} (${totalCredits} cr)`,
-                `# ${t([I18nKey.PLANNED_COURSES], lang)}: ${totalPlannedCourses} (${totalPlanCredits} cr)`,
-                `# ${t([I18nKey.COURSE_TAKEN], lang)}: ${totalCourseTaken} (${totalCourseTakenCretids} cr)`,
-                `# ${t([I18nKey.SEMESTER], lang)}s: ${totalTerm} (${averageCreditsPerTerm} cr/term)`,
-              ]}
-              title={t([I18nKey.PLAN_STATS], lang)}
-              tooltipProps={{
-                "data-tooltip-id": TooltipId.ITEM_TAG,
-                "data-tooltip-content": t([I18nKey.PLAN_STATS], lang),
-                "data-tooltip-place": "right",
-              }}
-            />
-          </>
-        )}
-        <div className="filler" />
+        {/* <div className="filler" /> */}
         {!isInitialized ? (
           <>
             <ItemTagSkeleton width="2" />
@@ -281,20 +282,20 @@ const UtilityBar = () => {
             <UserLang />
           </>
         )}
+        <GithubMark
+          className="github-mark"
+          data-tooltip-id={TooltipId.UTILITY_BAR}
+          data-tooltip-content={t([I18nKey.GITHUB_MARK], lang)}
+          data-tooltip-place="bottom"
+          data-tooltip-delay-show={500}
+          onClick={() => {
+            window.open(
+              "https://github.com/MichaelangJason/DegreeMapper",
+              "_blank",
+            );
+          }}
+        />
       </section>
-      <GithubMark
-        className="github-mark"
-        data-tooltip-id={TooltipId.UTILITY_BAR}
-        data-tooltip-content={t([I18nKey.GITHUB_MARK], lang)}
-        data-tooltip-place="bottom"
-        data-tooltip-delay-show={500}
-        onClick={() => {
-          window.open(
-            "https://github.com/MichaelangJason/DegreeMapper",
-            "_blank",
-          );
-        }}
-      />
     </section>
   );
 };
