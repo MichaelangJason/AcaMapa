@@ -5,8 +5,7 @@ import clsx from "clsx";
 import DeleteIcon from "@/public/icons/delete.svg";
 import MagnifierIcon from "@/public/icons/magnifier.svg";
 import { useDebounce } from "@/lib/hooks";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { setSearchInput } from "@/store/slices/localDataSlice";
+import { useAppSelector } from "@/store/hooks";
 import { I18nKey, t, Language } from "@/lib/i18n";
 
 const SearchInput = ({
@@ -16,6 +15,9 @@ const SearchInput = ({
   onClickIcon,
   className,
   displayText,
+  value,
+  setValue,
+  placeholder,
 }: {
   callback?: (value: string) => Promise<void>;
   debounceTime?: number;
@@ -23,9 +25,10 @@ const SearchInput = ({
   onClickIcon?: () => void;
   className?: string;
   displayText?: string;
+  value: string;
+  setValue: (value: string) => void;
+  placeholder?: string;
 }) => {
-  const dispatch = useAppDispatch();
-  const value = useAppSelector((state) => state.localData.searchInput);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const isInitialized = useAppSelector((state) => state.global.isInitialized);
   const lang = useAppSelector((state) => state.userData.lang) as Language;
@@ -63,17 +66,17 @@ const SearchInput = ({
     if (!isInitialized) return;
     onClickIcon?.();
     if (value !== "") {
-      dispatch(setSearchInput(""));
+      setValue("");
     }
     resizeTextarea();
-  }, [dispatch, value, onClickIcon, resizeTextarea, isInitialized]);
+  }, [value, onClickIcon, setValue, resizeTextarea, isInitialized]);
 
   return (
     <div
       className={clsx([
         "search-input",
         className,
-        !isInitialized && "disabled",
+        (!isInitialized || isDisabled) && "disabled",
       ])}
     >
       <textarea
@@ -85,10 +88,10 @@ const SearchInput = ({
         name="course-search"
         placeholder={
           isInitialized
-            ? t([I18nKey.SEARCH_INPUT_PLACEHOLDER], lang)
+            ? placeholder || t([I18nKey.SEARCH_INPUT_PLACEHOLDER], lang)
             : t([I18nKey.INITIALIZING], lang) + "..."
         }
-        onChange={(e) => dispatch(setSearchInput(e.target.value))}
+        onChange={(e) => setValue(e.target.value)}
         value={displayText || value}
         disabled={isDisabled || !!displayText || !isInitialized}
         rows={1}

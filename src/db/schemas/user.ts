@@ -57,6 +57,12 @@ const UserSchema = new Schema(
       default: [],
     },
 
+    programs: {
+      type: [String],
+      required: true,
+      default: [],
+    },
+
     chatThreadIds: {
       type: [String],
       required: true,

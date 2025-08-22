@@ -154,16 +154,19 @@ const TermCard = ({
       (scrollAmount > 0 && prevScrollTop < containerMaxScrollLeft)
     ) {
       e.stopPropagation();
-      e.preventDefault();
+      // e.preventDefault();
       termBody.scrollTop = prevScrollTop + scrollAmount;
     }
   }, []);
 
   useEffect(() => {
     if (!termContainerRef.current) return;
-    termContainerRef.current.addEventListener("wheel", scrollCb);
+    termContainerRef.current.addEventListener("wheel", scrollCb, {
+      passive: true,
+    });
+    const elem = termContainerRef.current;
     return () => {
-      termContainerRef.current?.removeEventListener("wheel", scrollCb);
+      elem?.removeEventListener("wheel", scrollCb);
     };
   }, [scrollCb]);
 

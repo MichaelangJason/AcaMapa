@@ -17,6 +17,10 @@
   &.expanded {
     padding-bottom: 0.375rem;
     box-shadow: var(--shadow-default);
+
+    .item-tag-header {
+      width: 100%;
+    }
   }
 
   &.export {
@@ -25,15 +29,6 @@
 
     border-radius: 0.6375rem;
     padding: 0.5rem 0.75rem 0.75rem 0.75rem;
-    // .item-tag-items {
-    //   flex-direction: row;
-    //   width: fit-content;
-
-    //   .item-tag-item {
-    //     width: fit-content;
-    //     text-wrap: nowrap;
-    //   }
-    // }
   }
 
   .item-tag-header {
@@ -62,6 +57,52 @@
     display: flex;
     align-items: center;
     justify-content: center;
+
+    .plus {
+      height: 100%;
+      width: 0.7rem;
+      path {
+        transition: stroke 0.2s ease;
+        stroke: var(--gray-400);
+      }
+
+      &:hover {
+        cursor: pointer;
+        path {
+          stroke: var(--gray-300);
+        }
+      }
+    }
+
+    .minus {
+      @extend .plus;
+      flex-shrink: 0;
+
+      &:hover {
+        cursor: pointer;
+        path {
+          stroke: var(--gray-600);
+        }
+      }
+    }
+
+    .seek {
+      width: 0.75rem;
+      flex-shrink: 0;
+
+      path {
+        transition: fill 0.2s ease;
+        stroke: unset;
+        fill: var(--gray-600);
+      }
+
+      &:hover {
+        cursor: pointer;
+        path {
+          fill: var(--gray-800);
+        }
+      }
+    }
 
     .pin {
       width: 0.5rem;
@@ -100,20 +141,24 @@
     display: flex;
     height: 1.25rem;
     padding: 0rem 0.25rem;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
     gap: 0.25rem;
     border-radius: 0.25rem;
     background: var(--gray-000);
-    width: fit-content;
+    overflow: hidden;
 
     .content {
       display: flex;
+      flex-grow: 1;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-start;
+      overflow: hidden;
       color: var(--gray-600);
       font-size: 0.875rem;
       font-weight: bold;
+
+      text-overflow: ellipsis;
     }
   }
 }

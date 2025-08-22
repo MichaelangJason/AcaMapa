@@ -13,6 +13,20 @@ export type {
 export type { ProgramSchemaType } from "@/db/schemas/program";
 export type { ObjectId } from "bson";
 
+import type { ProgramSchemaType } from "@/db/schemas/program";
+
+export type Program = Omit<ProgramSchemaType, "createdAt" | "updatedAt"> & {
+  _id: string;
+};
+
+export type ProgramReq = {
+  heading: string;
+  subheading: string;
+  credits: number;
+  courseIds: string[];
+  notes: string[];
+};
+
 import type {
   UserSchemaType,
   CourseMetadataSchemaType,

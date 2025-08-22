@@ -13,19 +13,30 @@ import {
 } from "@/lib/course";
 import { COURSE_PATTERN } from "@/lib/constants";
 import { ReqType } from "@/lib/enums";
-import { getSearchFn } from "@/lib/utils";
+import { getCourseSearchFn, getProgramSearchFn } from "@/lib/utils";
 import { getPlanCourseData, getPlanStats } from "@/lib/plan";
 
 const createAppSelector = createSelector.withTypes<RootState>();
 
 export const selectCourseSearchFn = createAppSelector(
-  (state) => state.global.isInitialized,
-  (state) => state.localData.courseData,
+  (state: RootState) => state.global.isInitialized,
+  (state: RootState) => state.localData.courseData,
   (isInitialized, courseData) => {
     if (!isInitialized) {
       return null;
     }
-    return getSearchFn(courseData);
+    return getCourseSearchFn(Object.values(courseData));
+  },
+);
+
+export const selectProgramSearchFn = createAppSelector(
+  (state: RootState) => state.global.isInitialized,
+  (state: RootState) => state.localData.programData,
+  (isInitialized, programData) => {
+    if (!isInitialized) {
+      return null;
+    }
+    return getProgramSearchFn(Object.values(programData));
   },
 );
 

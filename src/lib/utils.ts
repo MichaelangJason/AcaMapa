@@ -1,5 +1,5 @@
 import FlexSearch from "flexsearch";
-import type { Course } from "@/types/db";
+import type { Course, Program } from "@/types/db";
 import { SCROLL_OFFSET } from "./constants";
 
 export const debounce = <T>(
@@ -160,10 +160,10 @@ export const processQuery = (
     .flatMap((i) => i.result)
     .forEach((r) => {
       // match id first, then name
-      const courseId = r.toString();
-      if (!uniqueResult.has(courseId)) {
-        result.push(courseId);
-        uniqueResult.add(courseId);
+      const id = r.toString();
+      if (!uniqueResult.has(id)) {
+        result.push(id);
+        uniqueResult.add(id);
       }
     });
 
@@ -387,10 +387,10 @@ export const getCommandKey = () => {
 };
 
 // singleton search function
-let searchFn: ((query: string) => Promise<string[]>) | null = null;
+let courseSearchFn: ((query: string) => Promise<string[]>) | null = null;
 
-export const getSearchFn = (courseData: Course[]) => {
-  if (searchFn) return searchFn;
+export const getCourseSearchFn = (courseData: Course[]) => {
+  if (courseSearchFn) return courseSearchFn;
 
   const index = new FlexSearch.Document<Course>({
     document: {
@@ -415,12 +415,38 @@ export const getSearchFn = (courseData: Course[]) => {
     index.add(course);
   });
 
-  searchFn = async (query: string) => {
+  courseSearchFn = async (query: string) => {
     const result = await index.searchAsync(query, { enrich: true });
     return processQuery(result); // TODO: put into searchAsync callback?
   };
 
-  return searchFn;
+  return courseSearchFn;
+};
+
+// singleton program search function
+let programSearchFn: ((query: string) => Promise<string[]>) | null = null;
+
+export const getProgramSearchFn = (programData: Program[]) => {
+  if (programSearchFn) return programSearchFn;
+
+  const index = new FlexSearch.Document<Program>({
+    document: {
+      id: "name",
+      index: [{ field: "name", tokenize: "full", resolution: 9 }],
+    },
+  });
+
+  // synchronous indexing
+  programData.forEach((program) => {
+    index.add(program);
+  });
+
+  programSearchFn = async (query: string) => {
+    const result = await index.searchAsync(query, { enrich: true });
+    return processQuery(result); // TODO: put into searchAsync callback?
+  };
+
+  return programSearchFn;
 };
 
 export const checkObjectKeys = (obj: object, keys: string[]) => {

@@ -75,14 +75,14 @@ const DetailedCourseCard = ({
   );
   const isSeekingSelf =
     useAppSelector((state) => state.localData.seekingCourseId) === id;
-  const isAddingCourse = useAppSelector((state) => state.global.isAddingCourse);
+  const isAddingCourse = useAppSelector((state) => state.global.isAdding);
 
-  const handleSeek = useCallback(() => {
+  const handleSeek = useCallback(async () => {
     if (isSeekingCourse) {
       dispatch(setSeekingCourseId(""));
     } else {
+      await dispatch(seekCourse(id));
       scrollCourseCardToView(id, { duration: 500 });
-      dispatch(seekCourse(id));
       setIsExpanded?.(id, true);
     }
   }, [dispatch, id, isSeekingCourse, setIsExpanded]);

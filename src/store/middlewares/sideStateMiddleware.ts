@@ -2,11 +2,12 @@ import { createListenerMiddleware, isAnyOf } from "@reduxjs/toolkit";
 import type { AppDispatch, RootState } from "..";
 import {
   setHasSelectedCourses,
-  setIsAddingCourse,
+  setIsAdding,
   setIsSeekingCourse,
   setIsSideBarFolded,
   toggleIsSideBarFolded,
   setIsModalOpen,
+  setIsSeekingProgram,
 } from "../slices/globalSlice";
 import {
   addSelectedCourse,
@@ -24,6 +25,9 @@ import {
   clearSeekingCourseId,
   setExportPlanId,
   clearExportPlanId,
+  setIsProgramModalOpen,
+  clearIsProgramModalOpen,
+  setSeekingProgramName,
 } from "../slices/localDataSlice";
 import {
   addPlan,
@@ -40,7 +44,7 @@ import {
 } from "@/lib/typeGuards";
 import { ResultType } from "@/lib/enums";
 import type { SimpleModalProps } from "@/types/local";
-import { addCourseToTerm } from "../thunks";
+import { addCourseToTerm, addProgramToUser } from "../thunks";
 
 const listenerMiddleware = createListenerMiddleware();
 const startListening = listenerMiddleware.startListening.withTypes<
@@ -54,14 +58,20 @@ startListening({
     addCourseToTerm.pending,
     addCourseToTerm.fulfilled,
     addCourseToTerm.rejected,
+    addProgramToUser.pending,
+    addProgramToUser.fulfilled,
+    addProgramToUser.rejected,
   ),
   effect: (action, listenerApi) => {
     const dispatch = listenerApi.dispatch;
 
-    if (action.type === addCourseToTerm.pending.type) {
-      dispatch(setIsAddingCourse(true));
+    if (
+      action.type === addCourseToTerm.pending.type ||
+      action.type === addProgramToUser.pending.type
+    ) {
+      dispatch(setIsAdding(true));
     } else {
-      dispatch(setIsAddingCourse(false));
+      dispatch(setIsAdding(false));
     }
   },
 });
@@ -127,16 +137,27 @@ startListening({
 
 // handle seeking course updates only
 startListening({
-  actionCreator: setSeekingCourseId,
+  matcher: isAnyOf(setSeekingCourseId, setSeekingProgramName),
   effect: (action, listenerApi) => {
     const dispatch = listenerApi.dispatch;
-    const isSeekingCourse = action.payload !== "";
-    dispatch(setIsSeekingCourse(isSeekingCourse));
+    if (action.type === setSeekingCourseId.type) {
+      const isSeekingCourse = action.payload !== "";
+      dispatch(setIsSeekingCourse(isSeekingCourse));
 
-    if (isSeekingCourse) {
-      return;
+      if (isSeekingCourse) {
+        dispatch(setSeekingProgramName(""));
+        return;
+      }
+    } else if (action.type === setSeekingProgramName.type) {
+      const isSeekingProgram = action.payload !== "";
+      dispatch(setIsSeekingProgram(isSeekingProgram));
+
+      if (isSeekingProgram) {
+        dispatch(setSeekingCourseId(""));
+        dispatch(setIsSideBarFolded(false));
+        return;
+      }
     }
-
     dispatch(setSearchInput(""));
     dispatch(
       setSearchResult({ type: ResultType.DEFAULT, query: "", data: [] }),
@@ -171,6 +192,8 @@ startListening({
     clearSimpleModalInfo,
     setExportPlanId,
     clearExportPlanId,
+    setIsProgramModalOpen,
+    clearIsProgramModalOpen,
   ),
   effect: (action, listenerApi) => {
     const isSimpleModalOpen =
@@ -178,12 +201,19 @@ startListening({
       (action.payload as SimpleModalProps).isOpen;
     const isExportModalOpen =
       action.type === setExportPlanId.type && (action.payload as string) !== "";
+    const isProgramModalOpen =
+      action.type === setIsProgramModalOpen.type && (action.payload as boolean);
     const isModalOpen = listenerApi.getState().global.isModalOpen;
 
-    if (isModalOpen !== (isSimpleModalOpen || isExportModalOpen)) {
-      listenerApi.dispatch(
-        setIsModalOpen(isSimpleModalOpen || isExportModalOpen),
-      );
+    const isAnyModalOpen =
+      isSimpleModalOpen || isExportModalOpen || isProgramModalOpen;
+
+    if (isModalOpen !== isAnyModalOpen) {
+      listenerApi.dispatch(setIsModalOpen(isAnyModalOpen));
+      if (isAnyModalOpen) {
+        listenerApi.dispatch(setSeekingCourseId(""));
+        listenerApi.dispatch(setSeekingProgramName(""));
+      }
     }
   },
 });

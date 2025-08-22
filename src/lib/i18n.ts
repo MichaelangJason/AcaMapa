@@ -19,6 +19,9 @@ export enum I18nKey {
   SEMESTER = "semester",
   SEMESTER_DATA = "semester-data",
   COURSE = "course",
+  PROGRAM = "program",
+  SEARCH_PROGRAMS = "search-programs",
+  RELATED_PROGRAMS = "related-programs",
   COURSE_DATA = "course-data",
   LOCAL_DATA = "local-data",
   REMOTE_DATA = "remote-data",
@@ -74,10 +77,13 @@ export enum I18nKey {
   NO_RESULTS = "no-results",
   NO_SUBSEQUENT_COURSES = "no-subsequent-courses",
   FAILED_TO_EXPORT = "failed-to-export",
+  NO_NEW_PROGRAMS_TO_ADD = "no-new-programs-to-add",
 
   // seek related
   SEEKING_TITLE = "seeking-title",
+  SEEKING_PROGRAM_TITLE = "seeking-program-title",
   SEEKING_CLICK = "seeking-click",
+  SEEKING_PROGRAM_CLICK = "seeking-program-click",
   SUBSEQUENT_COURSES_FOR = "subsequent-courses-for",
 
   // sync related
@@ -111,6 +117,8 @@ export enum I18nKey {
   FETCH_COURSE_FAILED = "fetch-course-failed",
   FETCHED_M = "fetched-m",
   FETCHED_F = "fetched-f",
+  FETCH_PROGRAM_FAILED = "fetch-program-failed",
+  PROGRAM_DATA = "program-data",
 
   // warning
   UNDO_WARNING = "undo-warning",
@@ -118,6 +126,7 @@ export enum I18nKey {
   // toast related
   ADD_TO = "add-to",
   ADDING_COURSES = "adding-courses",
+  ADDING_PROGRAMS = "adding-programs",
   ADDED_TO_M = "added-to-m",
   ADDED_TO_F = "added-to-f",
   REMOVED_M = "removed-m",
@@ -150,6 +159,7 @@ export enum I18nKey {
   LOGOUT = "logout",
 
   // Special cases
+  CONFLICT_DESC = "conflict-desc",
   DELETE_TERM_TITLE = "delete-term-title",
   DELETE_TERM_DESC = "delete-term-desc",
   RENAME_TERM_TITLE = "rename-term-title",
@@ -175,6 +185,7 @@ export enum I18nKey {
   CO_REQ = "co-req",
   NOTES = "notes",
   SEARCH_INPUT_PLACEHOLDER = "search-input-placeholder",
+  SEARCH_PROGRAM_INPUT_PLACEHOLDER = "search-program-input-placeholder",
   SELECTED_COURSE = "selected-course",
   UNPIN = "unpin",
   PIN = "pin",

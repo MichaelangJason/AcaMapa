@@ -19,14 +19,20 @@ import {
 } from "@/store/slices/globalSlice";
 import { useCallback, useEffect, useMemo } from "react";
 import { getCommandKey } from "@/lib/utils";
-import { addPlan, addTerm, deletePlan } from "@/store/slices/userDataSlice";
-import { prepareExport } from "@/store/thunks";
+import {
+  addPlan,
+  addTerm,
+  deletePlan,
+  removeProgram,
+} from "@/store/slices/userDataSlice";
+import { prepareExport, seekProgram } from "@/store/thunks";
 import type { ItemProps } from "../Common/DropdownMenu/Item";
 import { TooltipId } from "@/lib/enums";
 import clsx from "clsx";
 import ItemTagSkeleton from "../Skeleton/ItemTagSkeleton";
 import { UserSession, Sync } from "../Common";
 import { I18nKey, Language, t } from "@/lib/i18n";
+import { setIsProgramModalOpen } from "@/store/slices/localDataSlice";
 
 const UtilityBar = () => {
   const currentPlanId = useAppSelector(
@@ -48,6 +54,7 @@ const UtilityBar = () => {
   const dispatch = useAppDispatch();
   const isInitialized = useAppSelector((state) => state.global.isInitialized);
   const lang = useAppSelector((state) => state.userData.lang) as Language;
+  const programs = useAppSelector((state) => state.userData.programs);
 
   const handleCloseDropdownMenu = useCallback(() => {
     dispatch(setIsUtilityDropdownMenuOpen(false));
@@ -83,6 +90,15 @@ const UtilityBar = () => {
             ), // add an empty term
         },
         shortcut: [getCommandKey(), "N"],
+      },
+      {
+        self: {
+          id: "search-program",
+          content: t([I18nKey.ADD, I18nKey.PROGRAM], lang),
+          handleClick: () => {
+            dispatch(setIsProgramModalOpen(true));
+          },
+        },
       },
       {
         self: {
@@ -163,6 +179,24 @@ const UtilityBar = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [actions, isInitialized]);
 
+  const handleClickProgram = useCallback(
+    async (programName: string) => {
+      await dispatch(seekProgram(programName));
+    },
+    [dispatch],
+  );
+
+  const handleAddProgram = useCallback(() => {
+    dispatch(setIsProgramModalOpen(true));
+  }, [dispatch]);
+
+  const handleDeleteProgram = useCallback(
+    (programName: string) => {
+      dispatch(removeProgram([programName]));
+    },
+    [dispatch],
+  );
+
   return (
     <section className="utility-bar">
       <DropdownMenuWrapper
@@ -203,20 +237,36 @@ const UtilityBar = () => {
             <ItemTagSkeleton width="2" />
           </>
         ) : (
-          <ItemTag
-            items={[
-              `# ${t([I18nKey.COURSE], lang)}s: ${totalCourses} (${totalCredits} cr)`,
-              `# ${t([I18nKey.PLANNED_COURSES], lang)}: ${totalPlannedCourses} (${totalPlanCredits} cr)`,
-              `# ${t([I18nKey.COURSE_TAKEN], lang)}: ${totalCourseTaken} (${totalCourseTakenCretids} cr)`,
-              `# ${t([I18nKey.SEMESTER], lang)}s: ${totalTerm} (${averageCreditsPerTerm} cr/term)`,
-            ]}
-            title={t([I18nKey.PLAN_STATS], lang)}
-            tooltipProps={{
-              "data-tooltip-id": TooltipId.ITEM_TAG,
-              "data-tooltip-content": t([I18nKey.PLAN_STATS], lang),
-              "data-tooltip-place": "right",
-            }}
-          />
+          <>
+            <ItemTag
+              items={programs}
+              handleClickItem={handleClickProgram}
+              handleDeleteItem={handleDeleteProgram}
+              handleAddItem={handleAddProgram}
+              handleSeekItem={handleClickProgram}
+              className="program-tag"
+              title={t([I18nKey.RELATED_PROGRAMS], lang)}
+              tooltipProps={{
+                "data-tooltip-id": TooltipId.ITEM_TAG,
+                "data-tooltip-content": t([I18nKey.RELATED_PROGRAMS], lang),
+                "data-tooltip-place": "right",
+              }}
+            />
+            <ItemTag
+              items={[
+                `# ${t([I18nKey.COURSE], lang)}s: ${totalCourses} (${totalCredits} cr)`,
+                `# ${t([I18nKey.PLANNED_COURSES], lang)}: ${totalPlannedCourses} (${totalPlanCredits} cr)`,
+                `# ${t([I18nKey.COURSE_TAKEN], lang)}: ${totalCourseTaken} (${totalCourseTakenCretids} cr)`,
+                `# ${t([I18nKey.SEMESTER], lang)}s: ${totalTerm} (${averageCreditsPerTerm} cr/term)`,
+              ]}
+              title={t([I18nKey.PLAN_STATS], lang)}
+              tooltipProps={{
+                "data-tooltip-id": TooltipId.ITEM_TAG,
+                "data-tooltip-content": t([I18nKey.PLAN_STATS], lang),
+                "data-tooltip-place": "right",
+              }}
+            />
+          </>
         )}
         <div className="filler" />
         {!isInitialized ? (

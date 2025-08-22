@@ -1,4 +1,4 @@
-import { Courses } from "@/db/schema";
+import { Courses } from "@/db/schemas";
 import { withDatabase } from "@/db";
 import { NextRequest, NextResponse } from "next/server";
 

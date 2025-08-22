@@ -13,6 +13,7 @@ import {
   isLocalDataAction,
   isValidObjectId,
   isValidCourseId,
+  isProgramAction,
 } from "@/lib/typeGuards";
 import {
   MAX_PLAN,
@@ -472,6 +473,37 @@ const validationMiddleware: Middleware<
           throw new Error(
             `Max course selected reached: ${MAX_COURSE_SELECTED}`,
           );
+        }
+        break;
+      }
+      default:
+        break; // TODO add other validations
+    }
+  }
+
+  if (isProgramAction(action)) {
+    switch (action.type) {
+      case "userData/addProgram": {
+        const programData = state.localData.programData;
+        const payload = action.payload;
+        if (payload.some((p) => !programData[p])) {
+          throw new Error(`Program not found in program data: ${payload}`);
+        }
+        break;
+      }
+      case "userData/removeProgram": {
+        const programData = state.localData.programData;
+        const payload = action.payload;
+        if (payload.some((p) => !programData[p])) {
+          throw new Error(`Program not found in program data: ${payload}`);
+        }
+        break;
+      }
+      case "userData/setPrograms": {
+        const programData = state.localData.programData;
+        const payload = action.payload;
+        if (payload.some((p) => !programData[p])) {
+          throw new Error(`Program not found in program data: ${payload}`);
         }
         break;
       }

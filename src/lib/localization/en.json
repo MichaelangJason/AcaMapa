@@ -9,6 +9,9 @@
   "plan": "Plan",
   "semester": "Semester",
   "course": "Course",
+  "program": "Program",
+  "related-programs": "Related Programs",
+  "search-programs": "Search Programs",
 
   "for": "for",
   "plan-data": "Plan Data",
@@ -66,9 +69,13 @@
   "failed-to-add": "Failed to add",
   "no-results": "No results",
   "no-subsequent-courses": "No subsequent courses",
+  "failed-to-export": "Failed to export",
+  "no-new-programs-to-add": "No new programs to add",
 
   "seeking-title": "Seeking subsequent courses for",
+  "seeking-program-title": "Seeking program:",
   "seeking-click": "Click to exit",
+  "seeking-program-click": "Click to exit",
   "subsequent-courses-for": "Subsequent courses for {{item1}}",
 
   "merge-title": "Merge Local Data",
@@ -99,11 +106,14 @@
   "fetch-course-failed": "Failed to fetch course",
   "fetched-m": "fetched",
   "fetched-f": "fetched",
+  "fetch-program-failed": "Failed to fetch program",
+  "program-data": "Program Data",
 
   "undo-warning": "Undo warning",
 
   "add-to": "Add to {{item1}}",
   "adding-courses": "Adding courses",
+  "adding-programs": "Adding program",
   "added-to-m": "Added to {{item1}}",
   "added-to-f": "Added to {{item1}}",
   "removed-m": "Removed",
@@ -134,6 +144,7 @@
   "login-with-mcgill-email": "Login with McGill email",
   "logout": "Logout",
 
+  "conflict-desc": "Local data detected, do you want to upload your local data? Your local data will be cleared after upload. You can keep them locally or merge them with the remote data.",
   "delete-term-title": "Delete Term",
   "delete-term-desc": "Are you sure you want to delete {{item1}}?",
   "rename-term-title": "Rename Term",
@@ -159,6 +170,7 @@
   "co-req": "Co-req",
   "notes": "Notes",
   "search-input-placeholder": "Search for courses...",
+  "search-program-input-placeholder": "Search for programs...",
   "selected-course": "Selected Course",
   "unpin": "Unpin",
   "pin": "Pin",

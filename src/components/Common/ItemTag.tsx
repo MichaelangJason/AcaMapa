@@ -1,10 +1,13 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import PinIcon from "@/public/icons/pin.svg";
 import PlusIcon from "@/public/icons/plus.svg";
+import MinusIcon from "@/public/icons/minus.svg";
+import SeekIcon from "@/public/icons/telescope.svg";
 import clsx from "clsx";
 import { useAppSelector } from "@/store/hooks";
 import type { TooltipProps } from "@/types/local";
 import { I18nKey, Language, t } from "@/lib/i18n";
+import { TooltipId } from "@/lib/enums";
 
 const ItemTag = ({
   title,
@@ -13,6 +16,7 @@ const ItemTag = ({
   handleAddItem,
   handleClickItem,
   handleDeleteItem,
+  handleSeekItem,
   isPinnable = true,
   isExpandable = true,
   className,
@@ -22,6 +26,7 @@ const ItemTag = ({
   itemClassName,
   isExport,
   displayLang,
+  displayLimit = 30,
 }: {
   title: string;
   items: string[];
@@ -29,6 +34,7 @@ const ItemTag = ({
   handleAddItem?: () => void;
   handleClickItem?: (item: string) => void;
   handleDeleteItem?: (item: string) => void;
+  handleSeekItem?: (item: string) => void;
   isPinnable?: boolean;
   isExpandable?: boolean;
   alignItems?: "center" | "flex-start" | "flex-end";
@@ -38,6 +44,7 @@ const ItemTag = ({
   style?: React.CSSProperties;
   isExport?: boolean;
   displayLang?: Language;
+  displayLimit?: number;
 }) => {
   const [isHovering, setIsHovering] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -46,16 +53,46 @@ const ItemTag = ({
   const showExpanded = !isDragging && (isExpanded || isHovering || isExport);
   const isTagExpanded = isExport || isExpanded;
   const lang = displayLang || userLang;
+  const tagRef = useRef<HTMLDivElement>(null);
 
-  const handleClick = useCallback(() => {
-    if (isPinnable && isExpandable) {
-      setIsExpanded((prev) => !prev);
-    }
-    handleClickTag?.();
-  }, [isPinnable, isExpandable, handleClickTag]);
+  const handleAddItemClick = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      if (!handleAddItem) return;
+      e.stopPropagation();
+      handleAddItem();
+    },
+    [handleAddItem],
+  );
+
+  const handleClick = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      if (
+        tagRef.current &&
+        tagRef.current.attributes.getNamedItem("data-tag-type")?.value ===
+          "open"
+      ) {
+        e.stopPropagation();
+        setIsExpanded(true);
+        tagRef.current.attributes.removeNamedItem("data-tag-type");
+        return;
+      }
+      if (isPinnable && isExpandable && items.length > 0) {
+        setIsExpanded((prev) => !prev);
+      }
+      handleClickTag?.();
+    },
+    [isPinnable, isExpandable, handleClickTag, items.length],
+  );
+
   const isClickable = useMemo(() => {
     return items.length > 0 || handleClickTag;
   }, [items, handleClickTag]);
+
+  useEffect(() => {
+    if (items.length === 0) {
+      setIsExpanded(false);
+    }
+  }, [items.length]);
 
   return (
     <article
@@ -68,6 +105,7 @@ const ItemTag = ({
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
       style={style}
+      ref={tagRef}
     >
       <header
         className={clsx(
@@ -82,7 +120,7 @@ const ItemTag = ({
             <PinIcon
               className={clsx(
                 "pin",
-                showExpanded && "rotated",
+                showExpanded && items.length > 0 && "rotated",
                 isTagExpanded && "pinned",
               )}
             />
@@ -97,14 +135,15 @@ const ItemTag = ({
                   ? t([I18nKey.UNPIN], lang) + " "
                   : t([I18nKey.PIN], lang) + " "
                 : "") + (tooltipProps?.["data-tooltip-content"] || title),
+            "data-tooltip-delay-show": 500,
           }}
         >
           {title}
         </span>
-        {handleAddItem && isExpanded && <div className="filler" />}
+        {/* {handleAddItem && showExpanded && items.length > 0 && <div className="filler" />} */}
         {handleAddItem && (
           <div className="icon-container">
-            <PlusIcon className="plus" onClick={handleAddItem} />
+            <PlusIcon className="plus" onClick={handleAddItemClick} />
           </div>
         )}
       </header>
@@ -114,8 +153,10 @@ const ItemTag = ({
             <Item
               key={item}
               content={item}
+              displayLimit={displayLimit}
               handleClickItem={() => handleClickItem?.(item)}
               handleDeleteItem={handleDeleteItem}
+              handleSeekItem={handleSeekItem}
               className={itemClassName}
             />
           ))}
@@ -128,18 +169,18 @@ const ItemTag = ({
 const Item = ({
   content,
   handleClickItem,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   handleDeleteItem,
+  handleSeekItem,
   className,
+  displayLimit,
 }: {
   content: string;
   handleClickItem?: () => void;
   handleDeleteItem?: (item: string) => void;
+  handleSeekItem?: (item: string) => void;
   className?: string;
+  displayLimit: number;
 }) => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [isHovering, setIsHovering] = useState(false);
-
   return (
     <div
       className={clsx(
@@ -147,12 +188,36 @@ const Item = ({
         handleClickItem && "clickable",
         className,
       )}
-      onMouseEnter={() => setIsHovering(true)}
-      onMouseLeave={() => setIsHovering(false)}
     >
-      <span className="content" onClick={handleClickItem}>
-        {content}
+      {handleSeekItem && (
+        <div className="icon-container">
+          <SeekIcon
+            className="seek"
+            onClick={() => handleSeekItem?.(content)}
+          />
+        </div>
+      )}
+      <span
+        className="content"
+        onClick={handleClickItem}
+        {...{
+          "data-tooltip-content": content,
+          "data-tooltip-place": "top",
+          "data-tooltip-id": TooltipId.ITEM_TAG_ITEM,
+        }}
+      >
+        {content.length > displayLimit
+          ? content.slice(0, displayLimit) + "..."
+          : content}
       </span>
+      {handleDeleteItem && (
+        <div className="icon-container">
+          <MinusIcon
+            className="minus"
+            onClick={() => handleDeleteItem?.(content)}
+          />
+        </div>
+      )}
     </div>
   );
 };

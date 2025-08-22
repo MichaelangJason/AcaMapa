@@ -1,12 +1,14 @@
 "use client";
 
-import { SearchInput, SearchResults, MultiSelect } from "../Common";
+import { SearchInput, SearchResults, MultiSelect } from "../Common/SideBar";
 import { CourseTaken } from "../Course";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { toggleIsSideBarFolded } from "@/store/slices/globalSlice";
 import {
   setSearchResult,
   setSeekingCourseId,
+  setSearchInput,
+  setSeekingProgramName,
 } from "@/store/slices/localDataSlice";
 import { useCallback, useMemo, memo, useRef, useEffect } from "react";
 import { ResultType, TooltipId } from "@/lib/enums";
@@ -20,6 +22,7 @@ const SideBar = () => {
   const dispatch = useAppDispatch();
   const isInitialized = useAppSelector((state) => state.global.isInitialized);
   const isFolded = useAppSelector((state) => state.global.isSideBarFolded);
+  const searchInput = useAppSelector((state) => state.localData.searchInput);
   const toggleFolded = useCallback(
     async () => dispatch(toggleIsSideBarFolded()),
     [dispatch],
@@ -32,15 +35,18 @@ const SideBar = () => {
     (state) => state.localData.selectedCourses,
   );
 
-  const stopPropagation = useCallback((e: WheelEvent) => {
+  const stopPropagation = useCallback((e: Event) => {
     e.stopPropagation();
   }, []);
 
   useEffect(() => {
     if (!sidebarRef.current) return;
-    sidebarRef.current.addEventListener("wheel", stopPropagation);
+    sidebarRef.current.addEventListener("wheel", stopPropagation, {
+      passive: true,
+    });
+    const elem = sidebarRef.current;
     return () => {
-      sidebarRef.current?.removeEventListener("wheel", stopPropagation);
+      elem?.removeEventListener("wheel", stopPropagation);
     };
   }, [stopPropagation]);
 
@@ -70,6 +76,7 @@ const SideBar = () => {
 
   const handleClearSearchInput = useCallback(() => {
     dispatch(setSeekingCourseId(""));
+    dispatch(setSeekingProgramName(""));
   }, [dispatch]);
 
   const displayText = useMemo(() => {
@@ -78,6 +85,8 @@ const SideBar = () => {
         return t([I18nKey.SUBSEQUENT_COURSES_FOR], lang, {
           item1: searchResult.query,
         });
+      case ResultType.PROGRAM:
+        return searchResult.query;
       default:
         return undefined;
     }
@@ -124,11 +133,14 @@ const SideBar = () => {
           priority={true}
         />
         <SearchInput
+          value={searchInput}
+          setValue={(value) => dispatch(setSearchInput(value))}
           callback={handleSearchCourse}
           displayText={displayText}
           onClickIcon={handleClearSearchInput}
           className={clsx([
             searchResult.type === ResultType.SEEKING && "seeking",
+            searchResult.type === ResultType.PROGRAM && "seeking-program",
           ])}
         />
       </header>

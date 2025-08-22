@@ -1,9 +1,12 @@
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { ResultType } from "@/lib/enums";
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
-import { isValidCourse } from "@/lib/typeGuards";
+import { isValidCourse, isValidProgramReq } from "@/lib/typeGuards";
 import { RESULT_PER_PAGE, SKELETON_CONFIG } from "@/lib/constants";
-import { MiniCourseCard } from "@/components/Course/CourseCard";
+import {
+  DetailedInfoCard,
+  MiniCourseCard,
+} from "@/components/Course/CourseCard";
 import {
   addSelectedCourse,
   removeSelectedCourse,
@@ -12,10 +15,10 @@ import type { Course } from "@/types/db";
 import type { SearchResult } from "@/types/local";
 import { useDebounce } from "@/lib/hooks";
 import { selectAllCourseData } from "@/store/selectors";
-import FootNote from "../Course/CourseCard/FootNote";
+import FootNote from "../../Course/CourseCard/FootNote";
 import { MiniCourseCardSkeleton } from "@/components/Skeleton";
 import { I18nKey, Language, t } from "@/lib/i18n";
-import ScrollBar from "./ScrollBar";
+import ScrollBar from "../ScrollBar";
 
 const SearchResults = ({ result }: { result: SearchResult }) => {
   const courseData = useAppSelector((state) => state.localData.courseData);
@@ -143,6 +146,12 @@ const SearchResults = ({ result }: { result: SearchResult }) => {
                 isSelected={selectedCourses.has(course.id)}
               />
             );
+          }
+
+          if (type === ResultType.PROGRAM) {
+            if (!isValidProgramReq(entry)) return null;
+
+            return <DetailedInfoCard key={`search-result-${idx}`} {...entry} />;
           }
 
           return null;

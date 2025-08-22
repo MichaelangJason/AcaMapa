@@ -1,5 +1,7 @@
 export const RESULT_PER_PAGE = 10;
 
+export const PROGRAM_RESULT_PER_PAGE = 30;
+
 export const MAX_SELECTED_COURSE = 7;
 
 export const EXPORT_DELAY = 1500;

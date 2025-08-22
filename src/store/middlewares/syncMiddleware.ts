@@ -7,6 +7,7 @@ import {
   setTermData,
   setLang,
   setChatThreadIds,
+  setPrograms,
 } from "../slices/userDataSlice";
 import { setSyncStatus } from "../slices/localDataSlice";
 import { getDebouncedSync } from "@/lib/sync";
@@ -25,6 +26,7 @@ const matchUserDataSetActions = isAnyOf(
   setCourseTaken,
   setLang,
   setChatThreadIds,
+  setPrograms,
 );
 
 const handleBeforeUnload = (e: BeforeUnloadEvent) => {

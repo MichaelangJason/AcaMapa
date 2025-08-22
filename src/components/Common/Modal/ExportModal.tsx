@@ -11,7 +11,7 @@ import clsx from "clsx";
 import { EXPORT_DELAY } from "@/lib/constants";
 import { toast } from "react-toastify";
 import { selectExportInfo } from "@/store/selectors";
-import ExportElems from "../ExportElems";
+import ExportElems from "./ExportElems";
 // @ts-expect-error no typescript for dom-to-image-more
 import DomToImage from "dom-to-image-more";
 

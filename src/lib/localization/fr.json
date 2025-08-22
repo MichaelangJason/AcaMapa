@@ -9,6 +9,9 @@
   "plan": "Plan",
   "semester": "Semestre",
   "course": "Cours",
+  "program": "Programme",
+  "related-programs": "Programmes liés",
+  "search-programs": "Rechercher des programmes",
 
   "for": "pour",
   "plan-data": "Données du plan",
@@ -66,9 +69,13 @@
   "failed-to-add": "Échec de l'ajout",
   "no-results": "Aucun résultat",
   "no-subsequent-courses": "Aucun cours subséquent",
+  "failed-to-export": "Échec de l'exportation",
+  "no-new-programs-to-add": "Aucun nouveau programme à ajouter",
 
   "seeking-title": "Recherche de cours subséquents pour",
+  "seeking-program-title": "Recherche de programme:",
   "seeking-click": "Cliquer ce message pour quitter",
+  "seeking-program-click": "Cliquer ce message pour quitter",
   "subsequent-courses-for": "Cours subséquents pour {{item1}}",
 
   "merge-title": "Fusionner les données locales",
@@ -99,11 +106,14 @@
   "fetch-course-failed": "Échec de la récupération du cours",
   "fetched-m": "récupéré",
   "fetched-f": "récupérée",
+  "fetch-program-failed": "Échec de la récupération du programme",
+  "program-data": "Données du programme",
 
   "undo-warning": "Avertissement d'annulation",
 
   "add-to": "Ajouter à {{item1}}",
-  "adding-courses": "Ajout de cours",
+  "adding-courses": "Ajoute des cours",
+  "adding-programs": "Ajoute un programme",
   "added-to-m": "Ajouté à {{item1}}",
   "added-to-f": "Ajoutée à {{item1}}",
   "removed-m": "Retiré",
@@ -134,6 +144,7 @@
   "login-with-mcgill-email": "Se connecter avec l'email McGill",
   "logout": "Déconnexion",
 
+  "conflict-desc": "Données locales détectées, voulez-vous téléverser vos données locales ? Vos données locales seront effacées après le téléchargement. Vous pouvez les conserver localement ou les fusionner avec les données distantes.",
   "delete-term-title": "Supprimer le trimestre",
   "delete-term-desc": "Êtes-vous sûr de vouloir supprimer {{item1}} ?",
   "rename-term-title": "Renommer le trimestre",
@@ -159,6 +170,7 @@
   "co-req": "Co-requis",
   "notes": "Notes",
   "search-input-placeholder": "Rechercher des cours...",
+  "search-program-input-placeholder": "Rechercher des programmes...",
   "selected-course": "Cours sélectionné",
   "unpin": "Détacher",
   "pin": "Épingler",

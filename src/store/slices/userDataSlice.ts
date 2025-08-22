@@ -11,6 +11,8 @@ export const initialState = {
   planData: new Map<string, Plan>(),
   termData: new Map<string, Term>(),
 
+  programs: [] as string[],
+
   planOrder: [] as string[],
   chatThreadIds: [] as string[],
 } as MemberData;
@@ -54,6 +56,19 @@ export const userDataSlice = createSlice({
           state.courseTaken.delete(subjectCode);
         }
       });
+    },
+
+    /* PROGRAM RELATED */
+    setPrograms: (state, action: PayloadAction<string[]>) => {
+      state.programs = [...action.payload];
+    },
+    addProgram: (state, action: PayloadAction<string[]>) => {
+      state.programs.push(...action.payload);
+    },
+    removeProgram: (state, action: PayloadAction<string[]>) => {
+      state.programs = state.programs.filter(
+        (program) => !action.payload.includes(program),
+      );
     },
 
     /* PLAN RElATED */
@@ -274,6 +289,11 @@ export const {
   addCourseTaken,
   removeCourseTaken,
 
+  /* PROGRAM RELATED */
+  setPrograms,
+  addProgram,
+  removeProgram,
+
   /* PLAN RELATED */
   setPlanData,
   setPlanOrder,
@@ -328,6 +348,15 @@ export const courseTakenActions = {
   removeCourseTaken,
 };
 
+export const programActions = {
+  setPrograms,
+  addProgram,
+  removeProgram,
+};
+
+export type ProgramAction = ReturnType<
+  (typeof programActions)[keyof typeof programActions]
+>;
 export type PlanAction = ReturnType<
   (typeof planActions)[keyof typeof planActions]
 >;

@@ -5,11 +5,12 @@ export const initialState = {
   isCourseTakenExpanded: false as boolean,
   // state controlled by selectedCourses, can be replaced by createSelector on selectedCourses.size
   hasSelectedCourses: false as boolean,
-  isAddingCourse: false as boolean,
+  isAdding: false as boolean,
   isDragging: false as boolean,
   isInitialized: false as boolean,
   isUtilityDropdownMenuOpen: false as boolean,
   isSeekingCourse: false as boolean,
+  isSeekingProgram: false as boolean,
   isToastEnabled: true as boolean,
   isModalOpen: false as boolean,
 };
@@ -33,8 +34,8 @@ const globalSlice = createSlice({
     toggleIsCourseTakenExpanded: (state) => {
       state.isCourseTakenExpanded = !state.isCourseTakenExpanded;
     },
-    setIsAddingCourse: (state, action: PayloadAction<boolean>) => {
-      state.isAddingCourse = action.payload;
+    setIsAdding: (state, action: PayloadAction<boolean>) => {
+      state.isAdding = action.payload;
     },
     setIsDragging: (state, action: PayloadAction<boolean>) => {
       state.isDragging = action.payload;
@@ -47,6 +48,9 @@ const globalSlice = createSlice({
     },
     setIsSeekingCourse: (state, action: PayloadAction<boolean>) => {
       state.isSeekingCourse = action.payload;
+    },
+    setIsSeekingProgram: (state, action: PayloadAction<boolean>) => {
+      state.isSeekingProgram = action.payload;
     },
     setIsToastEnabled: (state, action: PayloadAction<boolean>) => {
       state.isToastEnabled = action.payload;
@@ -66,11 +70,12 @@ export const {
   toggleIsSideBarFolded,
   setIsCourseTakenExpanded,
   toggleIsCourseTakenExpanded,
-  setIsAddingCourse,
+  setIsAdding,
   setIsDragging,
   setIsUtilityDropdownMenuOpen,
   toggleIsUtilityDropdownMenuOpen,
   setIsSeekingCourse,
+  setIsSeekingProgram,
   setIsToastEnabled,
   setHasSelectedCourses,
   setIsModalOpen,

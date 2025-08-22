@@ -6,6 +6,8 @@ import type {
   MemberData,
   Plan,
   Term,
+  Program,
+  ProgramReq,
 } from "@/types/db";
 import { ObjectId } from "bson";
 import type {
@@ -14,11 +16,13 @@ import type {
   CourseAction,
   CourseTakenAction,
   LocalDataAction,
+  ProgramAction,
 } from "@/types/actions";
 import { localDataActions } from "@/store/slices/localDataSlice";
 import {
   courseActions,
   courseTakenActions,
+  programActions,
   planActions,
   termActions,
 } from "@/store/slices/userDataSlice";
@@ -37,6 +41,51 @@ export const isValidCourse = (course: unknown): course is Course => {
     typeof c.name === "string" &&
     typeof c.credits === "number"
   );
+};
+
+export const isValidProgramReq = (req: unknown): req is ProgramReq => {
+  if (typeof req !== "object" || req === null) return false;
+
+  const r = req as ProgramReq;
+  if (typeof r.heading !== "string") return false;
+  if (typeof r.subheading !== "string") return false;
+  if (typeof r.credits !== "number") return false;
+  if (!Array.isArray(r.courseIds)) return false;
+  if (!Array.isArray(r.notes)) return false;
+
+  return true;
+};
+
+export const isValidProgram = (program: unknown): program is Program => {
+  const p = (
+    typeof program === "string" ? JSON.parse(program) : program
+  ) as Program;
+
+  const stringFields = [
+    "name",
+    "degree",
+    "department",
+    "faculty",
+    "overview",
+    "req",
+  ];
+  const numberFields = ["credits", "level"];
+
+  if (
+    stringFields.some((field) => typeof p[field as keyof Program] !== "string")
+  )
+    return false;
+  if (
+    numberFields.some((field) => typeof p[field as keyof Program] !== "number")
+  )
+    return false;
+
+  if (typeof p.req !== "string") return false;
+  const reqs = JSON.parse(p.req) as ProgramReq[];
+  if (!Array.isArray(reqs) || reqs.some((r) => !isValidProgramReq(r)))
+    return false;
+
+  return true;
 };
 
 export const isValidDetailedCourse = (
@@ -146,6 +195,11 @@ export const isTermAction = (action: unknown): action is TermAction => {
 export const isCourseAction = (action: unknown): action is CourseAction => {
   if (!isAction(action)) return false;
   return isAnyOf(...Object.values(courseActions))(action);
+};
+
+export const isProgramAction = (action: unknown): action is ProgramAction => {
+  if (!isAction(action)) return false;
+  return isAnyOf(...Object.values(programActions))(action);
 };
 
 export const isLocalDataAction = (

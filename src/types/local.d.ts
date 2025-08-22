@@ -1,5 +1,12 @@
 import type { GroupType, ResultType } from "@/lib/enums";
-import type { Course, DetailedCourse, GuestUserData, Requisite } from "./db";
+import type {
+  Course,
+  DetailedCourse,
+  GuestUserData,
+  Program,
+  ProgramReq,
+  Requisite,
+} from "./db";
 import type {
   DataAttribute,
   PlacesType,
@@ -21,16 +28,7 @@ export type SearchResult = { query: string } & (
     }
   | {
       type: ResultType.AI | ResultType.PROGRAM;
-      data: {
-        heading: string;
-        subheading: string;
-        courseIds: string[];
-        reqNotes: {
-          title: string;
-          parsed: string;
-          notes: string[];
-        }[];
-      }[];
+      data: (ProgramReq & { hideCourses?: boolean })[];
     }
 );
 
@@ -65,6 +63,10 @@ export type CachedDetailedCourse = DetailedCourse & {
   prerequisites: EnhancedRequisites;
   corequisites: EnhancedRequisites;
   restrictions: EnhancedRequisites;
+};
+
+export type CachedDetailedProgram = {
+  [K in keyof Program]: K extends "req" ? ProgramReq[] : Program[K];
 };
 
 export type DropdownOption = {

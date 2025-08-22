@@ -20,10 +20,15 @@
     font-size: 0.75rem;
     font-weight: bold;
     line-height: normal;
-    width: 100%;
+    width: fit-content;
     padding: 0rem 0.5rem;
     box-sizing: border-box;
     overflow: hidden;
+    align-self: flex-start;
+
+    &.no-req {
+      margin-bottom: 0;
+    }
   }
 
   .parsed {

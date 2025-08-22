@@ -54,6 +54,7 @@ export const GET = async (request: NextRequest) => {
     planOrder: user.planOrder,
     lang: user.lang,
     chatThreadIds: user.chatThreadIds,
+    programs: user.programs,
   };
 
   return NextResponse.json(
@@ -112,6 +113,7 @@ export const POST = async (request: NextRequest) => {
       ...mockPlanData(3, "New Plan"),
       lang: Language.EN,
       courseTaken: new Map(),
+      programs: [],
     };
   }
 
@@ -212,12 +214,20 @@ export const PUT = async (request: NextRequest) => {
       }
     });
 
+    const newPrograms = [...user.programs];
+    parsedData.programs.forEach((program) => {
+      if (!newPrograms.includes(program)) {
+        newPrograms.push(program);
+      }
+    });
+
     updatedUserData = {
       planData: newPlanData,
       termData: newTermData,
       planOrder: newPlanOrder,
       courseTaken: newCourseTaken,
       lang: parsedData.lang as Language,
+      programs: newPrograms,
     };
   } else {
     // overwrite all fields

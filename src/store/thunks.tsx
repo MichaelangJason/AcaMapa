@@ -4,6 +4,7 @@ import {
   isValidDetailedCourse,
   isValidGuestData,
   isValidSavingData,
+  isValidProgram,
 } from "@/lib/typeGuards";
 import {
   setCurrentPlanId,
@@ -19,6 +20,8 @@ import {
   initCourseDepData,
   updateCoursesIsSatisfied,
   setCourseDepDataDirty,
+  updateCachedDetailedProgramData,
+  setSeekingProgramName,
 } from "./slices/localDataSlice";
 import {
   addCourse,
@@ -28,14 +31,24 @@ import {
   setTermData,
   setChatThreadIds,
   setCourseTaken,
+  setPrograms,
+  addProgram,
 } from "./slices/userDataSlice";
-import { setIsInitialized } from "./slices/globalSlice";
+import { setIsInitialized, setIsSideBarFolded } from "./slices/globalSlice";
 import { mockPlanData } from "@/lib/mock";
-import type { Course, GuestUserData } from "@/types/db";
-import type { CachedDetailedCourse, Session } from "@/types/local";
+import type { Course, GuestUserData, Program, ProgramReq } from "@/types/db";
+import type {
+  CachedDetailedCourse,
+  CachedDetailedProgram,
+  Session,
+} from "@/types/local";
 import { parseGroup } from "@/lib/course";
 import { LocalStorageKey, ResultType, SyncMethod } from "@/lib/enums";
-import { formatCourseId, getSearchFn } from "@/lib/utils";
+import {
+  formatCourseId,
+  getCourseSearchFn,
+  getProgramSearchFn,
+} from "@/lib/utils";
 import {
   clearLocalData,
   createRemoteUserData,
@@ -102,6 +115,40 @@ export const fetchCourseData = createAppAsyncThunk(
     });
 
     dispatch(updateCachedDetailedCourseData(data as CachedDetailedCourse[]));
+    return fulfillWithValue(data);
+  },
+);
+
+export const fetchProgramData = createAppAsyncThunk(
+  "thunks/fetchProgramData",
+  async (
+    programIds: string[],
+    { dispatch, rejectWithValue, fulfillWithValue, getState },
+  ) => {
+    const lang = getState().userData.lang as Language;
+    const response = await fetch(`/api/programs?ids=${programIds.join(",")}`, {
+      method: "GET",
+    });
+
+    if (!response.ok) {
+      return rejectWithValue(
+        t([I18nKey.FETCH_PROGRAM_FAILED], lang, {
+          [I18nKey.PROGRAM_DATA]: programIds.join(","),
+        }),
+      );
+    }
+
+    const data = await response.json();
+    if (!(Array.isArray(data) && data.every((v) => isValidProgram(v)))) {
+      return rejectWithValue("Invalid Program Data");
+    }
+
+    const cachedData = data.map((p) => ({
+      ...p,
+      req: JSON.parse(p.req),
+    })) as CachedDetailedProgram[];
+
+    dispatch(updateCachedDetailedProgramData(cachedData));
     return fulfillWithValue(data);
   },
 );
@@ -201,10 +248,53 @@ export const addCourseToTerm = createAppAsyncThunk(
   },
 );
 
+export const addProgramToUser = createAppAsyncThunk(
+  "thunks/addProgramToUser",
+  async (
+    programNames: string[],
+    { dispatch, rejectWithValue, fulfillWithValue, getState },
+  ) => {
+    const lang = getState().userData.lang as Language;
+    const state = getState();
+    const programData = state.localData.programData;
+    const cachedPrograms = state.localData.cachedDetailedProgramData;
+
+    const unCachedProgramIds = programNames
+      .filter((name) => !cachedPrograms[name])
+      .map((name) => programData[name]._id);
+    if (unCachedProgramIds.length > 0) {
+      await dispatch(fetchProgramData(unCachedProgramIds)).unwrap();
+    }
+
+    const newProgramNames = programNames.filter(
+      (name) => !state.userData.programs.includes(name),
+    );
+    if (newProgramNames.length > 0) {
+      dispatch(addProgram(newProgramNames));
+    } else {
+      return rejectWithValue(
+        t([I18nKey.NO_NEW_PROGRAMS_TO_ADD], lang, {
+          [I18nKey.P_ITEM1]: programNames.join(", "),
+        }),
+      );
+    }
+
+    return fulfillWithValue(programNames);
+  },
+);
+
 export const initApp = createAppAsyncThunk(
   "thunks/initApp",
   async (
-    { courseData, session }: { courseData: Course[]; session: Session | null },
+    {
+      courseData,
+      programData,
+      session,
+    }: {
+      courseData: Course[];
+      programData: Program[];
+      session: Session | null;
+    },
     { dispatch, fulfillWithValue, rejectWithValue, getState },
   ) => {
     const lang = getState().userData.lang as Language;
@@ -212,9 +302,10 @@ export const initApp = createAppAsyncThunk(
       return rejectWithValue(t([I18nKey.ALREADY_INITIALIZED], lang));
     }
 
-    const searchFn = getSearchFn(courseData);
+    const searchFn = getCourseSearchFn(courseData);
+    const programSearchFn = getProgramSearchFn(programData);
 
-    if (!searchFn) {
+    if (!searchFn || !programSearchFn) {
       return rejectWithValue(t([I18nKey.FAILED_TO_GET_SEARCH_FN], lang));
     }
 
@@ -238,6 +329,11 @@ export const initApp = createAppAsyncThunk(
 export const seekCourse = createAppAsyncThunk(
   "thunks/seekCourse",
   async (courseId: string, { dispatch, getState }) => {
+    const isSideBarFolded = getState().global.isSideBarFolded;
+    if (isSideBarFolded) {
+      dispatch(setIsSideBarFolded(false));
+      await new Promise((resolve) => setTimeout(resolve, 200));
+    }
     dispatch(setSeekingCourseId(courseId));
     const state = getState();
     const lang = state.userData.lang as Language;
@@ -262,6 +358,58 @@ export const seekCourse = createAppAsyncThunk(
         data: subseqCourses,
       }),
     );
+  },
+);
+
+export const seekProgram = createAppAsyncThunk(
+  "thunks/seekProgram",
+  async (
+    programName: string,
+    { dispatch, getState, fulfillWithValue, rejectWithValue },
+  ) => {
+    const isSideBarFolded = getState().global.isSideBarFolded;
+    const state = getState();
+    const lang = state.userData.lang as Language;
+    if (isSideBarFolded) {
+      dispatch(setIsSideBarFolded(false));
+    }
+
+    const program = state.localData.cachedDetailedProgramData[programName];
+    if (!program) {
+      return rejectWithValue(
+        t([I18nKey.PROGRAM, I18nKey.NOT_FOUND], lang, {
+          [I18nKey.PROGRAM]: programName,
+        }),
+      );
+    }
+
+    const degree = program.degree ? `Degree: ${program.degree}` : "";
+    const faculty = program.faculty ? `Faculty: ${program.faculty}` : "";
+    const department =
+      program.department && program.department !== program.faculty
+        ? `Department: ${program.department}`
+        : "";
+
+    const relatedCourseIds = program.req.flatMap((r) => r.courseIds);
+    const metaDataCard: ProgramReq & { hideCourses?: boolean } = {
+      heading: program.name,
+      subheading: "Metadata",
+      credits: program.credits,
+      courseIds: relatedCourseIds,
+      notes: [degree, faculty, department].filter(Boolean),
+      hideCourses: true,
+    };
+
+    dispatch(setSeekingProgramName(programName));
+    dispatch(
+      setSearchResult({
+        type: ResultType.PROGRAM,
+        query: programName,
+        data: [metaDataCard, ...program.req],
+      }),
+    );
+
+    return fulfillWithValue(true);
   },
 );
 
@@ -344,6 +492,7 @@ export const fullSync = createAppAsyncThunk(
     const data = state.userData;
     const currentPlanId = state.localData.currentPlanId;
     const lang = state.userData.lang as Language;
+    const programData = state.localData.programData;
 
     const initNewPlan = () => {
       const { planData, termData, planOrder } = mockPlanData(3, "New Plan");
@@ -353,6 +502,7 @@ export const fullSync = createAppAsyncThunk(
         planOrder,
         lang: Language.EN,
         courseTaken: new Map(),
+        programs: [],
       });
 
       return planOrder[0];
@@ -362,10 +512,12 @@ export const fullSync = createAppAsyncThunk(
       data: GuestUserData,
       chatThreadIds?: string[],
     ) => {
-      const { planData, termData, planOrder, lang, courseTaken } = data;
+      const { planData, termData, planOrder, lang, courseTaken, programs } =
+        data;
       dispatch(setCourseTaken(courseTaken));
       dispatch(setTermData(termData));
       dispatch(setPlanData({ planData, planOrder }));
+      dispatch(setPrograms(programs));
       const courseExpandPayload = [...planData.entries()].map(
         ([planId, plan]) => ({
           planId,
@@ -403,6 +555,13 @@ export const fullSync = createAppAsyncThunk(
           await dispatch(
             fetchCourseData(Array.from(distinctCourseIds)),
           ).unwrap();
+        }
+
+        const allProgramIds = parsedData.programs
+          .map((p) => programData[p]._id)
+          .filter(Boolean);
+        if (allProgramIds.length > 0) {
+          await dispatch(fetchProgramData(allProgramIds)).unwrap();
         }
 
         setLocalUserData(parsedData);
@@ -514,8 +673,7 @@ export const fullSync = createAppAsyncThunk(
                 isOpen: true,
                 title: t([I18nKey.MERGE_TITLE], lang),
                 description: `
-                <span>${t([I18nKey.KEEP_LOCAL_DATA], lang)}</span>
-                <span>${t([I18nKey.MERGE_LOCAL_DATA], lang)}</span>
+                <span>${t([I18nKey.CONFLICT_DESC], lang)}</span>
               `,
                 confirmCb: async () => {
                   // merge local data with remote data

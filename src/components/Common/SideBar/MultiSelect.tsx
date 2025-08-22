@@ -7,10 +7,10 @@ import {
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Course } from "@/types/db";
 import { clamp } from "@/lib/utils";
-import MiniCourseCard from "../Course/CourseCard/MiniCourseCard";
+import MiniCourseCard from "../../Course/CourseCard/MiniCourseCard";
 import clsx from "clsx";
 import { I18nKey, Language, t } from "@/lib/i18n";
-import ScrollBar from "./ScrollBar";
+import ScrollBar from "../ScrollBar";
 
 const getMarginTop = (
   idx: number,

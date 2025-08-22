@@ -1,6 +1,6 @@
 import { createListenerMiddleware, isAnyOf } from "@reduxjs/toolkit";
 import { AppDispatch, RootState } from "..";
-import { toast, type TypeOptions } from "react-toastify";
+import { toast, type ToastOptions, type TypeOptions } from "react-toastify";
 import {
   isTermAction,
   isCourseTakenAction,
@@ -8,9 +8,15 @@ import {
   isCourseAction,
   isValidDetailedCourse,
 } from "@/lib/typeGuards";
-import { setSeekingCourseId, setCurrentPlanId } from "../slices/localDataSlice";
+import {
+  setSeekingCourseId,
+  setCurrentPlanId,
+  setSeekingProgramName,
+} from "../slices/localDataSlice";
+import { setIsSeekingCourse, setIsSeekingProgram } from "../slices/globalSlice";
 import {
   addCourseToTerm,
+  addProgramToUser,
   fetchCourseData,
   fullSync,
   initApp,
@@ -20,6 +26,7 @@ import { formatCourseId } from "@/lib/utils";
 import { ToastId } from "@/lib/enums";
 import { I18nKey, Language, t } from "@/lib/i18n";
 import { MAX_COURSE_IDS_TO_DISPLAY } from "@/lib/constants";
+import { addProgram, removeProgram } from "../slices/userDataSlice";
 
 const listenerMiddleware = createListenerMiddleware();
 const startListening = listenerMiddleware.startListening.withTypes<
@@ -248,45 +255,144 @@ startListening({
 });
 
 startListening({
-  actionCreator: setSeekingCourseId,
+  matcher: isAnyOf(
+    addProgramToUser.fulfilled,
+    addProgramToUser.rejected,
+    addProgramToUser.pending,
+  ),
+  effect: (action, listenerApi) => {
+    const lang = listenerApi.getState().userData.lang as Language;
+    const isToastEnabled = listenerApi.getState().global.isToastEnabled;
+
+    if (!isToastEnabled) return;
+
+    switch (action.type) {
+      case addProgramToUser.pending.type: {
+        toast.loading(t([I18nKey.ADDING_PROGRAMS], lang), {
+          toastId: ToastId.ADD_PROGRAM_TO_USER,
+          autoClose: false,
+        });
+        break;
+      }
+      case addProgramToUser.rejected.type: {
+        toast.update(ToastId.ADD_PROGRAM_TO_USER, {
+          render: () =>
+            (action.payload as string) ??
+            t([I18nKey.FAILED_TO_ADD], lang, {
+              item1: t([I18nKey.PROGRAM], lang),
+            }),
+          type: "error",
+          isLoading: false,
+          autoClose: 3000,
+          closeOnClick: true,
+          closeButton: true,
+        });
+        break;
+      }
+      default:
+        break;
+    }
+  },
+});
+
+startListening({
+  matcher: isAnyOf(addProgram, removeProgram),
+  effect: (action, listenerApi) => {
+    const lang = listenerApi.getState().userData.lang as Language;
+    const isToastEnabled = listenerApi.getState().global.isToastEnabled;
+
+    if (!isToastEnabled) return;
+
+    switch (action.type) {
+      case addProgram.type: {
+        const programNames = action.payload as string[];
+        toast.update(ToastId.ADD_PROGRAM_TO_USER, {
+          render: () =>
+            t([I18nKey.P_ITEM2, I18nKey.ADDED_TO_M], lang, {
+              item1: t([I18nKey.RELATED_PROGRAMS], lang),
+              item2: programNames.join(", "),
+            }),
+          type: "success",
+          isLoading: false,
+          autoClose: 3000,
+          closeOnClick: true,
+          closeButton: true,
+        });
+        break;
+      }
+      case removeProgram.type: {
+        toast.success(
+          t([I18nKey.REMOVED_FROM_M], lang, {
+            item1: action.payload as string,
+            item2: t([I18nKey.RELATED_PROGRAMS], lang),
+          }),
+        );
+        break;
+      }
+    }
+  },
+});
+
+startListening({
+  matcher: isAnyOf(setIsSeekingCourse, setIsSeekingProgram),
   effect: (_, listenerApi) => {
     const lang = listenerApi.getState().userData.lang as Language;
     const isToastEnabled = listenerApi.getState().global.isToastEnabled;
 
     if (!isToastEnabled) return;
     const state = listenerApi.getState();
-    const isSeekingCourse = state.localData.seekingCourseId !== "";
+    const isSeekingCourse = state.global.isSeekingCourse;
+    const isSeekingProgram = state.global.isSeekingProgram;
 
-    if (!isSeekingCourse) {
-      toast.dismiss(ToastId.SEEKING_COURSE);
+    if (!isSeekingCourse && !isSeekingProgram) {
+      toast.dismiss(ToastId.SEEKING);
     } else {
       const courseId = state.localData.seekingCourseId;
+      const programName = state.localData.seekingProgramName;
       const handleClose = () => {
         listenerApi.dispatch(setSeekingCourseId(""));
+        listenerApi.dispatch(setSeekingProgramName(""));
       };
-      toast(
-        () => {
-          return (
-            <div style={{ textAlign: "center", width: "100%" }}>
-              <span>{t([I18nKey.SEEKING_TITLE], lang)}</span>
-              <br />
-              <strong style={{ fontSize: "1.4rem" }}>
-                {formatCourseId(courseId)}
-              </strong>
-              <br />
-              <span>{t([I18nKey.SEEKING_CLICK], lang)}</span>
-            </div>
-          );
-        },
-        {
-          toastId: ToastId.SEEKING_COURSE,
-          autoClose: false,
-          closeOnClick: true,
-          onClick: handleClose,
-          closeButton: false,
-          className: "toast-seeking-course",
-        },
-      );
+
+      const renderContent = () => {
+        return (
+          <div style={{ textAlign: "center", width: "100%" }}>
+            <span>
+              {t(
+                [
+                  isSeekingCourse
+                    ? I18nKey.SEEKING_TITLE
+                    : I18nKey.SEEKING_PROGRAM_TITLE,
+                ],
+                lang,
+              )}
+            </span>
+            <br />
+            <strong style={{ fontSize: "1.4rem" }}>
+              {isSeekingCourse ? formatCourseId(courseId) : programName}
+            </strong>
+            <br />
+            <span>{t([I18nKey.SEEKING_CLICK], lang)}</span>
+          </div>
+        );
+      };
+      const options = {
+        toastId: ToastId.SEEKING,
+        autoClose: false,
+        closeOnClick: true,
+        onClick: handleClose,
+        closeButton: false,
+        className: "toast-seeking-course",
+      } as ToastOptions;
+
+      if (toast.isActive(ToastId.SEEKING)) {
+        toast.update(ToastId.SEEKING, {
+          render: renderContent,
+          ...options,
+        });
+      } else {
+        toast(renderContent, options);
+      }
       return;
     }
   },

@@ -36,13 +36,13 @@ const ReqNotes = ({
   includeCurrentTerm = false,
   type,
 }: {
-  parentCourse: string;
+  parentCourse?: string;
   title: string;
   type: ReqType;
   requisites?: EnhancedRequisites;
   notes?: string[];
-  planId: string;
-  termId: string;
+  planId?: string;
+  termId?: string;
   includeCurrentTerm?: boolean;
 }) => {
   const [showScrollLeft, setShowScrollLeft] = useState(false);
@@ -158,7 +158,7 @@ const ReqNotes = ({
         (scrollAmount < 0 && prevScrollLeft > 0) ||
         (scrollAmount > 0 && prevScrollLeft < containerMaxScrollLeft)
       ) {
-        e.preventDefault();
+        // e.preventDefault();
         e.stopPropagation();
         container.scrollLeft = nextScrollLeft;
         setScrollIcons();
@@ -168,7 +168,7 @@ const ReqNotes = ({
     // scroll needed, bind a scroll listener
     if (firstReqGroupWidth > containerWidth) {
       setIsOverflowing(true);
-      container.addEventListener("wheel", verticalScrollCb);
+      container.addEventListener("wheel", verticalScrollCb, { passive: false });
       leftScrollIcon.addEventListener("click", scrollLeft);
       rightScrollIcon.addEventListener("click", scrollRight);
       setScrollIcons();
@@ -182,10 +182,12 @@ const ReqNotes = ({
     };
   }, []);
 
+  const hasReq = requisites?.group && requisites.group.type !== GroupType.EMPTY;
+
   return (
     <section className="req-note">
-      <header>{title}:</header>
-      {requisites?.group && requisites.group.type !== GroupType.EMPTY && (
+      <header className={clsx(!hasReq && "no-req")}>{title}:</header>
+      {hasReq && (
         <section
           className="req-group-container scrollbar-hidden"
           ref={reqGroupRef}
@@ -200,15 +202,17 @@ const ReqNotes = ({
           >
             <ScrollIcon />
           </div>
-          <ReqGroup
-            parentCourse={parentCourse}
-            group={requisites.group}
-            includeCurrentTerm={includeCurrentTerm}
-            termId={termId}
-            reqType={type}
-            addToCourseTakenOrJump={addToCourseTakenOrJump}
-            planId={planId}
-          />
+          {parentCourse && termId && planId && (
+            <ReqGroup
+              parentCourse={parentCourse}
+              group={requisites.group}
+              includeCurrentTerm={includeCurrentTerm}
+              termId={termId}
+              reqType={type}
+              addToCourseTakenOrJump={addToCourseTakenOrJump}
+              planId={planId}
+            />
+          )}
           <div
             className={clsx(
               "scroll-icon-container right",

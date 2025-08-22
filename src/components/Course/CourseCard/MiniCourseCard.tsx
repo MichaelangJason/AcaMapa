@@ -35,7 +35,7 @@ const MiniCourseCard = ({
     null,
     false,
   );
-  const isAddingCourse = useAppSelector((state) => state.global.isAddingCourse);
+  const isAddingCourse = useAppSelector((state) => state.global.isAdding);
   const isDragging = useAppSelector((state) => state.global.isDragging);
   const dispatch = useAppDispatch();
   const lang = useAppSelector((state) => state.userData.lang) as Language;

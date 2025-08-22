@@ -1,6 +1,8 @@
+const THIS_YEAR = "2025_2026";
+
 export enum MongoCollection {
-  COURSES = "courses_2024_2025",
-  PROGRAMS = "programs_2024_2025",
+  COURSES = `courses_${THIS_YEAR}`,
+  PROGRAMS = `programs_2025_2026`,
   USERS = "users",
 }
 

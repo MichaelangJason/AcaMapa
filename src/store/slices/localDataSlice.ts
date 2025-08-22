@@ -1,8 +1,9 @@
 import { GroupType, ResultType } from "@/lib/enums";
-import type { Course } from "@/types/db";
+import type { Course, Program } from "@/types/db";
 import type {
   CachedDetailedCourse,
   CourseDepData,
+  CachedDetailedProgram,
   SearchResult,
   Session,
   SimpleModalProps,
@@ -19,6 +20,8 @@ import {
 export const initialState = {
   courseData: {} as { [key: string]: Course }, // init once, for quick lookup
   cachedDetailedCourseData: {} as { [key: string]: CachedDetailedCourse },
+  cachedDetailedProgramData: {} as { [key: string]: CachedDetailedProgram },
+  programData: {} as { [key: string]: Program },
 
   searchResult: {
     type: ResultType.DEFAULT,
@@ -39,6 +42,7 @@ export const initialState = {
   courseDepData: new Map<string, CourseDepData>(),
 
   seekingCourseId: "" as string,
+  seekingProgramName: "" as string,
 
   simpleModalInfo: {
     isOpen: false,
@@ -53,6 +57,8 @@ export const initialState = {
   session: null as Session | null,
 
   exportPlanId: "" as string,
+
+  isProgramModalOpen: false as boolean,
 };
 
 const localDataSlice = createSlice({
@@ -77,6 +83,11 @@ const localDataSlice = createSlice({
         state.courseData[course.id] = course;
       });
     },
+    setProgramData: (state, action: PayloadAction<Program[]>) => {
+      action.payload.forEach((program) => {
+        state.programData[program.name] = program;
+      });
+    },
     setDetailedCourseData: (
       state,
       action: PayloadAction<CachedDetailedCourse[]>,
@@ -96,6 +107,27 @@ const localDataSlice = createSlice({
           // this will create a new object if not exists
           ...(state.cachedDetailedCourseData[id] ?? {}),
           ...course,
+        };
+      });
+    },
+    setDetailedProgramData: (
+      state,
+      action: PayloadAction<CachedDetailedProgram[]>,
+    ) => {
+      action.payload.forEach((program) => {
+        state.cachedDetailedProgramData[program.name] = program;
+      });
+    },
+    updateCachedDetailedProgramData: (
+      state,
+      action: PayloadAction<CachedDetailedProgram[]>,
+    ) => {
+      action.payload.forEach((program) => {
+        const name = program.name;
+        state.cachedDetailedProgramData[name] = {
+          // this will create a new object if not exists
+          ...(state.cachedDetailedProgramData[name] ?? {}),
+          ...program,
         };
       });
     },
@@ -516,6 +548,20 @@ const localDataSlice = createSlice({
     clearExportPlanId: (state) => {
       state.exportPlanId = "";
     },
+
+    /* program modal */
+    setIsProgramModalOpen: (state, action: PayloadAction<boolean>) => {
+      state.isProgramModalOpen = action.payload;
+    },
+    clearIsProgramModalOpen: (state) => {
+      state.isProgramModalOpen = false;
+    },
+    setSeekingProgramName: (state, action: PayloadAction<string>) => {
+      state.seekingProgramName = action.payload;
+    },
+    clearSeekingProgramName: (state) => {
+      state.seekingProgramName = "";
+    },
   },
 });
 
@@ -525,7 +571,10 @@ export const {
   setSearchResult,
   setSearchInput,
   setCourseData,
+  setProgramData,
   updateCachedDetailedCourseData,
+  setDetailedProgramData,
+  updateCachedDetailedProgramData,
   addSelectedCourse,
   removeSelectedCourse,
   toggleSelectedCourse,
@@ -548,6 +597,10 @@ export const {
   clearSession,
   setExportPlanId,
   clearExportPlanId,
+  setIsProgramModalOpen,
+  clearIsProgramModalOpen,
+  setSeekingProgramName,
+  clearSeekingProgramName,
 } = localDataSlice.actions;
 
 export const localDataActions = localDataSlice.actions;

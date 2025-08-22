@@ -49,7 +49,7 @@ const Terms = () => {
   const isSeekingCourse = useAppSelector(
     (state) => state.global.isSeekingCourse,
   );
-  const isAddingCourse = useAppSelector((state) => state.global.isAddingCourse);
+  const isAddingCourse = useAppSelector((state) => state.global.isAdding);
   const isInitialized = useAppSelector((state) => state.global.isInitialized);
   const docElRef = useRef<HTMLDivElement>(null);
   if (!docElRef.current && typeof window !== "undefined") {

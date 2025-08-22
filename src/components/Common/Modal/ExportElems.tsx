@@ -1,11 +1,11 @@
 "use client";
 
-import CourseTaken from "../Course/CourseTaken";
+import CourseTaken from "../../Course/CourseTaken";
 import { I18nKey, t, Language } from "@/lib/i18n";
-import { ItemTag } from ".";
+import { ItemTag } from "..";
 import type { Plan, Term } from "@/types/db";
 import type { getPlanCourseData, getPlanStats } from "@/lib/plan";
-import TermCard from "../Term/TermCard";
+import TermCard from "../../Term/TermCard";
 import { forwardRef } from "react";
 
 interface ExportElemsProps {
