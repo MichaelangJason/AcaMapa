@@ -1,214 +1,65 @@
-'use client'
+"use client";
 
-import { AppStore, makeStore } from "@/store"
-import { Provider } from "react-redux"
-import { KeyPressListener, ToolTips } from "@/components/Common";
-import { SideBar, UtilityBar } from "@/components/Layout";
-import { Terms } from "@/components/Term";
-import { setDroppableId, setInitCourses, setIsInitialized, setDraggingType, setIsDragging } from "@/store/slices/globalSlice";
-import { deleteTerm, moveCourse, moveTerm, setTermsData } from "@/store/slices/termSlice";
-import { DraggingType, LocalStorage } from "@/utils/enums";
-import { DragDropContext, DragStart, DragUpdate, DropResult } from "@hello-pangea/dnd";
-import { useDispatch } from "react-redux";
-import { Flip, toast, ToastContainer } from "react-toastify";
-import { useEffect, useRef } from "react";
-import { IRawCourse } from "@/db/schema";
-import { isValidAssistantState, isValidPlanState, isValidTermData } from "@/utils/typeGuards";
-import { movePlan, setPlans } from "@/store/slices/planSlice";
-import { Course } from "@/types/course";
-import { setCoursesData } from "@/store/slices/courseSlice";
-import { setCurrentThreadId, setThreadIds } from "@/store/slices/assistantSlice";
+import { useEffect, useMemo } from "react";
+import { SideBar, UtilityBar } from "./Layout";
+import { SimpleModal, ToolTips, ExportModal, ProgramModal } from "./Common";
+import { Terms } from "./Term";
+import { Provider } from "react-redux";
+import { AppStore, makeStore } from "@/store";
+import type { Course, Program } from "@/types/db";
+import { setCourseData, setProgramData } from "@/store/slices/localDataSlice";
+import { initApp } from "@/store/thunks";
+import { ToastContainer, Slide } from "react-toastify";
+import { SessionProvider } from "next-auth/react";
+import type { Session } from "@/types/local";
 
+const App = ({
+  courseData,
+  programData,
+  session,
+}: {
+  courseData: Course[];
+  programData: Program[];
+  session: Session | null;
+}) => {
+  // init redux store
+  // REVIEW: make it client side only?
+  const store = useMemo<AppStore>(makeStore, []);
 
-const App = () => {
-  const dispatch = useDispatch();
+  // guaranteed to run only once at initialization for the whole life cycle of the app
+  useEffect(() => {
+    store.dispatch(setCourseData(courseData));
+    store.dispatch(setProgramData(programData));
+    store.dispatch(initApp({ courseData, programData, session }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const handleDragStart = (start: DragStart) => {
-    dispatch(setDraggingType(start.type as DraggingType));
-    dispatch(setDroppableId(start.source.droppableId));
-    dispatch(setIsDragging(true));
-  }
-
-  const handleDragUpdate = (update: DragUpdate) => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { destination, source, draggableId, type } = update;
-    if (!destination) {
-      dispatch(setDraggingType(null));
-      dispatch(setDroppableId(null));
-    }
-    else {
-      dispatch(setDraggingType(type as DraggingType));
-      dispatch(setDroppableId(destination.droppableId));
-    }
-  }
-
-  const handleDragEnd = (result: DropResult) => {
-    const { destination, source, draggableId, type } = result;
-    dispatch(setDraggingType(null));
-    dispatch(setDroppableId(null));
-    dispatch(setIsDragging(false));
-    if (!destination) return;
-    if (
-      destination.droppableId === source.droppableId &&
-      destination.index === source.index
-    ) return;
-    if (destination.droppableId === "delete-term") {
-      // delete the dom with the draggableId in data-rfd-draggable-id
-      dispatch(deleteTerm(draggableId));
-      return;
-    }
-    if (type === DraggingType.TERM) {
-      dispatch(moveTerm({ 
-        sourceIdx: source.index, 
-        destinationIdx: destination.index 
-      }));
-    }
-    if (type === DraggingType.COURSE) {
-      dispatch(moveCourse({
-        courseId: draggableId,
-        sourceIdx: source.index, 
-        destinationIdx: destination.index, 
-        sourceTermId: source.droppableId, 
-        destinationTermId: destination.droppableId 
-      }));
-    }
-    if (type === DraggingType.PLAN) {
-      dispatch(movePlan({
-        sourceIdx: source.index,
-        destinationIdx: destination.index,
-      }));
-    }
-  }
-  
   return (
-    <>
-      <DragDropContext 
-        onDragStart={handleDragStart} 
-        onDragEnd={handleDragEnd}
-        onDragUpdate={handleDragUpdate}
-      >
-        <UtilityBar />
-        {/* <Assistant /> */}
+    <SessionProvider session={session} refetchInterval={0}>
+      <Provider store={store}>
         <SideBar />
+        <UtilityBar />
         <Terms />
-        <KeyPressListener />
+        {/* <Assistant /> */}
+        <ExportModal />
+        <SimpleModal />
+        <ProgramModal />
+        <ToolTips />
         <ToastContainer
-          position="bottom-right" // TODO: change to bottom-center for assistant
-          autoClose={5000}
+          position="bottom-center"
+          autoClose={3000}
           hideProgressBar={true}
           newestOnTop={false}
-          closeOnClick={false}
+          closeOnClick={true}
           pauseOnHover={false}
           rtl={false}
           draggable
           theme="light"
-          transition={Flip}
-          stacked
+          transition={Slide}
         />
-      </DragDropContext>
-      <KeyPressListener />
-      <ToolTips />
-    </>
+      </Provider>
+    </SessionProvider>
   );
-}
+};
 
-const Wrapper = (props: { initCourses: IRawCourse[] }) => {
-  const storeRef = useRef<AppStore>(null);
-
-  // only run once
-  if (!storeRef.current) {
-    storeRef.current = makeStore()
-  }
-
-  const isInitialized = storeRef.current.getState().global.isInitialized;
-  const dispatch = storeRef.current.dispatch;
-
-  useEffect(() => {
-    const initializeData = async () => {
-      if (isInitialized) return;
-
-      dispatch(setInitCourses(props.initCourses));
-      
-      const savedPlans = localStorage.getItem(LocalStorage.PLANS);
-      const savedTerms = localStorage.getItem(LocalStorage.TERMS);
-      const savedThreadIds = localStorage.getItem(LocalStorage.ASSISTANT);
-
-      // XORS to check if both are present
-      if (!!savedPlans !== !!savedTerms) {
-        // clear local storage?
-        // localStorage.removeItem(LocalStorage.PLANS);
-        // localStorage.removeItem(LocalStorage.TERMS);
-        toast.error("Failed Loading Previous Session")
-      }
-
-      if (savedPlans && savedTerms) {
-        const plans = JSON.parse(savedPlans);
-        const terms = JSON.parse(savedTerms);
-
-        await toast.promise(
-          async () => {
-            if (!isValidPlanState(plans) || !isValidTermData(terms)) {
-              throw new Error("Invalid plan or term state");
-            }
-            const courseIds = new Set(Object.values(terms).flatMap(term => term.courseIds));
-            const courses = await fetch('/api/courses', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({ courseIds: Array.from(courseIds) })
-            })
-
-            if (!courses.ok) {
-              console.error(courses);
-              console.error(courses.status);
-              throw new Error("Failed to fetch courses");
-            }
-
-            const coursesData = await courses.json() as Course[];
-
-            if (coursesData?.length !== courseIds.size) {
-              throw new Error("Failed to fetch courses");
-
-            }
-
-            dispatch(setCoursesData(coursesData));
-            dispatch(setTermsData(terms));
-            dispatch(setPlans(plans));
-          },
-          {
-            pending: 'Loading last state...',
-            error: 'Failed to load last state',
-            success: 'Last state restored!',
-          }
-        )
-        
-      }
-
-      if (savedThreadIds) {
-        const threadIds = JSON.parse(savedThreadIds);
-        
-        if (!isValidAssistantState(threadIds)) {
-          throw new Error("Invalid assistant state");
-        }
-
-        dispatch(setCurrentThreadId(threadIds.currentThreadId));
-        dispatch(setThreadIds(threadIds.threadIds));
-      }
-
-      toast.success("Initialized!")
-      document.body.style.overflow = 'scroll'
-      dispatch(setIsInitialized(true));
-    };
-    initializeData();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  return (
-    <Provider store={storeRef.current}>
-      <App/>
-    </Provider>
-  )
-}
-
-export default Wrapper;
+export default App;

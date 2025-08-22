@@ -1,0 +1,95 @@
+.scroll-track {
+  position: absolute;
+  // background-color: var(--gray-100);
+  transition:
+    width 0.2s ease-in-out,
+    left 0.2s ease-in-out,
+    height 0.2s ease-in-out,
+    background-color 0.2s ease,
+    border-radius 0.2s ease,
+    opacity 0.2s ease;
+  display: flex;
+  align-items: center;
+  opacity: 0;
+
+  &.hidden {
+    opacity: 0;
+
+    .scroll-bar-thumb {
+      background-color: transparent;
+    }
+  }
+
+  &:hover:not(.hidden),
+  &.show:not(.hidden),
+  &.dragging {
+    // background-color: var(--gray-200);
+    opacity: 0.75;
+
+    .scroll-bar-thumb {
+      background-color: var(--gray-500);
+
+      &:hover {
+        cursor: pointer;
+      }
+    }
+  }
+
+  .scroll-bar-thumb {
+    position: absolute;
+    background-color: var(--gray-200);
+    border-radius: 0.25rem;
+    transition: background-color 0.2s ease;
+  }
+
+  &.horizontal {
+    width: 100%;
+    height: 0.75rem;
+    left: 0;
+    bottom: 0;
+
+    &.larger {
+      height: 0.9rem;
+    }
+
+    &:hover,
+    &.dragging {
+      height: 1rem;
+
+      &.larger {
+        height: 1.2rem;
+      }
+    }
+
+    .scroll-bar-thumb {
+      border-radius: 0.4rem;
+      height: 50%;
+    }
+  }
+
+  &.vertical {
+    right: 0;
+    top: 0;
+    height: 100%;
+    width: 0.75rem;
+    flex-direction: column;
+
+    &.larger {
+      width: 0.9rem;
+    }
+
+    &:hover,
+    &.dragging {
+      width: 1.2rem;
+
+      &.larger {
+        width: 1.5rem;
+      }
+    }
+
+    .scroll-bar-thumb {
+      border-radius: 0.4rem;
+      width: 50%;
+    }
+  }
+}

@@ -1,0 +1,12 @@
+node_modules
+dist
+build
+.next
+coverage
+public
+*.min.js
+*.snap
+pnpm-lock.yaml
+src/ai/python/**/*
+src/updater/**/*
+.husky

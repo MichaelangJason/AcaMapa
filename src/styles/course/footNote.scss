@@ -1,0 +1,60 @@
+.foot-note {
+  position: relative;
+  width: 100%;
+  display: flex;
+  padding: 0.5rem;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+
+  box-sizing: border-box;
+
+  border-radius: 0.65625rem;
+  opacity: 0.7;
+  background: var(--gray-1000-50-opac);
+
+  span {
+    color: var(--gray-000);
+    font-size: 0.75rem;
+    font-weight: bold;
+    line-height: normal;
+  }
+
+  .delete {
+    position: absolute;
+    width: 0.75rem;
+    height: 0.75rem;
+    padding: 0rem;
+
+    box-sizing: border-box;
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background-color: transparent;
+
+    right: 0.5rem;
+
+    svg {
+      width: 0.625rem;
+      height: auto;
+
+      path {
+        stroke: var(--gray-000);
+        stroke-width: 0.125rem;
+        transition: all 0.2s ease;
+      }
+    }
+
+    &:hover {
+      svg {
+        path {
+          stroke: var(--gray-200);
+        }
+      }
+    }
+  }
+}

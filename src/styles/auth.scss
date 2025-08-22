@@ -1,0 +1,134 @@
+body {
+  padding: 0;
+  margin: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: column;
+  align-items: center;
+
+  background-color: var(--gray-100);
+}
+
+a {
+  color: var(--gray-000);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: none;
+  }
+
+  &.support {
+    color: var(--gray-800);
+    text-decoration: underline;
+
+    &:hover {
+      color: var(--gray-600);
+    }
+  }
+}
+
+p {
+  line-height: 1.5;
+}
+
+.auth-card {
+  margin-top: 25vh;
+  width: 25rem;
+  height: fit-content;
+
+  border-radius: var(--border-radius-large);
+  box-shadow: var(--shadow-default-light);
+  background: var(--gray-000);
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+
+  padding: 2rem;
+
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gray-600);
+  }
+
+  .auth-card-actions {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
+    width: 100%;
+
+    button {
+      height: 2.5rem;
+    }
+  }
+
+  & > form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  input {
+    width: auto;
+
+    height: 2rem;
+    border-radius: 0.8125rem;
+    border: none;
+    padding: 0.5rem 1rem;
+
+    font-size: 0.875rem;
+    font-weight: bold;
+    background-color: var(--gray-100);
+
+    color: var(--gray-800);
+
+    &:focus {
+      // outline: ;
+    }
+  }
+
+  button {
+    min-width: 5rem;
+    width: fit-content;
+    height: 3rem;
+    border: none;
+    border-radius: 0.8125rem;
+    padding: 0 0.75rem;
+    transition: all 0.2s ease;
+
+    color: var(--gray-600);
+
+    font-size: 1rem;
+    font-weight: bold;
+
+    &:hover {
+      background-color: var(--gray-300);
+      color: var(--gray-800);
+    }
+
+    &.signin {
+      color: var(--gray-000);
+      background-color: var(--mcgill-red);
+      width: auto;
+      height: 3rem;
+      font-size: 1rem;
+
+      &:hover {
+        opacity: 0.8;
+      }
+    }
+
+    &.mcgill {
+      color: var(--gray-000);
+      background-color: var(--mcgill-red);
+      width: auto;
+    }
+  }
+}

@@ -1,202 +1,424 @@
+"use client";
 
-import { TermId } from "@/types/term";
-import { Draggable, Droppable } from "@hello-pangea/dnd";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "@/store";
-import { memo, useCallback, useState } from "react";
-import { DraggingType, ModalType } from "@/utils/enums";
-import { setAddingCourseId, setSeekingInfo } from "@/store/slices/globalSlice";
-import { toast } from "react-toastify";
-import { CourseCard } from "@/components/Course";
-import { getCourse } from "@/utils/requests";
-import { addCourseToTerm, deleteTerm, setTermName } from "@/store/slices/termSlice";
-import { addCourse, setCourseMounted } from "@/store/slices/courseSlice";
-import "@/styles/terms.scss"
-import "@/styles/dropdown.scss"
-import Image from "next/image";
-import { IRawCourse } from "@/db/schema";
-import * as DM from "@radix-ui/react-dropdown-menu";
-import RenameConfirmModal, { RenameConfirmModalInfo } from "@/components/Layout/RenameConfirmModal";
-export interface TermCardProps {
-  termId: TermId;
-  index: number;
-}
+import type { Term } from "@/types/db";
+import type { CachedDetailedCourse, DropdownOption } from "@/types/local";
+import HamburgerIcon from "@/public/icons/hamburger.svg";
+import PlusIcon from "@/public/icons/plus.svg";
+import EditIcon from "@/public/icons/edit.svg";
+import clsx from "clsx";
+import { useMemo, useState, memo, useCallback, useRef, useEffect } from "react";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import DetailedCourseCard from "../Course/CourseCard/DetailedCourseCard";
+import {
+  Draggable,
+  DraggableStateSnapshot,
+  DraggableProvided,
+  DroppableProvided,
+  DroppableStateSnapshot,
+} from "@hello-pangea/dnd";
+import { TooltipId } from "@/lib/enums";
+import {
+  DropdownMenuWrapper,
+  Section,
+  type ItemProps,
+} from "../Common/DropdownMenu";
+import { renameTerm } from "@/store/slices/userDataSlice";
+import { setSimpleModalInfo } from "@/store/slices/localDataSlice";
+import { MAX_TERM_NAME_LEN } from "@/lib/constants";
+import { I18nKey, Language, t } from "@/lib/i18n";
+import ScrollBar from "../Common/ScrollBar";
 
-const TermCard = (props: TermCardProps) => {
-  const { termId, index } = props;
-  const termData = useSelector((state: RootState) => state.terms.data[termId]);
-  const courseIds = termData.courseIds || [];
-  const termName = termData.name || `Term ${index + 1}`;
-  const { seekingId, seekingTerm } = useSelector((state: RootState) => state.global.seekingInfo);
-  const isSeeking = seekingId !== undefined && seekingTerm !== undefined;
-  const isSeekingSelf = isSeeking && seekingTerm === termId;
-  const credits = useSelector((state: RootState) => 
-    courseIds.reduce((acc, courseId) => {
-      if (!(courseId in state.courses)) {
-        return acc;
-      }
-      const credits = state.courses[courseId].credits;
-      return acc + (credits < 0 ? 0 : credits);
-    }, 0)
-  )
+const AddTermButton = ({
+  isBefore,
+  onClick,
+}: {
+  isBefore: boolean;
+  onClick: (isBefore: boolean) => void;
+}) => {
+  const [isClicked, setIsClicked] = useState(false);
+  const lang = useAppSelector((state) => state.userData.lang) as Language;
 
-  const dispatch = useDispatch();
-  const addingCourseId = useSelector((state: RootState) => state.global.addingCourseId);
-  const isAddingCourse = addingCourseId !== null;
-  const inTermCourseIds = useSelector((state: RootState) => state.terms.inTermCourseIds);
-  const existingAddingCourse = useSelector((state: RootState) => addingCourseId ? state.courses[addingCourseId] : null)
-  const [modalInfo, setModalInfo] = useState<RenameConfirmModalInfo | undefined>(undefined);
-
-  const handleAddCourse = useCallback(async () => {
-    // check if course exists in any term
-    if (inTermCourseIds.includes(addingCourseId!)) {
-
-      toast.error(`Cannot add duplicate ${addingCourseId}`);
-      dispatch(setAddingCourseId(null));
-      return;
-    }
-    
-    dispatch(setAddingCourseId(null));
-
-    // for animation purposes, delay adding course
-    setTimeout(async () => {
-      let course: IRawCourse | null = existingAddingCourse;
-
-      if (!course) {
-        course = await toast.promise(
-          getCourse(addingCourseId!),
-          {
-            pending: `Fetching ${addingCourseId}...`,
-            error: `Failed to fetch ${addingCourseId}`,
-            success: `${addingCourseId} fetched successfully`,
-          }
-        );
-      }
-      
-      if (!course) {
-        toast.error("Course not found");
-      } else {
-          const id = course.id;
-          dispatch(addCourse(course))
-          dispatch(addCourseToTerm({ termId, courseId: id }))
-
-          setTimeout(() => { // set mounted after animation
-            dispatch(setCourseMounted({ courseId: id, isMounted: true }))
-          }, 200);
-        }
-      }, 100);
-
-  }, [termId, addingCourseId, dispatch, inTermCourseIds, existingAddingCourse]);
-
-  const handleDeleteTerm = (e: React.MouseEvent<HTMLDivElement>) => {
-    e.stopPropagation();
-    e.preventDefault();
-    if (isSeekingSelf) dispatch(setSeekingInfo({})); // clear seeking info
-    setModalInfo({
-      type: ModalType.DELETE,
-      confirmCb: () => {
-        dispatch(deleteTerm(termId));
-      },
-      closeCb: () => {
-        setModalInfo(undefined);
-      },
-      text: termName
-    })
-  }
-
-  const handleRenameTerm = (e: React.MouseEvent<HTMLDivElement>) => {
-    e.stopPropagation();
-    e.preventDefault();
-
-    if (isSeekingSelf) dispatch(setSeekingInfo({})); // clear seeking info
-
-    setModalInfo({
-      type: ModalType.RENAME,
-      confirmCb: (newName: string) => {
-        dispatch(setTermName({ termId, name: newName }));
-      },
-      closeCb: () => {
-        setModalInfo(undefined);
-      },
-      text: termName
-    })
-  }
-
-  const getMaskTop = () => {
-    if (typeof document === "undefined") return 0;
-    const termBody = document.getElementById(termId)?.querySelector(".term-body");
-    if (!termBody) return 0;
-    return termBody.scrollTop;
-  }
+  const handleClick = useCallback(() => {
+    setIsClicked(true);
+    onClick(isBefore);
+    setTimeout(() => {
+      setIsClicked(false);
+    }, 100);
+  }, [isBefore, onClick]);
 
   return (
-    <>
-      <Draggable draggableId={termId} index={index} isDragDisabled={isSeeking}>
-        {(provided, snapshot) =>
-          <div
-            className="term"
-            ref={provided.innerRef}
-            {...provided.draggableProps}
-            id={termId}
+    <button
+      className={clsx([
+        "add-term-button",
+        isBefore && "on-left",
+        isClicked && "clicked",
+      ])}
+      onClick={handleClick}
+      data-tooltip-id={TooltipId.TERM_CARD}
+      data-tooltip-content={t(
+        [
+          I18nKey.ADD,
+          I18nKey.ONE_M,
+          I18nKey.NEW_M,
+          I18nKey.SEMESTER,
+          I18nKey.HERE,
+        ],
+        lang,
+      )}
+      data-tooltip-delay-show={500}
+    >
+      <PlusIcon />
+    </button>
+  );
+};
+
+const TermCard = ({
+  planId,
+  term,
+  courses,
+  idx,
+  isFirst,
+  isExport,
+  isCourseDraggable = true,
+  displayLang,
+  showButtons = true,
+  addCourse,
+  addTerm,
+  deleteTerm,
+  deleteCourse,
+  setIsCourseExpanded,
+  className,
+  style,
+  draggableProvided,
+  draggableSnapshot,
+  droppableProvided,
+  droppableSnapshot,
+  expandCourses,
+}: {
+  planId: string;
+  term: Term;
+  courses: CachedDetailedCourse[];
+  idx: number;
+  isFirst: boolean;
+  isExport?: boolean;
+  isCourseDraggable: boolean;
+  displayLang?: Language;
+  showButtons: boolean;
+  addTerm?: (termId: string, isBefore?: boolean) => void;
+  deleteTerm?: (termId: string, termIdx: number) => void;
+  addCourse?: (termId: string) => Promise<void>;
+  deleteCourse?: (termId: string, courseId: string) => void;
+  setIsCourseExpanded?: (courseId: string, isExpanded: boolean) => void;
+  className?: string;
+  style?: React.CSSProperties;
+  isDraggingOverlay?: boolean;
+  draggableProvided?: DraggableProvided;
+  draggableSnapshot?: DraggableStateSnapshot;
+  droppableProvided?: DroppableProvided;
+  droppableSnapshot?: DroppableStateSnapshot;
+  expandCourses?: boolean;
+}) => {
+  const hasSelectedCourses = useAppSelector(
+    (state) => state.global.hasSelectedCourses,
+  );
+  const isDragging = useAppSelector((state) => state.global.isDragging);
+  const [isTermDMOpen, setIsTermDMOpen] = useState(false);
+  const isSeekingCourse = useAppSelector(
+    (state) => state.global.isSeekingCourse,
+  );
+  const userLang = useAppSelector((state) => state.userData.lang) as Language;
+  const lang = displayLang || userLang;
+  const termBodyRef = useRef<HTMLDivElement>(null);
+  const termContainerRef = useRef<HTMLDivElement>(null);
+
+  const dispatch = useAppDispatch();
+
+  const totalCredits = useMemo(() => {
+    return courses.reduce((acc, course) => acc + course.credits, 0);
+  }, [courses]);
+
+  const scrollCb = useCallback((e: WheelEvent) => {
+    // console.log(e)
+    if (!termBodyRef.current || Math.abs(e.deltaY) < 5) {
+      return;
+    }
+    const termBody = termBodyRef.current;
+    const scrollAmount = e.deltaY;
+    const prevScrollTop = termBody.scrollTop;
+    const containerMaxScrollLeft =
+      termBody.scrollHeight - termBody.clientHeight;
+
+    // Only stop propagation if there is actually something to scroll
+    if (
+      (scrollAmount < 0 && prevScrollTop > 0) ||
+      (scrollAmount > 0 && prevScrollTop < containerMaxScrollLeft)
+    ) {
+      e.stopPropagation();
+      // e.preventDefault();
+      termBody.scrollTop = prevScrollTop + scrollAmount;
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!termContainerRef.current) return;
+    termContainerRef.current.addEventListener("wheel", scrollCb, {
+      passive: true,
+    });
+    const elem = termContainerRef.current;
+    return () => {
+      elem?.removeEventListener("wheel", scrollCb);
+    };
+  }, [scrollCb]);
+
+  const handleAddCourse = useCallback(async () => {
+    await addCourse?.(term._id.toString());
+  }, [addCourse, term._id]);
+
+  const handleDeleteCourse = useCallback(
+    (courseId: string) => {
+      deleteCourse?.(term._id.toString(), courseId);
+    },
+    [deleteCourse, term._id],
+  );
+
+  const handleAddTerm = useCallback(
+    (isBefore: boolean) => {
+      addTerm?.(term._id.toString(), isBefore);
+    },
+    [addTerm, term._id],
+  );
+
+  const handleCloseTermDM = useCallback(() => {
+    setIsTermDMOpen(false);
+  }, []);
+
+  const handleDeleteTerm = useCallback(() => {
+    if (courses.length > 0) {
+      dispatch(
+        setSimpleModalInfo({
+          isOpen: true,
+          title: t([I18nKey.DELETE_TERM_TITLE], lang),
+          description: t([I18nKey.DELETE_TERM_DESC], lang, {
+            item1: term.name,
+          }),
+          confirmCb: () => {
+            deleteTerm?.(term._id.toString(), idx);
+            return Promise.resolve();
+          },
+          closeCb: () => {
+            return Promise.resolve();
+          },
+        }),
+      );
+    } else {
+      deleteTerm?.(term._id.toString(), idx);
+    }
+  }, [deleteTerm, idx, dispatch, term, courses.length, lang]);
+
+  const handleRenameTerm = useCallback(() => {
+    dispatch(
+      setSimpleModalInfo({
+        isOpen: true,
+        title: t([I18nKey.RENAME_TERM_TITLE], lang),
+        description: "",
+        inputConfig: {
+          placeholder: term.name,
+          maxLength: MAX_TERM_NAME_LEN,
+        },
+        confirmCb: (newName?: string) => {
+          if (!newName) return Promise.resolve();
+          dispatch(renameTerm({ termId: term._id.toString(), newName }));
+          return Promise.resolve();
+        },
+        closeCb: () => {
+          return Promise.resolve();
+        },
+      }),
+    );
+  }, [dispatch, term, lang]);
+
+  const termActions: ItemProps[] = useMemo(() => {
+    return [
+      {
+        self: {
+          id: "delete-term",
+          content: t([I18nKey.DELETE], lang),
+          handleClick: handleDeleteTerm,
+          isHideIndicator: true,
+          isHideFiller: true,
+        } as DropdownOption,
+        handleCloseDropdownMenu: handleCloseTermDM,
+      },
+      {
+        self: {
+          id: "rename-term",
+          content: t([I18nKey.RENAME], lang),
+          handleClick: handleRenameTerm,
+          isHideIndicator: true,
+          isHideFiller: true,
+        } as DropdownOption,
+        handleCloseDropdownMenu: handleCloseTermDM,
+      },
+    ];
+  }, [handleCloseTermDM, lang, handleDeleteTerm, handleRenameTerm]);
+
+  const isDraggingTerm = draggableSnapshot?.isDragging;
+
+  return (
+    // outer draggable for the whole term card
+    // inner div for the whole term card
+    <article
+      className={clsx(["term-card", className, isDraggingTerm && "dragging"])}
+      style={style}
+      ref={draggableProvided?.innerRef}
+      {...draggableProvided?.draggableProps}
+    >
+      {!isDragging && isFirst && showButtons && (
+        <AddTermButton isBefore={true} onClick={handleAddTerm} />
+      )}
+
+      {/* header for the term card */}
+      <header className="term-header" {...draggableProvided?.dragHandleProps}>
+        {/* add course button for the term card */}
+        {hasSelectedCourses && showButtons ? (
+          <button className="add-course-button" onClick={handleAddCourse}>
+            {t([I18nKey.ADD_TO], lang, { item1: term.name })}
+          </button>
+        ) : (
+          <span className="term-name-container">
+            <span className="term-name">{term.name}</span>
+            <EditIcon
+              className={clsx([
+                "edit",
+                "clickable",
+                (isSeekingCourse ||
+                  hasSelectedCourses ||
+                  isDragging ||
+                  !showButtons) &&
+                  "hidden",
+              ])}
+              onClick={handleRenameTerm}
+            />
+          </span>
+        )}
+        {/* dropdown menu for the term card */}
+        {showButtons && (
+          <DropdownMenuWrapper
+            isOpen={isTermDMOpen}
+            handleClose={() => setIsTermDMOpen(false)}
+            trigger={{
+              node: <HamburgerIcon className="hamburger" />,
+              toggleIsOpen: () => setIsTermDMOpen((prev) => !prev),
+            }}
+            contentProps={{
+              align: "center",
+            }}
           >
-            {/* term header */}
-            <div 
-              className={`term-header ${snapshot.isDragging ? "dragging" : ""} ${isSeeking ? "seeking" : ""}`} 
-              {...provided.dragHandleProps}
-            >
-              <div className="term-name">{termName}</div>
-              <DM.Root modal={false}>
-                <DM.Trigger className="delete-icon" asChild>
-                  <Image src="hamburger.svg" alt="delete" width={20} height={20} />
-                </DM.Trigger>
-                
-                <DM.Portal>
-                  <DM.Content className="dropdown-menu-content" sideOffset={4}>
-                    <DM.Item className="dropdown-menu-item" onClick={handleDeleteTerm}>
-                      <span className="name">Delete</span>
-                    </DM.Item>
-                    <DM.Item className="dropdown-menu-item" onClick={handleRenameTerm}>
-                      <span className="name">Rename</span>
-                    </DM.Item>
-                  </DM.Content>
-                </DM.Portal>
-              </DM.Root>
- 
+            <Section
+              items={termActions}
+              handleCloseDropdownMenu={handleCloseTermDM}
+            />
+          </DropdownMenuWrapper>
+        )}
+      </header>
+
+      <div
+        className={clsx([
+          "term-body-container",
+          "scrollbar-hidden",
+          isSeekingCourse && "scroll-disabled",
+        ])}
+        ref={termContainerRef}
+      >
+        {/* droppable for the courses in the term card */}
+        <main
+          className={clsx([
+            "term-body",
+            "scrollbar-hidden",
+            droppableSnapshot?.isDraggingOver && "dragging-over",
+          ])}
+          ref={(el) => {
+            droppableProvided?.innerRef(el);
+            termBodyRef.current = el as HTMLDivElement;
+          }}
+          {...droppableProvided?.droppableProps}
+        >
+          {courses.map((course, idx) =>
+            isCourseDraggable ? (
+              // draggable for the courses in the term card
+              <Draggable
+                key={`draggable-${term._id}-${course.id}-${idx}`}
+                draggableId={course.id}
+                index={idx}
+                isDragDisabled={isSeekingCourse}
+              >
+                {(courseDraggableProvided, courseDraggableSnapshot) => (
+                  <DetailedCourseCard
+                    key={`${term._id}-${course.id}-${idx}`}
+                    course={course}
+                    idx={idx}
+                    termId={term._id}
+                    planId={planId}
+                    handleDelete={handleDeleteCourse}
+                    setIsExpanded={setIsCourseExpanded}
+                    isDraggingTerm={isDraggingTerm ?? false}
+                    draggableProvided={courseDraggableProvided}
+                    draggableSnapshot={courseDraggableSnapshot}
+                    isExport={isExport}
+                    expandCourses={expandCourses}
+                  />
+                )}
+              </Draggable>
+            ) : (
+              // non-draggable for the courses in the term card
+              <DetailedCourseCard
+                key={`${term._id}-${course.id}-${idx}`}
+                course={course}
+                idx={idx}
+                termId={term._id}
+                planId={planId}
+                handleDelete={handleDeleteCourse}
+                setIsExpanded={setIsCourseExpanded}
+                isDraggingTerm={isDraggingTerm ?? false}
+                isExport={isExport}
+                expandCourses={expandCourses}
+              />
+            ),
+          )}
+          {isExport && courses.length === 0 && (
+            <div className="empty-term">
+              <span>{t([I18nKey.EMPTY], lang)}</span>
             </div>
-            {/* droppable for courses */}
-            <Droppable droppableId={termId} type={DraggingType.COURSE}>
-              {(provided, snapshot) => (
-                <div
-                  className={"term-body" + (snapshot.isDraggingOver ? " dragging-over" : "") + (isAddingCourse || isSeeking ? " overflow-hidden" : "")}
-                  ref={provided.innerRef}
-                  {...provided.droppableProps}
-                >
-                  {/* add course mask */}
-                  <div 
-                    className={`add-course-mask ${isAddingCourse ? "visible" : ""}`}
-                    style={{ top: getMaskTop() }}
-                    onClick={handleAddCourse}
-                  >
-                    Click to Add Course
-                  </div>
-                  {/* courses */}
-                  {courseIds.map((courseId, index) => (
-                    <CourseCard key={courseId} termId={termId} courseId={courseId} index={index} />
-                  ))}
-                  {provided.placeholder}
-                </div>
-              )}
-            </Droppable>
-            {/* term footer */}
-            <div className="term-footer">
-              <div>{credits} credits</div>
-            </div>
-          </div>
-        }
-      </Draggable>
-      {modalInfo && <RenameConfirmModal modalInfo={modalInfo} />}
-    </>
-  )
-}
+          )}
+          {!isExport && droppableProvided?.placeholder}
+        </main>
+        <ScrollBar
+          targetContainerRef={termBodyRef}
+          direction="vertical"
+          bindScroll={(cb) => {
+            if (!termBodyRef.current) return;
+            termBodyRef.current.addEventListener("scroll", cb);
+          }}
+          unbindScroll={(cb) => {
+            if (!termBodyRef.current) return;
+            termBodyRef.current.removeEventListener("scroll", cb);
+          }}
+        />
+      </div>
+
+      {/* footer for the term card */}
+      <footer className="term-footer">
+        <span>
+          {totalCredits} {t([I18nKey.CREDITS], lang)}
+        </span>
+      </footer>
+
+      {/* add term button for the term card */}
+      {!isDragging && showButtons && (
+        <AddTermButton isBefore={false} onClick={handleAddTerm} />
+      )}
+    </article>
+  );
+};
 
 export default memo(TermCard);

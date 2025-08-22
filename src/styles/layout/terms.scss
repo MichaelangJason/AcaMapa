@@ -1,0 +1,67 @@
+.terms-container {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+
+  transition: margin 0.2s ease-in-out;
+
+  width: 100%;
+  flex-grow: 1;
+  max-height: 100%;
+  box-sizing: border-box;
+
+  // margin-top: var(--utility-bar-height);
+  // padding: var(--terms-padding-topbottom) 0 var(--terms-padding-topbottom)
+  //   var(--terms-gap);
+  padding-left: var(--terms-gap);
+
+  &.sidebar-folded {
+    margin-left: 0;
+  }
+
+  &.export {
+    width: fit-content;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    border: none !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+
+    grid-column: 2;
+    grid-row: 2 / 4;
+  }
+
+  // & > .term-card:first-of-type {
+  //   margin-left: var(--terms-gap);
+  // }
+}
+
+.no-scroll-container {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.seeking-mask {
+  top: 0;
+  left: 0;
+  position: fixed;
+
+  width: 100%;
+  height: 100%;
+  background-color: var(--gray-1000-50-opac);
+
+  z-index: -1;
+  opacity: 0;
+
+  transition: opacity 0.2s ease;
+
+  &.active {
+    z-index: 500;
+    opacity: 1;
+    cursor: pointer;
+  }
+}

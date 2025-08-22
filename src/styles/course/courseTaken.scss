@@ -1,0 +1,224 @@
+.course-taken {
+  display: flex;
+  width: 17rem;
+  height: fit-content;
+  max-height: 12rem;
+  padding: 0.5rem 1rem;
+  margin: 0rem;
+  flex-direction: column;
+  align-items: center;
+  // transition: all 0.2s ease;
+  justify-self: center;
+
+  box-sizing: border-box;
+
+  position: absolute;
+  bottom: 1.25rem;
+
+  border-radius: var(--border-radius-default);
+  border: 0.125rem solid var(--gray-400);
+  background: var(--gray-000);
+  box-shadow: var(--shadow-default-heavy);
+
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: auth;
+
+  &.export {
+    position: relative;
+    max-height: unset;
+    bottom: unset;
+  }
+
+  &.disabled {
+    background: var(--gray-100);
+    pointer-events: none;
+
+    .title {
+      color: var(--gray-400);
+    }
+
+    .add-button {
+      display: none;
+    }
+
+    .expand {
+      path {
+        stroke: var(--gray-200);
+      }
+    }
+  }
+
+  &.relative-position {
+    position: relative;
+    bottom: unset;
+    flex-shrink: 0;
+  }
+
+  .add-button {
+    border-radius: var(--border-radius-default);
+    border: 0.125rem solid var(--gray-600);
+    background: var(--gray-600);
+    box-shadow: var(--shadow-default-heavy);
+    color: var(--gray-000);
+    font-weight: bold;
+    margin: 0;
+    transition: all 0.2s ease;
+    cursor: pointer;
+
+    &:not(:hover) {
+      animation: twinkle 1s ease-out infinite;
+    }
+
+    &:hover {
+      // animation-play-state: initial;
+      opacity: 1;
+      scale: 1.05;
+    }
+  }
+
+  .adding-mask {
+    position: absolute;
+    background-color: var(--gray-600);
+    top: -0.125rem;
+    border-radius: var(--border-radius-default);
+    border: 0.125rem solid var(--gray-600);
+    width: 100%;
+    height: 100%;
+
+    transition: scale 0.2s ease;
+
+    cursor: pointer;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    color: var(--gray-000);
+    font-weight: bold;
+
+    &:hover {
+      scale: 1.05;
+    }
+  }
+
+  header {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    height: fit-content;
+    max-height: 0.875rem;
+    margin: 0;
+    padding: 0;
+
+    cursor: pointer;
+
+    .title {
+      color: var(--gray-600);
+      font-size: 1rem;
+      font-weight: bold;
+      line-height: 0.875rem;
+
+      margin: 0;
+      padding: 0;
+    }
+
+    .expand {
+      position: absolute;
+      width: 0.875rem;
+      height: auto;
+      right: 0.75rem;
+      transition: all 0.3s ease;
+
+      path {
+        stroke-width: 0.125rem;
+        stroke: var(--gray-600);
+      }
+    }
+  }
+
+  &.expanded {
+    header {
+      margin-bottom: 0.25rem;
+      .expand {
+        transform: rotate(-180deg);
+      }
+    }
+    padding-bottom: 0rem;
+  }
+
+  .course-taken-list {
+    position: relative;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    gap: 0.5rem;
+    overflow-y: scroll;
+    margin: 0.25rem 0rem 0.5rem 0rem;
+
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+    overscroll-behavior: none;
+    -webkit-overflow-scrolling: auth;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    .course-taken-item {
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: start;
+      gap: 0.25rem;
+      align-self: stretch;
+
+      .subject {
+        color: var(--gray-500);
+        text-align: center;
+        font-family: Arial;
+        font-size: 0.75rem;
+        font-style: normal;
+        font-weight: 700;
+      }
+
+      .ids {
+        display: flex;
+        width: 95%;
+        align-items: flex-start;
+        align-content: flex-start;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+
+        .tag {
+          cursor: pointer;
+
+          &:hover {
+            background-color: var(--gray-400);
+          }
+        }
+      }
+    }
+
+    .empty {
+      align-self: center;
+      font-size: 0.75rem;
+      font-style: italic;
+      color: var(--gray-400);
+    }
+  }
+
+  .course-taken-list-inner {
+    width: 100%;
+    height: fit-content;
+    overflow-y: scroll;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    gap: 0.5rem;
+  }
+}

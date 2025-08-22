@@ -1,0 +1,3 @@
+[submodule "src/ai/python"]
+	path = src/ai/python
+	url = git@github.com:MichaelangJason/DegreeMapper-AI.git

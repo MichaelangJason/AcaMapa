@@ -1,35 +1,46 @@
-import Image from "next/image";
-import CourseSkeleton from "./CourseSkeleton";
 import Skeleton from "react-loading-skeleton";
-import "react-loading-skeleton/dist/skeleton.css"
+import HamburgerIcon from "@/public/icons/hamburger.svg";
+import PlusIcon from "@/public/icons/plus.svg";
+import { SKELETON_CONFIG } from "@/lib/constants";
+import DetailedCourseCardSkeleton from "./DetailedCourseCardSkeleton";
 
-const TermCardSkeleton = (props: {
-  coursesConfig?: {
-    numCourseTag: number;
-    numNotes: number;
-  }[][]
+const TermCardSkeleton = ({
+  isFirst,
+  numCourses,
+}: {
+  isFirst: boolean;
+  numCourses: number;
 }) => {
-  const { coursesConfig = [] } = props;
-
   return (
-    <div className="term">
-      {/* term header */}
-      <div className={`term-header`}>
-        <Skeleton width={100} />
-        <Image className="delete-icon" src="hamburger.svg" alt="delete" width={20} height={20} />
+    <div className="term-card">
+      <div className="term-header">
+        <Skeleton
+          width={SKELETON_CONFIG.TERM_CARD_CONTENT.WIDTH}
+          height={SKELETON_CONFIG.TERM_CARD_CONTENT.HEIGHT}
+        />
+        <HamburgerIcon className="hamburger disabled" />
       </div>
-      <div className={"term-body overflow-hidden"}>
-        {/* courses */}
-        {coursesConfig.map((config, idx) => {
-          return <CourseSkeleton key={'mock-course-' + idx} subsectionConfig={config} />
-        })}
+      <div className="term-body scroll-disabled">
+        {Array.from({ length: numCourses }).map((_, idx) => (
+          <DetailedCourseCardSkeleton key={idx} numReqNotes={idx + 1} />
+        ))}
       </div>
-      {/* term footer */}
-      <div className="term-footer">
-        <Skeleton width={100} />
-      </div>
+      <footer className="term-footer">
+        <Skeleton
+          width={SKELETON_CONFIG.TERM_CARD_CONTENT.WIDTH}
+          height={SKELETON_CONFIG.TERM_CARD_CONTENT.HEIGHT}
+        />
+      </footer>
+      {isFirst && (
+        <button className="add-term-button on-left disabled">
+          <PlusIcon />
+        </button>
+      )}
+      <button className="add-term-button disabled">
+        <PlusIcon />
+      </button>
     </div>
-  )
-}
+  );
+};
 
-export default TermCardSkeleton
+export default TermCardSkeleton;

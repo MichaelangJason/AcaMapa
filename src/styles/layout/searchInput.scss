@@ -1,0 +1,130 @@
+.search-input {
+  width: var(--search-input-width);
+  height: fit-content;
+  min-height: var(--search-input-height);
+  border-radius: 1.25rem;
+  border: var(--search-input-border);
+  padding: 0.125rem 0.75rem;
+
+  box-sizing: border-box;
+
+  background: var(--gray-000);
+
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+
+  gap: 0.25rem;
+
+  &.disabled {
+    background: var(--gray-100);
+    pointer-events: none;
+  }
+
+  &.program {
+    width: 90%;
+    justify-self: center;
+  }
+
+  textarea {
+    // TODO: switch to native resizing when it is widely supported
+    // https://developer.mozilla.org/en-US/docs/Web/CSS/field-sizing
+    height: fit-content;
+    max-height: calc(1.5rem * 5);
+    min-height: 100%;
+    line-height: 1.5;
+    transition: height 0.1s ease;
+    padding: 0rem;
+
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 1rem;
+    flex-grow: 1;
+
+    color: var(--gray-800);
+    background-color: transparent;
+
+    &::placeholder {
+      color: var(--gray-500);
+    }
+
+    &.disabled {
+      cursor: not-allowed;
+    }
+
+    border: none;
+    outline: none;
+    resize: none;
+  }
+
+  .search-input-icon {
+    width: 0.75rem;
+    height: 100%;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+
+    &:hover {
+      .delete {
+        stroke: var(--gray-300);
+      }
+    }
+
+    svg {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .delete {
+      cursor: pointer;
+      width: 0.75rem;
+      height: 0.75rem;
+      display: block;
+
+      stroke: var(--gray-600);
+      stroke-width: 0.125rem;
+    }
+
+    .magnifier {
+      width: 100%;
+      height: 100%;
+      display: block;
+
+      stroke: var(--gray-600);
+      stroke-width: 0.25rem;
+    }
+  }
+
+  &.seeking {
+    border-radius: 1rem;
+    border: 0.25rem solid var(--gray-600);
+    background: var(--gray-500);
+
+    textarea {
+      color: var(--gray-000);
+      font-weight: bold;
+    }
+
+    .search-input-icon {
+      .delete {
+        stroke: var(--gray-200);
+
+        &:hover {
+          stroke: var(--gray-600);
+        }
+      }
+    }
+  }
+
+  &.seeking-program {
+    @extend .seeking;
+
+    textarea {
+      font-size: 0.9rem;
+      line-height: 1.2;
+    }
+  }
+}

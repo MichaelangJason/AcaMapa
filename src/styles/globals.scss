@@ -1,0 +1,222 @@
+@function inner-radius($outer-radius, $outer-width, $inner-width, $coef: 0.7) {
+  @return $outer-radius / $outer-width * $inner-width * $coef;
+}
+
+:root {
+  /* colors */
+  --mcgill-red: #e91d2e;
+  --outlook-blue: #0078d4;
+
+  --card-bg-yellow: #fffdf2;
+  --satisfy-green: #b2e026;
+  --satisfy-green-hover: #90c109;
+  --unsatisfy-red: #ed7155;
+  --unsatisfy-red-hover: #d14e2a;
+
+  --sync-green: #39b102;
+
+  --gray-000: #ffffff;
+  --gray-100: #efefef;
+  --gray-200: #d9d9d9;
+  --gray-300: #cfcfcf;
+  --gray-400: #b4b4b4;
+  --gray-500: #8d8d8d;
+  --gray-600: #747474;
+  --gray-800: #3c3c3c;
+  --gray-1000: #000000;
+
+  --gray-1000-50-opac: rgba(0, 0, 0, 0.5);
+  --overlay-hover: rgba(0, 0, 0, 0.05);
+  --overlay-hover-strong: rgba(0, 0, 0, 0.08);
+  --overlay-selected: rgba(0, 0, 0, 0.12);
+  --overlay-disabled: rgba(0, 0, 0, 0.02);
+
+  /* inner border radius */
+  --inner-border-coef: 0.7;
+
+  /* shared styles */
+
+  --shadow-color: rgba(0, 0, 0, 0.25);
+  --shadow-color-heavy: rgba(0, 0, 0, 0.35);
+  --shadow-color-light: rgba(149, 149, 149, 0.25);
+  --shadow-default: 0rem 0.1875rem 0.625rem 0rem var(--shadow-color);
+  --shadow-default-right: 0.125rem 0rem 0.625rem 0rem var(--shadow-color-light);
+  --shadow-default-heavy: 0rem 0.1875rem 0.625rem 0rem var(--shadow-color-heavy);
+  --shadow-default-light: 0rem 0.1875rem 0.625rem 0rem var(--shadow-color-light);
+  --border-radius-default-numeric: 16; // 1rem
+  --border-radius-default: 1rem;
+  --border-radius-large: 1.5rem;
+
+  /* dimensions */
+  --sidebar-width: 18.75rem;
+
+  --search-input-width: 15rem;
+  --search-input-height: 2rem;
+  --search-input-border: 0.125rem solid var(--gray-500);
+  --input-max-width: 13.75rem;
+
+  --utility-bar-height: 2.75rem;
+
+  --terms-gap: 2.5rem;
+  --terms-padding-topbottom: 1.875rem;
+  --term-card-width-numeric: 308; // 19.25 rem
+  --term-card-width: calc(var(--term-card-width-numeric) * 0.0625rem);
+  --term-card-border-width: 0.25rem;
+  --term-inner-border-radius: calc(
+    (
+        var(--border-radius-default-numeric) / var(--term-card-width-numeric) *
+          var(--inner-border-coef)
+      ) *
+      100%
+  );
+
+  --course-card-width-numeric: 260; // 16.25 rem
+  --course-card-width: calc(var(--course-card-width-numeric) * 0.0625rem);
+}
+
+html {
+  font-size: 16px; /* rem */
+
+  width: 100%;
+  width: 100vw;
+  width: 100dvw;
+}
+
+/* Hide scrollbar but keep scrolling functionality */
+html,
+body {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: auth;
+
+  height: 100%;
+  height: 100vh;
+  height: 100dvh;
+  box-sizing: border-box;
+}
+
+/* Webkit browsers */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;
+}
+
+body {
+  position: relative;
+  font-family: Arial, Helvetica, sans-serif;
+  // Add these properties for better text rendering
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-smooth: never; // Prevent font smoothing issues
+
+  // height: 100vh;
+  width: fit-content;
+  margin: 0rem;
+  padding: 0 0 0 var(--sidebar-width);
+  transition: padding 0.2s ease-in-out;
+
+  overflow: hidden; // default before initialized
+
+  /* 
+  * Due to technical issue of @hello-pangea/dnd library regarding nested Droppable
+  * https://github.com/hello-pangea/dnd/issues/559
+  * Term Card's are directly contained in body.
+  */
+  display: flex;
+  flex-direction: column;
+  // overflow: hidden;
+
+  &.left-sidebar-folded {
+    padding: 0;
+  }
+}
+
+// Add a specific class for export elements to ensure consistent text rendering
+.export-container {
+  font-family: Arial, Helvetica, sans-serif !important;
+  text-rendering: optimizeLegibility !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+  font-smooth: never !important;
+
+  * {
+    font-family: Arial, Helvetica, sans-serif !important;
+    text-rendering: optimizeLegibility !important;
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
+  }
+}
+
+mark {
+  background: var(--gray-200);
+}
+
+a {
+  color: var(--gray-1000);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.clickable:hover:not(.disabled) {
+  cursor: pointer;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0rem;
+  padding: 0rem;
+}
+
+.scroll-mask:not(.export) {
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    var(--gray-000) 0.25%,
+    var(--gray-000) 99.75%,
+    transparent
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    var(--gray-000) 0.25%,
+    var(--gray-000) 99.75%,
+    transparent
+  );
+}
+
+button {
+  border: none;
+}
+
+@keyframes breath {
+  0% {
+    scale: 1;
+  }
+  50% {
+    scale: 1.05;
+  }
+  100% {
+    scale: 1;
+  }
+}
+
+@keyframes twinkle {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}

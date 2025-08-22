@@ -1,0 +1,304 @@
+.term-card {
+  position: relative;
+  display: flex;
+  width: var(--term-card-width);
+  min-height: 18.75rem;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+  box-sizing: border-box;
+
+  // REMINDER: these are some workarounds that helps mobile devices to correctly display the term card
+  // TODO: fix terms-container css and remove these workarounds
+  margin-right: var(--terms-gap);
+  margin-top: calc(var(--utility-bar-height) + var(--terms-padding-topbottom));
+  margin-bottom: var(--terms-padding-topbottom);
+
+  border-radius: var(--border-radius-default);
+  border: var(--term-card-border-width) solid var(--gray-300);
+  background: var(--gray-300);
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
+
+  &.dragging {
+    // opacity: 0.5;
+    background: var(--gray-500);
+    border-color: var(--gray-500);
+  }
+
+  &.dragging-over {
+    background: var(--gray-500);
+    border-color: var(--gray-500);
+  }
+
+  &.export {
+    height: 100%;
+    padding: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    min-height: fit-content;
+    .term-body {
+      height: fit-content;
+    }
+  }
+
+  .term-header {
+    position: relative;
+    display: flex;
+    height: 2.5rem;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    flex-shrink: 0;
+    // margin-top: -0.25rem;
+
+    border-radius: var(--term-inner-border-radius)
+      var(--term-inner-border-radius) 0rem 0rem;
+    background: transparent;
+    transition: all 0.2s ease;
+
+    .add-course-button {
+      border-radius: var(--border-radius-default);
+      // border: 0.125rem solid var(--gray-600);
+      background: var(--gray-600);
+      box-shadow: var(--shadow-default-heavy);
+      color: var(--gray-000);
+      font-size: 1rem;
+      font-weight: bold;
+      margin: 0;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      padding: 0.3rem 0.75rem;
+      max-width: 70%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+
+      &:not(:hover) {
+        animation: twinkle 1s ease-out infinite;
+      }
+
+      &:hover {
+        opacity: 1;
+        scale: 1.05;
+      }
+    }
+
+    .term-name-container {
+      position: relative;
+      width: fit-content;
+      max-width: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      .term-name {
+        position: relative;
+
+        justify-self: center;
+        width: fit-content;
+        max-width: 100%;
+        overflow: hidden;
+        color: var(--gray-1000, #000);
+        text-align: center;
+        text-wrap: nowrap;
+        text-overflow: ellipsis;
+        font-size: 1rem;
+        font-style: normal;
+      }
+
+      .edit {
+        display: none;
+        position: absolute;
+        right: -1.25rem;
+        flex-shrink: 0;
+        width: 0.875rem;
+        height: auto;
+
+        path {
+          transition: fill 0.15s ease;
+          fill: var(--gray-500);
+        }
+
+        &:hover:not(.hidden) {
+          path {
+            fill: var(--gray-800);
+          }
+        }
+
+        &.disabled {
+        }
+      }
+    }
+
+    .hamburger {
+      position: absolute;
+      right: 0.75rem;
+
+      width: 1.25rem;
+      height: auto;
+
+      &.disabled path {
+        fill: var(--gray-400);
+      }
+
+      path {
+        fill: var(--gray-1000-50-opac);
+        transition: fill 0.1s ease;
+      }
+
+      &:hover:not(.disabled) {
+        cursor: pointer;
+        path {
+          fill: var(--gray-500);
+        }
+      }
+    }
+
+    &:hover {
+      .edit {
+        display: block;
+      }
+    }
+  }
+
+  .term-body-container {
+    position: relative;
+    flex-grow: 1;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .term-body {
+    // flex-grow: 1;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    // gap: 0.75rem;
+    padding: 0.75rem;
+    padding-bottom: 0;
+    background: var(--gray-000);
+    transition: background 0.2s ease;
+
+    box-sizing: border-box;
+    width: 100%;
+    overflow: scroll;
+
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+    overscroll-behavior: none;
+    -webkit-overflow-scrolling: auth;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    &.dragging-over {
+      background: var(--gray-100);
+    }
+
+    &.scroll-disabled {
+      overflow: hidden;
+    }
+
+    .empty-term {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: auto;
+      max-height: max-content;
+      margin-bottom: 0.5rem;
+
+      & > span {
+        font-size: 1rem;
+        font-style: italic;
+        color: var(--gray-400);
+        align-self: center;
+      }
+    }
+  }
+
+  .term-footer {
+    display: flex;
+    height: 2.5rem;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+
+    border-radius: 0 0 var(--term-inner-border-radius)
+      var(--term-inner-border-radius);
+    background: transparent;
+    transition: all 0.2s ease;
+  }
+}
+
+.add-term-button {
+  position: absolute;
+  width: var(--terms-gap);
+  height: 80%;
+  border-radius: var(--border-radius-default);
+  opacity: 0.3;
+  transition:
+    all 0.2s ease,
+    height 0.2s ease;
+  right: calc(-1 * var(--terms-gap) - var(--term-card-border-width));
+  background: var(--gray-100);
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  &:hover:not(.disabled):not(.clicked) {
+    cursor: pointer;
+    opacity: 1;
+    height: 90%;
+
+    svg {
+      scale: 1.05;
+    }
+  }
+
+  &.on-left {
+    right: unset;
+    left: calc(-1 * var(--terms-gap) - var(--term-card-border-width));
+  }
+
+  svg {
+    width: 1rem;
+    height: auto;
+    transition: scale 0.2s ease;
+    path {
+      stroke: var(--gray-400);
+      stroke-width: 0.1875rem;
+      transition: stroke 0.2s ease;
+    }
+  }
+
+  &.disabled {
+    svg {
+      path {
+        stroke: var(--gray-300);
+      }
+    }
+  }
+
+  &.clicked {
+    opacity: 1;
+    height: 80%;
+    background: var(--gray-200);
+
+    svg {
+      scale: 1;
+      path {
+        stroke: var(--gray-500);
+      }
+    }
+  }
+}
