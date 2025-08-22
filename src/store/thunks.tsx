@@ -568,7 +568,7 @@ export const fullSync = createAppAsyncThunk(
         if (parsedData.planData.has(savedCurrentPlanId)) {
           dispatch(setCurrentPlanId(savedCurrentPlanId));
         } else {
-          console.log(parsedData);
+          // console.log(parsedData);
           const newCurrentPlanId = parsedData.planOrder[0];
           dispatch(setCurrentPlanId(newCurrentPlanId));
           setLocalData(LocalStorageKey.CURRENT_PLAN_ID, newCurrentPlanId);
