@@ -164,7 +164,7 @@ export const ScrollBar = ({
     setThumbRatio(thumbRatio);
     setScrollable?.(thumbRatio < 1);
     handleScrollChange(true);
-  }, [targetContainerRef, direction, handleScrollChange]);
+  }, [targetContainerRef, direction, handleScrollChange, setScrollable]);
 
   useEffect(() => {
     if (!scrollBarRef.current || !targetContainerRef.current) return;

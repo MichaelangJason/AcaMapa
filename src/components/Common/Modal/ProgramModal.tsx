@@ -121,6 +121,7 @@ const ProgramModal = () => {
     return () => {
       observer.disconnect();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [handleIntersection, loadingTriggerRef.current]);
 
   useEffect(() => {
