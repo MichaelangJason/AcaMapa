@@ -721,6 +721,9 @@ export const fullSync = createAppAsyncThunk(
                 },
                 confirmText: t([I18nKey.MERGE], lang),
                 closeText: t([I18nKey.KEEP], lang),
+                isPreventCloseOnEsc: true,
+                isPreventCloseOnOverlayClick: true,
+                isShowCloseButton: false,
                 extraOptions: [
                   {
                     content: t([I18nKey.CLEAR], lang),

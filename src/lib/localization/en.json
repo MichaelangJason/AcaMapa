@@ -144,7 +144,7 @@
   "login-with-mcgill-email": "Login with McGill email",
   "logout": "Logout",
 
-  "conflict-desc": "Local data detected, do you want to upload your local data? Your local data will be cleared after upload. You can keep them locally or merge them with the remote data.",
+  "conflict-desc": "Local data detected, do you want to upload your local data? Your local data will be cleared after upload.\nYou can keep them locally or merge them with the remote data.",
   "delete-term-title": "Delete Term",
   "delete-term-desc": "Are you sure you want to delete {{item1}}?",
   "rename-term-title": "Rename Term",
