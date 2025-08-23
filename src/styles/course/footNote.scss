@@ -21,6 +21,15 @@
     line-height: normal;
   }
 
+  &.program-card {
+    width: 95%;
+    max-width: 36.75rem;
+  }
+
+  &.course-card {
+    width: 16.25rem;
+  }
+
   .delete {
     position: absolute;
     width: 0.75rem;

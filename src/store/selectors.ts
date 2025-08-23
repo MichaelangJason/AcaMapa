@@ -414,7 +414,9 @@ export const selectCourseDepMeta = createSelector(
           : "";
 
       const isSatisfied =
-        source === "Course Taken" || !!depGraph.get(courseId)?.isSatisfied;
+        source === "Course Taken" ||
+        !!depGraph.get(courseId)?.isSatisfied ||
+        plan.courseMetadata.get(courseId)?.isOverwritten;
 
       return {
         isValid: !!isValid,

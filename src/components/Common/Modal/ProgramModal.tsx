@@ -174,7 +174,10 @@ const ProgramModal = () => {
               })}
 
             {result.length === 0 && (
-              <FootNote content={t([I18nKey.NO_RESULTS], lang)} />
+              <FootNote
+                content={t([I18nKey.NO_RESULTS], lang)}
+                className="program-card"
+              />
             )}
             {hasMore && (
               <div className="loading-placeholder" ref={loadingTriggerRef}>

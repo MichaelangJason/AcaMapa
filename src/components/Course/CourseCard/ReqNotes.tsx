@@ -50,6 +50,7 @@ const ReqNotes = ({
   // REVIEW: switch to initialization state + skeleton?
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isOverflowing, setIsOverflowing] = useState(false);
+  const reqNotesRef = useRef<HTMLDivElement>(null);
   const reqGroupRef = useRef<HTMLDivElement>(null);
   const leftScrollIconRef = useRef<HTMLDivElement>(null);
   const rightScrollIconRef = useRef<HTMLDivElement>(null);
@@ -83,7 +84,8 @@ const ReqNotes = ({
     if (
       !reqGroupRef.current ||
       !leftScrollIconRef.current ||
-      !rightScrollIconRef.current
+      !rightScrollIconRef.current ||
+      !reqNotesRef.current
     )
       return;
     const firstReqGroup = reqGroupRef.current.querySelector(".req-group");
@@ -99,6 +101,7 @@ const ReqNotes = ({
     const rightScrollIcon = rightScrollIconRef.current;
     const firstReqGroupWidth = firstReqGroup.clientWidth;
     const containerWidth = reqGroupRef.current.clientWidth;
+    const reqNotesWidth = reqNotesRef.current.clientWidth;
 
     const setScrollIcons = () => {
       setShowScrollLeft(container.scrollLeft > 0);
@@ -166,7 +169,7 @@ const ReqNotes = ({
     };
 
     // scroll needed, bind a scroll listener
-    if (firstReqGroupWidth > containerWidth) {
+    if (container.scrollWidth > reqNotesWidth) {
       setIsOverflowing(true);
       container.addEventListener("wheel", verticalScrollCb, { passive: false });
       leftScrollIcon.addEventListener("click", scrollLeft);
@@ -185,7 +188,7 @@ const ReqNotes = ({
   const hasReq = requisites?.group && requisites.group.type !== GroupType.EMPTY;
 
   return (
-    <section className="req-note">
+    <section className="req-note" ref={reqNotesRef}>
       <header className={clsx(!hasReq && "no-req")}>{title}:</header>
       {hasReq && (
         <section
