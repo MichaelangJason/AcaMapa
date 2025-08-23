@@ -5,6 +5,7 @@ import "react-tooltip/dist/react-tooltip.css";
 import { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/next";
 import Script from "next/script";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const siteName = "DegreeMapper";
 const siteDescription =
@@ -108,6 +109,7 @@ export default function RootLayout({
     <html lang="en">
       <body>{children}</body>
       <Analytics />
+      <SpeedInsights />
       <Script
         id="ld-software-app"
         type="application/ld+json"
