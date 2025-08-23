@@ -126,6 +126,29 @@
       }
     }
   }
+
+  .help-container {
+    flex-shrink: 0;
+    width: 1.5rem;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    justify-self: center;
+
+    svg {
+      width: 1.4rem;
+      fill: var(--gray-600);
+      opacity: 0.6;
+      transition:
+        fill 0.2s ease,
+        opacity 0.2s ease;
+
+      &:hover {
+        opacity: 1;
+      }
+    }
+  }
 }
 
 @keyframes sync-icon-spin {

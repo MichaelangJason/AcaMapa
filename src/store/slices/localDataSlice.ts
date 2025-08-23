@@ -59,6 +59,7 @@ export const initialState = {
   exportPlanId: "" as string,
 
   isProgramModalOpen: false as boolean,
+  isInfoModalOpen: false as boolean,
 };
 
 const localDataSlice = createSlice({
@@ -573,6 +574,14 @@ const localDataSlice = createSlice({
     clearSeekingProgramName: (state) => {
       state.seekingProgramName = "";
     },
+
+    /* info modal */
+    setIsInfoModalOpen: (state, action: PayloadAction<boolean>) => {
+      state.isInfoModalOpen = action.payload;
+    },
+    clearIsInfoModalOpen: (state) => {
+      state.isInfoModalOpen = false;
+    },
   },
 });
 
@@ -612,6 +621,8 @@ export const {
   clearIsProgramModalOpen,
   setSeekingProgramName,
   clearSeekingProgramName,
+  setIsInfoModalOpen,
+  clearIsInfoModalOpen,
 } = localDataSlice.actions;
 
 export const localDataActions = localDataSlice.actions;

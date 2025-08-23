@@ -158,7 +158,7 @@
   "switch-plan-title": "Switch Plan",
   "switch-plan-desc": "Are you sure you want to switch to {{item1}}?",
   "overwrite-course-title": "Overwrite Course",
-  "overwrite-course-desc": "Are you sure you want to overwrite {{item1}}?",
+  "overwrite-course-desc": "Are you sure you want to overwrite {{item1}}'s requirements?",
   "planned-courses": "Planned Courses",
   "current-plan": "Current Plan",
   "sidebar": "Sidebar",
@@ -178,5 +178,8 @@
   "pin": "Pin",
   "switch-lang": "Passer en Français",
   "valid-place": "Valid place: {{item1}}",
-  "invalid-place": "Invalid place: {{item1}}"
+  "invalid-place": "Invalid place: {{item1}}",
+
+  "faq": "FAQ/How-to",
+  "table-of-contents": "Table of Contents"
 }

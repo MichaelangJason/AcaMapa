@@ -158,7 +158,7 @@
   "switch-plan-title": "Basculer de plan",
   "switch-plan-desc": "Êtes-vous sûr de vouloir basculer vers {{item1}} ?",
   "overwrite-course-title": "Écraser le cours",
-  "overwrite-course-desc": "Êtes-vous sûr de vouloir écraser {{item1}} ?",
+  "overwrite-course-desc": "Êtes-vous sûr de vouloir écraser les exigences de {{item1}} ?",
   "planned-courses": "Cours planifiés",
   "current-plan": "Plan actuel",
   "sidebar": "Barre latérale",
@@ -178,5 +178,8 @@
   "pin": "Épingler",
   "switch-lang": "Switch to English",
   "valid-place": "Lieu valide: {{item1}}",
-  "invalid-place": "Lieu invalide: {{item1}}"
+  "invalid-place": "Lieu invalide: {{item1}}",
+
+  "faq": "FAQ/Guide",
+  "table-of-contents": "Table des matières"
 }

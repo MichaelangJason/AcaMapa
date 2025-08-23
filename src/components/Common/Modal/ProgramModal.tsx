@@ -137,6 +137,7 @@ const ProgramModal = () => {
       onRequestClose={handleClose}
       className="program-modal-content"
       overlayClassName="modal-overlay"
+      ariaHideApp={false}
     >
       <header>
         <h3>{t([I18nKey.SEARCH_PROGRAMS], lang)}</h3>

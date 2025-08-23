@@ -102,6 +102,7 @@ const ExportModal = () => {
       onRequestClose={handleClose}
       className="export-modal-content"
       overlayClassName="modal-overlay"
+      ariaHideApp={false}
     >
       <header>
         <h3>Export Plan</h3>

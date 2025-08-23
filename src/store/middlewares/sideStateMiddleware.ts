@@ -28,6 +28,8 @@ import {
   setIsProgramModalOpen,
   clearIsProgramModalOpen,
   setSeekingProgramName,
+  setIsInfoModalOpen,
+  clearIsInfoModalOpen,
 } from "../slices/localDataSlice";
 import {
   addPlan,
@@ -43,7 +45,6 @@ import {
   isTermAction,
 } from "@/lib/typeGuards";
 import { ResultType } from "@/lib/enums";
-import type { SimpleModalProps } from "@/types/local";
 import { addCourseToTerm, addProgramToUser } from "../thunks";
 
 const listenerMiddleware = createListenerMiddleware();
@@ -194,19 +195,31 @@ startListening({
     clearExportPlanId,
     setIsProgramModalOpen,
     clearIsProgramModalOpen,
+    setIsInfoModalOpen,
+    clearIsInfoModalOpen,
   ),
   effect: (action, listenerApi) => {
+    const state = listenerApi.getState();
     const isSimpleModalOpen =
       action.type === setSimpleModalInfo.type &&
-      (action.payload as SimpleModalProps).isOpen;
+      state.localData.simpleModalInfo.isOpen;
     const isExportModalOpen =
-      action.type === setExportPlanId.type && (action.payload as string) !== "";
+      action.type === setExportPlanId.type &&
+      state.localData.exportPlanId !== "";
     const isProgramModalOpen =
-      action.type === setIsProgramModalOpen.type && (action.payload as boolean);
+      action.type === setIsProgramModalOpen.type &&
+      state.localData.isProgramModalOpen;
+    const isInfoModalOpen =
+      action.type === setIsInfoModalOpen.type &&
+      state.localData.isInfoModalOpen;
+
     const isModalOpen = listenerApi.getState().global.isModalOpen;
 
     const isAnyModalOpen =
-      isSimpleModalOpen || isExportModalOpen || isProgramModalOpen;
+      isSimpleModalOpen ||
+      isExportModalOpen ||
+      isProgramModalOpen ||
+      isInfoModalOpen;
 
     if (isModalOpen !== isAnyModalOpen) {
       listenerApi.dispatch(setIsModalOpen(isAnyModalOpen));
@@ -221,10 +234,10 @@ startListening({
 // handle disable body scroll:
 startListening({
   matcher: isAnyOf(setIsSeekingCourse, setIsModalOpen),
-  effect: (action) => {
-    const isSeekingCourse =
-      action.type === setIsSeekingCourse.type && action.payload;
-    const isModalOpen = action.type === setIsModalOpen.type && action.payload;
+  effect: (_, listenerApi) => {
+    const state = listenerApi.getState();
+    const isSeekingCourse = state.global.isSeekingCourse;
+    const isModalOpen = state.global.isModalOpen;
 
     if (isSeekingCourse || isModalOpen) {
       document.body.style.overflow = "hidden";

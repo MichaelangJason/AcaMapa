@@ -61,8 +61,8 @@ export const metadata: Metadata = {
     creator: `@${brand}`,
   },
   icons: {
-    icon: "/icon.ico",
-    apple: "/icon.ico",
+    icon: [{ url: "/favicon.png", sizes: "48x48", type: "image/png" }],
+    apple: "/favicon.png",
   },
   robots: {
     index: true,

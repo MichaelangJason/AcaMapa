@@ -59,6 +59,8 @@ export enum I18nKey {
   CLOSE = "close",
   MORE = "more",
   OR = "or",
+  FAQ = "faq",
+  TOC = "table-of-contents",
 
   // common errors
   ERROR = "error",

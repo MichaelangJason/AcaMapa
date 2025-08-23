@@ -30,9 +30,12 @@ import type { ItemProps } from "../Common/DropdownMenu/Item";
 import { TooltipId } from "@/lib/enums";
 import clsx from "clsx";
 import ItemTagSkeleton from "../Skeleton/ItemTagSkeleton";
-import { UserSession, Sync } from "../Common";
+import { UserSession, Sync, Help } from "../Common";
 import { I18nKey, Language, t } from "@/lib/i18n";
-import { setIsProgramModalOpen } from "@/store/slices/localDataSlice";
+import {
+  setIsInfoModalOpen,
+  setIsProgramModalOpen,
+} from "@/store/slices/localDataSlice";
 
 const UtilityBar = () => {
   const currentPlanId = useAppSelector(
@@ -277,6 +280,11 @@ const UtilityBar = () => {
           </>
         ) : (
           <>
+            <Help
+              callback={() => {
+                dispatch(setIsInfoModalOpen(true));
+              }}
+            />
             <Sync />
             <UserSession />
             <UserLang />

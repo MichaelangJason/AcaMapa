@@ -2,7 +2,7 @@ import clsx from "clsx";
 import DeleteIcon from "@/public/icons/delete.svg";
 import SeekIcon from "@/public/icons/telescope.svg";
 import ExpandIcon from "@/public/icons/expand-single.svg";
-import ShovelIcon from "@/public/icons/shovel-2.svg";
+import ShovelIcon from "@/public/icons/shovel-3.svg";
 import type {
   DraggableProvided,
   DraggableStateSnapshot,

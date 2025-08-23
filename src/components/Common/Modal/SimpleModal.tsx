@@ -56,6 +56,7 @@ const SimpleModal = () => {
       onRequestClose={handleClose}
       className="simple-modal-content"
       overlayClassName="modal-overlay"
+      ariaHideApp={false}
     >
       <header>
         <h3>{title}</h3>
