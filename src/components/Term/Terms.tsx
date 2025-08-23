@@ -62,14 +62,16 @@ const Terms = () => {
   const handleVerticalScroll = useCallback(
     (e: WheelEvent) => {
       // console.log(e)
+      const enableVerticalScroll = e.metaKey || e.ctrlKey;
       if (
         !docElRef.current ||
         isSeekingCourse ||
         isModalOpen ||
-        Math.abs(e.deltaX) < 5
+        (Math.abs(e.deltaX) < 5 && !enableVerticalScroll)
       )
         return;
-      const scrollAmount = e.deltaX;
+
+      const scrollAmount = enableVerticalScroll ? e.deltaY : e.deltaX;
       const prevScrollLeft = docElRef.current.scrollLeft;
       const containerMaxScrollLeft =
         docElRef.current.scrollWidth - docElRef.current.clientWidth;
