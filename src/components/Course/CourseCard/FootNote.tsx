@@ -8,16 +8,18 @@ const FootNote = ({
   handleDelete,
   tooltipOptions,
   deleteTooltipOptions,
+  className,
 }: {
   content: string;
   handleClick?: () => void;
   handleDelete?: () => void;
   tooltipOptions?: TooltipProps;
   deleteTooltipOptions?: TooltipProps;
+  className?: string;
 }) => {
   return (
     <div
-      className={clsx("foot-note", handleClick && "clickable")}
+      className={clsx("foot-note", handleClick && "clickable", className)}
       onClick={handleClick}
       {...(tooltipOptions || {})}
     >

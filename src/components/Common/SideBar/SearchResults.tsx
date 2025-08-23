@@ -157,7 +157,7 @@ const SearchResults = ({ result }: { result: SearchResult }) => {
           return null;
         })}
         {displayData.length === 0 && (
-          <FootNote content={handleNoResultText()} />
+          <FootNote content={handleNoResultText()} className="course-card" />
         )}
         {hasMore && (
           <div className="loading-placeholder" ref={loadingTriggerRef}>
