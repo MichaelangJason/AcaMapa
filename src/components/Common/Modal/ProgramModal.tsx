@@ -15,6 +15,7 @@ import { selectProgramSearchFn } from "@/store/selectors";
 import { MiniProgramCard } from "@/components/Program";
 import { removeProgram } from "@/store/slices/userDataSlice";
 import { addProgramToUser, seekProgram } from "@/store/thunks";
+import clsx from "clsx";
 
 Modal.setAppElement("html");
 
@@ -156,7 +157,10 @@ const ProgramModal = () => {
 
         <div className="result-container scrollbar-hidden">
           <div
-            className="inner-container scrollbar-hidden scroll-mask"
+            className={clsx(
+              "inner-container scrollbar-hidden scroll-mask",
+              hasMore && "hasMore",
+            )}
             ref={resultContainerRef}
           >
             {result

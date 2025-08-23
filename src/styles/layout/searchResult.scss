@@ -24,6 +24,10 @@
     align-items: center;
     gap: 1rem;
 
+    &.hasMore {
+      padding-bottom: 0rem;
+    }
+
     & > .loading-placeholder {
       margin-bottom: 0.75rem;
       color: var(--gray-600);

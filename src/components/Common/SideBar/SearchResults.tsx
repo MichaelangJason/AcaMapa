@@ -19,6 +19,7 @@ import FootNote from "../../Course/CourseCard/FootNote";
 import { MiniCourseCardSkeleton } from "@/components/Skeleton";
 import { I18nKey, Language, t } from "@/lib/i18n";
 import ScrollBar from "../ScrollBar";
+import clsx from "clsx";
 
 const SearchResults = ({ result }: { result: SearchResult }) => {
   const courseData = useAppSelector((state) => state.localData.courseData);
@@ -112,7 +113,10 @@ const SearchResults = ({ result }: { result: SearchResult }) => {
   return (
     <div className="result-container scrollbar-hidden">
       <div
-        className="inner-container scrollbar-hidden scroll-mask"
+        className={clsx(
+          "inner-container scrollbar-hidden scroll-mask",
+          hasMore && "hasMore",
+        )}
         ref={resultContainerRef}
       >
         {displayData.slice(0, page * RESULT_PER_PAGE).map((entry, idx) => {
