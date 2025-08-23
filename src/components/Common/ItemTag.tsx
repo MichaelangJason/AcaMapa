@@ -50,7 +50,10 @@ const ItemTag = ({
   const [isExpanded, setIsExpanded] = useState(false);
   const isDragging = useAppSelector((state) => state.global.isDragging);
   const userLang = useAppSelector((state) => state.userData.lang) as Language;
-  const showExpanded = !isDragging && (isExpanded || isHovering || isExport);
+  const showExpanded =
+    !isDragging &&
+    (items.length > 0 || handleAddItem) &&
+    (isExpanded || isHovering || isExport);
   const isTagExpanded = isExport || isExpanded;
   const lang = displayLang || userLang;
   const tagRef = useRef<HTMLDivElement>(null);
@@ -139,7 +142,16 @@ const ItemTag = ({
       </header>
       {showExpanded && (
         <div className="item-tag-items" style={{ alignItems }}>
-          {items.length > 0 ? (
+          {items.length === 0 && handleAddItem ? (
+            <Item
+              content={t([I18nKey.ADD, I18nKey.P_ITEM1], lang, {
+                item1: title,
+              })}
+              displayLimit={displayLimit}
+              handleClickItem={handleAddItem}
+              className={itemClassName + " no-items"}
+            />
+          ) : (
             items.map((item) => (
               <Item
                 key={item}
@@ -151,15 +163,6 @@ const ItemTag = ({
                 className={itemClassName}
               />
             ))
-          ) : (
-            <Item
-              content={t([I18nKey.ADD, I18nKey.P_ITEM1], lang, {
-                item1: title,
-              })}
-              displayLimit={displayLimit}
-              handleClickItem={handleAddItem}
-              className={itemClassName + " no-items"}
-            />
           )}
         </div>
       )}
