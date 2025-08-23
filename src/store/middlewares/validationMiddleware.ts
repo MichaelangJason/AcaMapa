@@ -465,8 +465,14 @@ const validationMiddleware: Middleware<
       }
       // TODO: french support
       case "localData/addSelectedCourse": {
-        const courseId = action.payload.id;
-        if (!isValidCourseId(courseId)) {
+        const courseId =
+          typeof action.payload === "string"
+            ? action.payload
+            : action.payload.id;
+        if (
+          !isValidCourseId(courseId) ||
+          !state.localData.courseData[courseId]
+        ) {
           throw new Error(`Invalid course id: ${courseId}`);
         }
         if (state.localData.selectedCourses.size >= MAX_COURSE_SELECTED) {

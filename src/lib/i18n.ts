@@ -58,6 +58,7 @@ export enum I18nKey {
   EXPAND_COURSES = "expand-courses",
   CLOSE = "close",
   MORE = "more",
+  OR = "or",
 
   // common errors
   ERROR = "error",
@@ -159,6 +160,7 @@ export enum I18nKey {
   LOGOUT = "logout",
 
   // Special cases
+  ADD_TO_SELECTED = "add-to-selected",
   CONFLICT_DESC = "conflict-desc",
   DELETE_TERM_TITLE = "delete-term-title",
   DELETE_TERM_DESC = "delete-term-desc",

@@ -13,6 +13,7 @@
   "related-programs": "Programmes liés",
   "search-programs": "Rechercher des programmes",
 
+  "or": "ou",
   "for": "pour",
   "plan-data": "Données du plan",
   "semester-data": "Données du semestre",
@@ -144,6 +145,7 @@
   "login-with-mcgill-email": "Se connecter avec l'email McGill",
   "logout": "Déconnexion",
 
+  "add-to-selected": "Maintenir Ctrl ou Cmd pour ajouter aux cours sélectionnés",
   "conflict-desc": "Données locales détectées, voulez-vous téléverser vos données locales ? Vos données locales seront effacées après le téléchargement. &nbsp; Vous pouvez les conserver localement ou les fusionner avec les données distantes.",
   "delete-term-title": "Supprimer le trimestre",
   "delete-term-desc": "Êtes-vous sûr de vouloir supprimer {{item1}} ?",

@@ -52,6 +52,7 @@
   "expand-courses": "Expand Courses",
   "close": "Close",
   "more": "More",
+  "or": "or",
 
   "error": "Error",
   "not-found": "Not found",
@@ -144,6 +145,7 @@
   "login-with-mcgill-email": "Login with McGill email",
   "logout": "Logout",
 
+  "add-to-selected": "Hold Ctrl or Cmd to add to selected courses",
   "conflict-desc": "Local data detected, do you want to upload your local data? Your local data will be cleared after upload.\nYou can keep them locally or merge them with the remote data.",
   "delete-term-title": "Delete Term",
   "delete-term-desc": "Are you sure you want to delete {{item1}}?",

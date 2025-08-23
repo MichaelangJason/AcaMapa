@@ -600,7 +600,7 @@ export const getTagToolTip = (
   lang: Language,
 ) => {
   if (source === "") {
-    return t([I18nKey.ADD_TO], lang, {
+    return t([I18nKey.ADD_TO, I18nKey.OR, I18nKey.ADD_TO_SELECTED], lang, {
       item1: t([I18nKey.COURSE_TAKEN], lang),
     });
   }

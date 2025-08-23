@@ -13,7 +13,7 @@ const Tag = ({
 }: {
   sourceText: string;
   displayText: string;
-  callback?: (text?: string) => void;
+  callback?: (e: React.MouseEvent<HTMLSpanElement>, text?: string) => void;
   className?: string;
   style?: React.CSSProperties;
   isDisabled?: boolean;
@@ -25,7 +25,7 @@ const Tag = ({
     <span
       className={clsx("tag", className, isDisabled && "disabled")}
       style={style}
-      onClick={() => callback?.(sourceText)}
+      onClick={(e) => callback?.(e, sourceText)}
       id={id}
       {...(tooltipOptions || {})}
     >

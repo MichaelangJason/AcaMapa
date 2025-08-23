@@ -14,7 +14,10 @@ import {
   addCourseTaken,
   removeCourseTaken,
 } from "@/store/slices/userDataSlice";
-import { clearSelectedCourses } from "@/store/slices/localDataSlice";
+import {
+  addSelectedCourse,
+  clearSelectedCourses,
+} from "@/store/slices/localDataSlice";
 import { I18nKey, Language, t } from "@/lib/i18n";
 import { TooltipId } from "@/lib/enums";
 import ScrollBar from "../Common/ScrollBar";
@@ -51,10 +54,17 @@ const CourseTaken = ({
     dispatch(toggleIsCourseTakenExpanded());
   }, [dispatch, isInitialized, isExport]);
   const handleRemoveCourseTaken = useCallback(
-    (source?: string) => {
-      if (!isInitialized || isExport) return;
+    (e: React.MouseEvent<HTMLSpanElement>, source?: string) => {
       if (!source) return;
-      dispatch(removeCourseTaken([source]));
+      e.stopPropagation();
+      e.preventDefault();
+      if (e.ctrlKey || e.metaKey) {
+        dispatch(addSelectedCourse(source));
+      } else {
+        if (!isInitialized || isExport) return;
+        if (!source) return;
+        dispatch(removeCourseTaken([source]));
+      }
     },
     [dispatch, isInitialized, isExport],
   );
@@ -130,7 +140,11 @@ const CourseTaken = ({
                               tooltipOptions={{
                                 "data-tooltip-id": TooltipId.COURSE_TAKEN,
                                 "data-tooltip-content": t(
-                                  [I18nKey.REMOVE],
+                                  [
+                                    I18nKey.REMOVE,
+                                    I18nKey.OR,
+                                    I18nKey.ADD_TO_SELECTED,
+                                  ],
                                   lang,
                                 ),
                               }}

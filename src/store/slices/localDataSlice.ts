@@ -131,11 +131,22 @@ const localDataSlice = createSlice({
         };
       });
     },
-    addSelectedCourse: (state, action: PayloadAction<Course>) => {
-      state.selectedCourses.set(action.payload.id, action.payload);
+    addSelectedCourse: (state, action: PayloadAction<Course | string>) => {
+      if (typeof action.payload === "string") {
+        state.selectedCourses.set(
+          action.payload,
+          state.courseData[action.payload],
+        );
+      } else {
+        state.selectedCourses.set(action.payload.id, action.payload);
+      }
     },
-    removeSelectedCourse: (state, action: PayloadAction<Course>) => {
-      state.selectedCourses.delete(action.payload.id);
+    removeSelectedCourse: (state, action: PayloadAction<Course | string>) => {
+      if (typeof action.payload === "string") {
+        state.selectedCourses.delete(action.payload);
+      } else {
+        state.selectedCourses.delete(action.payload.id);
+      }
     },
     toggleSelectedCourse: (state, action: PayloadAction<Course>) => {
       if (state.selectedCourses.has(action.payload.id)) {

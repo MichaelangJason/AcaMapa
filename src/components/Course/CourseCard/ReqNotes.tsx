@@ -22,6 +22,7 @@ import clsx from "clsx";
 import { COURSE_TAKEN_SCROLL_DELAY, SCROLL_OFFSET } from "@/lib/constants";
 import { getTagStatus, getTagToolTip } from "@/lib/course";
 import { addCourseTaken } from "@/store/slices/userDataSlice";
+import { addSelectedCourse } from "@/store/slices/localDataSlice";
 import { setIsCourseTakenExpanded } from "@/store/slices/globalSlice";
 import { TooltipId } from "@/lib/enums";
 import { Language } from "@/lib/i18n";
@@ -57,10 +58,20 @@ const ReqNotes = ({
   const dispatch = useAppDispatch();
 
   const addToCourseTakenOrJump = useCallback(
-    (courseId?: string, source?: string) => {
+    (
+      e: React.MouseEvent<HTMLSpanElement>,
+      courseId?: string,
+      source?: string,
+    ) => {
       if (!courseId) return;
       if (!source) {
-        dispatch(addCourseTaken([courseId]));
+        if (e.ctrlKey || e.metaKey) {
+          e.preventDefault();
+          e.stopPropagation();
+          dispatch(addSelectedCourse(courseId));
+        } else {
+          dispatch(addCourseTaken([courseId]));
+        }
       } else {
         if (source.toLowerCase() === "course taken") {
           dispatch(setIsCourseTakenExpanded(true));
@@ -254,7 +265,11 @@ const ReqGroup = ({
   includeCurrentTerm?: boolean;
   termId: string;
   reqType: ReqType;
-  addToCourseTakenOrJump: (courseId?: string, source?: string) => void;
+  addToCourseTakenOrJump: (
+    e: React.MouseEvent<HTMLSpanElement>,
+    courseId?: string,
+    source?: string,
+  ) => void;
   planId: string;
 }) => {
   let children: JSX.Element[] = [];
@@ -291,7 +306,7 @@ const ReqGroup = ({
               sourceText={item}
               displayText={formatCourseId(item)}
               className={clsx(status, "clickable")}
-              callback={(item) => addToCourseTakenOrJump(item, source)}
+              callback={(e, item) => addToCourseTakenOrJump(e, item, source)}
               tooltipOptions={{
                 "data-tooltip-id": TooltipId.REQ_NOTES_TAG,
                 "data-tooltip-content": tooltipMsg,
@@ -349,7 +364,7 @@ const ReqGroup = ({
             sourceText={item}
             displayText={formatCourseId(item)}
             className={clsx(status, "clickable")}
-            callback={(item) => addToCourseTakenOrJump(item, source)}
+            callback={(e, item) => addToCourseTakenOrJump(e, item, source)}
             tooltipOptions={{
               "data-tooltip-id": TooltipId.REQ_NOTES_TAG,
               "data-tooltip-content": tooltipMsg,
