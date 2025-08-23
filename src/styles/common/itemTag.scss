@@ -148,6 +148,14 @@
     background: var(--gray-000);
     overflow: hidden;
 
+    &.no-items {
+      background: var(--gray-400);
+
+      .content {
+        color: var(--gray-000);
+      }
+    }
+
     .content {
       display: flex;
       flex-grow: 1;

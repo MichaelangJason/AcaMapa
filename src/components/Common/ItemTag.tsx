@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import PinIcon from "@/public/icons/pin.svg";
 import PlusIcon from "@/public/icons/plus.svg";
 import MinusIcon from "@/public/icons/minus.svg";
@@ -76,29 +76,19 @@ const ItemTag = ({
         tagRef.current.attributes.removeNamedItem("data-tag-type");
         return;
       }
-      if (isPinnable && isExpandable && items.length > 0) {
+      if (isPinnable && isExpandable) {
         setIsExpanded((prev) => !prev);
       }
       handleClickTag?.();
     },
-    [isPinnable, isExpandable, handleClickTag, items.length],
+    [isPinnable, isExpandable, handleClickTag],
   );
-
-  const isClickable = useMemo(() => {
-    return items.length > 0 || handleClickTag;
-  }, [items, handleClickTag]);
-
-  useEffect(() => {
-    if (items.length === 0) {
-      setIsExpanded(false);
-    }
-  }, [items.length]);
 
   return (
     <article
       className={clsx(
         "item-tag",
-        showExpanded && items.length > 0 && "expanded",
+        showExpanded && "expanded",
         className,
         isExport && "export",
       )}
@@ -111,7 +101,7 @@ const ItemTag = ({
         className={clsx(
           "item-tag-header",
           isDragging && "dragging",
-          isClickable && "clickable",
+          "clickable",
         )}
         onClick={handleClick}
       >
@@ -120,7 +110,7 @@ const ItemTag = ({
             <PinIcon
               className={clsx(
                 "pin",
-                showExpanded && items.length > 0 && "rotated",
+                showExpanded && "rotated",
                 isTagExpanded && "pinned",
               )}
             />
@@ -147,19 +137,30 @@ const ItemTag = ({
           </div>
         )}
       </header>
-      {showExpanded && items.length > 0 && (
+      {showExpanded && (
         <div className="item-tag-items" style={{ alignItems }}>
-          {items.map((item) => (
+          {items.length > 0 ? (
+            items.map((item) => (
+              <Item
+                key={item}
+                content={item}
+                displayLimit={displayLimit}
+                handleClickItem={() => handleClickItem?.(item)}
+                handleDeleteItem={handleDeleteItem}
+                handleSeekItem={handleSeekItem}
+                className={itemClassName}
+              />
+            ))
+          ) : (
             <Item
-              key={item}
-              content={item}
+              content={t([I18nKey.ADD, I18nKey.P_ITEM1], lang, {
+                item1: title,
+              })}
               displayLimit={displayLimit}
-              handleClickItem={() => handleClickItem?.(item)}
-              handleDeleteItem={handleDeleteItem}
-              handleSeekItem={handleSeekItem}
-              className={itemClassName}
+              handleClickItem={handleAddItem}
+              className={itemClassName + " no-items"}
             />
-          ))}
+          )}
         </div>
       )}
     </article>
