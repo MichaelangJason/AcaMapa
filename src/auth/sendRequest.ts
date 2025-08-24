@@ -29,9 +29,10 @@ export const sendVerificationRequest: SendVerificationRequest = async (
 };
 
 function html(params: { to: string; url: string; host: string; theme: Theme }) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { to, url, host, theme } = params;
 
-  const confirmUrl = `https://${host}/auth/login?magicLink=${encodeURIComponent(url)}&email=${encodeURIComponent(to)}`;
+  // const confirmUrl = `https://${host}/auth/login?magicLink=${encodeURIComponent(url)}&email=${encodeURIComponent(to)}`;
 
   const escapedHost = host.replace(/\./g, "&#8203;.");
 
@@ -59,7 +60,7 @@ function html(params: { to: string; url: string; host: string; theme: Theme }) {
       <td align="center" style="padding: 20px 0;">
         <table border="0" cellspacing="0" cellpadding="0">
           <tr>
-            <td align="center" style="border-radius: 5px;" bgcolor="${color.buttonBackground}"><a href="${confirmUrl}"
+            <td align="center" style="border-radius: 5px;" bgcolor="${color.buttonBackground}"><a href="${url}"
                 target="_blank"
                 style="font-size: 18px; font-family: Helvetica, Arial, sans-serif; color: ${color.buttonText}; text-decoration: none; border-radius: 5px; padding: 10px 20px; border: 1px solid ${color.buttonBorder}; display: inline-block; font-weight: bold;">Sign
                 in</a></td>
