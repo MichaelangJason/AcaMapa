@@ -182,5 +182,6 @@
   "invalid-place": "Lieu invalide: {{item1}}",
 
   "faq": "FAQ/Guide",
-  "table-of-contents": "Table des matières"
+  "table-of-contents": "Table des matières",
+  "under-construction": "Désolé, cette fonctionnalité est en cours de construction :("
 }

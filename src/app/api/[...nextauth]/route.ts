@@ -19,5 +19,5 @@ export const POST = async (req: NextRequest) => {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const HEAD = async (req: NextRequest) => {
-  return NextResponse.json({ message: "OK" }, { status: 204 });
+  return NextResponse.json({ message: "OK" }, { status: 200 });
 };

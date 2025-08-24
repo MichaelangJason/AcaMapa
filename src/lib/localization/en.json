@@ -181,5 +181,6 @@
   "invalid-place": "Invalid place: {{item1}}",
 
   "faq": "FAQ/How-to",
-  "table-of-contents": "Table of Contents"
+  "table-of-contents": "Table of Contents",
+  "under-construction": "Sorry, this feature is under construction :("
 }

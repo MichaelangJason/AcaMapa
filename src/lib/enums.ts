@@ -59,6 +59,7 @@ export enum TooltipId {
   TERM_CARD = "term-card",
   COURSE_TAKEN = "course-taken",
   HELP = "help",
+  USER_SESSION = "user-session",
 }
 
 export enum ToastId {

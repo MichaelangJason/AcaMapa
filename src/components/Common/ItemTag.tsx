@@ -121,14 +121,14 @@ const ItemTag = ({
         )}
         <span
           {...{
-            ...(tooltipProps || {}),
+            "data-tooltip-delay-show": 500,
             "data-tooltip-content":
               (isPinnable
                 ? isTagExpanded
                   ? t([I18nKey.UNPIN], lang) + " "
                   : t([I18nKey.PIN], lang) + " "
                 : "") + (tooltipProps?.["data-tooltip-content"] || title),
-            "data-tooltip-delay-show": 500,
+            ...(tooltipProps || {}),
           }}
         >
           {title}

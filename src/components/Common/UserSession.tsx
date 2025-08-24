@@ -5,6 +5,7 @@ import ItemTag from "./ItemTag";
 import { useCallback, useMemo } from "react";
 import { I18nKey, Language, t } from "@/lib/i18n";
 import { useAppSelector } from "@/store/hooks";
+import { TooltipId } from "@/lib/enums";
 
 const UserSession = () => {
   const { data: session } = useSession();
@@ -37,6 +38,12 @@ const UserSession = () => {
       isPinnable={false}
       style={{
         backgroundColor: "var(--mcgill-red)",
+      }}
+      tooltipProps={{
+        "data-tooltip-id": TooltipId.USER_SESSION,
+        "data-tooltip-content": t([I18nKey.UNDER_CONSTRUCTION], lang),
+        "data-tooltip-delay-show": 0,
+        "data-tooltip-place": "bottom",
       }}
     />
   );

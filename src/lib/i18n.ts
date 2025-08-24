@@ -163,6 +163,7 @@ export enum I18nKey {
   LOGOUT = "logout",
 
   // Special cases
+  UNDER_CONSTRUCTION = "under-construction",
   ADD_TO_SELECTED = "add-to-selected",
   CONFLICT_DESC = "conflict-desc",
   DELETE_TERM_TITLE = "delete-term-title",

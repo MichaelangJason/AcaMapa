@@ -49,10 +49,32 @@ p {
 
   padding: 2rem;
 
+  &.under-construction {
+    align-items: center;
+    justify-content: center;
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+
+    svg {
+      fill: var(--gray-600);
+      height: 5rem;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+  }
+
   h1 {
     font-size: 1.5rem;
     font-weight: 600;
     color: var(--gray-600);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+    width: fit-content;
   }
 
   .auth-card-actions {
@@ -94,7 +116,8 @@ p {
     }
   }
 
-  button {
+  button,
+  a {
     min-width: 5rem;
     width: fit-content;
     height: 3rem;
@@ -102,6 +125,7 @@ p {
     border-radius: 0.8125rem;
     padding: 0 0.75rem;
     transition: all 0.2s ease;
+    line-height: 3rem;
 
     color: var(--gray-600);
 

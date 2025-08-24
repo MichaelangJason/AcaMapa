@@ -1,6 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { providerMap, signIn } from "@/auth";
 import { AuthError } from "next-auth";
 import { redirect } from "next/navigation";
+import Link from "next/link";
+import ConstructionIcon from "@/public/icons/construction.svg";
 
 const SIGNIN_ERROR_URL = "/auth/error";
 
@@ -11,14 +14,14 @@ const AuthPage = async ({
     callbackUrl?: string;
   }>;
 }) => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { callbackUrl } = await searchParams;
 
   return (
-    <section className="auth-card">
-      <h1>Sign in to AcaMapa</h1>
+    <section className="auth-card under-construction">
+      <ConstructionIcon />
+      <h1>Sorry, this feature is under construction :(</h1>
 
-      {Object.values(providerMap).map((provider) => (
+      {/* {Object.values(providerMap).map((provider) => (
         <form
           key={provider.id}
           action={async (formData: FormData) => {
@@ -62,7 +65,10 @@ const AuthPage = async ({
             Sign in with McGill Email
           </button>
         </form>
-      ))}
+      ))} */}
+      <Link className="clickable signin" href="/">
+        Go back to AcaMapa
+      </Link>
     </section>
   );
 };
