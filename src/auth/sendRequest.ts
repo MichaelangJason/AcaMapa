@@ -31,7 +31,7 @@ export const sendVerificationRequest: SendVerificationRequest = async (
 function html(params: { to: string; url: string; host: string; theme: Theme }) {
   const { to, url, host, theme } = params;
 
-  const confirmUrl = `http://${host}/auth/login?magicLink=${encodeURIComponent(url)}&email=${encodeURIComponent(to)}`;
+  const confirmUrl = `https://${host}/auth/login?magicLink=${encodeURIComponent(url)}&email=${encodeURIComponent(to)}`;
 
   const escapedHost = host.replace(/\./g, "&#8203;.");
 
