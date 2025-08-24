@@ -141,16 +141,23 @@ startListening({
   matcher: isAnyOf(setSeekingCourseId, setSeekingProgramName),
   effect: (action, listenerApi) => {
     const dispatch = listenerApi.dispatch;
+    const state = listenerApi.getState();
+
     if (action.type === setSeekingCourseId.type) {
       const isSeekingCourse = action.payload !== "";
+      const isSeekingProgram = state.global.isSeekingProgram;
       dispatch(setIsSeekingCourse(isSeekingCourse));
 
       if (isSeekingCourse) {
         dispatch(setSeekingProgramName(""));
         return;
       }
+      if (isSeekingProgram) {
+        return;
+      }
     } else if (action.type === setSeekingProgramName.type) {
       const isSeekingProgram = action.payload !== "";
+      const isSeekingCourse = state.global.isSeekingCourse;
       dispatch(setIsSeekingProgram(isSeekingProgram));
 
       if (isSeekingProgram) {
@@ -158,7 +165,11 @@ startListening({
         dispatch(setIsSideBarFolded(false));
         return;
       }
+      if (isSeekingCourse) {
+        return;
+      }
     }
+
     dispatch(setSearchInput(""));
     dispatch(
       setSearchResult({ type: ResultType.DEFAULT, query: "", data: [] }),
