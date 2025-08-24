@@ -3,10 +3,12 @@ import { MongoDBAdapter } from "@auth/mongodb-adapter";
 import { getConnectedClient } from "@/db";
 import Resend from "next-auth/providers/resend";
 import type { Provider } from "next-auth/providers";
+import { sendVerificationRequest } from "./sendRequest";
 
 const providers: Provider[] = [
   Resend({
     from: process.env.RESEND_FROM!,
+    sendVerificationRequest,
   }),
 ];
 
