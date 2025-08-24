@@ -12,11 +12,11 @@ import {
 } from "@/store/slices/localDataSlice";
 import { useCallback, useMemo, memo, useRef, useEffect } from "react";
 import { ResultType, TooltipId } from "@/lib/enums";
-import Image from "next/image";
 import clsx from "clsx";
 import ExpandIcon from "@/public/icons/expand.svg";
 import { selectCourseSearchFn } from "@/store/selectors";
 import { I18nKey, Language, t } from "@/lib/i18n";
+import HeaderLogo from "@/public/acamapa-header-grey.svg";
 
 const SideBar = () => {
   const dispatch = useAppDispatch();
@@ -125,15 +125,7 @@ const SideBar = () => {
 
       {/* header, including logo and search input */}
       <header>
-        <Image
-          className="logo"
-          src="/DegreeMapper-header-grey.svg"
-          alt="logo"
-          width={1280}
-          height={303}
-          priority={true}
-          loading="eager"
-        />
+        <HeaderLogo className="logo" />
         <SearchInput
           value={searchInput}
           setValue={(value) => dispatch(setSearchInput(value))}

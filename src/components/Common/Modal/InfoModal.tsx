@@ -36,8 +36,8 @@ const InfoModal = ({ onClose }: { onClose?: () => void }) => {
   const lang = useAppSelector((state) => state.userData.lang) as Language;
 
   const tabs = useMemo(() => {
-    return [{ title: "Tutorial", src: "/tutorial.md" }];
-  }, []);
+    return [{ title: "Tutorial", src: `/tutorial-${lang}.md` }];
+  }, [lang]);
 
   const handleClose = useCallback(() => {
     onClose?.();
@@ -137,7 +137,7 @@ const InfoModal = ({ onClose }: { onClose?: () => void }) => {
                     className={`toc-link level-${heading.level}`}
                     onClick={() => scrollToHeading(heading.id)}
                   >
-                    {heading.text}
+                    {heading.text.replaceAll("`", "")}
                   </div>
                 ))
               ) : (

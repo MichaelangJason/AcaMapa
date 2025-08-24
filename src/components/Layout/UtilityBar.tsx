@@ -297,10 +297,7 @@ const UtilityBar = () => {
           data-tooltip-place="bottom"
           data-tooltip-delay-show={500}
           onClick={() => {
-            window.open(
-              "https://github.com/MichaelangJason/DegreeMapper",
-              "_blank",
-            );
+            window.open("https://github.com/MichaelangJason/AcaMapa", "_blank");
           }}
         />
       </section>

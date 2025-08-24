@@ -16,7 +16,7 @@ const AuthPage = async ({
 
   return (
     <section className="auth-card">
-      <h1>Sign in to DegreeMapper</h1>
+      <h1>Sign in to AcaMapa</h1>
 
       {Object.values(providerMap).map((provider) => (
         <form

@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const base = "https://degreemapper.ai";
+  const base = "https://acamapa.ai";
   return [
     {
       url: `${base}/`,

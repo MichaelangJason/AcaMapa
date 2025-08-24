@@ -7,10 +7,10 @@ import { Analytics } from "@vercel/analytics/next";
 import Script from "next/script";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
-const siteName = "DegreeMapper";
+const siteName = "AcaMapa for McGill";
 const siteDescription =
   "A degree planner for McGill students/staff - plan terms, check requisites, and map your path to graduation.";
-const siteUrl = "https://degreemapper.ai";
+const siteUrl = "https://acamapa.ai";
 const brand = "MichaelangJason";
 const ogImage = `${siteUrl}/og.webp`;
 
@@ -24,14 +24,13 @@ export const metadata: Metadata = {
   applicationName: siteName,
   generator: "Next.js 15",
   keywords: [
-    "degree planner",
+    "acamapa",
+    "acamapa.ai",
     "McGill courses",
-    "degree mapping",
-    "degree mapper",
     "McGill degree planner",
     "McGill degree mapping",
-    "degreemapper",
-    "Macgill degreemapper",
+    "degree planner",
+    "degree mapping",
   ],
   authors: [{ name: brand, url: siteUrl }],
   creator: brand,

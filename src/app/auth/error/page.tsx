@@ -22,13 +22,13 @@ const errorMap = {
       <br />
       <br />
       Please send an email to{" "}
-      <a className="clickable support" href="mailto:support@degreemapper.ai">
-        support@degreemapper.ai
+      <a className="clickable support" href="mailto:support@acamapa.ai">
+        support@acamapa.ai
       </a>{" "}
       or open an issue on{" "}
       <a
         className="clickable support"
-        href="https://github.com/MichaelangJason/DegreeMapper/issues"
+        href="https://github.com/MichaelangJason/AcaMapa/issues"
       >
         GitHub
       </a>
@@ -91,7 +91,7 @@ const AuthErrorPage = async ({
             return redirect("/");
           }}
         >
-          Back to DegreeMapper
+          Back to AcaMapa
         </button>
       </section>
     </section>
