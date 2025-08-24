@@ -29,7 +29,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     databaseName: process.env.USER_DATABASE_NAME!,
   }),
   providers,
-  session: { strategy: "jwt" },
+  session: { strategy: "database" },
   callbacks: {
     signIn: ({ user }) => {
       return !!(

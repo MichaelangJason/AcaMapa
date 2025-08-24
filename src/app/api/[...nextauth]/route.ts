@@ -19,9 +19,5 @@ export const POST = async (req: NextRequest) => {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const HEAD = async (req: NextRequest) => {
-  if (/lua-resty-http.+ngx_lua/.test(req.headers.get("user-agent") ?? "")) {
-    return NextResponse.json({ message: "OK" }, { status: 200 });
-  }
-
-  return NextResponse.json({ message: "OK" }, { status: 200 });
+  return NextResponse.json({ message: "OK" }, { status: 204 });
 };
