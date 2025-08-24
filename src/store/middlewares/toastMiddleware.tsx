@@ -309,7 +309,7 @@ startListening({
         toast.update(ToastId.ADD_PROGRAM_TO_USER, {
           render: () =>
             t([I18nKey.P_ITEM2, I18nKey.ADDED_TO_M], lang, {
-              item1: t([I18nKey.RELATED_PROGRAMS], lang),
+              item1: t([I18nKey.PROGRAM], lang) + "s",
               item2: programNames.join(", "),
             }),
           type: "success",

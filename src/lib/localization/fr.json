@@ -53,6 +53,7 @@
   "expand-courses": "Développer les cours",
   "close": "Fermer",
   "more": "Plus",
+  "inspecting": "Inspection",
 
   "error": "Erreur",
   "not-found": "Non trouvé",
@@ -74,7 +75,7 @@
   "no-new-programs-to-add": "Aucun nouveau programme à ajouter",
 
   "seeking-title": "Recherche de cours subséquents pour",
-  "seeking-program-title": "Recherche de programme:",
+  "seeking-program-title": "Inspection de programme:",
   "seeking-click": "Cliquer ce message pour quitter",
   "seeking-program-click": "Cliquer ce message pour quitter",
   "subsequent-courses-for": "Cours subséquents pour {{item1}}",

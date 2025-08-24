@@ -25,15 +25,15 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
+    gap: 1rem;
 
     margin-bottom: 0.5rem;
 
     width: 100%;
     height: fit-content;
 
-    img {
-      width: 13.5rem;
+    .logo {
+      width: var(--search-input-width);
       height: auto;
     }
   }

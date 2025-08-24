@@ -247,10 +247,10 @@ const UtilityBar = () => {
             handleAddItem={handleAddProgram}
             handleSeekItem={handleClickProgram}
             className="program-tag"
-            title={t([I18nKey.RELATED_PROGRAMS], lang)}
+            title={t([I18nKey.PROGRAM], lang) + "s"}
             tooltipProps={{
               "data-tooltip-id": TooltipId.ITEM_TAG,
-              "data-tooltip-content": t([I18nKey.RELATED_PROGRAMS], lang),
+              "data-tooltip-content": t([I18nKey.PROGRAM], lang) + "s",
               "data-tooltip-place": "right",
             }}
           />

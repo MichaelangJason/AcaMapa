@@ -61,6 +61,7 @@ export enum I18nKey {
   OR = "or",
   FAQ = "faq",
   TOC = "table-of-contents",
+  INSPECTING = "inspecting",
 
   // common errors
   ERROR = "error",

@@ -126,11 +126,13 @@ const SideBar = () => {
       {/* header, including logo and search input */}
       <header>
         <Image
-          src="/mcgill-logo.png"
+          className="logo"
+          src="/DegreeMapper-header-grey.svg"
           alt="logo"
           width={1280}
           height={303}
           priority={true}
+          loading="eager"
         />
         <SearchInput
           value={searchInput}
