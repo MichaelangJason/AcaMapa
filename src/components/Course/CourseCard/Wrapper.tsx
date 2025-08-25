@@ -2,7 +2,7 @@ import clsx from "clsx";
 import DeleteIcon from "@/public/icons/delete.svg";
 import SeekIcon from "@/public/icons/telescope.svg";
 import ExpandIcon from "@/public/icons/expand-single.svg";
-import ShovelIcon from "@/public/icons/shovel-3.svg";
+import TargetIcon from "@/public/icons/target-arrow.svg";
 import type {
   DraggableProvided,
   DraggableStateSnapshot,
@@ -96,8 +96,8 @@ const Wrapper = ({
             heading
           )}
           {handleOverwrite && (
-            <ShovelIcon
-              className={clsx(["shovel", disableMap?.shovel && "disabled"])}
+            <TargetIcon
+              className={clsx(["target", disableMap?.shovel && "disabled"])}
               data-tooltip-id={TooltipId.COURSE_CARD_WRAPPER}
               data-tooltip-content={t([I18nKey.OVERWRITE], lang, {
                 item1: heading,
