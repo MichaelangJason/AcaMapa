@@ -224,8 +224,9 @@
     padding: 1.5rem;
     background-color: var(--gray-000);
     position: absolute;
-    top: -100rem;
-    left: -100rem;
+    bottom: 100%;
+    bottom: 100vh;
+    bottom: 100dvh;
     z-index: -1;
 
     // Force consistent font rendering
@@ -612,6 +613,14 @@
     }
   }
 
+  h1 {
+    font-size: 2.2rem;
+    font-weight: 600;
+    margin: 1.5rem 0 1rem;
+    color: var(--gray-800);
+    border-bottom: 0.0625rem solid var(--gray-200);
+  }
+
   h2 {
     font-size: 1.8rem;
     font-weight: 600;
@@ -623,16 +632,23 @@
 
   h3 {
     font-size: 1.4rem;
-    font-weight: 500;
+    font-weight: 600;
     margin: 1.2rem 0 0.8rem;
     color: var(--gray-800);
   }
 
   p {
     font-size: 1rem;
-    line-height: 1.6;
     margin-bottom: 1rem;
     color: var(--gray-800);
+  }
+
+  code {
+    background-color: var(--gray-200);
+    color: var(--gray-800);
+    font-family: Arial, Helvetica, sans-serif;
+    padding: 0.1rem 0.3rem;
+    border-radius: 0.25rem;
   }
 
   ul {
@@ -642,7 +658,6 @@
 
     li {
       font-size: 1rem;
-      line-height: 1.6;
       margin-bottom: 0.5rem;
       color: var(--gray-800);
 
@@ -657,6 +672,11 @@
     }
   }
 
+  p,
+  li {
+    line-height: 1.5;
+  }
+
   img {
     display: block;
     height: auto;
@@ -664,7 +684,6 @@
     object-fit: contain;
     margin: 1rem auto;
     border-radius: 0.3125rem;
-    box-shadow: var(--shadow-default-light);
   }
 
   table {
