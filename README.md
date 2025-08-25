@@ -1,169 +1,143 @@
-# DegreeMapper
+# AcaMapa  
+_A Web App that helps McGill students plan their degree_
 
-DegreeMapper is a Next.js application designed to help students plan their academic journey by mapping out courses and degree requirements.
+<p align="center">
+  <img src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white"/>
+  <img src="https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Redux-764ABC?style=for-the-badge&logo=redux&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Auth.js-000000?style=for-the-badge&logo=auth0&logoColor=white"/>
+  <img src="https://img.shields.io/badge/License-MIT-blue?style=for-the-badge"/>
+</p>
 
-## Features
+> a HUGE THANK to [@EvEnzyme](https://github.com/EvEnzyme) for ideation, UI/UX design, writups and mental supports :)
 
-- Comprehensive multi-year undergraduate degree planning
-- Drag-and-drop interface for organizing courses
-- Integration with university course data
-- Academic requirement tracking
-- AI Assistant (upcoming)
+---
 
-## Prerequisites
 
-- Node.js (v18 or higher)
-- npm, yarn, pnpm, or bun
-- MongoDB (local or remote)
+## 📌 Motivation  
+As a McGill student, I often find it frustrating to plan my degree:  
+- I had to jump between different webpages (course descriptions, program requirements) and keep my own notes in Google Docs or text files, which I would eventually lose the following year.  
+- It was hard to figure out which electives I could take based on the courses I had already completed.  
+- Finding courses and programs that actually matched my interests was even harder.  
+- Existing tools like **myProgress** and **VSB** serve different purposes, but neither made long-term planning easy.  
 
-## Installation
+**AcaMapa** addresses these issues by crawling and parsing program/course information and offering a **visual, drag-and-drop planning experience** that’s both simple and flexible.  
 
-1. Clone the repository:
+---
 
-   ```bash
-   git clone https://github.com/MichaelangJason/DegreeMapper.git
-   cd DegreeMapper
-   ```
+## 🎥 Demo  
+(Youtube Video, GIFs comming soon)  
+![og](./public/og.webp)
 
-2. Install dependencies:
+---
 
-   ```bash
-   npm install
-   # or
-   yarn install
-   # or
-   pnpm install
-   # or
-   bun install
-   ```
+## ✨ Features  
 
-3. Set up environment variables:
-   Create a `.env` file in the root directory with the following variables:
+1. **Find & pin your program(s)**  
+   - Add required and complementary courses directly from the parsed results.  
 
-   ```
-   # School-related configuration
-   NEXT_PUBLIC_SCHOOL_DOMAIN=https://www.mcgill.ca
-   NEXT_PUBLIC_ACADEMIC_YEAR=2024-2025
-   NEXT_PUBLIC_SCHOOL_ENDPOINT=/study/ACADEMIC_YEAR/courses/
+2. **Plan your degree semester by semester**  
+   - Reorder and organize terms and courses with simple drag-and-drop.  
+   - Add extra or missing courses into terms through search.  
+   - Explore future electives directly from course cards and dive deeper into areas of interest.  
 
-   # Database configuration
-   MONGODB_URI=mongodb://db:27017/?directConnection=true
-   MONGODB_DATABASE_NAME=planner
-   DOMAIN=http://localhost:3000
+3. **Validate your plan with requirement checks**  
+   - Courses are shown in <strong><span style="color:#b2e026">green</span></strong> if all requirements are satisfied and <strong><span style="color:#ed7155">red</span></strong> if not. 
+   - Requirements are validated against pre-, co-, and anti-requisites.  
+   - Supported requirement types include:  
+     1. **AND:** `COMP 206 AND COMP 302`  
+     2. **OR:** `COMP 202 OR COMP 250`  
+     3. **Select two from a list:** `Two from COMP 206, COMP 302, COMP 250, COMP 330`  
+     4. **Credit-based:** `12 credits from COMP at 300-level or higher`  
+   - You can overwrite a course’s requirements to mark it as satisfied.  
+   - **Equivalent checks** (e.g. `COMP 252` vs `COMP 251`) are not supported, since all requirements are parsed automatically.  
+   - Add completed courses to **Courses Taken** to provide context for prerequisite checks across all plans.  
+   - Create multiple plans aiming at different programs or degrees.  
+   - Inspect plan statistics, including **total credits** and **average credits per term**, to better evaluate your workload.  
 
-   # AI backend configuration
-   AI_BACKEND_URL=http://ai:3030/api/chat
-   EMBEDDING_DEVICE=cpu
-   EMBEDDING_MODEL=BAAI/bge-m3
-   OPENAI_API_KEY=your_openai_api_key
+4. **Share with others**  
+   - Export plans as **JPEG images**, including stats and courses taken, to share with academic advisors or fellow students.  
 
-   # Application configuration
-   APP_HOST=0.0.0.0
-   APP_PORT=3030
-   ```
+5. **Save your plans**  
+   - Plans are stored locally and persist across page refreshes.  
+   - Login with your McGill email (coming soon) to save plans remotely.  
 
-   - `NEXT_PUBLIC_SCHOOL_DOMAIN`: The base URL of the school's website
-   - `NEXT_PUBLIC_ACADEMIC_YEAR`: The current academic year
-   - `NEXT_PUBLIC_SCHOOL_ENDPOINT`: The endpoint for course data (note: ACADEMIC_YEAR will be replaced with the value from NEXT_PUBLIC_ACADEMIC_YEAR)
-   - `MONGODB_URI`: MongoDB connection string
-   - `MONGODB_DATABASE_NAME`: Name of the database
-   - `DOMAIN`: The domain where the application is hosted
-   - `AI_BACKEND_URL`: URL for the AI chat backend service
-   - `EMBEDDING_DEVICE`: Device to use for embeddings (cpu/gpu)
-   - `EMBEDDING_MODEL`: The model to use for embeddings
-   - `OPENAI_API_KEY`: Your OpenAI API key for AI features
-   - `APP_HOST`: Host address for the application
-   - `APP_PORT`: Port number for the application
+6. **Localization**  
+   - English is fully supported.  
+   - French support is included but still needs refinement — contributions are welcome! Open an issue if you’d like to help.  
 
-## Running the Application
+7. **AI (coming before Winter 2026)**  
+   - Semantic search (RAG) for programs and courses based on your interests.  
+   - Automated plan generation tailored to your workload preferences.  
+   - **Enhanced subsequent course search**: recommendations based on your entire plan, not just a single course.  
 
-### Development Mode
+---
+
+📣 **Note:** AcaMapa might be useful for students at other schools too! If you’d like to adapt this tool to your university, it mainly requires preparing a MongoDB database with your school’s program and course information. Open an issue to get in touch!  
+
+---
+
+## 🛠️ Tech Stack  
+- **Frontend & Backend:** Next.js, MongoDB, Redux Toolkit, Hello-pangea/dnd  
+- **Auth & Email:** Auth.js, Resend  
+- **AI (incoming):** MongoDB Atlas, LangGraph  
+
+---
+
+## ⚙️ Environment Variables  
+Add the following to your `.env`:  
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+MONGODB_URI=
+MONGODB_DATABASE_NAME=
+USER_DATABASE_NAME=   # auth.js user database name
+RESEND_FROM=          # Resend email sender
+AUTH_SECRET=          # Auth.js secret
+AUTH_RESEND_KEY=      # Resend API key
+USE_DIFF_SYNC=0
+````
+
+> MongoDB files: open an issue to contact me, and I’ll share the parsed results.
+
+---
+
+## 🚀 Quick Start
+
+```bash
+# Clone the repo
+git clone https://github.com/MichaelangJason/AcaMapa.git
+
+# Install dependencies
+pnpm install   # or npm install
+
+# Setup Husky & lint-staged
+pnpm prepare   # or npm prepare
+
+# Run in dev mode
 pnpm dev
-# or
-bun dev
+
+# Build & start
+pnpm build
+pnpm start
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser to see the application.
+---
 
-### Production Mode
+## 🗺️ Roadmap
 
-1. Build the application:
+* [x] Local degree planning with drag & drop
+* [ ] Import from JSON/image (exported by this app)
+* [ ] Equivalent course check
+* [ ] Remote plan saving with McGill login
+* [ ] UI refinement
+* [ ] AI-powered program & course search
+* [ ] Automated plan generation (workload-based)
 
-   ```bash
-   npm run build
-   # or
-   yarn build
-   # or
-   pnpm build
-   # or
-   bun build
-   ```
+---
 
-2. Start the production server:
-   ```bash
-   npm start
-   # or
-   yarn start
-   # or
-   pnpm start
-   # or
-   bun start
-   ```
+## 📄 License
 
-### Running with Docker
+[Apache 2.0](./LICENSE)
 
-1. Clone the repository:
+# 
 
-   ```bash
-   git clone https://github.com/MichaelangJason/DegreeMapper.git
-   cd DegreeMapper
-   ```
-
-2. Initialize and update the AI submodule:
-
-   ```bash
-   git submodule update --init --recursive
-   ```
-
-3. Create and configure the `.env` file as specified in the Environment Variables section above.
-
-4. Ensure Docker and Docker Compose are installed on your system:
-
-   - [Install Docker](https://docs.docker.com/get-docker/)
-   - [Install Docker Compose](https://docs.docker.com/compose/install/)
-
-5. Start the project using the provided script:
-
-   ```bash
-   ./start.sh
-   ```
-
-   Note: Initial startup may take several minutes as it downloads required dependencies including PyTorch and sentence transformers.
-
-6. To stop and clean up the Docker environment:
-   ```bash
-   ./cleanup.sh
-   ```
-   This will stop all containers and remove associated containers, images, and builders.
-
-## Project Structure
-
-- `/src/app`: Main application pages and API routes
-- `/src/ai`: AI submodule for the project, including python and will support js in the future
-- `/src/components`: Reusable React components
-- `/src/db`: Database models and connection logic
-- `/src/store`: Redux store configuration
-- `/src/styles`: Global styles and theme configuration
-- `/src/types`: TypeScript type definitions
-- `/src/utils`: Utility functions
-- `/src/tests`: Test files
-
-## License
-
-This project is licensed under the terms found in the LICENSE file.
