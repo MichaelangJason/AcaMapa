@@ -3,7 +3,9 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /* config options here */
   images: {
+    formats: ['image/avif', 'image/webp'],
     dangerouslyAllowSVG: true,
+    qualities: [100]
   },
   webpack: (config) => {
     config.module.rules.push({

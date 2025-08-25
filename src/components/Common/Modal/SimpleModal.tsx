@@ -1,7 +1,7 @@
 "use client";
 
 import Modal from "react-modal";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import CloseIcon from "@/public/icons/delete.svg";
 import type { SimpleModalProps } from "@/types/local";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
@@ -57,15 +57,6 @@ const SimpleModal = () => {
     setNewValue("");
   };
 
-  const handleInputKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === "Enter") {
-        handleConfirm();
-      }
-    },
-    [handleConfirm],
-  );
-
   return (
     <Modal
       isOpen={isOpen}
@@ -97,7 +88,11 @@ const SimpleModal = () => {
             type="text"
             placeholder={inputConfig.placeholder}
             onChange={(e) => setNewValue(e.target.value)}
-            onKeyDown={handleInputKeyDown}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleConfirm();
+              }
+            }}
             ref={inputRef}
             autoFocus
             maxLength={inputConfig.maxLength}
