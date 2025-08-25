@@ -10,7 +10,7 @@ export const MAX_PLAN = 10;
 export const MAX_TERM_PER_PLAN = 20;
 export const MAX_COURSE_PER_TERM = 10;
 
-export const MAX_PLAN_NAME_LEN = 20;
+export const MAX_PLAN_NAME_LEN = 30;
 export const MAX_TERM_NAME_LEN = 20;
 
 export const MAX_COURSE_IDS_TO_DISPLAY = 3;
