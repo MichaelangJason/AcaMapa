@@ -406,10 +406,10 @@ const ReqGroup = ({
 
       const levels =
         scopes[0] === "0"
-          ? "-ANY"
+          ? "=ANY"
           : scopes.length > 1
             ? `>=${scopes[0]}XX`
-            : `-${scopes[0]}XX`;
+            : `=${scopes[0]}XX`;
 
       children = subjects.map((subject, idx) => {
         const subjectToolTipMsg =
