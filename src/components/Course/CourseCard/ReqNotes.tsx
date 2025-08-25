@@ -438,7 +438,7 @@ const ReqGroup = ({
             displayText={
               subject.toUpperCase() +
               levels +
-              `(${validSubjectMap[subject]?.totalCredits ?? 0})/${req}`
+              `(${validSubjectMap[subject]?.totalCredits ?? 0}/${req})`
             }
             className={clsx([
               validSubjectMap[subject]?.totalCredits > 0 && status,
