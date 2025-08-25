@@ -82,11 +82,12 @@
       transition: all 0.2s ease;
 
       path {
-        fill: var(--gray-800);
+        fill: var(--gray-1000-50-opac);
+        transition: all 0.2s ease;
       }
 
-      &:hover:not(.disabled) {
-        opacity: 0.5;
+      &:hover:not(.disabled) path {
+        fill: var(--gray-800);
       }
 
       &.disabled {
