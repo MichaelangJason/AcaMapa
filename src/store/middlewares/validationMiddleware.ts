@@ -211,18 +211,17 @@ const validationMiddleware: Middleware<
         break;
       }
       case "userData/addTerm": {
-        const numTerm = state.userData.termData.size;
+        const { planId, idx, termData } = action.payload;
+        const plan = state.userData.planData.get(planId);
+        if (!isValidObjectId(planId) || !plan) {
+          throw new Error(`Invalid plan id: ${planId}`);
+        }
+        const numTerm = plan.termOrder.length;
         if (numTerm >= MAX_TERM_PER_PLAN) {
           throw new Error(`Max term per plan reached: ${numTerm}`);
         }
-        const { planId, idx, termData } = action.payload;
-        if (!isValidObjectId(planId)) {
-          throw new Error(`Invalid plan id: ${planId}`);
-        }
-        if (
-          idx < -1 ||
-          idx > state.userData.planData.get(planId)!.termOrder.length
-        ) {
+
+        if (idx < -1 || idx > numTerm) {
           throw new Error(`Invalid index: ${idx}`);
         }
         if ((termData && typeof termData !== "object") || termData === null) {
