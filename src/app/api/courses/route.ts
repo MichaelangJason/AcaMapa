@@ -1,9 +1,16 @@
 import { Courses } from "@/db/schemas";
 import { withDatabase } from "@/db";
 import { NextRequest, NextResponse } from "next/server";
+import { Redis } from "@upstash/redis";
+import type { Course } from "@/types/db";
 
 const COURSE_ID_REGEX = /[a-z0-9]{4}([a-z]{4}|[0-9]{3}([dnj]\d)?)?/;
 const MAX_COURSE_IDS = 100; // limit the maximum number of course ids to 100
+
+const redis = new Redis({
+  url: process.env.UPSTASH_KV_REST_API_URL as string,
+  token: process.env.UPSTASH_KV_REST_API_TOKEN as string,
+});
 
 export const GET = async (request: NextRequest) => {
   const searchParams = request.nextUrl.searchParams;
@@ -31,7 +38,25 @@ export const GET = async (request: NextRequest) => {
     );
   }
 
-  const courses = await withDatabase(async () => {
+  const kvKeys = validCourseIds.map((id) => `course:${id}`);
+  const cachedCourses = await redis.mget<Course[]>(kvKeys);
+
+  const results: Record<string, Course> = {};
+  const misses: string[] = [];
+
+  cachedCourses.forEach((course, index) => {
+    if (course) {
+      results[kvKeys[index]] = course;
+    } else {
+      misses.push(validCourseIds[index]);
+    }
+  });
+
+  if (misses.length === 0) {
+    return NextResponse.json(cachedCourses, { status: 200 });
+  }
+
+  const missingCourses = (await withDatabase(async () => {
     const courses = await Courses.find(
       { id: { $in: validCourseIds } },
       { _id: 0, embeddings: 0, __v: 0, createdAt: 0, updatedAt: 0 },
@@ -39,26 +64,36 @@ export const GET = async (request: NextRequest) => {
     ).lean();
 
     return courses;
-  });
+  })) as Course[];
 
-  if (courses === undefined) {
+  if (missingCourses === undefined) {
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 },
     );
   }
 
-  if (courses.length === 0) {
+  if (missingCourses.length === 0) {
     return NextResponse.json(
-      { error: "Courses list query empty: " + validCourseIds }, // course ids are not secret
+      { error: "Couldn't find the following courses: " + misses.join(", ") },
       { status: 404 },
     );
   }
 
-  if (courses.length !== inputCourseIds.length) {
-    // can also use tenary operator
-    return NextResponse.json(courses, { status: 206 });
-  }
+  // cache the missing courses
+  await redis.mset(
+    missingCourses.reduce(
+      (acc, course) => {
+        acc[`course:${course.id}`] = course;
+        return acc;
+      },
+      {} as Record<string, Course>,
+    ),
+  );
 
-  return NextResponse.json(courses, { status: 200 });
+  missingCourses.forEach((course) => {
+    results[course.id] = course;
+  });
+
+  return NextResponse.json(Object.values(results), { status: 200 });
 };

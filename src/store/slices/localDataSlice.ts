@@ -104,11 +104,11 @@ const localDataSlice = createSlice({
       action.payload.forEach((course) => {
         const id = course.id;
 
-        state.cachedDetailedCourseData[id] = {
-          // this will create a new object if not exists
-          ...(state.cachedDetailedCourseData[id] ?? {}),
-          ...course,
-        };
+        if (state.cachedDetailedCourseData[id] !== undefined) {
+          return;
+        }
+
+        state.cachedDetailedCourseData[id] = course;
       });
     },
     setDetailedProgramData: (
@@ -125,11 +125,10 @@ const localDataSlice = createSlice({
     ) => {
       action.payload.forEach((program) => {
         const name = program.name;
-        state.cachedDetailedProgramData[name] = {
-          // this will create a new object if not exists
-          ...(state.cachedDetailedProgramData[name] ?? {}),
-          ...program,
-        };
+        if (state.cachedDetailedProgramData[name] !== undefined) {
+          return;
+        }
+        state.cachedDetailedProgramData[name] = program;
       });
     },
     addSelectedCourse: (state, action: PayloadAction<Course | string>) => {

@@ -2,8 +2,15 @@ import { withDatabase } from "@/db";
 import { NextRequest, NextResponse } from "next/server";
 import { Programs } from "@/db/schemas";
 import { ObjectId } from "bson";
+import { Redis } from "@upstash/redis";
+import type { Program } from "@/types/db";
 
 const MAX_PROGRAMS = 10; // limit the maximum number of course ids to 100
+
+const redis = new Redis({
+  url: process.env.UPSTASH_KV_REST_API_URL as string,
+  token: process.env.UPSTASH_KV_REST_API_TOKEN as string,
+});
 
 export const GET = async (request: NextRequest) => {
   const searchParams = request.nextUrl.searchParams;
@@ -29,36 +36,66 @@ export const GET = async (request: NextRequest) => {
     return NextResponse.json({ error: "Invalid program IDs" }, { status: 400 });
   }
 
-  const validProgramsObjectIds = validPrograms.map((id) => new ObjectId(id));
+  const kvKeys = validPrograms.map((id) => `program:${id}`);
+  const cachedPrograms = await redis.mget<Program[]>(kvKeys);
 
-  const programs = await withDatabase(async () => {
+  const results: Record<string, Program> = {};
+  const misses: string[] = [];
+
+  cachedPrograms.forEach((program, index) => {
+    if (program) {
+      results[kvKeys[index]] = program;
+    } else {
+      misses.push(validPrograms[index]);
+    }
+  });
+
+  if (misses.length === 0) {
+    return NextResponse.json(cachedPrograms, { status: 200 });
+  }
+
+  const missingProgramsObjectIds = misses.map((id) => new ObjectId(id));
+
+  const missingPrograms = await withDatabase(async () => {
     const programs = await Programs.find(
-      { _id: { $in: validProgramsObjectIds } },
-      { _id: 0, embeddings: 0, __v: 0, createdAt: 0, updatedAt: 0 },
+      { _id: { $in: missingProgramsObjectIds } },
+      { embeddings: 0, __v: 0, createdAt: 0, updatedAt: 0 },
       { sort: { name: 1 } },
     ).lean();
 
     return programs;
   });
 
-  if (programs === undefined) {
+  if (missingPrograms === undefined) {
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 },
     );
   }
 
-  if (programs.length === 0) {
+  if (missingPrograms.length === 0) {
     return NextResponse.json(
       { error: "Programs list query empty: " + inputPrograms }, // program names are not secret
       { status: 404 },
     );
   }
 
-  if (programs.length !== inputPrograms.length) {
-    // can also use tenary operator
-    return NextResponse.json(programs, { status: 206 });
-  }
+  // cache the missing programs
+  await redis.mset(
+    missingPrograms.reduce(
+      (acc, program) => {
+        const id = program._id.toString();
+        acc[`program:${id}`] = { ...program, _id: id };
+        return acc;
+      },
+      {} as Record<string, Program>,
+    ),
+  );
 
-  return NextResponse.json(programs, { status: 200 });
+  missingPrograms.forEach((program) => {
+    const id = program._id.toString();
+    results[id] = { ...program, _id: id };
+  });
+
+  return NextResponse.json(Object.values(results), { status: 200 });
 };
