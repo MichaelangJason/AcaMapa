@@ -250,9 +250,9 @@ const UtilityBar = () => {
             title={t([I18nKey.PROGRAM], lang) + "s"}
             tooltipProps={{
               "data-tooltip-id": TooltipId.ITEM_TAG,
-              "data-tooltip-content": t([I18nKey.PROGRAM], lang) + "s",
               "data-tooltip-place": "right",
             }}
+            isPinnable={true}
           />
           <ItemTag
             items={[
@@ -264,9 +264,9 @@ const UtilityBar = () => {
             title={t([I18nKey.PLAN_STATS], lang)}
             tooltipProps={{
               "data-tooltip-id": TooltipId.ITEM_TAG,
-              "data-tooltip-content": t([I18nKey.PLAN_STATS], lang),
               "data-tooltip-place": "right",
             }}
+            isPinnable={true}
           />
         </section>
       )}

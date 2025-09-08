@@ -131,7 +131,11 @@ const Wrapper = ({
             <div
               className={clsx(["expand", disableMap?.expand && "disabled"])}
               data-tooltip-id={TooltipId.COURSE_CARD_WRAPPER}
-              data-tooltip-content={t([I18nKey.EXPAND], lang)}
+              data-tooltip-content={
+                isExpanded
+                  ? t([I18nKey.COLLAPSE], lang)
+                  : t([I18nKey.EXPAND], lang)
+              }
               onClick={() => {
                 if (disableMap?.expand) return;
                 toggleIsExpanded();

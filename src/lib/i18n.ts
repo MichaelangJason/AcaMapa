@@ -45,6 +45,7 @@ export enum I18nKey {
   EXPAND = "expand",
   COLLAPSE = "collapse",
   SELECT = "select",
+  DESELECT = "deselect",
   REMOVE = "remove",
   EMPTY = "empty",
   OVERWRITE = "overwrite",
@@ -163,6 +164,7 @@ export enum I18nKey {
   LOGOUT = "logout",
 
   // Special cases
+  DEFAULT_PLAN_NAME = "default-plan-name",
   UNDER_CONSTRUCTION = "under-construction",
   ADD_TO_SELECTED = "add-to-selected",
   CONFLICT_DESC = "conflict-desc",
@@ -212,6 +214,7 @@ export enum I18nKey {
   SUMMER = "summer",
   FALL = "fall",
   NOT_OFFERED = "not-offered",
+  OFFERING_IN = "offering-in",
 }
 
 import enStrings from "./localization/en.json";

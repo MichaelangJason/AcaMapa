@@ -56,7 +56,7 @@ As a McGill student, I often find it frustrating to plan my degree:
    - Inspect plan statistics, including **total credits** and **average credits per term**, to better evaluate your workload.
 
 4. **Validate in VSB**
-   - Terms indicated with red triangle (current term) can be checked in VSB
+   - Terms indicated with red triangle (current term) or red circle (term in current academic year) can be checked in VSB
 
 6. **Share with others**  
    - Export plans as **JPEG images**, including stats and courses taken, to share with academic advisors or fellow students.  

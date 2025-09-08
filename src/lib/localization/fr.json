@@ -40,6 +40,7 @@
   "expand": "Développer",
   "collapse": "Réduire",
   "select": "Sélectionner",
+  "deselect": "Désélectionner",
   "remove": "Retirer",
   "empty": "Vide",
   "overwrite": "Écraser",
@@ -146,7 +147,7 @@
   "login-with-mcgill-email": "Connexion bientôt disponible :)",
   "logout": "Déconnexion",
 
-  "add-to-selected": "Maintenir Ctrl ou Cmd pour ajouter aux cours sélectionnés",
+  "add-to-selected": "Maintenir Ctrl/Cmd pour ajouter aux cours sélectionnés",
   "conflict-desc": "Données locales détectées, voulez-vous téléverser vos données locales ? Vos données locales seront effacées après le téléchargement. &nbsp; Vous pouvez les conserver localement ou les fusionner avec les données distantes.",
   "delete-term-title": "Supprimer le trimestre",
   "delete-term-desc": "Êtes-vous sûr de vouloir supprimer {{item1}} ?",
@@ -184,15 +185,17 @@
   "faq": "FAQ/Guide",
   "table-of-contents": "Table des matières",
   "under-construction": "Désolé, cette fonctionnalité est en cours de construction :(",
+  "default-plan-name": "Mon Plan",
 
   "current-term": "Semestre actuel",
   "current-year-term": "Semestre dans l'année académique actuelle: {{item1}}",
   "before-ad-ddl": "{{item1}} jour avant la date limite d'ajout/retrait",
   "ad-ddl-passed": "Date limite d'ajout/retrait déjà passée",
   "open-in-vsb": "Vérifier dans VSB",
-  "not-curr-year-desc": "Possible {{item1}}",
+  "not-curr-year-desc": "Temps estimé d'offre: {{item1}}",
   "winter": "Hiver",
   "summer": "Été",
   "fall": "Automne",
-  "not-offered": "Non offert"
+  "not-offered": "Non offert",
+  "offering-in": "Offert dans: {{item1}}"
 }

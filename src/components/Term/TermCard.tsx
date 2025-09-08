@@ -76,13 +76,7 @@ const AddTermButton = ({
       onClick={handleClick}
       data-tooltip-id={TooltipId.TERM_CARD}
       data-tooltip-content={t(
-        [
-          I18nKey.ADD,
-          I18nKey.ONE_M,
-          I18nKey.NEW_M,
-          I18nKey.SEMESTER,
-          I18nKey.HERE,
-        ],
+        [I18nKey.ADD, I18nKey.NEW_M, I18nKey.SEMESTER],
         lang,
       )}
       data-tooltip-delay-show={500}

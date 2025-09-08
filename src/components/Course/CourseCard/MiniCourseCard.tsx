@@ -132,7 +132,7 @@ const MiniCourseCard = ({
         data-tooltip-id={TooltipId.MINI_COURSE_CARD}
         data-tooltip-content={
           isSelected
-            ? t([I18nKey.REMOVE], lang, { item1: t([I18nKey.COURSE], lang) })
+            ? t([I18nKey.DESELECT], lang, { item1: t([I18nKey.COURSE], lang) })
             : t([I18nKey.SELECT], lang)
         }
         data-tooltip-delay-show={500}

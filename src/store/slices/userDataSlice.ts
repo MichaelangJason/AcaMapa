@@ -90,7 +90,7 @@ export const userDataSlice = createSlice({
     },
     addPlan: (state) => {
       const newPlanName = t(
-        [I18nKey.NEW_M, I18nKey.PLAN],
+        [I18nKey.DEFAULT_PLAN_NAME],
         state.lang as Language,
       );
       const { planData, termData, planOrder } = mockPlanData(

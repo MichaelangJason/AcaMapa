@@ -39,6 +39,7 @@
   "expand": "Expand",
   "collapse": "Collapse",
   "select": "Select",
+  "deselect": "Deselect",
   "remove": "Remove",
   "empty": "Empty",
   "overwrite": "Overwrite",
@@ -145,7 +146,7 @@
   "login-with-mcgill-email": "Login is coming soon :)",
   "logout": "Logout",
 
-  "add-to-selected": "Hold Ctrl or Cmd to add to selected courses",
+  "add-to-selected": "Hold Ctrl/Cmd to add to selected courses",
   "conflict-desc": "Local data detected, do you want to upload your local data? Your local data will be cleared after upload.\nYou can keep them locally or merge them with the remote data.",
   "delete-term-title": "Delete Term",
   "delete-term-desc": "Are you sure you want to delete {{item1}}?",
@@ -182,6 +183,7 @@
 
   "faq": "FAQ/How-to",
   "table-of-contents": "Table of Contents",
+  "default-plan-name": "My Plan",
   "under-construction": "Sorry, this feature is under construction :(",
 
   "current-term": "Current Term",
@@ -189,9 +191,10 @@
   "before-ad-ddl": "{{item1}} day before add/drop deadline",
   "ad-ddl-passed": "Add/drop deadline already passed",
   "open-in-vsb": "Check in VSB",
-  "not-curr-year-desc": "Possible {{item1}}",
+  "not-curr-year-desc": "Estimated time to offer: {{item1}}",
   "winter": "Winter",
   "summer": "Summer",
   "fall": "Fall",
-  "not-offered": "Not Offered"
+  "not-offered": "Not Offered",
+  "offering-in":  "Offering in: {{item1}}"
 }

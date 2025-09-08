@@ -45,7 +45,7 @@ const mapSeason = (
   return (
     <>
       {seasonInfo?.icon ?? <NotOfferedIcon />}
-      {(seasonInfo?.tooltip ?? season) + (isTermInCurrentYear ? "" : "?")}
+      {(seasonInfo?.tooltip ?? season) + (isTermInCurrentYear ? "" : "*")}
     </>
   );
 };
@@ -86,7 +86,9 @@ const TermNote = ({
             data-tooltip-id={TooltipId.TERM_NOTE}
             data-tooltip-content={
               isTermInCurrentYear
-                ? term
+                ? term.charAt(0).toLowerCase() === "n"
+                  ? ""
+                  : t([I18nKey.OFFERING_IN], lang, { item1: term })
                 : t([I18nKey.NOT_CURR_YEAR_DESC], lang, {
                     item1: seasonStr,
                     item2: CURR_YEAR_STRING,
