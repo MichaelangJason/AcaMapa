@@ -5,7 +5,7 @@
 ## Fonctionnalités du panneau latéral
 ![image du tutoriel du panneau latéral](/tutorial/search-panel.webp)
 ## Trimestres
-### Carte de trimestre
+### Carte de trimestre avec Verifier dans VSB
 ![image du tutoriel de la carte de trimestre](/tutorial/term-card.webp)
 ## Cours
 ### Étiquette de cours

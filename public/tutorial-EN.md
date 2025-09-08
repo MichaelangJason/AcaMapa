@@ -5,7 +5,7 @@
 ## Side Panel Functionalities
 ![side panel tutorial image](/tutorial/search-panel.webp)
 ## Terms
-### Term Card
+### Term Card & Check in VSB
 ![term card tutorial image](/tutorial/term-card.webp)
 ## Courses
 ### Course Tag
