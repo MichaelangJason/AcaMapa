@@ -9,6 +9,7 @@ export const CURR_ACADEMIC_YEAR_RANGE = ["2025", "2026"] as const satisfies [
   string,
   string,
 ];
+export const CURR_YEAR_RANGE_STRING = CURR_ACADEMIC_YEAR_RANGE.join("-");
 export const CURR_ACADEMIC_YEAR_DATE = {
   START: fromZonedTime("2025-05-01T00:00:00", TIMEZONE),
   Summer: {

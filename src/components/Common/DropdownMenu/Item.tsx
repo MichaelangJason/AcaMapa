@@ -34,6 +34,7 @@ const Item = ({
       className={clsx("dropdown-menu-item", className, disabled && "disabled")}
       disabled={disabled}
       onClick={(e) => {
+        if (disabled) return;
         e.stopPropagation();
         self.handleClick(self.id);
         if (!self?.isKeepDMOpen) {

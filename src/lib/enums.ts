@@ -68,6 +68,7 @@ export enum TooltipId {
   HELP = "help",
   USER_SESSION = "user-session",
   SEASON_INDICATOR = "season-indicator",
+  TERM_NOTE = "term-note",
 }
 
 export enum ToastId {

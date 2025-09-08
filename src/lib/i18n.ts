@@ -207,6 +207,11 @@ export enum I18nKey {
   BEFORE_AD_DDL = "before-ad-ddl",
   AD_DDL_PASSED = "ad-ddl-passed",
   OPEN_IN_VSB = "open-in-vsb",
+  NOT_CURR_YEAR_DESC = "not-curr-year-desc",
+  WINTER = "winter",
+  SUMMER = "summer",
+  FALL = "fall",
+  NOT_OFFERED = "not-offered",
 }
 
 import enStrings from "./localization/en.json";

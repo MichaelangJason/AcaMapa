@@ -129,7 +129,7 @@ export const POST = async (request: NextRequest) => {
   });
 
   if (!newUser) {
-    console.log(newUser);
+    // console.log(newUser);
     return NextResponse.json(
       { error: "Failed to create new user" },
       { status: 500 },
@@ -163,7 +163,7 @@ export const PUT = async (request: NextRequest) => {
   }
 
   if (!isValidGuestData(parsedData, "basic")) {
-    console.log(parsedData);
+    // console.log(parsedData);
     return NextResponse.json({ error: "Invalid data" }, { status: 400 });
   }
 
@@ -249,7 +249,7 @@ export const PUT = async (request: NextRequest) => {
   });
 
   if (!updatedUser) {
-    console.log(updatedUser);
+    // console.log(updatedUser);
     return NextResponse.json(
       { error: "Failed to update user" },
       { status: 500 },

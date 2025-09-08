@@ -48,13 +48,16 @@
   .indicator {
     position: absolute;
     z-index: 300;
-    height: 1.5rem;
-    top: -1.75rem;
+    height: 0.75rem;
+    top: -1.25rem;
     opacity: 0.5;
     outline: none;
+    fill: var(--mcgill-red);
 
     &.current {
       opacity: 1;
+      height: 1.5rem;
+      top: -1.75rem;
     }
   }
 

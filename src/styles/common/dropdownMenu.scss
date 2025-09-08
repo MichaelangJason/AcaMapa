@@ -49,11 +49,8 @@
   outline: none;
   cursor: pointer;
 
-  .name {
-    cursor: pointer;
-  }
-
   &.disabled {
+    cursor: not-allowed;
     opacity: 0.5;
   }
 

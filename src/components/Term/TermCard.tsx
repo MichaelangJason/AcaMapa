@@ -32,13 +32,17 @@ import {
 } from "../Common/DropdownMenu";
 import { renameTerm } from "@/store/slices/userDataSlice";
 import { setSimpleModalInfo } from "@/store/slices/localDataSlice";
-import { CURR_ACADEMIC_YEAR_RANGE } from "@/lib/constants";
+import {
+  CURR_ACADEMIC_YEAR_RANGE,
+  CURR_YEAR_RANGE_STRING,
+} from "@/lib/constants";
 import { I18nKey, Language, t } from "@/lib/i18n";
 import WinterIcon from "@/public/icons/winter.svg";
 import SummerIcon from "@/public/icons/summer.svg";
 import FallIcon from "@/public/icons/fall.svg";
 import NotOfferedIcon from "@/public/icons/not-offered.svg";
-import IndicatorIcon from "@/public/icons/triangle.svg";
+import TriangleIcon from "@/public/icons/triangle.svg";
+import CircleIcon from "@/public/icons/indicator.svg";
 import ScrollBar from "../Common/ScrollBar";
 import { mockTermNames } from "@/lib/mock";
 import { isValidTermName } from "@/lib/typeGuards";
@@ -159,11 +163,24 @@ const TermCard = ({
   const termContainerRef = useRef<HTMLDivElement>(null);
   const selectRef = useRef<HTMLSelectElement>(null);
   const termSeason = useMemo(() => {
-    if (term.name.toLowerCase().includes("winter")) {
+    const normalizedTermName = term.name.toLowerCase();
+    if (
+      Object.values(Language).some((l) =>
+        normalizedTermName.includes(t([I18nKey.WINTER], l).toLowerCase()),
+      )
+    ) {
       return Season.WINTER;
-    } else if (term.name.toLowerCase().includes("summer")) {
+    } else if (
+      Object.values(Language).some((l) =>
+        normalizedTermName.includes(t([I18nKey.SUMMER], l).toLowerCase()),
+      )
+    ) {
       return Season.SUMMER;
-    } else if (term.name.toLowerCase().includes("fall")) {
+    } else if (
+      Object.values(Language).some((l) =>
+        normalizedTermName.includes(t([I18nKey.FALL], l).toLowerCase()),
+      )
+    ) {
       return Season.FALL;
     }
     return Season.NOT_OFFERED;
@@ -316,18 +333,24 @@ const TermCard = ({
       {!isDragging && isFirst && showButtons && (
         <AddTermButton isBefore={true} onClick={handleAddTerm} />
       )}
-      {!isDragging && (isCurrTerm || isCurrYearTerm) && (
-        <IndicatorIcon
-          className={clsx(["indicator", isCurrTerm && "current"])}
-          data-tooltip-id={TooltipId.SEASON_INDICATOR}
-          data-tooltip-content={
-            isCurrTerm
-              ? t([I18nKey.CURRENT_TERM], lang)
-              : t([I18nKey.CURRENT_YEAR_TERM], lang)
-          }
-          data-tooltip-delay-show={500}
-        />
-      )}
+      {!isDragging &&
+        (isCurrTerm ? (
+          <TriangleIcon
+            className={clsx(["indicator", isCurrTerm && "current"])}
+            data-tooltip-id={TooltipId.SEASON_INDICATOR}
+            data-tooltip-content={t([I18nKey.CURRENT_TERM], lang)}
+            data-tooltip-delay-show={200}
+          />
+        ) : isCurrYearTerm ? (
+          <CircleIcon
+            className={clsx(["indicator"])}
+            data-tooltip-id={TooltipId.SEASON_INDICATOR}
+            data-tooltip-content={t([I18nKey.CURRENT_YEAR_TERM], lang, {
+              item1: CURR_YEAR_RANGE_STRING,
+            })}
+            data-tooltip-delay-show={200}
+          />
+        ) : null)}
 
       {/* header for the term card */}
       <header className="term-header" {...draggableProvided?.dragHandleProps}>
@@ -375,8 +398,9 @@ const TermCard = ({
                   {mockTermNames(
                     CURR_ACADEMIC_YEAR_RANGE,
                     5,
-                    !isValidTermName(term.name) ? term.name : "",
-                  ).map((name) => (
+                    !isValidTermName(term.name, lang) ? term.name : "",
+                    lang,
+                  )[lang].map((name) => (
                     <option key={name} value={name}>
                       {name}
                     </option>
@@ -466,6 +490,7 @@ const TermCard = ({
                     draggableSnapshot={courseDraggableSnapshot}
                     isExport={isExport}
                     expandCourses={expandCourses}
+                    isTermInCurrentYear={isCurrYearTerm}
                   />
                 )}
               </Draggable>
@@ -483,6 +508,7 @@ const TermCard = ({
                 isDraggingTerm={isDraggingTerm ?? false}
                 isExport={isExport}
                 expandCourses={expandCourses}
+                isTermInCurrentYear={isCurrYearTerm}
               />
             ),
           )}

@@ -40,6 +40,7 @@ const DetailedCourseCard = ({
   draggableSnapshot,
   isExport = false,
   expandCourses,
+  isTermInCurrentYear,
 }: {
   course: CachedDetailedCourse;
   idx: number;
@@ -53,6 +54,7 @@ const DetailedCourseCard = ({
   draggableSnapshot?: DraggableStateSnapshot;
   isExport?: boolean;
   expandCourses?: boolean;
+  isTermInCurrentYear?: boolean;
 }) => {
   const lang = useAppSelector((state) => state.userData.lang) as Language;
   const {
@@ -165,7 +167,11 @@ const DetailedCourseCard = ({
     >
       {(expandCourses || isExpanded) && (
         <>
-          <TermNote terms={course.terms} termSeason={termSeason} />
+          <TermNote
+            terms={course.terms}
+            termSeason={termSeason}
+            isTermInCurrentYear={isTermInCurrentYear ?? false}
+          />
           {prerequisites?.raw && (
             <ReqNotes
               parentCourse={id}

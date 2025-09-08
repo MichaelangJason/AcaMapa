@@ -28,7 +28,7 @@ import {
 } from "@/store/slices/userDataSlice";
 import { isAction, isAnyOf } from "@reduxjs/toolkit";
 import { checkObjectKeys } from "./utils";
-import { Language } from "./i18n";
+import { I18nKey, Language, t } from "./i18n";
 import { CourseId, SavingData } from "@/types/local";
 
 export const isValidCourse = (course: unknown): course is Course => {
@@ -390,10 +390,14 @@ export const isValidSavingData = (
   return true;
 };
 
-export const isValidTermName = (name: unknown): name is string => {
+export const isValidTermName = (
+  name: unknown,
+  lang: Language = Language.EN,
+): name is string => {
   if (typeof name !== "string") return false;
-  return !!name
-    .replaceAll(" ", "")
-    .toLowerCase()
-    .match(/^(summer|fall|winter)20\d{2}$/);
+  const regex = new RegExp(
+    `^(${t([I18nKey.WINTER], lang)}|${t([I18nKey.SUMMER], lang)}|${t([I18nKey.FALL], lang)})20\\d{2}$`,
+    "i",
+  );
+  return !!name.replaceAll(" ", "").match(regex);
 };

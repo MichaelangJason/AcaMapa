@@ -185,8 +185,13 @@
   "under-construction": "Sorry, this feature is under construction :(",
 
   "current-term": "Current Term",
-  "current-year-term": "Term in Current Academic Year",
+  "current-year-term": "Term in current academic year: {{item1}}",
   "before-ad-ddl": "{{item1}} day before add/drop deadline",
   "ad-ddl-passed": "Add/drop deadline already passed",
-  "open-in-vsb": "Check term viability in VSB"
+  "open-in-vsb": "Check in VSB",
+  "not-curr-year-desc": "Possible {{item1}}",
+  "winter": "Winter",
+  "summer": "Summer",
+  "fall": "Fall",
+  "not-offered": "Not Offered"
 }
