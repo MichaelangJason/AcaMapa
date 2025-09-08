@@ -6,7 +6,7 @@ _A Web App that helps McGill students plan their degree_
   <img src="https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white"/>
   <img src="https://img.shields.io/badge/Redux-764ABC?style=for-the-badge&logo=redux&logoColor=white"/>
   <img src="https://img.shields.io/badge/Auth.js-000000?style=for-the-badge&logo=auth0&logoColor=white"/>
-  <img src="https://img.shields.io/badge/License-MIT-blue?style=for-the-badge"/>
+  <img src="https://img.shields.io/badge/License-APACHE-blue?style=for-the-badge"/>
 </p>
 
 > a HUGE THANK to [@EvEnzyme](https://github.com/EvEnzyme) for ideation, UI/UX design, writups and mental supports :)
@@ -53,20 +53,23 @@ As a McGill student, I often find it frustrating to plan my degree:
    - **Equivalent checks** (e.g. `COMP 252` vs `COMP 251`) are not supported, since all requirements are parsed automatically.  
    - Add completed courses to **Courses Taken** to provide context for prerequisite checks across all plans.  
    - Create multiple plans aiming at different programs or degrees.  
-   - Inspect plan statistics, including **total credits** and **average credits per term**, to better evaluate your workload.  
+   - Inspect plan statistics, including **total credits** and **average credits per term**, to better evaluate your workload.
 
-4. **Share with others**  
+4. **Validate in VSB**
+   - Terms indicated with red triangle (current term) can be checked in VSB
+
+6. **Share with others**  
    - Export plans as **JPEG images**, including stats and courses taken, to share with academic advisors or fellow students.  
 
-5. **Save your plans**  
+7. **Save your plans**  
    - Plans are stored locally and persist across page refreshes.  
-   - Login with your McGill email (coming soon) to save plans remotely.  
+   - Login with your McGill email (coming soon) to save plans remotely.
 
-6. **Localization**  
+8. **Localization**  
    - English is fully supported.  
    - French support is included but still needs refinement — contributions are welcome! Open an issue if you’d like to help.  
 
-7. **AI (coming before Winter 2026)**  
+9. **AI (coming before Winter 2026)**  
    - Semantic search (RAG) for programs and courses based on your interests.  
    - Automated plan generation tailored to your workload preferences.  
    - **Enhanced subsequent course search**: recommendations based on your entire plan, not just a single course.  
@@ -126,6 +129,7 @@ pnpm start
 ## 🗺️ Roadmap
 
 * [x] Local degree planning with drag & drop
+* [x] Current Academic Year + Check viability in VSB 
 * [ ] Import from JSON/image (exported by this app)
 * [ ] Equivalent course check
 * [ ] Remote plan saving with McGill login
