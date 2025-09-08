@@ -1,4 +1,29 @@
+import { fromZonedTime } from "date-fns-tz";
+
 export const RESULT_PER_PAGE = 10;
+export const TIMEZONE = "America/Toronto";
+
+// REMINDER: update yearly
+export const CURR_ACADEMIC_TERMS = ["Summer 2025", "Fall 2025", "Winter 2026"];
+export const CURR_ACADEMIC_YEAR_RANGE = ["2025", "2026"] as const satisfies [
+  string,
+  string,
+];
+export const CURR_ACADEMIC_YEAR_DATE = {
+  START: fromZonedTime("2025-05-01T00:00:00", TIMEZONE),
+  Summer: {
+    END: fromZonedTime("2025-07-31T23:59:59", TIMEZONE),
+    AD_DDL: null,
+  },
+  Fall: {
+    END: fromZonedTime("2025-12-19T23:59:59", TIMEZONE),
+    AD_DDL: fromZonedTime("2025-09-09T23:59:59", TIMEZONE),
+  },
+  Winter: {
+    END: fromZonedTime("2026-04-30T23:59:59", TIMEZONE),
+    AD_DDL: fromZonedTime("2026-01-20T23:59:59", TIMEZONE),
+  },
+};
 
 export const PROGRAM_RESULT_PER_PAGE = 30;
 

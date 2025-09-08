@@ -32,7 +32,7 @@ const Section = ({
             <Item
               key={`${index}-${id}`}
               {...item}
-              disabled={isDragging}
+              disabled={isDragging || item.self.isDisabled}
               handleCloseDropdownMenu={handleCloseDropdownMenu}
             />
           );

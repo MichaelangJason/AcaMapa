@@ -389,3 +389,11 @@ export const isValidSavingData = (
 
   return true;
 };
+
+export const isValidTermName = (name: unknown): name is string => {
+  if (typeof name !== "string") return false;
+  return !!name
+    .replaceAll(" ", "")
+    .toLowerCase()
+    .match(/^(summer|fall|winter)20\d{2}$/);
+};

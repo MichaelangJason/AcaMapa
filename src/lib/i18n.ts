@@ -200,6 +200,13 @@ export enum I18nKey {
   INVALID_PLACE = "invalid-place",
   P_ITEM1 = "p-item1",
   P_ITEM2 = "p-item2",
+
+  // term related
+  CURRENT_TERM = "current-term",
+  CURRENT_YEAR_TERM = "current-year-term",
+  BEFORE_AD_DDL = "before-ad-ddl",
+  AD_DDL_PASSED = "ad-ddl-passed",
+  OPEN_IN_VSB = "open-in-vsb",
 }
 
 import enStrings from "./localization/en.json";

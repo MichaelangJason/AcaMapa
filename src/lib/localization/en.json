@@ -182,5 +182,11 @@
 
   "faq": "FAQ/How-to",
   "table-of-contents": "Table of Contents",
-  "under-construction": "Sorry, this feature is under construction :("
+  "under-construction": "Sorry, this feature is under construction :(",
+
+  "current-term": "Current Term",
+  "current-year-term": "Term in Current Academic Year",
+  "before-ad-ddl": "{{item1}} day before add/drop deadline",
+  "ad-ddl-passed": "Add/drop deadline already passed",
+  "open-in-vsb": "Check term viability in VSB"
 }

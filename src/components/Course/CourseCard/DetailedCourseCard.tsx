@@ -15,9 +15,10 @@ import {
 } from "@/store/selectors";
 import FootNote from "./FootNote";
 import ReqNotes from "./ReqNotes";
+import TermNote from "./TermNote";
 import clsx from "clsx";
 import { MCGILL_URL_BASES } from "@/lib/constants";
-import { ReqType, TooltipId } from "@/lib/enums";
+import { ReqType, Season, TooltipId } from "@/lib/enums";
 import { useCallback, useMemo } from "react";
 import {
   setSimpleModalInfo,
@@ -31,6 +32,7 @@ const DetailedCourseCard = ({
   course,
   planId,
   termId,
+  termSeason,
   handleDelete,
   setIsExpanded,
   isDraggingTerm = false,
@@ -43,6 +45,7 @@ const DetailedCourseCard = ({
   idx: number;
   planId: string;
   termId: string;
+  termSeason: Season;
   handleDelete?: (courseId: string) => void;
   setIsExpanded?: (courseId: string, isExpanded: boolean) => void;
   isDraggingTerm?: boolean;
@@ -162,6 +165,7 @@ const DetailedCourseCard = ({
     >
       {(expandCourses || isExpanded) && (
         <>
+          <TermNote terms={course.terms} termSeason={termSeason} />
           {prerequisites?.raw && (
             <ReqNotes
               parentCourse={id}

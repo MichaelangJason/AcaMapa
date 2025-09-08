@@ -45,6 +45,19 @@
     }
   }
 
+  .indicator {
+    position: absolute;
+    z-index: 300;
+    height: 1.5rem;
+    top: -1.75rem;
+    opacity: 0.5;
+    outline: none;
+
+    &.current {
+      opacity: 1;
+    }
+  }
+
   .term-header {
     position: relative;
     display: flex;
@@ -95,6 +108,13 @@
       justify-content: center;
       align-items: center;
 
+      .term-season-icon {
+        position: absolute;
+        left: -1.25rem;
+        width: auto;
+        height: 1rem;
+      }
+
       .term-name {
         position: relative;
 
@@ -108,28 +128,41 @@
         text-overflow: ellipsis;
         font-size: 1rem;
         font-style: normal;
+        line-height: 1rem;
+        display: flex;
+
+        select {
+          position: absolute;
+          opacity: 0;
+          z-index: -1;
+          left: 50%;
+          top: 50%;
+          transform: translate(-50%, -50%);
+        }
       }
 
-      .edit {
-        display: none;
+      .select {
+        display: block;
         position: absolute;
         right: -1.25rem;
         flex-shrink: 0;
-        width: 0.875rem;
+        width: 1.25rem;
         height: auto;
+        justify-self: center;
 
         path {
-          transition: fill 0.15s ease;
-          fill: var(--gray-500);
+          transition: stroke 0.15s ease;
+          stroke: var(--gray-500);
         }
 
         &:hover:not(.hidden) {
           path {
-            fill: var(--gray-800);
+            stroke: var(--gray-800);
           }
         }
 
-        &.disabled {
+        &.hidden {
+          display: none;
         }
       }
     }
@@ -159,7 +192,7 @@
     }
 
     &:hover {
-      .edit {
+      .select {
         display: block;
       }
     }

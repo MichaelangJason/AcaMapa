@@ -3,6 +3,7 @@ import type { MemberData, Plan, Term } from "@/types/db";
 import { ObjectId } from "bson";
 import { I18nKey, Language, t } from "@/lib/i18n";
 import { mockPlanData } from "@/lib/mock";
+import { getNewTermName } from "@/lib/term";
 
 export const initialState = {
   lang: Language.EN,
@@ -149,11 +150,18 @@ export const userDataSlice = createSlice({
       const { planId, idx, termData } = action.payload;
 
       const plan = state.planData.get(planId)!; // existence should be guaranteed by middleware
+
+      const prevTermIdx =
+        idx === -1 ? plan.termOrder.length - 1 : Math.max(0, idx - 1);
+      const prevTermName =
+        state.termData.get(plan.termOrder[prevTermIdx])?.name ??
+        t([I18nKey.NEW_M, I18nKey.SEMESTER], state.lang as Language);
+
       const newTerm: Term = {
         _id: new ObjectId().toString(),
         name:
           termData?.name ??
-          t([I18nKey.NEW_M, I18nKey.SEMESTER], state.lang as Language),
+          getNewTermName(prevTermName, idx !== 0, state.lang as Language),
         courseIds: termData?.courseIds ?? [],
       };
 

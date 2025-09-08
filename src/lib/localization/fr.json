@@ -183,5 +183,11 @@
 
   "faq": "FAQ/Guide",
   "table-of-contents": "Table des matières",
-  "under-construction": "Désolé, cette fonctionnalité est en cours de construction :("
+  "under-construction": "Désolé, cette fonctionnalité est en cours de construction :(",
+
+  "current-term": "Semestre actuel",
+  "current-year-term": "Semestre dans l'année académique actuelle",
+  "before-ad-ddl": "{{item1}} jour avant la date limite d'ajout/retrait",
+  "ad-ddl-passed": "Date limite d'ajout/retrait déjà passée",
+  "open-in-vsb": "Vérifier la viabilité du semestre dans VSB"
 }

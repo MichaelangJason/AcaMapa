@@ -53,6 +53,10 @@
     cursor: pointer;
   }
 
+  &.disabled {
+    opacity: 0.5;
+  }
+
   &.plan-item:not(.dragging) {
     cursor: grab;
   }

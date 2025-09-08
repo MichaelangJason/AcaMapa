@@ -4,9 +4,17 @@ import type { Term } from "@/types/db";
 import type { CachedDetailedCourse, DropdownOption } from "@/types/local";
 import HamburgerIcon from "@/public/icons/hamburger.svg";
 import PlusIcon from "@/public/icons/plus.svg";
-import EditIcon from "@/public/icons/edit.svg";
+import SelectIcon from "@/public/icons/select.svg";
 import clsx from "clsx";
-import { useMemo, useState, memo, useCallback, useRef, useEffect } from "react";
+import {
+  useMemo,
+  useState,
+  memo,
+  useCallback,
+  useRef,
+  useEffect,
+  startTransition,
+} from "react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import DetailedCourseCard from "../Course/CourseCard/DetailedCourseCard";
 import {
@@ -16,7 +24,7 @@ import {
   DroppableProvided,
   DroppableStateSnapshot,
 } from "@hello-pangea/dnd";
-import { TooltipId } from "@/lib/enums";
+import { Season, TooltipId } from "@/lib/enums";
 import {
   DropdownMenuWrapper,
   Section,
@@ -24,9 +32,17 @@ import {
 } from "../Common/DropdownMenu";
 import { renameTerm } from "@/store/slices/userDataSlice";
 import { setSimpleModalInfo } from "@/store/slices/localDataSlice";
-import { MAX_TERM_NAME_LEN } from "@/lib/constants";
+import { CURR_ACADEMIC_YEAR_RANGE } from "@/lib/constants";
 import { I18nKey, Language, t } from "@/lib/i18n";
+import WinterIcon from "@/public/icons/winter.svg";
+import SummerIcon from "@/public/icons/summer.svg";
+import FallIcon from "@/public/icons/fall.svg";
+import NotOfferedIcon from "@/public/icons/not-offered.svg";
+import IndicatorIcon from "@/public/icons/triangle.svg";
 import ScrollBar from "../Common/ScrollBar";
+import { mockTermNames } from "@/lib/mock";
+import { isValidTermName } from "@/lib/typeGuards";
+import { isCurrentTerm, isThisYearTerm, openInVSB } from "@/lib/term";
 
 const AddTermButton = ({
   isBefore,
@@ -70,6 +86,17 @@ const AddTermButton = ({
       <PlusIcon />
     </button>
   );
+};
+
+const mapSeason = (termSeason: Season) => {
+  if (termSeason === Season.WINTER) {
+    return <WinterIcon className="term-season-icon" />;
+  } else if (termSeason === Season.SUMMER) {
+    return <SummerIcon className="term-season-icon" />;
+  } else if (termSeason === Season.FALL) {
+    return <FallIcon className="term-season-icon" />;
+  }
+  return <NotOfferedIcon className="term-season-icon" />;
 };
 
 const TermCard = ({
@@ -130,6 +157,20 @@ const TermCard = ({
   const lang = displayLang || userLang;
   const termBodyRef = useRef<HTMLDivElement>(null);
   const termContainerRef = useRef<HTMLDivElement>(null);
+  const selectRef = useRef<HTMLSelectElement>(null);
+  const termSeason = useMemo(() => {
+    if (term.name.toLowerCase().includes("winter")) {
+      return Season.WINTER;
+    } else if (term.name.toLowerCase().includes("summer")) {
+      return Season.SUMMER;
+    } else if (term.name.toLowerCase().includes("fall")) {
+      return Season.FALL;
+    }
+    return Season.NOT_OFFERED;
+  }, [term]);
+  const [isEditing, setIsEditing] = useState(false);
+  const isCurrTerm = useMemo(() => isCurrentTerm(term.name), [term.name]);
+  const isCurrYearTerm = useMemo(() => isThisYearTerm(term.name), [term.name]);
 
   const dispatch = useAppDispatch();
 
@@ -215,27 +256,12 @@ const TermCard = ({
     }
   }, [deleteTerm, idx, dispatch, term, courses.length, lang]);
 
-  const handleRenameTerm = useCallback(() => {
-    dispatch(
-      setSimpleModalInfo({
-        isOpen: true,
-        title: t([I18nKey.RENAME_TERM_TITLE], lang),
-        description: "",
-        inputConfig: {
-          placeholder: term.name,
-          maxLength: MAX_TERM_NAME_LEN,
-        },
-        confirmCb: (newName?: string) => {
-          if (!newName) return Promise.resolve();
-          dispatch(renameTerm({ termId: term._id.toString(), newName }));
-          return Promise.resolve();
-        },
-        closeCb: () => {
-          return Promise.resolve();
-        },
-      }),
+  const handleOpenInVSB = useCallback(() => {
+    openInVSB(
+      term.name,
+      courses.map((course) => course.id),
     );
-  }, [dispatch, term, lang]);
+  }, [term.name, courses]);
 
   const termActions: ItemProps[] = useMemo(() => {
     return [
@@ -251,16 +277,30 @@ const TermCard = ({
       },
       {
         self: {
-          id: "rename-term",
-          content: t([I18nKey.RENAME], lang),
-          handleClick: handleRenameTerm,
+          id: "open-in-vsb",
+          content: t([I18nKey.OPEN_IN_VSB], lang),
+          isDisabled: !isCurrYearTerm,
+          handleClick: handleOpenInVSB,
           isHideIndicator: true,
           isHideFiller: true,
         } as DropdownOption,
         handleCloseDropdownMenu: handleCloseTermDM,
       },
     ];
-  }, [handleCloseTermDM, lang, handleDeleteTerm, handleRenameTerm]);
+  }, [
+    handleCloseTermDM,
+    lang,
+    handleDeleteTerm,
+    handleOpenInVSB,
+    isCurrYearTerm,
+  ]);
+
+  useEffect(() => {
+    if (isEditing && selectRef.current) {
+      selectRef.current.focus();
+      selectRef.current.showPicker();
+    }
+  }, [isEditing]);
 
   const isDraggingTerm = draggableSnapshot?.isDragging;
 
@@ -276,6 +316,18 @@ const TermCard = ({
       {!isDragging && isFirst && showButtons && (
         <AddTermButton isBefore={true} onClick={handleAddTerm} />
       )}
+      {!isDragging && (isCurrTerm || isCurrYearTerm) && (
+        <IndicatorIcon
+          className={clsx(["indicator", isCurrTerm && "current"])}
+          data-tooltip-id={TooltipId.SEASON_INDICATOR}
+          data-tooltip-content={
+            isCurrTerm
+              ? t([I18nKey.CURRENT_TERM], lang)
+              : t([I18nKey.CURRENT_YEAR_TERM], lang)
+          }
+          data-tooltip-delay-show={500}
+        />
+      )}
 
       {/* header for the term card */}
       <header className="term-header" {...draggableProvided?.dragHandleProps}>
@@ -286,10 +338,55 @@ const TermCard = ({
           </button>
         ) : (
           <span className="term-name-container">
-            <span className="term-name">{term.name}</span>
-            <EditIcon
+            {mapSeason(termSeason)}
+            <span className="term-name">
+              <span>{term.name}</span>
+              {isEditing && (
+                <select
+                  value={term.name}
+                  onChange={(e) => {
+                    setIsEditing(false);
+                    startTransition(() => {
+                      dispatch(
+                        renameTerm({
+                          termId: term._id.toString(),
+                          newName: e.target.value,
+                        }),
+                      );
+                    });
+                  }}
+                  onBlur={() => {
+                    setIsEditing(false);
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    setIsEditing(false);
+                  }}
+                  className="select-term-name"
+                  ref={selectRef}
+                  form={`term-name-form-${term._id}`}
+                  onSubmit={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    setIsEditing(false);
+                  }}
+                >
+                  {mockTermNames(
+                    CURR_ACADEMIC_YEAR_RANGE,
+                    5,
+                    !isValidTermName(term.name) ? term.name : "",
+                  ).map((name) => (
+                    <option key={name} value={name}>
+                      {name}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </span>
+            <SelectIcon
               className={clsx([
-                "edit",
+                "select",
                 "clickable",
                 (isSeekingCourse ||
                   hasSelectedCourses ||
@@ -297,7 +394,9 @@ const TermCard = ({
                   !showButtons) &&
                   "hidden",
               ])}
-              onClick={handleRenameTerm}
+              onClick={() => {
+                setIsEditing((prev) => !prev);
+              }}
             />
           </span>
         )}
@@ -359,6 +458,7 @@ const TermCard = ({
                     idx={idx}
                     termId={term._id}
                     planId={planId}
+                    termSeason={termSeason}
                     handleDelete={handleDeleteCourse}
                     setIsExpanded={setIsCourseExpanded}
                     isDraggingTerm={isDraggingTerm ?? false}
@@ -377,6 +477,7 @@ const TermCard = ({
                 idx={idx}
                 termId={term._id}
                 planId={planId}
+                termSeason={termSeason}
                 handleDelete={handleDeleteCourse}
                 setIsExpanded={setIsCourseExpanded}
                 isDraggingTerm={isDraggingTerm ?? false}

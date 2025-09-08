@@ -1,3 +1,10 @@
+export enum Season {
+  SUMMER = "summer",
+  FALL = "fall",
+  WINTER = "winter",
+  NOT_OFFERED = "not-offered",
+}
+
 export enum ResultType {
   DEFAULT = "default",
   SEEKING = "seeking",
@@ -60,6 +67,7 @@ export enum TooltipId {
   COURSE_TAKEN = "course-taken",
   HELP = "help",
   USER_SESSION = "user-session",
+  SEASON_INDICATOR = "season-indicator",
 }
 
 export enum ToastId {

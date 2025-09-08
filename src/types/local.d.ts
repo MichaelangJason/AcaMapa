@@ -73,6 +73,7 @@ export type DropdownOption = {
   id: string;
   content: string;
   handleClick: (content?: string) => void;
+  isDisabled?: boolean;
   isKeepDMOpen?: boolean;
   isHideIndicator?: boolean;
   isHideFiller?: boolean;
