@@ -316,7 +316,7 @@ const TermCard = ({
           elem.showPicker();
         } else {
           // safari case
-          elem.classList.add("safari");
+          elem.dispatchEvent(new MouseEvent("mousedown"));
         }
       } catch (error) {
         console.error(error);
@@ -384,13 +384,11 @@ const TermCard = ({
                     });
                   }}
                   onBlur={() => {
-                    selectRef.current?.classList.remove("safari");
                     setIsEditing(false);
                   }}
                   onClick={(e) => {
                     e.stopPropagation();
                     e.preventDefault();
-                    selectRef.current?.classList.remove("safari");
                     setIsEditing(false);
                   }}
                   className="select-term-name"
@@ -399,7 +397,6 @@ const TermCard = ({
                   onSubmit={(e) => {
                     e.stopPropagation();
                     e.preventDefault();
-                    selectRef.current?.classList.remove("safari");
                     setIsEditing(false);
                   }}
                 >
