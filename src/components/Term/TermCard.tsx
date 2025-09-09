@@ -308,8 +308,20 @@ const TermCard = ({
 
   useEffect(() => {
     if (isEditing && selectRef.current) {
-      selectRef.current.focus();
-      selectRef.current.showPicker();
+      try {
+        const elem = selectRef.current;
+        elem?.focus();
+
+        // @ts-expect-error safari case
+        if (elem.showPicker) {
+          elem.showPicker();
+        } else {
+          // safari case
+          elem.classList.add("safari");
+        }
+      } catch (error) {
+        console.error(error);
+      }
     }
   }, [isEditing]);
 
@@ -373,11 +385,13 @@ const TermCard = ({
                     });
                   }}
                   onBlur={() => {
+                    selectRef.current?.classList.remove("safari");
                     setIsEditing(false);
                   }}
                   onClick={(e) => {
                     e.stopPropagation();
                     e.preventDefault();
+                    selectRef.current?.classList.remove("safari");
                     setIsEditing(false);
                   }}
                   className="select-term-name"
@@ -386,6 +400,7 @@ const TermCard = ({
                   onSubmit={(e) => {
                     e.stopPropagation();
                     e.preventDefault();
+                    selectRef.current?.classList.remove("safari");
                     setIsEditing(false);
                   }}
                 >
