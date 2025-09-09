@@ -312,7 +312,6 @@ const TermCard = ({
         const elem = selectRef.current;
         elem?.focus();
 
-        // @ts-expect-error safari case
         if (elem.showPicker) {
           elem.showPicker();
         } else {
