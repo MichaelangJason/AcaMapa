@@ -19,6 +19,7 @@ import { addCourseToTerm } from "@/store/thunks";
 import {
   clearSelectedCourses,
   setIsCourseExpanded,
+  setSearchInput,
   setSeekingCourseId,
 } from "@/store/slices/localDataSlice";
 import {
@@ -111,6 +112,7 @@ const Terms = () => {
       );
       if (result.meta.requestStatus === "fulfilled") {
         dispatch(clearSelectedCourses());
+        dispatch(setSearchInput(""));
       }
     },
     [selectedCourses, dispatch, currentPlan, isAddingCourse, isInitialized],

@@ -17,6 +17,7 @@ import {
 import {
   addSelectedCourse,
   clearSelectedCourses,
+  setSearchInput,
 } from "@/store/slices/localDataSlice";
 import { I18nKey, Language, t } from "@/lib/i18n";
 import { TooltipId } from "@/lib/enums";
@@ -78,6 +79,7 @@ const CourseTaken = ({
         ),
       );
       dispatch(clearSelectedCourses());
+      dispatch(setSearchInput(""));
       dispatch(setIsCourseTakenExpanded(true));
     },
     [dispatch, selectedCourses, isInitialized, isExport],

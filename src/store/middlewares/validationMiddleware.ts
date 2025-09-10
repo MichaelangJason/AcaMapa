@@ -481,6 +481,19 @@ const validationMiddleware: Middleware<
         }
         break;
       }
+      case "localData/setSearchInput": {
+        const searchInput = action.payload;
+        if (typeof searchInput !== "string") {
+          throw new Error(`Invalid search input: ${searchInput}`);
+        }
+        // prevent setting search input when seeking course or program
+        // since it triggers the searchResult to be reset
+        if (state.global.isSeekingCourse || state.global.isSeekingProgram) {
+          return;
+        }
+
+        break;
+      }
       default:
         break; // TODO add other validations
     }
