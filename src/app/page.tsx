@@ -3,7 +3,7 @@ import type { Course, Program } from "@/types/db";
 import { withDatabase } from "@/db";
 import { Courses, Programs } from "@/db/schemas";
 import { unstable_cache as nextCache } from "next/cache";
-import { auth } from "@/auth";
+// import { auth } from "@/auth";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const getInitCourses = nextCache(async (school?: string) => {
@@ -58,9 +58,9 @@ const getInitPrograms = nextCache(async (school?: string) => {
 export default async function Page() {
   const courseData = await getInitCourses();
   const programData = await getInitPrograms();
-  const session = await auth();
+  // const session = await auth();
 
   return (
-    <App courseData={courseData} programData={programData} session={session} />
+    <App courseData={courseData} programData={programData} session={null} />
   );
 }
