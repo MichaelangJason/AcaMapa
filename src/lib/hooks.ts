@@ -7,6 +7,7 @@ export function useDebounce<T extends (...args: any[]) => any>(
   const timeoutRef = useRef<NodeJS.Timeout>(null);
 
   return useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     ((...args: Parameters<T>) => {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);

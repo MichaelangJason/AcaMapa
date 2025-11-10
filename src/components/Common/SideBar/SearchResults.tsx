@@ -1,3 +1,5 @@
+"use client";
+
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { ResultType } from "@/lib/enums";
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
@@ -22,31 +24,38 @@ import ScrollBar from "../ScrollBar";
 import clsx from "clsx";
 
 const SearchResults = ({ result }: { result: SearchResult }) => {
-  const courseData = useAppSelector((state) => state.localData.courseData);
+  const { type, query, data } = result;
+  const dispatch = useAppDispatch();
+  const lang = useAppSelector((state) => state.userData.lang) as Language;
+  const { courseData, selectedCourses } = useAppSelector(
+    (state) => state.localData,
+  );
+  const isInitialized = useAppSelector((state) => state.global.isInitialized);
   const defaultData = useAppSelector(selectAllCourseData);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(false);
+
+  // local states
   const loadingTriggerRef = useRef<HTMLDivElement>(null);
   const resultContainerRef = useRef<HTMLDivElement>(null);
-  const selectedCourses = useAppSelector(
-    (state) => state.localData.selectedCourses,
-  );
-  const dispatch = useAppDispatch();
-  const { type, query, data } = result;
-  const isInitialized = useAppSelector((state) => state.global.isInitialized);
-  const lang = useAppSelector((state) => state.userData.lang) as Language;
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
 
   const displayData = useMemo(() => {
     if (!isInitialized) {
+      // return skeleton cards
       return Array.from(
         { length: SKELETON_CONFIG.COURSE_CARD.NUM_MINI_CARD_SKELETON },
         (_, idx) => idx,
       );
     }
+
+    // return default data (all courses)
     if (type === ResultType.DEFAULT) return defaultData;
+
+    // return search result data
     return data;
   }, [type, defaultData, data, isInitialized]);
 
+  // avoid recreating the reset function on every render
   const reset = useCallback(() => {
     setPage(1);
     resultContainerRef.current?.scrollTo({ top: 0 });
@@ -57,12 +66,13 @@ const SearchResults = ({ result }: { result: SearchResult }) => {
   // handle infinite scroll
   const handleIntersection = useCallback(
     (entries: IntersectionObserverEntry[]) => {
+      console.log("update page", page);
       setTimeout(() => {
         const first = entries[0];
         if (first.isIntersecting && hasMore) {
           setPage((prev) => prev + 1);
         }
-      }, 500);
+      }, 200);
     },
     [hasMore],
   );
@@ -97,7 +107,7 @@ const SearchResults = ({ result }: { result: SearchResult }) => {
 
   useEffect(() => {
     debouncedReset();
-  }, [query, debouncedReset]);
+  }, [query]);
 
   const handleAddCourse = useCallback(
     async (course: Course, isSelected: boolean) => {
@@ -109,6 +119,16 @@ const SearchResults = ({ result }: { result: SearchResult }) => {
     },
     [dispatch],
   );
+
+  const bindScroll = useCallback((cb: (event: Event) => void) => {
+    if (!resultContainerRef.current) return;
+    resultContainerRef.current.onscroll = cb;
+  }, []);
+
+  const unbindScroll = useCallback(() => {
+    if (!resultContainerRef.current) return;
+    resultContainerRef.current.onscroll = null;
+  }, []);
 
   return (
     <div className="result-container scrollbar-hidden">
@@ -172,14 +192,8 @@ const SearchResults = ({ result }: { result: SearchResult }) => {
       <ScrollBar
         targetContainerRef={resultContainerRef}
         direction="vertical"
-        bindScroll={(cb) => {
-          if (!resultContainerRef.current) return;
-          resultContainerRef.current.onscroll = cb;
-        }}
-        unbindScroll={() => {
-          if (!resultContainerRef.current) return;
-          resultContainerRef.current.onscroll = null;
-        }}
+        bindScroll={bindScroll}
+        unbindScroll={unbindScroll}
       />
     </div>
   );

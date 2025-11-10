@@ -1,3 +1,5 @@
+"use client";
+
 import { MAX_COURSE_SELECTED, MULTI_SELECT_CONFIG } from "@/lib/constants";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
@@ -55,23 +57,21 @@ const MultiSelect = () => {
   const lang = useAppSelector((state) => state.userData.lang) as Language;
   const multiSelectRef = useRef<HTMLDivElement>(null);
 
+  // memoized for mini course card to avoid unnecessary re-renders
   const handleRemoveCourse = useCallback(
     async (course: Course) => {
       dispatch(removeSelectedCourse(course));
     },
     [dispatch],
   );
-  const handleClear = useCallback(() => {
-    dispatch(clearSelectedCourses());
-  }, [dispatch]);
 
-  const handleMouseEnter = useCallback(() => {
-    setIsHovering(true);
-  }, []);
-  const handleMouseLeave = useCallback(() => {
+  // no need to memoize
+  const handleClear = () => dispatch(clearSelectedCourses());
+  const handleMouseEnter = () => setIsHovering(true);
+  const handleMouseLeave = () => {
     setIsHovering(false);
     setIsExpanded(false);
-  }, []);
+  };
   const toggleExpand = () => setIsExpanded((prev) => !prev);
 
   // since the presence of MultiSelect is not controlled by the parent component,
@@ -95,6 +95,7 @@ const MultiSelect = () => {
         onMouseLeave={handleMouseLeave}
         onClick={toggleExpand}
       >
+        {/* selected courses */}
         <div
           className={clsx(
             "multi-select scrollbar-hidden",
@@ -110,13 +111,13 @@ const MultiSelect = () => {
                 data={course}
                 isSelected
                 callback={handleRemoveCourse}
-                style={{
-                  ...getStyle(idx, isHovering, isExpanded),
-                }}
+                style={getStyle(idx, isHovering, isExpanded)}
               />
             );
           })}
         </div>
+
+        {/* custom scroll bar */}
         <ScrollBar
           targetContainerRef={multiSelectRef}
           direction="vertical"
@@ -133,6 +134,7 @@ const MultiSelect = () => {
           }}
         />
       </div>
+
       <span className="multi-select-info">
         <span className="multi-select-clear" onClick={handleClear}>
           {t([I18nKey.CLEAR_ALL], lang)}
