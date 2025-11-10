@@ -1,3 +1,5 @@
+"use client";
+
 import { useCallback, useEffect, useRef, useState } from "react";
 import clsx from "clsx";
 import { clamp } from "@/lib/utils";
@@ -28,13 +30,18 @@ export const ScrollBar = ({
   className?: string;
 }) => {
   const scrollBarRef = useRef<HTMLDivElement>(null);
-  const [progress, setProgress] = useState(0);
-  const [thumbRatio, setThumbRatio] = useState(0);
+  const thumbRef = useRef<HTMLDivElement>(null);
+  const thumbRatioRef = useRef(0);
+  const isShowRef = useRef(false);
   const [isDragging, setIsDragging] = useState(false);
 
   const isInitialized = useAppSelector((state) => state.global.isInitialized);
-  const [isShow, setIsShow] = useState(false);
-  const hideScrollBar = useDebounce(() => setIsShow(false), 500);
+
+  const debouncedHideScrollBar = useDebounce(() => {
+    isShowRef.current = false;
+    scrollBarRef.current?.classList.remove("show");
+  }, 500);
+
   const isSideBarFolded = useAppSelector(
     (state) => state.global.isSideBarFolded,
   );
@@ -48,26 +55,36 @@ export const ScrollBar = ({
     (notShow?: boolean) => {
       const parent = targetContainerRef.current;
       const scrollBar = scrollBarRef.current;
-
-      if (!parent || !scrollBar) {
+      const thumb = thumbRef.current;
+      if (!parent || !scrollBar || !thumb) {
         return;
       }
-      // must be a boolean to avoid type error
-      if (notShow !== true) setIsShow(true);
+      const thumbRatio = thumbRatioRef.current;
 
-      let progress: number;
-      if (direction === "horizontal") {
-        progress = parent.scrollLeft / parent.scrollWidth;
-      } else {
-        progress = parent.scrollTop / parent.scrollHeight;
+      // must be a boolean
+      if (notShow !== true) {
+        isShowRef.current = true;
+        scrollBarRef.current?.classList.add("show");
       }
 
+      let progress =
+        direction === "horizontal"
+          ? parent.scrollLeft / parent.scrollWidth
+          : parent.scrollTop / parent.scrollHeight;
       progress = clamp(Number(progress.toFixed(4)), 0, 1);
 
-      setProgress(progress * 100);
-      hideScrollBar();
+      if (direction === "horizontal") {
+        thumb.style.left = `${progress * 100}%`;
+        thumb.style.width = `${thumbRatio * 100}%`;
+      } else {
+        thumb.style.top = `${progress * 100}%`;
+        thumb.style.height = `${thumbRatio * 100}%`;
+      }
+
+      debouncedHideScrollBar();
     },
-    [targetContainerRef, direction, hideScrollBar],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [direction, debouncedHideScrollBar],
   );
 
   const handleScroll = useCallback(
@@ -113,10 +130,10 @@ export const ScrollBar = ({
     lastY.current = 0;
 
     setIsDragging(false);
-    hideScrollBar();
+    debouncedHideScrollBar();
 
     window.removeEventListener("mousemove", handleScroll as EventListener);
-  }, [targetContainerRef, handleScroll, hideScrollBar]);
+  }, [targetContainerRef, handleScroll, debouncedHideScrollBar]);
 
   const handleScrollStart = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
@@ -161,10 +178,20 @@ export const ScrollBar = ({
     maxScroll.current = scrollSize - clientSize;
     scrollBarMaxScroll.current =
       scrollBarSize * (maxScroll.current / scrollSize);
-    setThumbRatio(thumbRatio);
+
+    thumbRatioRef.current = thumbRatio;
+
+    if (thumbRatio === 1) scrollBarRef.current?.classList.add("hidden");
+    else scrollBarRef.current?.classList.remove("hidden");
+
     setScrollable?.(thumbRatio < 1);
     handleScrollChange(true);
   }, [targetContainerRef, direction, handleScrollChange, setScrollable]);
+
+  useEffect(() => {
+    bindScroll(handleScrollChange);
+    return () => unbindScroll(handleScrollChange);
+  }, [bindScroll, unbindScroll, handleScrollChange]);
 
   useEffect(() => {
     if (!scrollBarRef.current || !targetContainerRef.current) return;
@@ -172,17 +199,16 @@ export const ScrollBar = ({
     // init maxScroll and thumbSize
     handleResize();
 
-    bindScroll(handleScrollChange);
-    // bindResize(handleResize);
     // use resizeObserver to update maxScroll and thumbSize
-
     const resizeObserver = new ResizeObserver(handleResize);
     resizeObserver.observe(targetContainerRef.current);
-    const mutationObserver = new MutationObserver(handleResize);
 
+    const mutationObserver = new MutationObserver(handleResize);
     mutationObserver.observe(targetContainerRef.current, {
       childList: true,
     });
+
+    // if dependent container is provided, observe it for child list changes
     if (dependentContainerRef?.current) {
       mutationObserver.observe(dependentContainerRef.current, {
         childList: true,
@@ -190,8 +216,6 @@ export const ScrollBar = ({
     }
 
     return () => {
-      unbindScroll(handleScrollChange);
-      // unbindResize(handleResize);
       resizeObserver.disconnect();
       mutationObserver.disconnect();
     };
@@ -201,16 +225,12 @@ export const ScrollBar = ({
     targetContainerRef,
     direction,
     handleResize,
-    handleScrollChange,
-    bindScroll,
-    unbindScroll,
   ]);
 
   useEffect(() => {
     if (!isInitialized) return;
-    setTimeout(() => {
-      handleResize();
-    }, 200); // wait for sidebar to be folded
+    setTimeout(handleResize, 200); // wait for sidebar to be folded
+    // also depends on sidebar folded state
   }, [isSideBarFolded, handleResize, isInitialized]);
 
   if (!isInitialized) return null;
@@ -221,24 +241,16 @@ export const ScrollBar = ({
       className={clsx(
         "scroll-track",
         direction,
-        isShow && "show",
         isDragging && "dragging",
-        thumbRatio === 1 && "hidden",
         className,
       )}
       style={style}
     >
       <div
         className="scroll-bar-thumb"
+        ref={thumbRef}
         onMouseDown={handleScrollStart}
-        style={{
-          ...thumbStyle,
-          left: direction === "horizontal" ? `${progress}%` : undefined,
-          top: direction === "vertical" ? `${progress}%` : undefined,
-          width:
-            direction === "horizontal" ? `${thumbRatio * 100}%` : undefined,
-          height: direction === "vertical" ? `${thumbRatio * 100}%` : undefined,
-        }}
+        style={thumbStyle}
       />
     </div>
   );
