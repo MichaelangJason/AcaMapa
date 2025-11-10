@@ -2,20 +2,13 @@
 
 import { useEffect, useMemo } from "react";
 import { SideBar, UtilityBar } from "./Layout";
-import {
-  SimpleModal,
-  ToolTips,
-  ExportModal,
-  ProgramModal,
-  InfoModal,
-} from "./Common";
+import { Modals, ToolTips, Toast } from "./Common";
 import { Terms } from "./Term";
 import { Provider } from "react-redux";
 import { AppStore, makeStore } from "@/store";
 import type { Course, Program } from "@/types/db";
 import { setCourseData, setProgramData } from "@/store/slices/localDataSlice";
 import { initApp } from "@/store/thunks";
-import { ToastContainer, Slide } from "react-toastify";
 import { SessionProvider } from "next-auth/react";
 import type { Session } from "@/types/local";
 
@@ -28,11 +21,12 @@ const App = ({
   programData: Program[];
   session: Session | null;
 }) => {
-  // init redux store
+  // init redux store before first paint
   // REVIEW: make it client side only?
   const store = useMemo<AppStore>(makeStore, []);
 
   // guaranteed to run only once at initialization for the whole life cycle of the app
+  // runs after first commit
   useEffect(() => {
     store.dispatch(setCourseData(courseData));
     store.dispatch(setProgramData(programData));
@@ -47,23 +41,9 @@ const App = ({
         <UtilityBar />
         <Terms />
         {/* <Assistant /> */}
-        <ExportModal />
-        <SimpleModal />
-        <ProgramModal />
-        <InfoModal />
+        <Modals />
         <ToolTips />
-        <ToastContainer
-          position="bottom-center"
-          autoClose={3000}
-          hideProgressBar={true}
-          newestOnTop={false}
-          closeOnClick={true}
-          pauseOnHover={false}
-          rtl={false}
-          draggable
-          theme="light"
-          transition={Slide}
-        />
+        <Toast />
       </Provider>
     </SessionProvider>
   );
