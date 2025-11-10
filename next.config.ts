@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  experimental: {
+    globalNotFound: true
+  },
   /* config options here */
   images: {
     formats: ['image/avif', 'image/webp'],
@@ -17,7 +20,7 @@ const nextConfig: NextConfig = {
       }
     }
   },
-  cacheComponents: true
+  cacheComponents: false
   
   // webpack: (config) => {
   //   config.module.rules.push({
