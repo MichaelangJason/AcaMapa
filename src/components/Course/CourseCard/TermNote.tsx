@@ -12,6 +12,8 @@ import { useAppSelector } from "@/store/hooks";
 import { CURR_ACADEMIC_YEAR_RANGE } from "@/lib/constants";
 
 const CURR_YEAR_STRING = CURR_ACADEMIC_YEAR_RANGE.join(" - ");
+
+// map the season string to the icon and tooltip
 const mapSeason = (
   term: string,
   lang: Language,
@@ -67,19 +69,17 @@ const TermNote = ({
   return (
     <div
       className={clsx("term-note", className)}
-      style={
-        {
-          "--columns": terms.length,
-        } as React.CSSProperties
-      }
+      style={{ "--columns": terms.length } as React.CSSProperties}
     >
       {terms.map((term) => {
         const seasonStr = term.match(/[A-Za-z ]+/)?.[0].trim() ?? term;
+
         return (
           <span
             key={term}
             className={clsx(
               "season",
+              // TODO: normalized term strings
               term.toLowerCase().includes(termSeason.toLowerCase()) &&
                 "matched",
             )}
