@@ -58,7 +58,7 @@
   .req-group-container {
     position: relative;
     width: 100%;
-    overflow-x: scroll;
+    overflow-x: hidden;
     overflow-y: visible;
     display: flex;
     flex-direction: row;

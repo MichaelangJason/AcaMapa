@@ -151,7 +151,6 @@ const ReqNotes = ({
     const containerMaxScrollLeft = container.scrollWidth - containerWidth;
 
     const scrollLeft = (e: MouseEvent) => {
-      e.preventDefault();
       e.stopPropagation();
 
       smoothScrollTo({
@@ -167,7 +166,6 @@ const ReqNotes = ({
     };
 
     const scrollRight = (e: MouseEvent) => {
-      e.preventDefault();
       e.stopPropagation();
 
       smoothScrollTo({
@@ -182,19 +180,12 @@ const ReqNotes = ({
       });
     };
 
-    // disable horizontal scroll in req group, use icons to scroll
-    const disableScroll = (e: WheelEvent) => {
-      e.preventDefault();
-    };
-
     // scroll needed, bind a scroll listener
-    container.addEventListener("wheel", disableScroll);
     leftScrollIcon.addEventListener("click", scrollLeft);
     rightScrollIcon.addEventListener("click", scrollRight);
     setScrollIcons();
 
     return () => {
-      container.removeEventListener("wheel", disableScroll);
       leftScrollIcon.removeEventListener("click", scrollLeft);
       rightScrollIcon.removeEventListener("click", scrollRight);
     };
