@@ -12,6 +12,7 @@ import { I18nKey, Language, t } from "@/lib/i18n";
 
 Modal.setAppElement("html");
 
+// simple modal with input field and confirm/cancel buttons
 const SimpleModal = () => {
   const dispatch = useAppDispatch();
   const lang = useAppSelector((state) => state.userData.lang) as Language;
@@ -32,6 +33,8 @@ const SimpleModal = () => {
   } = useAppSelector(
     (state) => state.localData.simpleModalInfo,
   ) as SimpleModalProps;
+
+  // input value
   const [newValue, setNewValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -44,12 +47,14 @@ const SimpleModal = () => {
     }
   }, [isOpen]);
 
+  // not memoized as they are not called frequently
   const handleClose = () => {
     closeCb();
     dispatch(clearSimpleModalInfo());
     setNewValue("");
   };
 
+  // not memoized as they are not called frequently
   const handleConfirm = () => {
     confirmCb(newValue);
     closeCb();
@@ -76,12 +81,14 @@ const SimpleModal = () => {
         )}
       </header>
 
+      {/* description */}
       {description && (
         <section
           dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(description) }}
         />
       )}
 
+      {/* input field */}
       {inputConfig && (
         <section className="input-container">
           <input
@@ -117,6 +124,7 @@ const SimpleModal = () => {
         </section>
       )}
 
+      {/* footer, includes cancel/confirm buttons and extra options */}
       <footer>
         {!isConfirmOnly && (
           <button className="cancel-button" onClick={handleClose}>

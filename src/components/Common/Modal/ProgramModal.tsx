@@ -19,24 +19,39 @@ import clsx from "clsx";
 
 Modal.setAppElement("html");
 
+// program modal for searching and adding programs
 const ProgramModal = () => {
+  // dispatch
   const dispatch = useAppDispatch();
+  // user language
   const lang = useAppSelector((state) => state.userData.lang) as Language;
+  // program data
   const programData = useAppSelector((state) => state.localData.programData);
+  // program search function
   const programSearchFn = useAppSelector(selectProgramSearchFn);
+  // program modal open state
   const isProgramModalOpen = useAppSelector(
     (state) => state.localData.isProgramModalOpen,
   );
+  // search input value
   const [input, setInput] = useState("");
+  // page number
   const [page, setPage] = useState(1);
+  // search result
   const [result, setResult] = useState<string[]>([]);
+  // result container ref
   const resultContainerRef = useRef<HTMLDivElement>(null);
+  // has more flag for infinite scroll
   const [hasMore, setHasMore] = useState(true);
   const loadingTriggerRef = useRef<HTMLDivElement>(null);
+
+  // is adding a course or program, disable other adding actions
   const isAdding = useAppSelector((state) => state.global.isAdding);
 
   const userPrograms = useAppSelector((state) => state.userData.programs);
 
+  // used an array filter here instead of a map lookup
+  // because people are more likely to search and add programs instead of looking up programs
   const isProgramSelected = useCallback(
     (programName: string) => {
       return userPrograms.some((program) => program === programName);
@@ -101,7 +116,7 @@ const ProgramModal = () => {
         if (first.isIntersecting && hasMore) {
           setPage((prev) => prev + 1);
         }
-      }, 500);
+      }, 200);
     },
     [hasMore],
   );
@@ -147,6 +162,7 @@ const ProgramModal = () => {
       </header>
 
       <section className="program-search">
+        {/* search input */}
         <SearchInput
           value={input}
           setValue={(value) => setInput(value)}
@@ -156,6 +172,7 @@ const ProgramModal = () => {
           isDisabled={isAdding}
         />
 
+        {/* result container */}
         <div className="result-container scrollbar-hidden">
           <div
             className={clsx(
@@ -164,6 +181,7 @@ const ProgramModal = () => {
             )}
             ref={resultContainerRef}
           >
+            {/* result items */}
             {result
               .slice(0, page * PROGRAM_RESULT_PER_PAGE)
               .map((entry, idx) => {
@@ -178,18 +196,23 @@ const ProgramModal = () => {
                 );
               })}
 
+            {/* no results */}
             {result.length === 0 && (
               <FootNote
                 content={t([I18nKey.NO_RESULTS], lang)}
                 className="program-card"
               />
             )}
+
+            {/* loading more */}
             {hasMore && (
               <div className="loading-placeholder" ref={loadingTriggerRef}>
                 {t([I18nKey.LOADING_MORE], lang)}
               </div>
             )}
           </div>
+
+          {/* scroll bar */}
           <ScrollBar
             targetContainerRef={resultContainerRef}
             direction="vertical"
@@ -205,6 +228,7 @@ const ProgramModal = () => {
         </div>
       </section>
 
+      {/* footer, includes cancel button */}
       <footer>
         <button className="cancel-button" onClick={handleClose}>
           {t([I18nKey.CLOSE], lang)}

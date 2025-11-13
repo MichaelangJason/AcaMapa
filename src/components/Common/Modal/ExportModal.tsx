@@ -17,9 +17,13 @@ import DomToImage from "dom-to-image-more";
 
 Modal.setAppElement("html");
 
+// export modal for exporting plan as image
 const ExportModal = () => {
+  // user language
   const userLang = useAppSelector((state) => state.userData.lang) as Language;
+  // plan id
   const planId = useAppSelector((state) => state.localData.exportPlanId);
+  // dispatch
   const dispatch = useAppDispatch();
   const { terms, plan, planStats, planCourseData } = useAppSelector((state) =>
     selectExportInfo(state, planId),
@@ -190,6 +194,7 @@ const ExportModal = () => {
         </div>
       </form>
 
+      {/* preview container */}
       {previewUrl ? (
         <div className="preview-container">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -201,6 +206,7 @@ const ExportModal = () => {
         </div>
       )}
 
+      {/* footer, includes cancel/confirm buttons */}
       <footer>
         <button className="cancel-button" onClick={handleClose}>
           {t([I18nKey.CANCEL], userLang)}
