@@ -38,9 +38,11 @@ import {
 } from "@/store/slices/localDataSlice";
 
 const UtilityBar = () => {
+  // current plan id
   const currentPlanId = useAppSelector(
     (state) => state.localData.currentPlanId,
   );
+  // plan stats
   const {
     totalCredits,
     totalCourses,
@@ -51,22 +53,29 @@ const UtilityBar = () => {
     totalTerm,
     averageCreditsPerTerm,
   } = useAppSelector((state) => selectPlanStats(state, currentPlanId));
+  // utility dropdown menu open state
   const isUtilityDropdownMenuOpen = useAppSelector(
     (state) => state.global.isUtilityDropdownMenuOpen,
   );
+  // dispatch
   const dispatch = useAppDispatch();
+  // initialized state
   const isInitialized = useAppSelector((state) => state.global.isInitialized);
   const lang = useAppSelector((state) => state.userData.lang) as Language;
+  // programs
   const programs = useAppSelector((state) => state.userData.programs);
 
+  // handle close dropdown menu
   const handleCloseDropdownMenu = useCallback(() => {
     dispatch(setIsUtilityDropdownMenuOpen(false));
   }, [dispatch]);
 
+  // handle toggle dropdown menu
   const handleToggleDropdownMenu = useCallback(() => {
     dispatch(toggleIsUtilityDropdownMenuOpen());
   }, [dispatch]);
 
+  // actions
   const actions = useMemo(() => {
     if (!isInitialized) return [];
     return [
@@ -154,16 +163,21 @@ const UtilityBar = () => {
     ];
   }, [dispatch, currentPlanId, isInitialized, lang]) as ItemProps[];
 
-  // register shortcut keys
+  // register shortcut keys, runs only once when the app is initialized
   useEffect(() => {
     if (!isInitialized) return;
+
+    // create a map of shortcut keys to action items
     const entries = actions
       .map((item) => [item.shortcut?.[1].toLowerCase() ?? "", item.self])
       .filter(([key]) => key !== "") as [string, ItemProps["self"]][];
+
     if (entries.length === 0) return;
+    // create a map of shortcut keys to action items
     const keyMap = new Map<string, ItemProps["self"]>(entries);
     const keySet = new Set<string>(keyMap.keys());
 
+    // handle key down event
     const handleKeyDown = (event: KeyboardEvent) => {
       if (!event.metaKey && !event.ctrlKey) return; // only handle meta/ctrl key
       if (!keySet.has(event.key.toLowerCase())) return; // only handle keys in the keySet
@@ -178,7 +192,9 @@ const UtilityBar = () => {
       }
     };
 
+    // add event listener for key down event
     window.addEventListener("keydown", handleKeyDown);
+    // remove event listener when the component unmounts
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [actions, isInitialized]);
 
@@ -207,6 +223,7 @@ const UtilityBar = () => {
         handleClose={handleCloseDropdownMenu}
         trigger={{
           node: (
+            // map icon
             <PlanIcon
               className={clsx("hamburger", !isInitialized && "disabled")}
               data-tooltip-id={TooltipId.UTILITY_BAR}
@@ -224,8 +241,11 @@ const UtilityBar = () => {
           toggleIsOpen: handleToggleDropdownMenu,
         }}
       >
+        {/* plans dropdown menu */}
         <Plans handleCloseDropdownMenu={handleCloseDropdownMenu} />
+        {/* separator */}
         <Separator className="dropdown-menu-separator" />
+        {/* actions dropdown menu */}
         <Section
           label={t([I18nKey.ACTION], lang) + "s"}
           items={actions}
@@ -233,12 +253,15 @@ const UtilityBar = () => {
         />
       </DropdownMenuWrapper>
 
+      {/* item tags: Programs, Plan Stats */}
+      {/* skeleton loading */}
       {!isInitialized ? (
         <>
           <ItemTagSkeleton width="1" />
           <ItemTagSkeleton width="2" />
         </>
       ) : (
+        // render item tags
         <section className="item-tag-container">
           <ItemTag
             items={programs}
@@ -271,25 +294,38 @@ const UtilityBar = () => {
         </section>
       )}
 
+      {/* contents: Help, Sync, UserSession, UserLang, GithubMark */}
       <section className="contents">
+        {/* filler */}
         {/* <div className="filler" /> */}
+        {/* skeleton loading */}
         {!isInitialized ? (
+          // render skeleton loading
           <>
             <ItemTagSkeleton width="2" />
             <ItemTagSkeleton width="2" />
           </>
         ) : (
+          // render contents
           <>
+            {/* help modal */}
             <Help
               callback={() => {
                 dispatch(setIsInfoModalOpen(true));
               }}
             />
+
+            {/* local/remote sync status */}
             <Sync />
+
+            {/* user session login/logout */}
             <UserSession />
+
+            {/* user language */}
             <UserLang />
           </>
         )}
+        {/* github mark */}
         <GithubMark
           className="github-mark"
           data-tooltip-id={TooltipId.UTILITY_BAR}

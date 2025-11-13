@@ -66,7 +66,6 @@ const SearchResults = ({ result }: { result: SearchResult }) => {
   // handle infinite scroll
   const handleIntersection = useCallback(
     (entries: IntersectionObserverEntry[]) => {
-      console.log("update page", page);
       setTimeout(() => {
         const first = entries[0];
         if (first.isIntersecting && hasMore) {

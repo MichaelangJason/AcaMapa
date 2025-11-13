@@ -50,10 +50,12 @@ const CourseTaken = ({
   const lang = displayLang || userLang;
   const courseTakenListRef = useRef<HTMLDivElement>(null);
 
+  // handle expand course taken
   const handleExpand = useCallback(() => {
     if (!isInitialized || isExport) return;
     dispatch(toggleIsCourseTakenExpanded());
   }, [dispatch, isInitialized, isExport]);
+  // handle remove course taken
   const handleRemoveCourseTaken = useCallback(
     (e: React.MouseEvent<HTMLSpanElement>, source?: string) => {
       if (!source) return;
@@ -69,6 +71,7 @@ const CourseTaken = ({
     },
     [dispatch, isInitialized, isExport],
   );
+  // handle add course taken
   const handleAddCourseTaken = useCallback(
     (e: React.MouseEvent<HTMLButtonElement>) => {
       if (!isInitialized || isExport) return;
@@ -94,11 +97,12 @@ const CourseTaken = ({
         isExpanded && "expanded",
         !isInitialized && "disabled",
         className,
-        isExport && "export",
+        isExport && "export", // export override all other classes
       ])}
       style={style}
     >
       <header onClick={handleExpand}>
+        {/* add button, disabled in export mode */}
         {hasSelectedCourses && !isExport ? (
           <button className="add-button" onClick={handleAddCourseTaken}>
             {t([I18nKey.ADD_TO], lang, {
@@ -110,6 +114,8 @@ const CourseTaken = ({
         )}
         <ExpandIcon className="expand" />
       </header>
+
+      {/* course taken list */}
       {isExpanded ? (
         <section
           className={clsx(
@@ -118,20 +124,25 @@ const CourseTaken = ({
             isExport && "export",
           )}
         >
+          {/* inner container for scroll bar binding */}
           <div
             className="course-taken-list-inner scrollbar-hidden"
             ref={courseTakenListRef}
           >
+            {/* empty state */}
             {courseTaken.size <= 0 ? (
               <span className="empty">{t([I18nKey.EMPTY], lang)}</span>
             ) : (
+              // map over course taken entries
               [...courseTaken.entries()].map(
                 ([subjectCode, courseIds], idx) => {
                   return (
+                    // group by subject code
                     <div key={idx} className="course-taken-item">
                       <h5 className="subject">{subjectCode.toUpperCase()}</h5>
                       <div className="ids">
                         {courseIds.map((id, idx) => {
+                          // course ids for each subject code
                           return (
                             <Tag
                               key={idx}
@@ -161,6 +172,7 @@ const CourseTaken = ({
             )}
           </div>
 
+          {/* custom scroll bar */}
           <ScrollBar
             targetContainerRef={courseTakenListRef}
             direction="vertical"

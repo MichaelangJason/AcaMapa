@@ -2,7 +2,7 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import SyncIcon from "@/public/icons/sync-2.svg";
 import clsx from "clsx";
 import { TooltipId } from "@/lib/enums";
-import { useCallback, useMemo, useRef } from "react";
+import { useCallback, useMemo } from "react";
 import { getDebouncedSync } from "@/lib/sync";
 import { setSyncStatus } from "@/store/slices/localDataSlice";
 import { useSession } from "next-auth/react";
@@ -16,14 +16,15 @@ const Sync = () => {
   );
   const { data: session } = useSession();
   const lang = useAppSelector((state) => state.userData.lang) as Language;
-  const syncRef = useRef<HTMLImageElement>(null);
 
   const dispatch = useAppDispatch();
+  // INVESTIGATE: why useCallback?
   const debouncedSync = useCallback(() => {
     dispatch(setSyncStatus({ isSyncing: true }));
     getDebouncedSync(dispatch)();
   }, [dispatch]);
 
+  // format last synced at string
   const lastSyncedAtStr = useMemo(() => {
     if (session) {
       return t([I18nKey.LAST_SYNCED_AT], lang, {
@@ -35,6 +36,7 @@ const Sync = () => {
     });
   }, [lastSyncedAt, session, lang]);
 
+  // tooltip html
   const tooltipHtml = useMemo(() => {
     if (isSyncing) return `<span>${t([I18nKey.SYNCING], lang)}...</span>`;
     if (syncError) {
@@ -53,6 +55,7 @@ const Sync = () => {
     `;
   }, [isSyncing, syncError, lastSyncedAtStr, lang]);
 
+  // render sync section
   return (
     <section
       className={clsx({
@@ -65,7 +68,6 @@ const Sync = () => {
       data-tooltip-html={tooltipHtml}
       data-tooltip-place="bottom"
       onClick={debouncedSync}
-      ref={syncRef}
     >
       <SyncIcon className="sync-icon" />
     </section>

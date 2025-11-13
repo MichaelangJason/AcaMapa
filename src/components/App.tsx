@@ -38,11 +38,17 @@ const App = ({
     <SessionProvider session={session} refetchInterval={0}>
       <Provider store={store}>
         <SideBar />
+
         <UtilityBar />
+
         <Terms />
+
         {/* <Assistant /> */}
+
         <Modals />
+
         <ToolTips />
+
         <Toast />
       </Provider>
     </SessionProvider>
