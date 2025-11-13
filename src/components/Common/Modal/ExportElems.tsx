@@ -77,10 +77,8 @@ const ExportElems = forwardRef<HTMLDivElement, ExportElemsProps>(
                 idx={idx}
                 term={term}
                 courses={courseDataPerTerm[term._id]}
-                isFirst={idx === 0}
-                isExport={true}
+                isExport
                 isCourseDraggable={false}
-                showButtons={false}
                 className="export"
                 displayLang={lang}
                 expandCourses={expandCourses}

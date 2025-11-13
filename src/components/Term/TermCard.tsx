@@ -1,20 +1,10 @@
 "use client";
 
 import type { Term } from "@/types/db";
-import type { CachedDetailedCourse, DropdownOption } from "@/types/local";
-import HamburgerIcon from "@/public/icons/hamburger.svg";
-import PlusIcon from "@/public/icons/plus.svg";
+import type { CachedDetailedCourse } from "@/types/local";
 import SelectIcon from "@/public/icons/select.svg";
 import clsx from "clsx";
-import {
-  useMemo,
-  useState,
-  memo,
-  useCallback,
-  useRef,
-  useEffect,
-  startTransition,
-} from "react";
+import { useMemo, useState, useCallback, useRef } from "react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import DetailedCourseCard from "../Course/CourseCard/DetailedCourseCard";
 import {
@@ -24,138 +14,134 @@ import {
   DroppableProvided,
   DroppableStateSnapshot,
 } from "@hello-pangea/dnd";
-import { Season, TooltipId } from "@/lib/enums";
-import {
-  DropdownMenuWrapper,
-  Section,
-  type ItemProps,
-} from "../Common/DropdownMenu";
-import { renameTerm } from "@/store/slices/userDataSlice";
+import { Season } from "@/lib/enums";
 import { setSimpleModalInfo } from "@/store/slices/localDataSlice";
-import {
-  CURR_ACADEMIC_YEAR_RANGE,
-  CURR_YEAR_RANGE_STRING,
-} from "@/lib/constants";
 import { I18nKey, Language, t } from "@/lib/i18n";
-import WinterIcon from "@/public/icons/winter.svg";
-import SummerIcon from "@/public/icons/summer.svg";
-import FallIcon from "@/public/icons/fall.svg";
-import NotOfferedIcon from "@/public/icons/not-offered.svg";
-import TriangleIcon from "@/public/icons/triangle.svg";
-import CircleIcon from "@/public/icons/indicator.svg";
 import ScrollBar from "../Common/ScrollBar";
-import { mockTermNames } from "@/lib/mock";
-import { isValidTermName } from "@/lib/typeGuards";
-import { isCurrentTerm, isThisYearTerm, openInVSB } from "@/lib/term";
+import { isCurrentTerm, isThisYearTerm } from "@/lib/term";
+import {
+  CurrStatusIndicator,
+  AddTermButton,
+  TermDropdown,
+  TermSeasonIcon,
+  TermSeasonSelect,
+} from "./Components";
 
-const AddTermButton = ({
-  isBefore,
-  onClick,
-}: {
-  isBefore: boolean;
-  onClick: (isBefore: boolean) => void;
-}) => {
-  const [isClicked, setIsClicked] = useState(false);
-  const lang = useAppSelector((state) => state.userData.lang) as Language;
-
-  const handleClick = useCallback(() => {
-    setIsClicked(true);
-    onClick(isBefore);
-    setTimeout(() => {
-      setIsClicked(false);
-    }, 100);
-  }, [isBefore, onClick]);
-
-  return (
-    <button
-      className={clsx([
-        "add-term-button",
-        isBefore && "on-left",
-        isClicked && "clicked",
-      ])}
-      onClick={handleClick}
-      data-tooltip-id={TooltipId.TERM_CARD}
-      data-tooltip-content={t(
-        [I18nKey.ADD, I18nKey.NEW_M, I18nKey.SEMESTER],
-        lang,
-      )}
-      data-tooltip-delay-show={500}
-    >
-      <PlusIcon />
-    </button>
-  );
-};
-
-const mapSeason = (termSeason: Season) => {
-  if (termSeason === Season.WINTER) {
-    return <WinterIcon className="term-season-icon" />;
-  } else if (termSeason === Season.SUMMER) {
-    return <SummerIcon className="term-season-icon" />;
-  } else if (termSeason === Season.FALL) {
-    return <FallIcon className="term-season-icon" />;
-  }
-  return <NotOfferedIcon className="term-season-icon" />;
-};
-
-const TermCard = ({
-  planId,
-  term,
-  courses,
-  idx,
-  isFirst,
-  isExport,
-  isCourseDraggable = true,
-  displayLang,
-  showButtons = true,
-  addCourse,
-  addTerm,
-  deleteTerm,
-  deleteCourse,
-  setIsCourseExpanded,
-  className,
-  style,
-  draggableProvided,
-  draggableSnapshot,
-  droppableProvided,
-  droppableSnapshot,
-  expandCourses,
-}: {
+interface TermCardProps {
+  // possible contents
   planId: string;
   term: Term;
   courses: CachedDetailedCourse[];
   idx: number;
-  isFirst: boolean;
+
+  // used for export mode
   isExport?: boolean;
-  isCourseDraggable: boolean;
+  expandCourses?: boolean;
   displayLang?: Language;
-  showButtons: boolean;
+
+  // term states and actions
+  isCourseDraggable: boolean;
   addTerm?: (termId: string, isBefore?: boolean) => void;
   deleteTerm?: (termId: string, termIdx: number) => void;
   addCourse?: (termId: string) => Promise<void>;
   deleteCourse?: (termId: string, courseId: string) => void;
   setIsCourseExpanded?: (courseId: string, isExpanded: boolean) => void;
+
+  // card styling
   className?: string;
   style?: React.CSSProperties;
-  isDraggingOverlay?: boolean;
+
+  // draggable props
   draggableProvided?: DraggableProvided;
   draggableSnapshot?: DraggableStateSnapshot;
   droppableProvided?: DroppableProvided;
   droppableSnapshot?: DroppableStateSnapshot;
-  expandCourses?: boolean;
-}) => {
+}
+
+/**
+ * Term Card Componnet
+ *
+ * === term info ===
+ * @param planId - the id of the plan
+ * @param term - the term to display
+ * @param courses - the courses to display
+ * @param idx - the index of the term
+ *
+ * === card states and actions ===
+ * @param isCourseDraggable - whether the course cards are draggable
+ * @param setIsCourseExpanded - the function to set the expansion state of a course
+ * @param addCourse - the function to add a course
+ * @param deleteCourse - the function to delete a course
+ * @param addTerm - the function to add a term
+ * @param deleteTerm - the function to delete a term
+ *
+ * === used for export mode ===
+ * @param isExport - whether the term is being exported
+ * @param expandCourses - whether the courses are being expanded
+ * @param displayLang - the language to display
+ *
+ * === card styling ===
+ * @param className - the class name to apply to the term card
+ * @param style - the css styles to apply to the term card
+ *
+ * === draggable props ===
+ * @param draggableProvided - the provided draggable props
+ * @param draggableSnapshot - the snapshot of the draggable
+ * @param droppableProvided - the provided droppable props
+ * @param droppableSnapshot - the snapshot of the droppable
+ */
+const TermCard = ({
+  // possible contents
+  planId,
+  term,
+  courses,
+  idx,
+
+  // term states and actions
+  isCourseDraggable = true,
+  setIsCourseExpanded,
+  addCourse,
+  deleteCourse,
+  addTerm,
+  deleteTerm,
+
+  // used for export mode
+  isExport = false,
+  displayLang,
+  expandCourses,
+
+  // card styling
+  className,
+  style,
+
+  // draggable props
+  draggableProvided,
+  draggableSnapshot,
+  droppableProvided,
+  droppableSnapshot,
+}: TermCardProps) => {
+  const dispatch = useAppDispatch();
+
+  // global states
   const hasSelectedCourses = useAppSelector(
     (state) => state.global.hasSelectedCourses,
   );
   const isDragging = useAppSelector((state) => state.global.isDragging);
-  const [isTermDMOpen, setIsTermDMOpen] = useState(false);
   const isSeekingCourse = useAppSelector(
     (state) => state.global.isSeekingCourse,
   );
   const userLang = useAppSelector((state) => state.userData.lang) as Language;
-  const lang = displayLang || userLang;
+  const lang = displayLang || userLang; // override the language if provided
+
+  // local state
+  const [isEditing, setIsEditing] = useState(false);
+
+  // refs
   const termBodyRef = useRef<HTMLDivElement>(null);
   const termContainerRef = useRef<HTMLDivElement>(null);
-  const selectRef = useRef<HTMLSelectElement>(null);
+
+  // derived state
+  // TODO: normalize term name to avoid this hack
   const termSeason = useMemo(() => {
     const normalizedTermName = term.name.toLowerCase();
     if (
@@ -179,53 +165,19 @@ const TermCard = ({
     }
     return Season.NOT_OFFERED;
   }, [term]);
-  const [isEditing, setIsEditing] = useState(false);
+  // use name to check if the term is the current term or the current year term
   const isCurrTerm = useMemo(() => isCurrentTerm(term.name), [term.name]);
   const isCurrYearTerm = useMemo(() => isThisYearTerm(term.name), [term.name]);
-
-  const dispatch = useAppDispatch();
-
   const totalCredits = useMemo(() => {
     return courses.reduce((acc, course) => acc + course.credits, 0);
   }, [courses]);
 
-  const scrollCb = useCallback((e: WheelEvent) => {
-    // console.log(e)
-    if (!termBodyRef.current || Math.abs(e.deltaY) < 5) {
-      return;
-    }
-    const termBody = termBodyRef.current;
-    const scrollAmount = e.deltaY;
-    const prevScrollTop = termBody.scrollTop;
-    const containerMaxScrollLeft =
-      termBody.scrollHeight - termBody.clientHeight;
-
-    // Only stop propagation if there is actually something to scroll
-    if (
-      (scrollAmount < 0 && prevScrollTop > 0) ||
-      (scrollAmount > 0 && prevScrollTop < containerMaxScrollLeft)
-    ) {
-      e.stopPropagation();
-      // e.preventDefault();
-      termBody.scrollTop = prevScrollTop + scrollAmount;
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!termContainerRef.current) return;
-    termContainerRef.current.addEventListener("wheel", scrollCb, {
-      passive: true,
-    });
-    const elem = termContainerRef.current;
-    return () => {
-      elem?.removeEventListener("wheel", scrollCb);
-    };
-  }, [scrollCb]);
-
+  // handle adding a course to the term
   const handleAddCourse = useCallback(async () => {
     await addCourse?.(term._id.toString());
   }, [addCourse, term._id]);
 
+  // handle deleting a course from the term
   const handleDeleteCourse = useCallback(
     (courseId: string) => {
       deleteCourse?.(term._id.toString(), courseId);
@@ -233,6 +185,7 @@ const TermCard = ({
     [deleteCourse, term._id],
   );
 
+  // handle adding a term to the plan
   const handleAddTerm = useCallback(
     (isBefore: boolean) => {
       addTerm?.(term._id.toString(), isBefore);
@@ -240,11 +193,9 @@ const TermCard = ({
     [addTerm, term._id],
   );
 
-  const handleCloseTermDM = useCallback(() => {
-    setIsTermDMOpen(false);
-  }, []);
-
+  // handle deleting a term from the plan
   const handleDeleteTerm = useCallback(() => {
+    // ask for confirmation if the term has courses
     if (courses.length > 0) {
       dispatch(
         setSimpleModalInfo({
@@ -267,64 +218,10 @@ const TermCard = ({
     }
   }, [deleteTerm, idx, dispatch, term, courses.length, lang]);
 
-  const handleOpenInVSB = useCallback(() => {
-    openInVSB(
-      term.name,
-      courses.map((course) => course.id),
-    );
-  }, [term.name, courses]);
-
-  const termActions: ItemProps[] = useMemo(() => {
-    return [
-      {
-        self: {
-          id: "delete-term",
-          content: t([I18nKey.DELETE], lang),
-          handleClick: handleDeleteTerm,
-          isHideIndicator: true,
-          isHideFiller: true,
-        } as DropdownOption,
-        handleCloseDropdownMenu: handleCloseTermDM,
-      },
-      {
-        self: {
-          id: "open-in-vsb",
-          content: t([I18nKey.OPEN_IN_VSB], lang),
-          isDisabled: !isCurrYearTerm,
-          handleClick: handleOpenInVSB,
-          isHideIndicator: true,
-          isHideFiller: true,
-        } as DropdownOption,
-        handleCloseDropdownMenu: handleCloseTermDM,
-      },
-    ];
-  }, [
-    handleCloseTermDM,
-    lang,
-    handleDeleteTerm,
-    handleOpenInVSB,
-    isCurrYearTerm,
-  ]);
-
-  useEffect(() => {
-    if (isEditing && selectRef.current) {
-      try {
-        const elem = selectRef.current;
-        elem?.focus();
-
-        if (elem.showPicker) {
-          elem.showPicker();
-        } else {
-          // safari case
-          elem.dispatchEvent(new MouseEvent("mousedown"));
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    }
-  }, [isEditing]);
-
+  // derived state, no need to memoize
   const isDraggingTerm = draggableSnapshot?.isDragging;
+  const showButtons = !isExport;
+  const isFirst = idx === 0;
 
   return (
     // outer draggable for the whole term card
@@ -335,125 +232,78 @@ const TermCard = ({
       ref={draggableProvided?.innerRef}
       {...draggableProvided?.draggableProps}
     >
+      {/* left add term button */}
       {!isDragging && isFirst && showButtons && (
         <AddTermButton isBefore={true} onClick={handleAddTerm} />
       )}
-      {!isDragging &&
-        (isCurrTerm ? (
-          <TriangleIcon
-            className={clsx(["indicator", isCurrTerm && "current"])}
-            data-tooltip-id={TooltipId.SEASON_INDICATOR}
-            data-tooltip-content={t([I18nKey.CURRENT_TERM], lang)}
-            data-tooltip-delay-show={200}
-          />
-        ) : isCurrYearTerm ? (
-          <CircleIcon
-            className={clsx(["indicator"])}
-            data-tooltip-id={TooltipId.SEASON_INDICATOR}
-            data-tooltip-content={t([I18nKey.CURRENT_YEAR_TERM], lang, {
-              item1: CURR_YEAR_RANGE_STRING,
-            })}
-            data-tooltip-delay-show={200}
-          />
-        ) : null)}
+
+      {/* season indicator for the term card */}
+      {!isDragging && (
+        <CurrStatusIndicator
+          isCurrTerm={isCurrTerm}
+          isCurrYearTerm={isCurrYearTerm}
+          lang={lang}
+        />
+      )}
 
       {/* header for the term card */}
       <header className="term-header" {...draggableProvided?.dragHandleProps}>
-        {/* add course button for the term card */}
+        {/* show add course button or term name container */}
         {hasSelectedCourses && showButtons ? (
+          // add course button for the term card
           <button className="add-course-button" onClick={handleAddCourse}>
             {t([I18nKey.ADD_TO], lang, { item1: term.name })}
           </button>
         ) : (
+          // term name container for the term card
           <span className="term-name-container">
-            {mapSeason(termSeason)}
+            {/* term season icon */}
+            <TermSeasonIcon termSeason={termSeason} />
+
+            {/* term name */}
             <span className="term-name">
               <span>{term.name}</span>
-              {isEditing && (
-                <select
-                  value={term.name}
-                  onChange={(e) => {
-                    setIsEditing(false);
-                    startTransition(() => {
-                      dispatch(
-                        renameTerm({
-                          termId: term._id.toString(),
-                          newName: e.target.value,
-                        }),
-                      );
-                    });
-                  }}
-                  onBlur={() => {
-                    setIsEditing(false);
-                  }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    setIsEditing(false);
-                  }}
-                  className="select-term-name"
-                  ref={selectRef}
-                  form={`term-name-form-${term._id}`}
-                  onSubmit={(e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    setIsEditing(false);
-                  }}
-                >
-                  {mockTermNames(
-                    CURR_ACADEMIC_YEAR_RANGE,
-                    5,
-                    !isValidTermName(term.name, lang) ? term.name : "",
-                    lang,
-                  )[lang].map((name) => (
-                    <option key={name} value={name}>
-                      {name}
-                    </option>
-                  ))}
-                </select>
-              )}
+
+              {/* select element for the term name, hidden under the span */}
+              <TermSeasonSelect
+                termId={term._id.toString()}
+                termName={term.name}
+                lang={lang}
+                isEditing={isEditing}
+              />
             </span>
+
+            {/* select icon */}
             <SelectIcon
               className={clsx([
-                "select",
-                "clickable",
-                (isSeekingCourse ||
-                  hasSelectedCourses ||
-                  isDragging ||
-                  !showButtons) &&
-                  "hidden",
+                "select clickable",
+                (hasSelectedCourses || !showButtons) && "hidden",
               ])}
               onClick={() => {
                 setIsEditing((prev) => !prev);
+                setTimeout(() => {
+                  setIsEditing(false);
+                }, 100);
               }}
             />
           </span>
         )}
-        {/* dropdown menu for the term card */}
+
+        {/* term dropdown menu */}
         {showButtons && (
-          <DropdownMenuWrapper
-            isOpen={isTermDMOpen}
-            handleClose={() => setIsTermDMOpen(false)}
-            trigger={{
-              node: <HamburgerIcon className="hamburger" />,
-              toggleIsOpen: () => setIsTermDMOpen((prev) => !prev),
-            }}
-            contentProps={{
-              align: "center",
-            }}
-          >
-            <Section
-              items={termActions}
-              handleCloseDropdownMenu={handleCloseTermDM}
-            />
-          </DropdownMenuWrapper>
+          <TermDropdown
+            termName={term.name}
+            courseIds={courses.map((course) => course.id)}
+            handleDeleteTerm={handleDeleteTerm}
+            isCurrYearTerm={isCurrYearTerm}
+            lang={lang}
+          />
         )}
       </header>
 
       <div
         className={clsx([
-          "term-body-container",
-          "scrollbar-hidden",
+          "term-body-container scrollbar-hidden",
           isSeekingCourse && "scroll-disabled",
         ])}
         ref={termContainerRef}
@@ -461,8 +311,7 @@ const TermCard = ({
         {/* droppable for the courses in the term card */}
         <main
           className={clsx([
-            "term-body",
-            "scrollbar-hidden",
+            "term-body scrollbar-hidden",
             droppableSnapshot?.isDraggingOver && "dragging-over",
           ])}
           ref={(el) => {
@@ -475,16 +324,15 @@ const TermCard = ({
             isCourseDraggable ? (
               // draggable for the courses in the term card
               <Draggable
-                key={`draggable-${term._id}-${course.id}-${idx}`}
+                key={`draggable-${term._id}-${course.id}`}
                 draggableId={course.id}
                 index={idx}
                 isDragDisabled={isSeekingCourse}
               >
                 {(courseDraggableProvided, courseDraggableSnapshot) => (
                   <DetailedCourseCard
-                    key={`${term._id}-${course.id}-${idx}`}
+                    key={`${term._id}-${course.id}`}
                     course={course}
-                    idx={idx}
                     termId={term._id}
                     planId={planId}
                     termSeason={termSeason}
@@ -502,9 +350,8 @@ const TermCard = ({
             ) : (
               // non-draggable for the courses in the term card
               <DetailedCourseCard
-                key={`${term._id}-${course.id}-${idx}`}
+                key={`${term._id}-${course.id}`}
                 course={course}
-                idx={idx}
                 termId={term._id}
                 planId={planId}
                 termSeason={termSeason}
@@ -524,6 +371,7 @@ const TermCard = ({
           )}
           {!isExport && droppableProvided?.placeholder}
         </main>
+
         <ScrollBar
           targetContainerRef={termBodyRef}
           direction="vertical"
@@ -545,7 +393,7 @@ const TermCard = ({
         </span>
       </footer>
 
-      {/* add term button for the term card */}
+      {/* right add term button for the term card */}
       {!isDragging && showButtons && (
         <AddTermButton isBefore={false} onClick={handleAddTerm} />
       )}
@@ -553,4 +401,4 @@ const TermCard = ({
   );
 };
 
-export default memo(TermCard);
+export default TermCard;

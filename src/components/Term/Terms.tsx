@@ -37,29 +37,42 @@ import { TermCardSkeleton } from "../Skeleton";
 import { ScrollBar } from "../Common";
 import { clamp } from "@/lib/utils";
 
+/**
+ * Container of term cards
+ * @returns
+ */
 const Terms = () => {
+  const dispatch = useAppDispatch();
+
+  // local state
   const currentPlan = useAppSelector(selectCurrentPlan);
   const currentTerms = useAppSelector(selectTermData);
   const currentCourseDataPerTerm = useAppSelector(selectPlanCourseData);
   const selectedCourses = useAppSelector(
     (state) => state.localData.selectedCourses,
   );
+
+  // global state
+  const isInitialized = useAppSelector((state) => state.global.isInitialized);
   const isModalOpen = useAppSelector((state) => state.global.isModalOpen);
-  const dispatch = useAppDispatch();
-  const termsContainerRef = useRef<HTMLDivElement>(null);
   const isSeekingCourse = useAppSelector(
     (state) => state.global.isSeekingCourse,
   );
   const isAddingCourse = useAppSelector((state) => state.global.isAdding);
-  const isInitialized = useAppSelector((state) => state.global.isInitialized);
-  const docElRef = useRef<HTMLDivElement>(null);
-  if (!docElRef.current && typeof window !== "undefined") {
-    docElRef.current = document.documentElement as HTMLDivElement;
-  }
   const isSideBarFolded = useAppSelector(
     (state) => state.global.isSideBarFolded,
   );
 
+  // refs
+  const termsContainerRef = useRef<HTMLDivElement>(null);
+  const docElRef = useRef<HTMLDivElement>(null);
+  // attach document element to the ref
+  if (!docElRef.current && typeof window !== "undefined") {
+    docElRef.current = document.documentElement as HTMLDivElement;
+  }
+
+  // transform vertical scroll to horizontal scroll
+  // when user scrolls with meta key or ctrl key
   const handleVerticalScroll = useCallback(
     (e: WheelEvent) => {
       // console.log(e)
@@ -68,10 +81,12 @@ const Terms = () => {
         !docElRef.current ||
         isSeekingCourse ||
         isModalOpen ||
+        // threshold for horizontal scroll
         (Math.abs(e.deltaX) < 5 && !enableVerticalScroll)
       )
         return;
 
+      // transform vertical scroll to horizontal scroll
       const scrollAmount = enableVerticalScroll ? e.deltaY : e.deltaX;
       const prevScrollLeft = docElRef.current.scrollLeft;
       const containerMaxScrollLeft =
@@ -86,6 +101,7 @@ const Terms = () => {
     [isSeekingCourse, isModalOpen],
   );
 
+  // bind scroll callback
   useEffect(() => {
     if (!docElRef.current) return;
     docElRef.current.addEventListener("wheel", handleVerticalScroll);
@@ -94,15 +110,19 @@ const Terms = () => {
     };
   }, [handleVerticalScroll]);
 
+  // used by seeking course mask element to clear seeking course id
   const handleClearSeekingCourseId = useCallback(() => {
     if (!isSeekingCourse) return;
     dispatch(setSeekingCourseId(""));
   }, [dispatch, isSeekingCourse]);
 
+  // used by term card to add course to term
   const handleAddCourse = useCallback(
     async (termId: string) => {
       if (!isInitialized || !currentPlan) return;
       if (selectedCourses.size === 0 || isAddingCourse) return; // prevent adding course when adding course
+
+      // this thunk will fetch course data if not cached
       const result = await dispatch(
         addCourseToTerm({
           termId,
@@ -110,6 +130,8 @@ const Terms = () => {
           planId: currentPlan._id,
         }),
       );
+
+      // clear selected courses and search input if adding course is successful
       if (result.meta.requestStatus === "fulfilled") {
         dispatch(clearSelectedCourses());
         dispatch(setSearchInput(""));
@@ -118,6 +140,7 @@ const Terms = () => {
     [selectedCourses, dispatch, currentPlan, isAddingCourse, isInitialized],
   );
 
+  // used by term card to delete course from term
   const handleDeleteCourse = useCallback(
     (termId: string, courseId: string) => {
       if (!isInitialized || !currentPlan) return;
@@ -132,6 +155,9 @@ const Terms = () => {
     [dispatch, currentPlan, isInitialized],
   );
 
+  // used by term card to set course expansion state
+  // avoid creating too many callbacks for each course
+  // OPTIMIZE: can it be delegated?
   const handleSetIsCourseExpanded = useCallback(
     (courseId: string, isExpanded: boolean) => {
       if (!isInitialized || !currentPlan) return;
@@ -146,10 +172,12 @@ const Terms = () => {
     [dispatch, currentPlan, isInitialized],
   );
 
-  /* term related handlers */
+  // used by term card to add term to plan
   const handleAddTerm = useCallback(
     (termId: string, isBefore = false) => {
       if (!isInitialized || !currentPlan) return;
+
+      // find the index of the term in the plan term order
       const idx =
         currentPlan.termOrder.findIndex((s) => s === termId) +
         (isBefore ? 0 : 1);
@@ -158,6 +186,7 @@ const Terms = () => {
     [dispatch, currentPlan, isInitialized],
   );
 
+  // used by term card to delete term from plan
   const handleDeleteTerm = useCallback(
     (termId: string, termIdx: number) => {
       if (!isInitialized || !currentPlan) return;
@@ -166,7 +195,7 @@ const Terms = () => {
     [dispatch, currentPlan, isInitialized],
   );
 
-  /* drag and drop handlers */
+  // used by terms container to handle drag start
   const onDragStart = useCallback(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (start: DragStart) => {
@@ -177,37 +206,31 @@ const Terms = () => {
     [dispatch, isInitialized],
   );
 
+  // used by terms container to handle drag update
+  // placeholder function for now
   const onDragUpdate = useCallback((update: DragUpdate) => {
     const { type } = update;
 
     if (type !== DraggingType.COURSE) return;
   }, []);
 
+  // used by terms container to handle drag end
   const onDragEnd = useCallback(
     (result: DropResult) => {
       const { destination, source, draggableId, type } = result;
 
-      if (!isInitialized || !currentPlan) return;
-
       dispatch(setIsDragging(false));
+      if (!isInitialized || !currentPlan) return;
       if (!destination) return;
 
+      // prevent dragging the same term or course to the same position
       if (
         destination.droppableId === source.droppableId &&
         destination.index === source.index
       )
         return;
 
-      if (type === DraggingType.TERM) {
-        dispatch(
-          moveTerm({
-            planId: currentPlan._id,
-            termId: draggableId,
-            sourceIdx: source.index,
-            destIdx: destination.index,
-          }),
-        );
-      }
+      // move course
       if (type === DraggingType.COURSE) {
         dispatch(
           moveCourse({
@@ -217,6 +240,17 @@ const Terms = () => {
             destIdx: destination.index,
             sourceTermId: source.droppableId,
             destTermId: destination.droppableId,
+          }),
+        );
+      }
+      // move term
+      else if (type === DraggingType.TERM) {
+        dispatch(
+          moveTerm({
+            planId: currentPlan._id,
+            termId: draggableId,
+            sourceIdx: source.index,
+            destIdx: destination.index,
           }),
         );
       }
@@ -246,6 +280,7 @@ const Terms = () => {
             }}
             {...provided.droppableProps}
           >
+            {/* custom scroll bar for the terms container */}
             <ScrollBar
               dependentContainerRef={termsContainerRef}
               bindScroll={(cb) => {
@@ -268,14 +303,20 @@ const Terms = () => {
               }}
               className="larger"
             />
+
+            {/* render term cards */}
             {!isInitialized
-              ? Array.from({ length: 3 }).map((_, idx) => (
-                  <TermCardSkeleton
-                    key={idx}
-                    isFirst={idx === 0}
-                    numCourses={3}
-                  />
-                ))
+              ? // skeleton cards while initializing
+                // fill with null to avoid sparse array
+                Array.from({ length: 3 })
+                  .fill(null)
+                  .map((_, idx) => (
+                    <TermCardSkeleton
+                      key={idx}
+                      isFirst={idx === 0}
+                      numCourses={3}
+                    />
+                  ))
               : currentTerms.map((term, idx) => (
                   // term card is draggable
                   <Draggable
@@ -285,7 +326,7 @@ const Terms = () => {
                     isDragDisabled={false}
                   >
                     {(draggableProvided, draggableSnapshot) => (
-                      // term body is droppable for courses
+                      // term body is cours card droppable
                       <Droppable
                         droppableId={term._id}
                         type={DraggingType.COURSE}
@@ -293,18 +334,20 @@ const Terms = () => {
                         {(droppableProvided, droppableSnapshot) => (
                           <TermCard
                             key={term._id}
+                            // pass down plan data
                             planId={currentPlan!._id}
-                            idx={idx}
                             term={term}
                             courses={currentCourseDataPerTerm[term._id]}
-                            isFirst={idx === 0}
+                            idx={idx}
+                            // used for export mode to disable dragging
                             isCourseDraggable={true}
-                            showButtons={true}
+                            // pass down term related handlers
                             addTerm={handleAddTerm}
                             deleteTerm={handleDeleteTerm}
                             addCourse={handleAddCourse}
                             deleteCourse={handleDeleteCourse}
                             setIsCourseExpanded={handleSetIsCourseExpanded}
+                            // pass down draggable props
                             draggableProvided={draggableProvided}
                             draggableSnapshot={draggableSnapshot}
                             droppableProvided={droppableProvided}
@@ -315,7 +358,11 @@ const Terms = () => {
                     )}
                   </Draggable>
                 ))}
+
+            {/* placeholder for the term cards when dragging, used by dnd */}
             {provided.placeholder}
+
+            {/* seeking course mask element */}
             {
               <div
                 className={clsx(["seeking-mask", isSeekingCourse && "active"])}
