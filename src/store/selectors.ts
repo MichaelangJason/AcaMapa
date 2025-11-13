@@ -425,6 +425,7 @@ export const selectCourseDepMeta = createSelector(
       };
     };
 
+    // used for credit group
     const getValidCourses = (
       subjects: Set<string>,
       levels: string,
@@ -434,7 +435,13 @@ export const selectCourseDepMeta = createSelector(
       const currentOrder = termOrderMap.get(sourceTermId);
 
       const isCourseValid = (courseId: string) => {
+        const isLevelSatisfied =
+          levels[0] === "0" || levels.includes(getCourseLevel(courseId));
+
+        if (!isLevelSatisfied) return "";
+
         if (isCourseTaken(courseId)) return "Course Taken";
+
         if (!isCourseInGraph(depData, courseId)) {
           throw new Error("Course not in graph: " + courseId);
         }
@@ -454,8 +461,6 @@ export const selectCourseDepMeta = createSelector(
         const isOrderSatisfied = includeCurrentTerm
           ? courseOrder <= currentOrder
           : courseOrder < currentOrder;
-        const isLevelSatisfied =
-          levels[0] === "0" || levels.includes(getCourseLevel(courseId));
 
         // console.group(
         //   `isCourseValid(${courseId}, ${sourceTermId}, ${includeCurrentTerm}), levels: ${levels}`,
@@ -464,7 +469,7 @@ export const selectCourseDepMeta = createSelector(
         // console.log(isOrderSatisfied, isLevelSatisfied);
         // console.groupEnd();
 
-        if (!isOrderSatisfied || !isLevelSatisfied) {
+        if (!isOrderSatisfied) {
           return "";
         }
 
