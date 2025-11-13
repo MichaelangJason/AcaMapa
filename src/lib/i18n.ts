@@ -63,6 +63,7 @@ export enum I18nKey {
   FAQ = "faq",
   TOC = "table-of-contents",
   INSPECTING = "inspecting",
+  NO_NOTES = "no-notes",
 
   // common errors
   ERROR = "error",

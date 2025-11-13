@@ -391,13 +391,17 @@ export const seekProgram = createAppAsyncThunk(
         : "";
 
     const relatedCourseIds = program.req.flatMap((r) => r.courseIds);
-    const metaDataCard: ProgramReq & { hideCourses?: boolean } = {
+    const metaDataCard: ProgramReq & {
+      hideCourses?: boolean;
+      className?: string;
+    } = {
       heading: program.name,
       subheading: "Metadata",
       credits: program.credits,
       courseIds: relatedCourseIds,
       notes: [degree, faculty, department].filter(Boolean),
       hideCourses: true,
+      className: "meta-data",
     };
 
     dispatch(setSeekingProgramName(programName));
