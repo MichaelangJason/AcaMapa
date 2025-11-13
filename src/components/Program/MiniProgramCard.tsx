@@ -8,6 +8,16 @@ import { useCallback, useMemo } from "react";
 import RemoveIcon from "@/public/icons/minus.svg";
 import AddIcon from "@/public/icons/plus.svg";
 
+/**
+ * Display a mini program card in program modal
+ *
+ * @param data - the program data
+ * @param query - the query string, used for highlighting the text
+ * @param callback - the callback function, called when the program card is clicked
+ * @param isSelected - whether the program is selected
+ * @param style - the style of the program card, optional
+ * @returns
+ */
 const MiniProgramCard = ({
   data,
   query,
@@ -58,12 +68,12 @@ const MiniProgramCard = ({
       })}
       style={style}
     >
-      {/* credits */}
+      {/* credits, rounded to the nearest integer */}
       <aside className="credits">
         <span>{credits.toFixed(0)}</span>
       </aside>
 
-      {/* info */}
+      {/* info, including name and metadata */}
       <section className="info">
         <a
           className="name"
@@ -83,7 +93,7 @@ const MiniProgramCard = ({
         <p className="metadata">{metadata}</p>
       </section>
 
-      {/* icon */}
+      {/* icon, add or remove the program from the plan */}
       <aside
         className={clsx("icon-container", "clickable", isAdding && "disabled")}
         onClick={handleClick}

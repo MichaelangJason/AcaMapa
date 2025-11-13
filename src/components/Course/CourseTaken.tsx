@@ -23,6 +23,15 @@ import { I18nKey, Language, t } from "@/lib/i18n";
 import { TooltipId } from "@/lib/enums";
 import ScrollBar from "../Common/ScrollBar";
 
+/**
+ * Display the course taken list
+ *
+ * @param className - class name of the course taken
+ * @param style - style of the course taken
+ * @param isExport - whether the course taken is being exported
+ * @param displayLang - the language to display the course taken, used by export mode
+ * @returns
+ */
 const CourseTaken = ({
   className,
   style,
@@ -61,8 +70,12 @@ const CourseTaken = ({
       if (!source) return;
       e.stopPropagation();
       e.preventDefault();
+
+      // select course to add to the plan
       if (e.ctrlKey || e.metaKey) {
         dispatch(addSelectedCourse(source));
+
+        // remove from course taken
       } else {
         if (!isInitialized || isExport) return;
         if (!source) return;
@@ -71,11 +84,13 @@ const CourseTaken = ({
     },
     [dispatch, isInitialized, isExport],
   );
-  // handle add course taken
+  // handle add selected courses to the course taken
   const handleAddCourseTaken = useCallback(
     (e: React.MouseEvent<HTMLButtonElement>) => {
-      if (!isInitialized || isExport) return;
+      if (!isInitialized || isExport || selectedCourses.size === 0) return;
+
       e.stopPropagation();
+
       dispatch(
         addCourseTaken(
           [...selectedCourses.values()].map((course) => course.id),
