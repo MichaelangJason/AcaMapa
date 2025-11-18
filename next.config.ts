@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   experimental: {
-    globalNotFound: true
+    // globalNotFound: true
   },
   /* config options here */
   images: {
