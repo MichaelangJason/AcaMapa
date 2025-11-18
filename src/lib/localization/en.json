@@ -55,6 +55,8 @@
   "more": "More",
   "or": "or",
   "no-notes": "No notes",
+  "import": "Import",
+  "import-plan": "Import Plan",
 
   "error": "Error",
   "not-found": "Not found",
@@ -99,7 +101,9 @@
   "click-to-sync": "Click to sync",
   "create-with-local-data-title": "Local Data Detected",
   "create-with-local-data-desc": "You are about to create a new user, do you want to upload your local data? Your local data will be cleared after upload.",
+  "import-plan-desc": "*Supports png exported by AcaMapa since the availability of import feature.",
   "upload": "Upload",
+  "upload-image": "Upload PNG",
 
   "include-plan-stats": "Include Plan Stats",
   "include-course-taken": "Include Course Taken",

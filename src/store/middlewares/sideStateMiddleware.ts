@@ -30,6 +30,8 @@ import {
   setSeekingProgramName,
   setIsInfoModalOpen,
   clearIsInfoModalOpen,
+  setIsImportModalOpen,
+  clearIsImportModalOpen,
 } from "../slices/localDataSlice";
 import {
   addPlan,
@@ -208,6 +210,8 @@ startListening({
     clearIsProgramModalOpen,
     setIsInfoModalOpen,
     clearIsInfoModalOpen,
+    setIsImportModalOpen,
+    clearIsImportModalOpen,
   ),
   effect: (action, listenerApi) => {
     const state = listenerApi.getState();
@@ -223,6 +227,9 @@ startListening({
     const isInfoModalOpen =
       action.type === setIsInfoModalOpen.type &&
       state.localData.isInfoModalOpen;
+    const isImportModalOpen =
+      action.type === setIsImportModalOpen.type &&
+      state.localData.isImportModalOpen;
 
     const isModalOpen = listenerApi.getState().global.isModalOpen;
 
@@ -230,7 +237,8 @@ startListening({
       isSimpleModalOpen ||
       isExportModalOpen ||
       isProgramModalOpen ||
-      isInfoModalOpen;
+      isInfoModalOpen ||
+      isImportModalOpen;
 
     if (isModalOpen !== isAnyModalOpen) {
       listenerApi.dispatch(setIsModalOpen(isAnyModalOpen));

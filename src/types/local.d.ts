@@ -102,6 +102,11 @@ export type SimpleModalProps = {
   };
 };
 
+export type ImportModalInfo = {
+  isOpen: boolean;
+  type?: "image" | "json";
+};
+
 export type TooltipProps = Partial<
   Omit<
     {

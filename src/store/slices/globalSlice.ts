@@ -1,18 +1,23 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export const initialState = {
+  isInitialized: false as boolean,
+
+  // UI state
   isSideBarFolded: false as boolean,
   isCourseTakenExpanded: false as boolean,
-  // state controlled by selectedCourses, can be replaced by createSelector on selectedCourses.size
+  isUtilityDropdownMenuOpen: false as boolean,
+
+  // any modal open
+  isModalOpen: false as boolean,
+
+  // state flags
   hasSelectedCourses: false as boolean,
   isAdding: false as boolean,
   isDragging: false as boolean,
-  isInitialized: false as boolean,
-  isUtilityDropdownMenuOpen: false as boolean,
   isSeekingCourse: false as boolean,
   isSeekingProgram: false as boolean,
   isToastEnabled: true as boolean,
-  isModalOpen: false as boolean,
 };
 
 const globalSlice = createSlice({

@@ -64,8 +64,12 @@ export enum I18nKey {
   TOC = "table-of-contents",
   INSPECTING = "inspecting",
   NO_NOTES = "no-notes",
+  IMPORT = "import",
+  IMPORT_PLAN = "import-plan",
+  UPLOAD_IMAGE = "upload-image",
 
   // common errors
+  FAILED_TO_IMPORT_PLAN = "failed-to-import-plan",
   ERROR = "error",
   NOT_FOUND = "not-found",
   NOT_FOUND_IN = "not-found-in",
@@ -112,6 +116,7 @@ export enum I18nKey {
   CREATE_WITH_LOCAL_DATA_TITLE = "create-with-local-data-title",
   CREATE_WITH_LOCAL_DATA_DESC = "create-with-local-data-desc",
   UPLOAD = "upload",
+  IMPORT_PLAN_DESC = "import-plan-desc",
 
   // export related
   INCLUDE_PLAN_STATS = "include-plan-stats",

@@ -14,6 +14,8 @@ import { selectExportInfo } from "@/store/selectors";
 import ExportElems from "./ExportElems";
 // @ts-expect-error no typescript for dom-to-image-more
 import DomToImage from "dom-to-image-more";
+import { embedPlanDataInPng } from "@/lib/export";
+import { mapStringfyReplacer } from "@/lib/sync";
 
 Modal.setAppElement("html");
 
@@ -55,14 +57,32 @@ const ExportModal = () => {
   const handleConfirm = useCallback(() => {
     if (!previewUrl || !plan) return;
 
-    const link = document.createElement("a");
-    link.href = previewUrl;
-    link.download = `${plan.name}.jpg`;
-    link.click();
-    link.remove();
+    try {
+      const planData = JSON.stringify(
+        {
+          terms,
+          plan,
+        },
+        mapStringfyReplacer,
+      );
+      const newPreviewUrl = embedPlanDataInPng(previewUrl, planData);
 
+      const link = document.createElement("a");
+      link.href = newPreviewUrl;
+      link.download = `${plan.name}.png`;
+      link.click();
+      link.remove();
+    } catch (error) {
+      toast.error(
+        t([I18nKey.FAILED_TO_EXPORT], formState.lang, { item1: String(error) }),
+        {
+          autoClose: 3000,
+          closeButton: false,
+        },
+      );
+    }
     handleClose();
-  }, [previewUrl, plan, handleClose]);
+  }, [previewUrl, plan, terms, handleClose, formState.lang]);
 
   const exportContainerRef = useRef<HTMLDivElement>(null);
 
@@ -80,6 +100,7 @@ const ExportModal = () => {
       width: container.scrollWidth,
       height: container.scrollHeight,
     });
+
     setPreviewUrl(dataUrl);
   }, [setPreviewUrl]);
 
