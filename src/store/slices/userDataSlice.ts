@@ -12,9 +12,13 @@ export const initialState = {
   planData: new Map<string, Plan>(),
   termData: new Map<string, Term>(),
 
+  // selected programs
   programs: [] as string[],
 
+  // plan id order
   planOrder: [] as string[],
+
+  // chat thread ids, may not needed
   chatThreadIds: [] as string[],
 } as MemberData;
 
@@ -132,6 +136,32 @@ export const userDataSlice = createSlice({
     ) => {
       const { planId, newName } = action.payload;
       state.planData.get(planId)!.name = newName;
+    },
+    importPlan: (
+      state,
+      action: PayloadAction<{
+        plan: Plan;
+        terms: Term[];
+        generateNewId?: boolean;
+      }>,
+    ) => {
+      const { plan, terms, generateNewId = false } = action.payload;
+
+      // generate new plan id
+      if (generateNewId) {
+        plan._id = new ObjectId().toString();
+        terms.forEach((term) => {
+          term._id = new ObjectId().toString();
+        });
+      }
+
+      plan.termOrder = terms.map((term) => term._id);
+      state.planData.set(plan._id, plan);
+      state.planOrder.unshift(plan._id);
+
+      terms.forEach((term) => {
+        state.termData.set(term._id, term);
+      });
     },
 
     /* TERM RELATED */
@@ -309,6 +339,7 @@ export const {
   deletePlan,
   movePlan,
   renamePlan,
+  importPlan,
 
   /* TERM RELATED */
   setTermData,
@@ -324,6 +355,7 @@ export const {
   setIsOverwritten,
 } = userDataSlice.actions;
 
+// used for type inference
 export const userDataActions = userDataSlice.actions;
 
 export const planActions = {
@@ -333,6 +365,7 @@ export const planActions = {
   deletePlan,
   movePlan,
   renamePlan,
+  importPlan,
 };
 
 export const termActions = {
@@ -362,6 +395,7 @@ export const programActions = {
   removeProgram,
 };
 
+// used for type guards in sync middleware
 export type ProgramAction = ReturnType<
   (typeof programActions)[keyof typeof programActions]
 >;

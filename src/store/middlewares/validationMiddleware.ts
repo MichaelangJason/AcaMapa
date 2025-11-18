@@ -25,6 +25,7 @@ import {
 } from "@/lib/constants";
 import { getSubjectCode } from "@/lib/course";
 
+// input validation middleware
 const validationMiddleware: Middleware<
   {},
   RootState,
@@ -175,6 +176,9 @@ const validationMiddleware: Middleware<
           );
         }
 
+        break;
+      }
+      case "userData/importPlan": {
         break;
       }
       default:

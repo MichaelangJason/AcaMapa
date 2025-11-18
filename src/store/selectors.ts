@@ -342,7 +342,10 @@ export const selectCourseDepMeta = createSelector(
     planId = planId ?? currentPlanId;
     const plan = userData.planData.get(planId);
     const courseTaken = userData.courseTaken;
+
     if (!plan) {
+      // this can happen when deleting a plan (during React component unmound)
+      // and it's handled by the error middleware
       console.log("plan not found", planId);
       throw new Error(`Plan id not found in plan data: ${planId}`);
     }

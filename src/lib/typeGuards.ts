@@ -31,6 +31,23 @@ import { checkObjectKeys } from "./utils";
 import { I18nKey, Language, t } from "./i18n";
 import { CourseId, SavingData } from "@/types/local";
 
+export const isValidImportPlanData = (
+  planData: unknown,
+): planData is {
+  terms: Term[];
+  plan: Plan;
+} => {
+  if (!planData || typeof planData !== "object") return false;
+  if (!("terms" in planData) || !("plan" in planData)) return false;
+  if (
+    !Array.isArray(planData.terms) ||
+    planData.terms.some((t: any) => !isValidTerm(t))
+  )
+    return false;
+
+  return isValidPlan(planData.plan);
+};
+
 export const isValidCourse = (course: unknown): course is Course => {
   if (!course || typeof course !== "object") return false;
 
