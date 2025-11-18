@@ -13,19 +13,11 @@ import {
 } from "../Common/DropdownMenu";
 import {
   setIsUtilityDropdownMenuOpen,
-  toggleIsCourseTakenExpanded,
-  toggleIsSideBarFolded,
   toggleIsUtilityDropdownMenuOpen,
 } from "@/store/slices/globalSlice";
-import { useCallback, useEffect, useMemo } from "react";
-import { getCommandKey } from "@/lib/utils";
-import {
-  addPlan,
-  addTerm,
-  deletePlan,
-  removeProgram,
-} from "@/store/slices/userDataSlice";
-import { prepareExport, seekProgram } from "@/store/thunks";
+import { useCallback, useEffect } from "react";
+import { removeProgram } from "@/store/slices/userDataSlice";
+import { seekProgram } from "@/store/thunks";
 import type { ItemProps } from "../Common/DropdownMenu/Item";
 import { TooltipId } from "@/lib/enums";
 import clsx from "clsx";
@@ -36,6 +28,7 @@ import {
   setIsInfoModalOpen,
   setIsProgramModalOpen,
 } from "@/store/slices/localDataSlice";
+import { useDropdownActions } from "@/lib/hooks";
 
 const UtilityBar = () => {
   // current plan id
@@ -76,92 +69,12 @@ const UtilityBar = () => {
   }, [dispatch]);
 
   // actions
-  const actions = useMemo(() => {
-    if (!isInitialized) return [];
-    return [
-      {
-        self: {
-          id: "add-plan",
-          content: t([I18nKey.ADD, I18nKey.PLAN], lang),
-          handleClick: () => {
-            dispatch(addPlan());
-          }, // add an empty plan
-        },
-        shortcut: [getCommandKey(), "P"],
-      },
-      {
-        self: {
-          id: "add-term",
-          content: t([I18nKey.ADD, I18nKey.SEMESTER], lang),
-          handleClick: () =>
-            dispatch(
-              addTerm({
-                planId: currentPlanId,
-                idx: -1,
-              }),
-            ), // add an empty term
-        },
-        shortcut: [getCommandKey(), "N"],
-      },
-      {
-        self: {
-          id: "search-program",
-          content: t([I18nKey.ADD, I18nKey.PROGRAM], lang),
-          handleClick: () => {
-            dispatch(setIsProgramModalOpen(true));
-          },
-        },
-      },
-      {
-        self: {
-          id: "toggle-sidebar",
-          content: t([I18nKey.TOGGLE, I18nKey.SIDEBAR], lang),
-          handleClick: () => {
-            dispatch(toggleIsSideBarFolded());
-          },
-        },
-        shortcut: [getCommandKey(), "B"],
-      },
-      {
-        self: {
-          id: "toggle-course-taken",
-          content: t([I18nKey.TOGGLE, I18nKey.COURSE_TAKEN], lang),
-          handleClick: () => {
-            dispatch(toggleIsCourseTakenExpanded());
-          },
-        },
-        shortcut: [getCommandKey(), "I"],
-      },
-      {
-        self: {
-          id: "toggle-dropdown-menu",
-          content: t([I18nKey.TOGGLE, I18nKey.DROPDOWN_MENU], lang),
-          handleClick: () => {
-            dispatch(toggleIsUtilityDropdownMenuOpen());
-          },
-        },
-        shortcut: [getCommandKey(), "M"],
-      },
-      {
-        self: {
-          id: "delete-current-plan",
-          content: t([I18nKey.DELETE, I18nKey.CURRENT_PLAN], lang),
-          handleClick: () => {
-            dispatch(deletePlan(currentPlanId));
-          },
-        },
-      },
-      {
-        self: {
-          id: "export-current-plan",
-          content: t([I18nKey.EXPORT, I18nKey.CURRENT_PLAN], lang),
-          handleClick: () => {
-            dispatch(prepareExport(currentPlanId));
-          },
-        },
-      },
-    ];
-  }, [dispatch, currentPlanId, isInitialized, lang]) as ItemProps[];
+  const actions = useDropdownActions(
+    isInitialized,
+    lang,
+    dispatch,
+    currentPlanId,
+  );
 
   // register shortcut keys, runs only once when the app is initialized
   useEffect(() => {

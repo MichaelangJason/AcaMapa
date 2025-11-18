@@ -1,4 +1,19 @@
-import { useCallback, useRef } from "react";
+import { ItemProps } from "@/components/Common/DropdownMenu";
+import {
+  toggleIsSideBarFolded,
+  toggleIsCourseTakenExpanded,
+  toggleIsUtilityDropdownMenuOpen,
+} from "@/store/slices/globalSlice";
+import {
+  setIsImportModalOpen,
+  setIsProgramModalOpen,
+} from "@/store/slices/localDataSlice";
+import { addPlan, addTerm, deletePlan } from "@/store/slices/userDataSlice";
+import { prepareExport } from "@/store/thunks";
+import { useCallback, useMemo, useRef } from "react";
+import { t, I18nKey, Language } from "./i18n";
+import { getCommandKey } from "./utils";
+import { AppDispatch } from "@/store";
 
 export function useDebounce<T extends (...args: any[]) => any>(
   callback: T,
@@ -77,4 +92,109 @@ export const useThrottle = <T extends (...args: any[]) => any>(
   }, []);
 
   return { throttledCallback, cancel };
+};
+
+export const useDropdownActions = (
+  isInitialized: boolean,
+  lang: Language,
+  dispatch: AppDispatch,
+  currentPlanId: string,
+) => {
+  const actions = useMemo(() => {
+    if (!isInitialized) return [];
+    return [
+      {
+        self: {
+          id: "add-plan",
+          content: t([I18nKey.ADD, I18nKey.PLAN], lang),
+          handleClick: () => {
+            dispatch(addPlan());
+          }, // add an empty plan
+        },
+        shortcut: [getCommandKey(), "P"],
+      },
+      {
+        self: {
+          id: "add-term",
+          content: t([I18nKey.ADD, I18nKey.SEMESTER], lang),
+          handleClick: () =>
+            dispatch(
+              addTerm({
+                planId: currentPlanId,
+                idx: -1,
+              }),
+            ), // add an empty term
+        },
+        shortcut: [getCommandKey(), "N"],
+      },
+      {
+        self: {
+          id: "search-program",
+          content: t([I18nKey.ADD, I18nKey.PROGRAM], lang),
+          handleClick: () => {
+            dispatch(setIsProgramModalOpen(true));
+          },
+        },
+      },
+      {
+        self: {
+          id: "toggle-sidebar",
+          content: t([I18nKey.TOGGLE, I18nKey.SIDEBAR], lang),
+          handleClick: () => {
+            dispatch(toggleIsSideBarFolded());
+          },
+        },
+        shortcut: [getCommandKey(), "B"],
+      },
+      {
+        self: {
+          id: "toggle-course-taken",
+          content: t([I18nKey.TOGGLE, I18nKey.COURSE_TAKEN], lang),
+          handleClick: () => {
+            dispatch(toggleIsCourseTakenExpanded());
+          },
+        },
+        shortcut: [getCommandKey(), "I"],
+      },
+      {
+        self: {
+          id: "toggle-dropdown-menu",
+          content: t([I18nKey.TOGGLE, I18nKey.DROPDOWN_MENU], lang),
+          handleClick: () => {
+            dispatch(toggleIsUtilityDropdownMenuOpen());
+          },
+        },
+        shortcut: [getCommandKey(), "M"],
+      },
+      {
+        self: {
+          id: "delete-current-plan",
+          content: t([I18nKey.DELETE, I18nKey.CURRENT_PLAN], lang),
+          handleClick: () => {
+            dispatch(deletePlan(currentPlanId));
+          },
+        },
+      },
+      {
+        self: {
+          id: "export-current-plan",
+          content: t([I18nKey.EXPORT, I18nKey.CURRENT_PLAN], lang),
+          handleClick: () => {
+            dispatch(prepareExport(currentPlanId));
+          },
+        },
+      },
+      {
+        self: {
+          id: "import-plan",
+          content: t([I18nKey.IMPORT_PLAN], lang),
+          handleClick: () => {
+            dispatch(setIsImportModalOpen(true));
+          },
+        },
+      },
+    ];
+  }, [dispatch, currentPlanId, isInitialized, lang]) as ItemProps[];
+
+  return actions;
 };
