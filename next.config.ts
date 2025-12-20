@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import path from "path";
 
 const nextConfig: NextConfig = {
   experimental: {
@@ -18,17 +19,18 @@ const nextConfig: NextConfig = {
         loaders: ['@svgr/webpack'],
         as: '*.js'
       }
-    }
+    },
+    root: path.join(__dirname, '..'),
   },
-  cacheComponents: false
+  cacheComponents: false,
   
-  // webpack: (config) => {
-  //   config.module.rules.push({
-  //     test: /\.svg$/,
-  //     use: ["@svgr/webpack"], // https://stackoverflow.com/questions/65676689/next-js-how-can-i-change-the-color-of-svg-in-next-image
-  //   });
-  //   return config;
-  // },
+  webpack: (config) => {
+    config.module.rules.push({
+      test: /\.svg$/,
+      use: ["@svgr/webpack"], // https://stackoverflow.com/questions/65676689/next-js-how-can-i-change-the-color-of-svg-in-next-image
+    });
+    return config;
+  },
 };
 
 // Add bundle analyzer
