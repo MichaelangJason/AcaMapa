@@ -1,4 +1,17 @@
 .tag {
+  --tag-bg: var(--neutral-grey-light, --grey-3);
+  --tag-content-color: var(--grey-9);
+
+  &.satisfied {
+    --tag-bg: var(--satisfied-green-light);
+  }
+
+  &.unsatisfied {
+    --tag-bg: var(--unsatisfied-red-light);
+  }
+}
+
+.tag {
   display: flex;
   padding: 0rem 0.25rem;
   flex-direction: column;
@@ -9,34 +22,18 @@
   height: fit-content;
   cursor: pointer;
 
-  border-radius: 0.25rem;
-  background: var(--gray-200);
+  user-select: none;
 
-  color: var(--gray-1000);
+  border-radius: 0.25rem;
+  background: var(--tag-bg);
+
+  color: var(--tag-content-color);
   font-size: 0.75rem;
   font-weight: bold;
   text-wrap: nowrap;
   line-height: 1rem;
 
-  &.satisfied {
-    background: var(--satisfy-green);
-  }
-
-  &.unsatisfied {
-    background: var(--unsatisfy-red);
-  }
-
-  &.clickable {
-    &:hover:not(.satisfied):not(.unsatisfied) {
-      background: var(--gray-400);
-    }
-
-    &.satisfied:hover {
-      background: var(--satisfy-green-hover);
-    }
-
-    &.unsatisfied:hover {
-      background: var(--unsatisfy-red-hover);
-    }
+  &.clickable:hover:not(.disabled) {
+    opacity: 0.7;
   }
 }

@@ -35,10 +35,10 @@ const SideBar = () => {
   const searchCourseFn = useAppSelector(selectCourseSearchFn);
 
   // react-related hooks
-  const toggleFolded = useCallback(
-    () => dispatch(toggleIsSideBarFolded()),
-    [dispatch],
-  );
+  const toggleFolded = useCallback(() => {
+    if (!isInitialized) return;
+    dispatch(toggleIsSideBarFolded());
+  }, [dispatch, isInitialized]);
   const setValue = useCallback(
     (value: string) => dispatch(setSearchInput(value)),
     [dispatch],

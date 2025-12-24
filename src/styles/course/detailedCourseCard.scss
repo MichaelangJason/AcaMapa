@@ -1,3 +1,45 @@
+// variables
+.course-card {
+  --shadow: var(--shadow-normal);
+  --course-card-content-color: var(--grey-10);
+  --course-card-credits-color: var(--grey-1);
+
+  --course-card-bg: var(--neutral-grey-normal);
+  --course-card-dark: var(--neutral-grey-dark);
+  --course-card-light: var(--neutral-grey-light);
+  --course-card-button: var(--neutral-grey-button);
+
+  &.skeleton {
+    --course-card-bg: var(--grey-5);
+    & > .req-note-skeleton {
+      --req-note-bg: var(--grey-2);
+      --req-note-border-color: var(--grey-2);
+    }
+  }
+
+  &.satisfied {
+    --course-card-bg: var(--satisfied-green-normal);
+    --course-card-dark: var(--satisfied-green-dark);
+    --course-card-light: var(--satisfied-green-light);
+    --course-card-button: var(--satisfied-green-button);
+  }
+
+  &.unsatisfied {
+    --course-card-bg: var(--unsatisfied-red-normal);
+    --course-card-dark: var(--unsatisfied-red-dark);
+    --course-card-light: var(--unsatisfied-red-light);
+    --course-card-button: var(--unsatisfied-red-button);
+  }
+
+  &.program-section {
+    --course-card-content-color: var(--grey-1);
+    --course-card-credits-color: var(--grey-1);
+    --course-card-bg: var(--grey-8);
+    --course-card-dark: var(--grey-6);
+    --course-card-light: var(--grey-3);
+  }
+}
+
 .course-card {
   display: flex;
   width: var(--course-card-width);
@@ -7,24 +49,16 @@
   justify-content: center;
   align-items: center;
   border-radius: var(--border-radius-default);
-  box-shadow: var(--shadow-default);
-  background: var(--gray-500);
+  box-shadow: var(--shadow);
+  background: var(--course-card-bg);
   flex-shrink: 0;
   gap: 0.5rem;
 
   overflow: hidden;
 
-  &.program-section:not(&.meta-data) {
-    background: var(--gray-300);
-  }
-
-  &.satisfied {
-    background: var(--satisfy-green);
-  }
-
-  &.unsatisfied {
-    background: var(--unsatisfy-red);
-  }
+  // &.program-section:not(&.meta-data) {
+  //   background: var(--gray-300);
+  // }
 
   &.expanded {
     padding: 0.5rem;
@@ -60,7 +94,7 @@
       justify-content: flex-start;
       align-items: center;
 
-      color: var(--gray-1000);
+      color: var(--course-card-content-color);
       font-size: 1.125rem;
       font-weight: bold;
     }
@@ -69,7 +103,7 @@
       grid-area: subheading;
       max-width: 10.5rem;
 
-      color: var(--gray-1000);
+      color: var(--course-card-content-color);
       font-size: 0.75rem;
       font-weight: normal;
     }
@@ -86,12 +120,8 @@
       transition: all 0.2s ease;
 
       path {
-        fill: var(--gray-1000-50-opac);
-        transition: all 0.2s ease;
-      }
-
-      &:hover:not(.disabled) path {
-        fill: var(--gray-800);
+        fill: var(--course-card-button);
+        transition: fill 0.2s ease;
       }
 
       &.disabled {
@@ -121,7 +151,7 @@
         transition: opacity 0.2s ease;
 
         svg path {
-          stroke: var(--gray-1000-50-opac);
+          stroke: var(--course-card-button);
           stroke-width: 0.125rem;
           transition: all 0.2s ease;
         }
@@ -129,15 +159,15 @@
         &:hover:not(.active):not(.disabled) {
           cursor: pointer;
           svg > path {
-            stroke: var(--gray-800);
+            stroke: var(--course-card-dark);
           }
         }
 
         &.active {
           svg > path {
-            stroke: var(--gray-800);
+            stroke: var(--course-card-dark);
             fill-opacity: 1;
-            fill: var(--gray-800);
+            fill: var(--course-card-dark);
           }
         }
 
@@ -165,7 +195,7 @@
       .seek {
         svg {
           path {
-            fill: var(--gray-1000-50-opac);
+            fill: var(--course-card-button);
             fill-opacity: 1;
             stroke-width: 0;
           }
@@ -173,7 +203,7 @@
 
         &:hover:not(.active):not(.disabled) {
           svg > path {
-            fill: var(--gray-800);
+            fill: var(--course-card-dark);
           }
         }
       }
@@ -198,12 +228,11 @@
         flex-direction: column;
         justify-content: center;
         border-radius: 0.25rem;
-        opacity: 0.7;
 
         text-align: center;
-        background: var(--gray-1000-50-opac);
+        background: var(--course-card-dark);
 
-        color: var(--gray-000);
+        color: var(--course-card-credits-color);
         font-size: 1rem;
         font-weight: bold;
         line-height: 1rem;

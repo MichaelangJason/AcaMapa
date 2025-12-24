@@ -165,6 +165,7 @@ const CourseTaken = ({
                               sourceText={id}
                               displayText={formatCourseId(id)}
                               callback={handleRemoveCourseTaken}
+                              className="clickable"
                               tooltipOptions={{
                                 "data-tooltip-id": TooltipId.COURSE_TAKEN,
                                 "data-tooltip-content": t(

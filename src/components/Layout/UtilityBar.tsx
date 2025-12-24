@@ -131,6 +131,7 @@ const UtilityBar = () => {
 
   return (
     <section className="utility-bar">
+      {/* plan and action dropdown menu */}
       <DropdownMenuWrapper
         isOpen={isUtilityDropdownMenuOpen && isInitialized}
         handleClose={handleCloseDropdownMenu}

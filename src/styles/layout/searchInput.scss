@@ -1,4 +1,36 @@
 .search-input {
+  --search-input-bg: var(--grey-1);
+  --search-input-border: 0.125rem solid var(--grey-6);
+
+  &:not(.seeking):not(.seeking-program) .search-input-icon {
+    --search-input-icon-color: var(--grey-6);
+
+    &:hover {
+      --search-input-icon-color: var(--grey-4);
+    }
+  }
+
+  textarea {
+    --placeholder-color: var(--grey-5);
+    --search-input-textarea-color: var(--grey-9);
+  }
+
+  &.disabled {
+    --search-input-bg: var(--grey-2);
+  }
+
+  &.seeking,
+  &.seeking-program {
+    --search-input-bg: var(--grey-5);
+    --search-input-border: 0.25rem solid var(--grey-6);
+    --search-input-color: var(--grey-1);
+
+    --search-input-icon-color: var(--grey-1);
+    --search-input-icon-color-hover: var(--grey-3);
+  }
+}
+
+.search-input {
   width: var(--search-input-width);
   height: fit-content;
   min-height: var(--search-input-height);
@@ -8,7 +40,7 @@
 
   box-sizing: border-box;
 
-  background: var(--gray-000);
+  background: var(--search-input-bg);
 
   display: flex;
   flex-direction: row;
@@ -18,7 +50,6 @@
   gap: 0.25rem;
 
   &.disabled {
-    background: var(--gray-300);
     pointer-events: none;
   }
 
@@ -41,11 +72,11 @@
     font-size: 1rem;
     flex-grow: 1;
 
-    color: var(--gray-800);
+    color: var(--search-input-textarea-color);
     background-color: transparent;
 
     &::placeholder {
-      color: var(--gray-500);
+      color: var(--placeholder-color);
     }
 
     &.disabled {
@@ -66,12 +97,6 @@
     align-items: center;
     flex-shrink: 0;
 
-    &:hover {
-      .delete {
-        stroke: var(--gray-300);
-      }
-    }
-
     svg {
       display: flex;
       justify-content: center;
@@ -79,12 +104,13 @@
     }
 
     .delete {
+      transition: stroke 0.2s ease;
       cursor: pointer;
       width: 0.75rem;
       height: 0.75rem;
       display: block;
 
-      stroke: var(--gray-600);
+      stroke: var(--search-input-icon-color);
       stroke-width: 0.125rem;
     }
 
@@ -93,28 +119,27 @@
       height: 100%;
       display: block;
 
-      stroke: var(--gray-600);
+      stroke: var(--search-input-icon-color);
       stroke-width: 0.25rem;
     }
   }
 
   &.seeking {
     border-radius: 1rem;
-    border: 0.25rem solid var(--gray-600);
-    background: var(--gray-500);
+    border: var(--search-input-border);
+    background: var(--search-input-bg);
 
     textarea {
-      color: var(--gray-000);
+      color: var(--search-input-color);
       font-weight: bold;
     }
 
-    .search-input-icon {
-      .delete {
-        stroke: var(--gray-200);
+    .search-input-icon .delete {
+      transition: stroke 0.2s ease;
+      stroke: var(--search-input-icon-color);
 
-        &:hover {
-          stroke: var(--gray-600);
-        }
+      &:hover {
+        stroke: var(--search-input-icon-color-hover);
       }
     }
   }

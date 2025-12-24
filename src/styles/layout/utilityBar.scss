@@ -1,4 +1,32 @@
 .utility-bar {
+  --utility-bar-bg: var(--grey-3);
+  --utility-content-color: var(--grey-8);
+
+  .hamburger {
+    --hamburger-color: var(--grey-7);
+    &.disabled {
+      --hamburger-color: var(--grey-5);
+    }
+  }
+
+  .sync-container {
+    --sync-color: var(--grey-8);
+
+    &.error:not(.syncing) {
+      --sync-color: var(--unsatisfied-red-dark);
+    }
+
+    &.success:not(.syncing) {
+      --sync-color: var(--satisfied-green-dark);
+    }
+  }
+
+  .help-container {
+    --help-color: var(--grey-8);
+  }
+}
+
+.utility-bar {
   position: fixed;
   top: 0;
   left: 0;
@@ -11,7 +39,7 @@
   align-items: center;
   height: 2.75rem;
   padding: 0.75rem;
-  background: var(--gray-300);
+  background: var(--utility-bar-bg);
   padding-left: calc(var(--sidebar-width) + 0.75rem);
 
   transition: padding-left 0.2s ease-in-out;
@@ -21,8 +49,11 @@
     flex-shrink: 0;
     width: 1.25rem;
     height: auto;
-    cursor: pointer;
     outline: none;
+
+    &:hover:not(.disabled) {
+      cursor: pointer;
+    }
   }
 
   .github-mark {
@@ -31,20 +62,12 @@
   }
 
   .hamburger {
-    &.disabled {
-      cursor: not-allowed;
-      path {
-        stroke: var(--gray-400);
-      }
-    }
     path {
-      transition: fill 0.2s ease;
-      stroke: var(--gray-1000-50-opac);
+      transition: stroke 0.2s ease;
+      stroke: var(--hamburger-color);
     }
     &:hover:not(.disabled) {
-      path {
-        stroke: var(--gray-500);
-      }
+      opacity: 0.7;
     }
   }
 
@@ -56,7 +79,7 @@
     align-items: flex-start;
     justify-content: flex-end;
     gap: 0.5rem;
-    color: var(--gray-800);
+    color: var(--utility-content-color);
   }
 
   .item-tag-container {
@@ -69,7 +92,6 @@
     align-items: flex-start;
     justify-content: flex-start;
     gap: 0.5rem;
-    color: var(--gray-800);
   }
 
   .lang {
@@ -95,26 +117,22 @@
     align-items: center;
     justify-content: center;
 
-    &.error:not(.syncing) svg {
-      opacity: 1;
-      fill: var(--mcgill-red);
-    }
-
-    &.success:not(.syncing) svg {
-      opacity: 1;
-      fill: var(--sync-green);
+    &.error:not(.syncing),
+    &.success:not(.syncing),
+    &.syncing {
+      svg {
+        opacity: 1;
+      }
     }
 
     &.syncing svg {
-      opacity: 1;
-      fill: var(--gray-600);
       animation: sync-icon-spin 1s linear infinite;
     }
 
     svg {
       width: 1.5rem;
       height: 1.5rem;
-      fill: var(--gray-600);
+      fill: var(--sync-color);
       opacity: 0.6;
       rotate: -45deg;
       transition:
@@ -138,7 +156,7 @@
 
     svg {
       width: 1.4rem;
-      fill: var(--gray-600);
+      fill: var(--help-color);
       opacity: 0.6;
       transition:
         fill 0.2s ease,

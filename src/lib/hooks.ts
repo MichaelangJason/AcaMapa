@@ -7,6 +7,7 @@ import {
 import {
   setIsImportModalOpen,
   setIsProgramModalOpen,
+  setSimpleModalInfo,
 } from "@/store/slices/localDataSlice";
 import { addPlan, addTerm, deletePlan } from "@/store/slices/userDataSlice";
 import { prepareExport } from "@/store/thunks";
@@ -14,6 +15,7 @@ import { useCallback, useMemo, useRef } from "react";
 import { t, I18nKey, Language } from "./i18n";
 import { getCommandKey } from "./utils";
 import { AppDispatch } from "@/store";
+import { useAppSelector } from "@/store/hooks";
 
 export function useDebounce<T extends (...args: any[]) => any>(
   callback: T,
@@ -100,6 +102,7 @@ export const useDropdownActions = (
   dispatch: AppDispatch,
   currentPlanId: string,
 ) => {
+  const plans = useAppSelector((state) => state.userData.planData);
   const actions = useMemo(() => {
     if (!isInitialized) return [];
     return [
@@ -171,7 +174,22 @@ export const useDropdownActions = (
           id: "delete-current-plan",
           content: t([I18nKey.DELETE, I18nKey.CURRENT_PLAN], lang),
           handleClick: () => {
-            dispatch(deletePlan(currentPlanId));
+            dispatch(
+              setSimpleModalInfo({
+                isOpen: true,
+                title: t([I18nKey.DELETE_PLAN_TITLE], lang),
+                description: t([I18nKey.DELETE_PLAN_DESC], lang, {
+                  item1: plans.get(currentPlanId)!.name,
+                }),
+                confirmCb: () => {
+                  dispatch(deletePlan(currentPlanId));
+                  return Promise.resolve();
+                },
+                closeCb: () => {
+                  return Promise.resolve();
+                },
+              }),
+            );
           },
         },
       },

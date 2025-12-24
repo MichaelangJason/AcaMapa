@@ -41,7 +41,7 @@ const getStyle = (idx: number, isHovering: boolean, isExpanded: boolean) => {
         ),
     marginTop: `${getMarginTop(idx, isHovering, isExpanded)}rem`,
     boxShadow: idx <= 2 || isExpanded ? "" : "none",
-    background: `var(--gray-${clamp(isExpanded ? 0 : idx, 0, 4)}00)`,
+    background: `var(--grey-${clamp(isExpanded ? 1 : idx + 1, 1, 4)})`,
     opacity: isExpanded || idx <= 2 ? 1 : clamp(1 - idx * 0.05, 0.7, 1),
     zIndex: MAX_COURSE_SELECTED - idx,
   };

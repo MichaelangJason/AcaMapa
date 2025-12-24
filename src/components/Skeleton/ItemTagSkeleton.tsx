@@ -4,6 +4,8 @@ import { SKELETON_CONFIG } from "@/lib/constants";
 const ItemTagSkeleton = ({ width = "1" }: { width?: "1" | "2" }) => {
   return (
     <Skeleton
+      baseColor="var(--grey-2)"
+      highlightColor="var(--grey-1)"
       width={
         width === "1"
           ? SKELETON_CONFIG.ITEM_TAG.WIDTH_1

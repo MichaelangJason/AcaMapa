@@ -1,5 +1,7 @@
 "use client";
 import * as DM from "@radix-ui/react-dropdown-menu";
+import { useAppSelector } from "@/store/hooks";
+import clsx from "clsx";
 
 const DropdownMenuWrapper = ({
   children,
@@ -18,13 +20,14 @@ const DropdownMenuWrapper = ({
   };
   contentProps?: Partial<DM.DropdownMenuContentProps>;
 }) => {
+  const isInitialized = useAppSelector((state) => state.global.isInitialized);
   return (
     <DM.Root modal={false} open={isOpen}>
       <DM.Trigger
-        className={trigger.className}
+        className={clsx(trigger.className)}
+        disabled={!isInitialized}
         asChild
         onClick={trigger.toggleIsOpen}
-        style={{ cursor: "pointer" }}
       >
         {trigger.node}
       </DM.Trigger>

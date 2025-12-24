@@ -1,4 +1,26 @@
 .item-tag {
+  --item-tag-bg: var(--grey-7);
+  --item-tag-shadow: var(--shadow-normal);
+
+  --item-tag-content-color: var(--grey-1);
+
+  /** Pin, plus, minus */
+  --item-tag-button-color: var(--grey-4);
+  --item-tag-button-hover-color: var(--grey-3);
+  --item-tag-button-pinned-color: var(--grey-1);
+
+  /** Seek */
+  --item-tag-seek-color: var(--grey-6);
+  --item-tag-seek-hover-color: var(--grey-4);
+
+  /** Item */
+  --item-tag-item-bg: var(--grey-1);
+  --item-tag-item-no-items-bg: var(--grey-5);
+  --item-tag-item-no-items-content-color: var(--grey-1);
+  --item-tag-item-content-color: var(--grey-7);
+}
+
+.item-tag {
   display: flex;
   flex-direction: column;
   padding: 0.125rem 0.375rem;
@@ -6,7 +28,7 @@
   align-items: flex-start;
   gap: 0.25rem;
   border-radius: 0.375rem;
-  background: var(--gray-600);
+  background: var(--item-tag-bg);
   width: fit-content;
   box-sizing: border-box;
   min-height: 1.5rem;
@@ -14,9 +36,11 @@
   height: fit-content;
   text-wrap: nowrap;
 
+  user-select: none;
+
   &.expanded {
     padding-bottom: 0.375rem;
-    box-shadow: var(--shadow-default);
+    box-shadow: var(--item-tag-shadow);
 
     .item-tag-header {
       width: 100%;
@@ -37,7 +61,7 @@
     gap: 0.25rem;
     height: 1.25rem;
 
-    color: var(--gray-000);
+    color: var(--item-tag-content-color);
     font-size: 0.875rem;
     font-weight: bold;
 
@@ -63,13 +87,13 @@
       width: 0.7rem;
       path {
         transition: stroke 0.2s ease;
-        stroke: var(--gray-400);
+        stroke: var(--item-tag-button-color);
       }
 
       &:hover {
         cursor: pointer;
         path {
-          stroke: var(--gray-300);
+          stroke: var(--item-tag-button-hover-color);
         }
       }
     }
@@ -81,7 +105,7 @@
       &:hover {
         cursor: pointer;
         path {
-          stroke: var(--gray-600);
+          stroke: var(--item-tag-button-hover-color);
         }
       }
     }
@@ -93,13 +117,13 @@
       path {
         transition: fill 0.2s ease;
         stroke: unset;
-        fill: var(--gray-600);
+        fill: var(--item-tag-seek-color);
       }
 
       &:hover {
         cursor: pointer;
         path {
-          fill: var(--gray-800);
+          fill: var(--item-tag-seek-hover-color);
         }
       }
     }
@@ -110,20 +134,20 @@
       transition: rotate 0.1s ease;
       path {
         transition: fill 0.1s ease;
-        fill: var(--gray-400);
+        fill: var(--item-tag-button-color);
       }
 
       &.rotated {
         rotate: 0deg;
         path {
-          fill: var(--gray-200);
+          fill: var(--item-tag-button-hover-color);
         }
       }
 
       &.pinned {
         @extend .rotated;
         path {
-          fill: var(--gray-000);
+          fill: var(--item-tag-button-pinned-color);
         }
       }
     }
@@ -145,14 +169,14 @@
     align-items: center;
     gap: 0.25rem;
     border-radius: 0.25rem;
-    background: var(--gray-000);
+    background: var(--item-tag-item-bg);
     overflow: hidden;
 
     &.no-items {
-      background: var(--gray-400);
+      background: var(--item-tag-item-no-items-bg);
 
       .content {
-        color: var(--gray-000);
+        color: var(--item-tag-item-no-items-content-color);
       }
     }
 
@@ -162,7 +186,7 @@
       align-items: center;
       justify-content: flex-start;
       overflow: hidden;
-      color: var(--gray-600);
+      color: var(--item-tag-item-content-color);
       font-size: 0.875rem;
       font-weight: bold;
 

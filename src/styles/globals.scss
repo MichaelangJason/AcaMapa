@@ -7,14 +7,6 @@
   --mcgill-red: #e91d2e;
   --outlook-blue: #0078d4;
 
-  --card-bg-yellow: #fffdf2;
-  --satisfy-green: #b2e026;
-  --satisfy-green-hover: #90c109;
-  --unsatisfy-red: #ed7155;
-  --unsatisfy-red-hover: #d14e2a;
-
-  --sync-green: #39b102;
-
   --gray-000: #ffffff;
   --gray-100: #efefef;
   --gray-200: #d9d9d9;
@@ -25,7 +17,6 @@
   --gray-800: #3c3c3c;
   --gray-1000: #000000;
 
-  --gray-1000-50-opac: rgba(0, 0, 0, 0.5);
   --overlay-hover: rgba(0, 0, 0, 0.05);
   --overlay-hover-strong: rgba(0, 0, 0, 0.08);
   --overlay-selected: rgba(0, 0, 0, 0.12);
@@ -73,6 +64,54 @@
 
   --course-card-width-numeric: 260; // 16.25 rem
   --course-card-width: calc(var(--course-card-width-numeric) * 0.0625rem);
+}
+
+:root {
+  // grey colors
+  --grey-1: hsl(0, 0%, 100%);
+  --grey-2: hsl(0, 0%, 97%);
+  --grey-2-5: hsl(0, 0%, 94%);
+  --grey-3: hsl(0, 0%, 88%);
+  --grey-4: hsl(0, 0%, 81%);
+  --grey-5: hsl(0, 0%, 69%);
+  --grey-6: hsl(0, 0%, 62%);
+  --grey-7: hsl(0, 0%, 49%);
+  --grey-8: hsl(0, 0%, 38%);
+  --grey-9: hsl(0, 0%, 32%);
+  --grey-10: hsl(0, 0%, 23%);
+  --grey-11: hsl(0, 0%, 13%);
+  --grey-12: hsl(0, 0%, 0%);
+  --grey-12-opac-50: hsla(0, 0%, 0%, 0.5);
+
+  // accent colors
+  --satisfied-green-light: hsl(83, 64%, 77%);
+  --satisfied-green-normal: hsl(81, 63%, 63%);
+  --satisfied-green-dark: hsl(83, 42%, 48%);
+  --satisfied-green-button: hsl(81, 38%, 42%);
+
+  --neutral-grey-light: hsl(0, 0%, 88%);
+  --neutral-grey-normal: hsl(0, 0%, 79%);
+  --neutral-grey-dark: hsl(0, 0%, 59%);
+  --neutral-grey-button: hsl(0, 0%, 49%);
+
+  --unsatisfied-red-light: hsl(15, 88%, 85%);
+  --unsatisfied-red-normal: hsl(14, 78%, 72%);
+  --unsatisfied-red-dark: hsl(12, 48%, 55%);
+  --unsatisfied-red-button: hsl(12, 40%, 47%);
+
+  --input-focus-color: hsl(211, 100%, 50%);
+  --input-focus-shadow: 0 0 0 0.125rem hsla(211, 100%, 50%, 0.25);
+  --input-error-color: hsl(0, 100%, 50%);
+  --input-error-shadow: 0 0 0 0.125rem hsla(0, 100%, 50%, 0.25);
+
+  --indicator-color-normal: hsl(12, 80%, 66%);
+  --indicator-color-light: hsl(14, 86%, 83%);
+
+  // shadows
+  --shadow-common: 0rem 0.1875rem 0.625rem 0rem;
+  --shadow-heavy: var(--shadow-common) hsla(0, 0%, 0%, 0.25);
+  --shadow-normal: var(--shadow-common) hsla(0, 0%, 0%, 0.15);
+  --shadow-light: var(--shadow-common) hsla(0, 0%, 0%, 0.1);
 }
 
 html {
@@ -155,7 +194,7 @@ mark {
 }
 
 a {
-  color: var(--gray-1000);
+  color: inherit;
   text-decoration: none;
 
   &:hover {
@@ -181,15 +220,15 @@ h6 {
   mask-image: linear-gradient(
     to bottom,
     transparent,
-    var(--gray-000) 0.25%,
-    var(--gray-000) 99.75%,
+    var(--grey-1) 0.25%,
+    var(--grey-1) 99.75%,
     transparent
   );
   -webkit-mask-image: linear-gradient(
     to bottom,
     transparent,
-    var(--gray-000) 0.25%,
-    var(--gray-000) 99.75%,
+    var(--grey-1) 0.25%,
+    var(--grey-1) 99.75%,
     transparent
   );
 }

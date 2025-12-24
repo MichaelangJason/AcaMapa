@@ -1,9 +1,15 @@
 .plan-preview {
+  --plan-preview-bg: var(--grey-2);
+  --plan-preview-header-color: var(--grey-6);
+}
+
+.plan-preview {
   position: relative;
   width: 100%;
   box-sizing: border-box;
+
   & > header {
-    color: var(--gray-600);
+    color: var(--plan-preview-header-color);
     font-size: 1rem;
     font-weight: bold;
     line-height: 1rem;
@@ -14,11 +20,13 @@
   display: flex;
   flex-direction: column;
   padding: 0.5rem;
-  background-color: var(--gray-100);
+  background-color: var(--plan-preview-bg);
   border-radius: 0.75rem;
   overflow: hidden;
 
   .terms-container {
+    margin: 0;
+    padding: 0;
     overflow: scroll;
     display: flex;
     flex-direction: row;
@@ -27,13 +35,29 @@
 }
 
 .term-preview {
+  --term-preview-bg: var(--grey-5);
+  --term-preview-border-color: var(--grey-5);
+  --term-preview-content-color: var(--grey-2);
+
+  .courses-container {
+    --course-container-bg: var(--grey-1);
+
+    .course-preview {
+      --course-preview-bg: var(--grey-3);
+      --course-preview-credits-color: var(--grey-1);
+      --course-preview-id-color: var(--grey-7);
+    }
+  }
+}
+
+.term-preview {
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
   // gap: 0.5rem;
-  background-color: var(--gray-400);
+  background-color: var(--term-preview-bg);
   border-radius: 0.5rem;
-  border: 1px solid var(--gray-400);
+  border: 1px solid var(--term-preview-border-color);
   overflow: hidden;
   // min-width: 7rem;
   width: max-content;
@@ -49,7 +73,7 @@
     align-self: center;
     text-wrap: nowrap;
 
-    color: var(--gray-000);
+    color: var(--term-preview-content-color);
     font-size: 0.85rem;
     font-weight: 700;
     line-height: 0.85rem;
@@ -68,7 +92,7 @@
     flex-direction: column;
     gap: 0.25rem;
 
-    background-color: var(--gray-000);
+    background-color: var(--course-container-bg);
 
     .course-preview {
       display: flex;
@@ -81,7 +105,7 @@
       width: auto;
       box-sizing: border-box;
       border-radius: 0.25rem;
-      background: var(--gray-200);
+      background: var(--course-preview-bg);
 
       text-align: center;
       font-family: Arial;
@@ -97,12 +121,12 @@
 
       .credits {
         width: 0.75rem;
-        color: var(--gray-000);
+        color: var(--course-preview-credits-color);
         line-height: 0.85rem;
       }
 
       .id {
-        color: var(--gray-800);
+        color: var(--course-preview-id-color);
         line-height: 0.85rem;
       }
     }

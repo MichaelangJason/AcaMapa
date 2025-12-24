@@ -1,4 +1,36 @@
 .req-note {
+  --req-note-bg: var(--grey-1);
+  --req-note-border-color: var(--grey-1);
+  --req-note-header-color: var(--grey-7);
+  --req-note-content-color: var(--grey-10);
+
+  --req-note-marker-color: var(--grey-6);
+
+  &.skeleton {
+    --req-note-bg: var(--grey-2);
+    --req-note-border-color: var(--grey-2);
+  }
+
+  & > .req-group-container > .scroll-icon-container {
+    --scroll-icon-bg: var(--grey-2);
+    --scroll-icon-content-color: var(--grey-4);
+
+    &.show:hover {
+      --scroll-icon-bg: var(--grey-3);
+      --scroll-icon-content-color: var(--grey-6);
+    }
+
+    &.left {
+      --scroll-icon-shadow: var(--shadow-normal);
+    }
+
+    &.right {
+      --scroll-icon-shadow: var(--shadow-normal);
+    }
+  }
+}
+
+.req-note {
   position: relative;
   display: flex;
   width: 100%;
@@ -12,11 +44,10 @@
   box-sizing: border-box;
 
   border-radius: 0.65625rem;
-  // border: 0.25rem solid var(--gray-000);
-  background: var(--gray-000);
+  background: var(--req-note-bg);
 
   header {
-    color: var(--gray-500);
+    color: var(--req-note-header-color);
     font-size: 0.75rem;
     font-weight: bold;
     line-height: normal;
@@ -47,10 +78,14 @@
     gap: 0.3125rem;
 
     font-size: 0.75rem;
-    color: var(--gray-1000);
-    list-style-type: square;
+    color: var(--req-note-content-color);
+    list-style-type: disc;
 
     li {
+      &::marker {
+        background: var(--req-note-marker-color);
+        color: var(--req-note-content-color);
+      }
       text-wrap: wrap;
     }
   }
@@ -71,7 +106,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      background-color: var(--gray-100);
+      background-color: var(--scroll-icon-bg);
       opacity: 0;
       transition: all 0.2s ease;
       // padding: 0.25rem 0rem;
@@ -85,13 +120,6 @@
 
         &:hover {
           cursor: pointer;
-          opacity: 1;
-          background-color: var(--gray-300);
-          svg {
-            path {
-              stroke: var(--gray-600);
-            }
-          }
         }
       }
 
@@ -100,7 +128,6 @@
         svg {
           rotate: -90deg;
         }
-        // background-image: linear-gradient(to right, var(--gray-000), var(--gray-1000));
         border-radius: 0 0.375rem 0.375rem 0;
         padding-right: 0.125rem;
       }
@@ -112,7 +139,6 @@
         }
         border-radius: 0.375rem 0 0 0.375rem;
         padding-left: 0.125rem;
-        // background-image: linear-gradient(to right, #ffffff30 80%, var(--unsatisfy-red) 20%);
       }
 
       svg {
@@ -120,7 +146,7 @@
         height: auto;
         path {
           transition: all 0.2s ease;
-          stroke: var(--gray-300);
+          stroke: var(--scroll-icon-content-color);
         }
       }
     }
