@@ -1,1 +1,1 @@
-pnpm build
+pnpm build:webpack
