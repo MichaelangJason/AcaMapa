@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import clsx from "clsx";
 import { clamp } from "@/lib/utils";
 import { useAppSelector } from "@/store/hooks";
-import { useDebounce } from "@/lib/hooks";
+import { useDebounce } from "@/lib/hooks/common";
 
 export const ScrollBar = ({
   targetContainerRef,

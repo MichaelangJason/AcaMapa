@@ -16,7 +16,7 @@ import {
   toggleIsUtilityDropdownMenuOpen,
 } from "@/store/slices/globalSlice";
 import { useCallback } from "react";
-import { useDropdownActions, useRegisterShortcuts } from "@/lib/hooks";
+import { useDropdownActions, useRegisterShortcuts } from "@/lib/hooks/dropdown";
 
 const MapIcon = ({
   isInitialized,

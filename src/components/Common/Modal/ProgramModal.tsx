@@ -6,7 +6,7 @@ import CloseIcon from "@/public/icons/delete.svg";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { clearIsProgramModalOpen } from "@/store/slices/localDataSlice";
 import { I18nKey, Language, t } from "@/lib/i18n";
-import { useDebounce } from "@/lib/hooks";
+import { useDebounce } from "@/lib/hooks/common";
 import ScrollBar from "../ScrollBar";
 import { PROGRAM_RESULT_PER_PAGE } from "@/lib/constants";
 import FootNote from "../../Course/CourseCard/FootNote";

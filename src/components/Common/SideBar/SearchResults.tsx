@@ -15,7 +15,7 @@ import {
 } from "@/store/slices/localDataSlice";
 import type { Course } from "@/types/db";
 import type { SearchResult } from "@/types/local";
-import { useDebounce } from "@/lib/hooks";
+import { useDebounce } from "@/lib/hooks/common";
 import { selectAllCourseData } from "@/store/selectors";
 import FootNote from "../../Course/CourseCard/FootNote";
 import { MiniCourseCardSkeleton } from "@/components/Skeleton";

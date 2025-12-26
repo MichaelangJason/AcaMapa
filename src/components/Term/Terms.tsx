@@ -1,64 +1,37 @@
 "use client";
 
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { useAppSelector } from "@/store/hooks";
 import {
   selectPlanCourseData,
   selectCurrentPlan,
   selectTermData,
 } from "@/store/selectors";
-import { useCallback, useRef, memo, useEffect } from "react";
-import {
-  addTerm,
-  deleteCourse,
-  deleteTerm,
-  moveTerm,
-  moveCourse,
-} from "@/store/slices/userDataSlice";
+import { useRef, memo } from "react";
 import TermCard from "./TermCard";
-import { addCourseToTerm } from "@/store/thunks";
-import {
-  clearSelectedCourses,
-  setIsCourseExpanded,
-  setSearchInput,
-  setSeekingCourseId,
-} from "@/store/slices/localDataSlice";
-import {
-  DragDropContext,
-  type DragStart,
-  type DragUpdate,
-  Draggable,
-  type DropResult,
-  Droppable,
-} from "@hello-pangea/dnd";
+import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
 import { DraggingType } from "@/lib/enums";
-import { setIsDragging } from "@/store/slices/globalSlice";
 import clsx from "clsx";
 import { TermCardSkeleton } from "../Skeleton";
 import { ScrollBar } from "../Common";
-import { clamp } from "@/lib/utils";
+import { useTermsVerticalScroll } from "@/lib/hooks/terms";
+import { useCourseActions } from "@/lib/hooks/course";
+import { useTermsActions, useTermsDragAndDrop } from "@/lib/hooks/terms";
 
 /**
  * Container of term cards
  * @returns
  */
 const Terms = () => {
-  const dispatch = useAppDispatch();
-
   // local state
   const currentPlan = useAppSelector(selectCurrentPlan);
   const currentTerms = useAppSelector(selectTermData);
   const currentCourseDataPerTerm = useAppSelector(selectPlanCourseData);
-  const selectedCourses = useAppSelector(
-    (state) => state.localData.selectedCourses,
-  );
 
   // global state
   const isInitialized = useAppSelector((state) => state.global.isInitialized);
-  const isModalOpen = useAppSelector((state) => state.global.isModalOpen);
   const isSeekingCourse = useAppSelector(
     (state) => state.global.isSeekingCourse,
   );
-  const isAddingCourse = useAppSelector((state) => state.global.isAdding);
   const isSideBarFolded = useAppSelector(
     (state) => state.global.isSideBarFolded,
   );
@@ -73,190 +46,20 @@ const Terms = () => {
 
   // transform vertical scroll to horizontal scroll
   // when user scrolls with meta key or ctrl key
-  const handleVerticalScroll = useCallback(
-    (e: WheelEvent) => {
-      // console.log(e)
-      const enableVerticalScroll = e.metaKey || e.ctrlKey;
-      if (
-        !docElRef.current ||
-        isSeekingCourse ||
-        isModalOpen ||
-        // threshold for horizontal scroll
-        (Math.abs(e.deltaX) < 5 && !enableVerticalScroll)
-      )
-        return;
+  useTermsVerticalScroll();
 
-      // transform vertical scroll to horizontal scroll
-      const scrollAmount = enableVerticalScroll ? e.deltaY : e.deltaX;
-      const prevScrollLeft = docElRef.current.scrollLeft;
-      const containerMaxScrollLeft =
-        docElRef.current.scrollWidth - docElRef.current.clientWidth;
-      const nextScrollLeft = clamp(
-        prevScrollLeft + scrollAmount,
-        0,
-        containerMaxScrollLeft,
-      );
-      docElRef.current.scrollLeft = nextScrollLeft;
-    },
-    [isSeekingCourse, isModalOpen],
-  );
+  // actions that manipulate courses
+  const {
+    handleClearSeekingCourseId,
+    handleAddCourse,
+    handleDeleteCourse,
+    handleSetIsCourseExpanded,
+  } = useCourseActions();
 
-  // bind scroll callback
-  useEffect(() => {
-    if (!docElRef.current) return;
-    docElRef.current.addEventListener("wheel", handleVerticalScroll);
-    return () => {
-      docElRef.current?.removeEventListener("wheel", handleVerticalScroll);
-    };
-  }, [handleVerticalScroll]);
+  // actions that manipulate terms
+  const { handleAddTerm, handleDeleteTerm } = useTermsActions();
 
-  // used by seeking course mask element to clear seeking course id
-  const handleClearSeekingCourseId = useCallback(() => {
-    if (!isSeekingCourse) return;
-    dispatch(setSeekingCourseId(""));
-  }, [dispatch, isSeekingCourse]);
-
-  // used by term card to add course to term
-  const handleAddCourse = useCallback(
-    async (termId: string) => {
-      if (!isInitialized || !currentPlan) return;
-      if (selectedCourses.size === 0 || isAddingCourse) return; // prevent adding course when adding course
-
-      // this thunk will fetch course data if not cached
-      const result = await dispatch(
-        addCourseToTerm({
-          termId,
-          courseIds: Array.from(selectedCourses.keys()),
-          planId: currentPlan._id,
-        }),
-      );
-
-      // clear selected courses and search input if adding course is successful
-      if (result.meta.requestStatus === "fulfilled") {
-        dispatch(clearSelectedCourses());
-        dispatch(setSearchInput(""));
-      }
-    },
-    [selectedCourses, dispatch, currentPlan, isAddingCourse, isInitialized],
-  );
-
-  // used by term card to delete course from term
-  const handleDeleteCourse = useCallback(
-    (termId: string, courseId: string) => {
-      if (!isInitialized || !currentPlan) return;
-      dispatch(
-        deleteCourse({
-          termId,
-          courseId,
-          planId: currentPlan._id,
-        }),
-      );
-    },
-    [dispatch, currentPlan, isInitialized],
-  );
-
-  // used by term card to set course expansion state
-  // avoid creating too many callbacks for each course
-  // OPTIMIZE: can it be delegated?
-  const handleSetIsCourseExpanded = useCallback(
-    (courseId: string, isExpanded: boolean) => {
-      if (!isInitialized || !currentPlan) return;
-      dispatch(
-        setIsCourseExpanded({
-          planId: currentPlan._id,
-          courseIds: [courseId],
-          isExpanded,
-        }),
-      );
-    },
-    [dispatch, currentPlan, isInitialized],
-  );
-
-  // used by term card to add term to plan
-  const handleAddTerm = useCallback(
-    (termId: string, isBefore = false) => {
-      if (!isInitialized || !currentPlan) return;
-
-      // find the index of the term in the plan term order
-      const idx =
-        currentPlan.termOrder.findIndex((s) => s === termId) +
-        (isBefore ? 0 : 1);
-      dispatch(addTerm({ planId: currentPlan._id, idx }));
-    },
-    [dispatch, currentPlan, isInitialized],
-  );
-
-  // used by term card to delete term from plan
-  const handleDeleteTerm = useCallback(
-    (termId: string, termIdx: number) => {
-      if (!isInitialized || !currentPlan) return;
-      dispatch(deleteTerm({ planId: currentPlan._id, termId, termIdx }));
-    },
-    [dispatch, currentPlan, isInitialized],
-  );
-
-  // used by terms container to handle drag start
-  const onDragStart = useCallback(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    (start: DragStart) => {
-      if (!isInitialized) return;
-      // const { type } = start;
-      dispatch(setIsDragging(true));
-    },
-    [dispatch, isInitialized],
-  );
-
-  // used by terms container to handle drag update
-  // placeholder function for now
-  const onDragUpdate = useCallback((update: DragUpdate) => {
-    const { type } = update;
-
-    if (type !== DraggingType.COURSE) return;
-  }, []);
-
-  // used by terms container to handle drag end
-  const onDragEnd = useCallback(
-    (result: DropResult) => {
-      const { destination, source, draggableId, type } = result;
-
-      dispatch(setIsDragging(false));
-      if (!isInitialized || !currentPlan) return;
-      if (!destination) return;
-
-      // prevent dragging the same term or course to the same position
-      if (
-        destination.droppableId === source.droppableId &&
-        destination.index === source.index
-      )
-        return;
-
-      // move course
-      if (type === DraggingType.COURSE) {
-        dispatch(
-          moveCourse({
-            planId: currentPlan._id,
-            courseId: draggableId,
-            sourceIdx: source.index,
-            destIdx: destination.index,
-            sourceTermId: source.droppableId,
-            destTermId: destination.droppableId,
-          }),
-        );
-      }
-      // move term
-      else if (type === DraggingType.TERM) {
-        dispatch(
-          moveTerm({
-            planId: currentPlan._id,
-            termId: draggableId,
-            sourceIdx: source.index,
-            destIdx: destination.index,
-          }),
-        );
-      }
-    },
-    [currentPlan, dispatch, isInitialized],
-  );
+  const { onDragStart, onDragUpdate, onDragEnd } = useTermsDragAndDrop();
 
   return (
     <DragDropContext
