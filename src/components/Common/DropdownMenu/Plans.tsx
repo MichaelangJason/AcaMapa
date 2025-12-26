@@ -33,8 +33,9 @@ const Plans = ({
   const handleSelectPlan = useCallback(
     (planId: string) => {
       dispatch(setCurrentPlanId(planId));
+      handleCloseDropdownMenu();
     },
-    [dispatch],
+    [dispatch, handleCloseDropdownMenu],
   );
 
   const handleDeletePlan = useCallback(

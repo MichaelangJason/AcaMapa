@@ -138,6 +138,7 @@ const SearchResults = ({ result }: { result: SearchResult }) => {
         )}
         ref={resultContainerRef}
       >
+        {/* result items */}
         {displayData.slice(0, page * RESULT_PER_PAGE).map((entry, idx) => {
           if (!isInitialized) {
             return (
@@ -179,9 +180,13 @@ const SearchResults = ({ result }: { result: SearchResult }) => {
 
           return null;
         })}
+
+        {/* no result text */}
         {displayData.length === 0 && (
           <FootNote content={handleNoResultText()} className="course-card" />
         )}
+
+        {/* loading more text */}
         {hasMore && (
           <div className="loading-placeholder" ref={loadingTriggerRef}>
             {t([I18nKey.LOADING_MORE], lang)}

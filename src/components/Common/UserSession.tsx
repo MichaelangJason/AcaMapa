@@ -36,9 +36,7 @@ const UserSession = () => {
       items={[]}
       title={session?.user?.email ?? t([I18nKey.LOGIN_WITH_MCGILL_EMAIL], lang)}
       isPinnable={false}
-      style={{
-        backgroundColor: "var(--indicator-color-normal)",
-      }}
+      className="user-session-tag"
       tooltipProps={{
         "data-tooltip-id": TooltipId.USER_SESSION,
         "data-tooltip-content": t([I18nKey.UNDER_CONSTRUCTION], lang),

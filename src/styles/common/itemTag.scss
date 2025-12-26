@@ -5,19 +5,46 @@
   --item-tag-content-color: var(--grey-1);
 
   /** Pin, plus, minus */
-  --item-tag-button-color: var(--grey-4);
-  --item-tag-button-hover-color: var(--grey-3);
-  --item-tag-button-pinned-color: var(--grey-1);
+  .icon-container {
+    --item-tag-button-color: var(--grey-4);
+    --item-tag-button-pinned-color: var(--grey-1);
 
-  /** Seek */
-  --item-tag-seek-color: var(--grey-6);
-  --item-tag-seek-hover-color: var(--grey-4);
+    .minus,
+    .plus,
+    .pin {
+      &:hover {
+        --item-tag-button-color: var(--grey-3);
+      }
+    }
+
+    .pin {
+      &.rotated {
+        --item-tag-button-color: var(--grey-3);
+      }
+      &.pinned {
+        --item-tag-button-color: var(--grey-1);
+      }
+    }
+
+    /** Seek */
+    .seek {
+      --item-tag-seek-color: var(--grey-6);
+
+      &:hover {
+        --item-tag-seek-color: var(--grey-4);
+      }
+    }
+  }
 
   /** Item */
   --item-tag-item-bg: var(--grey-1);
   --item-tag-item-no-items-bg: var(--grey-5);
   --item-tag-item-no-items-content-color: var(--grey-1);
   --item-tag-item-content-color: var(--grey-7);
+
+  &.user-session-tag {
+    --item-tag-bg: var(--unsatisfied-red-saturated);
+  }
 }
 
 .item-tag {
@@ -82,35 +109,29 @@
     align-items: center;
     justify-content: center;
 
+    .icon-common {
+      &:hover {
+        cursor: pointer;
+      }
+    }
+
     .plus {
+      @extend .icon-common;
       height: 100%;
       width: 0.7rem;
       path {
         transition: stroke 0.2s ease;
         stroke: var(--item-tag-button-color);
       }
-
-      &:hover {
-        cursor: pointer;
-        path {
-          stroke: var(--item-tag-button-hover-color);
-        }
-      }
     }
 
     .minus {
       @extend .plus;
       flex-shrink: 0;
-
-      &:hover {
-        cursor: pointer;
-        path {
-          stroke: var(--item-tag-button-hover-color);
-        }
-      }
     }
 
     .seek {
+      @extend .icon-common;
       width: 0.75rem;
       flex-shrink: 0;
 
@@ -118,13 +139,6 @@
         transition: fill 0.2s ease;
         stroke: unset;
         fill: var(--item-tag-seek-color);
-      }
-
-      &:hover {
-        cursor: pointer;
-        path {
-          fill: var(--item-tag-seek-hover-color);
-        }
       }
     }
 
@@ -137,18 +151,9 @@
         fill: var(--item-tag-button-color);
       }
 
-      &.rotated {
-        rotate: 0deg;
-        path {
-          fill: var(--item-tag-button-hover-color);
-        }
-      }
-
+      &.rotated,
       &.pinned {
-        @extend .rotated;
-        path {
-          fill: var(--item-tag-button-pinned-color);
-        }
+        rotate: 0deg;
       }
     }
   }
