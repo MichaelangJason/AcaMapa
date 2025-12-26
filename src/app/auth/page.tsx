@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { providerMap, signIn } from "@/auth";
-import { AuthError } from "next-auth";
+// import { providerMap, signIn } from "@/auth";
+// import { AuthError } from "next-auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import ConstructionIcon from "@/public/icons/construction.svg";

@@ -9,8 +9,7 @@ import { AppStore, makeStore } from "@/store";
 import type { Course, Program } from "@/types/db";
 import { setCourseData, setProgramData } from "@/store/slices/localDataSlice";
 import { initApp } from "@/store/thunks";
-import { SessionProvider } from "next-auth/react";
-import type { Session } from "@/types/local";
+import type { Session } from "@/types/auth";
 
 const App = ({
   courseData,
@@ -35,23 +34,21 @@ const App = ({
   }, []);
 
   return (
-    <SessionProvider session={session} refetchInterval={0}>
-      <Provider store={store}>
-        <SideBar />
+    <Provider store={store}>
+      <SideBar />
 
-        <UtilityBar />
+      <UtilityBar />
 
-        <Terms />
+      <Terms />
 
-        {/* <Assistant /> */}
+      {/* <Assistant /> */}
 
-        <Modals />
+      <Modals />
 
-        <ToolTips />
+      <ToolTips />
 
-        <Toast />
-      </Provider>
-    </SessionProvider>
+      <Toast />
+    </Provider>
   );
 };
 

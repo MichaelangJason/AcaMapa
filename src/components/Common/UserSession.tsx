@@ -1,7 +1,6 @@
 "use client";
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useSession, signIn, signOut } from "next-auth/react";
 import ItemTag from "./ItemTag";
 import { useCallback, useMemo } from "react";
 import { I18nKey, Language, t } from "@/lib/i18n";
@@ -10,7 +9,6 @@ import { TooltipId } from "@/lib/enums";
 import { redirect } from "next/navigation";
 
 const UserSession = () => {
-  const { data: session } = useSession();
   const lang = useAppSelector((state) => state.userData.lang) as Language;
 
   // const item = useMemo(() => {
@@ -34,7 +32,7 @@ const UserSession = () => {
   return (
     <ItemTag
       items={[]}
-      title={session?.user?.email ?? t([I18nKey.LOGIN_WITH_MCGILL_EMAIL], lang)}
+      title={t([I18nKey.LOGIN_WITH_MCGILL_EMAIL], lang)}
       isPinnable={false}
       className="user-session-tag"
       tooltipProps={{

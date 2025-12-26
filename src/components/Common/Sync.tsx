@@ -5,7 +5,6 @@ import { TooltipId } from "@/lib/enums";
 import { useCallback, useMemo } from "react";
 import { getDebouncedSync } from "@/lib/sync";
 import { setSyncStatus } from "@/store/slices/localDataSlice";
-import { useSession } from "next-auth/react";
 import { I18nKey, Language, t } from "@/lib/i18n";
 
 const Sync = () => {
@@ -14,7 +13,6 @@ const Sync = () => {
   const { isSyncing, lastSyncedAt, syncError } = useAppSelector(
     (state) => state.localData.syncStatus,
   );
-  const { data: session } = useSession();
   const lang = useAppSelector((state) => state.userData.lang) as Language;
 
   const dispatch = useAppDispatch();
@@ -26,15 +24,10 @@ const Sync = () => {
 
   // format last synced at string
   const lastSyncedAtStr = useMemo(() => {
-    if (session) {
-      return t([I18nKey.LAST_SYNCED_AT], lang, {
-        item1: new Date(lastSyncedAt).toLocaleString(),
-      });
-    }
     return t([I18nKey.LAST_SAVED_LOCALLY_AT], lang, {
       item1: new Date(lastSyncedAt).toLocaleString(),
     });
-  }, [lastSyncedAt, session, lang]);
+  }, [lastSyncedAt, lang]);
 
   // tooltip html
   const tooltipHtml = useMemo(() => {

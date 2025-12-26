@@ -5,10 +5,10 @@ import type {
   CourseDepData,
   CachedDetailedProgram,
   SearchResult,
-  Session,
   SimpleModalProps,
   ImportModalInfo,
 } from "@/types/local";
+import type { Session } from "@/types/auth";
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import {
   findIdInReqGroup,
