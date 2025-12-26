@@ -1,8 +1,8 @@
 "use client";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { useCallback, useMemo } from "react";
-import DnDSection from "./DnDSection";
-import type { SubSectionProps } from "./SubSection";
+import DnDSection from "@/components/Common/DropdownMenu/DnDSection";
+import type { SubSectionProps } from "@/components/Common/DropdownMenu/SubSection";
 import { deletePlan, renamePlan } from "@/store/slices/userDataSlice";
 import { DropdownOption } from "@/types/local";
 import type { DropResult } from "@hello-pangea/dnd";

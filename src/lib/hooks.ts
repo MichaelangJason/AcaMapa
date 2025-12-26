@@ -11,7 +11,7 @@ import {
 } from "@/store/slices/localDataSlice";
 import { addPlan, addTerm, deletePlan } from "@/store/slices/userDataSlice";
 import { prepareExport } from "@/store/thunks";
-import { useCallback, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { t, I18nKey, Language } from "./i18n";
 import { getCommandKey } from "./utils";
 import { AppDispatch } from "@/store";
@@ -215,4 +215,44 @@ export const useDropdownActions = (
   }, [dispatch, currentPlanId, isInitialized, lang]) as ItemProps[];
 
   return actions;
+};
+
+export const useRegisterShortcuts = (
+  actions: ItemProps[],
+  isInitialized: boolean,
+) => {
+  // register shortcut keys, runs only once when the app is initialized
+  useEffect(() => {
+    if (!isInitialized) return;
+
+    // create a map of shortcut keys to action items
+    const entries = actions
+      .map((item) => [item.shortcut?.[1].toLowerCase() ?? "", item.self])
+      .filter(([key]) => key !== "") as [string, ItemProps["self"]][];
+
+    if (entries.length === 0) return;
+    // create a map of shortcut keys to action items
+    const keyMap = new Map<string, ItemProps["self"]>(entries);
+    const keySet = new Set<string>(keyMap.keys());
+
+    // handle key down event
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (!event.metaKey && !event.ctrlKey) return; // only handle meta/ctrl key
+      if (!keySet.has(event.key.toLowerCase())) return; // only handle keys in the keySet
+
+      const item = keyMap.get(event.key.toLowerCase());
+      if (item) {
+        event.preventDefault();
+        event.stopPropagation();
+        item.handleClick(item.id);
+      } else {
+        console.log("key not found", event.key.toLowerCase());
+      }
+    };
+
+    // add event listener for key down event
+    window.addEventListener("keydown", handleKeyDown);
+    // remove event listener when the component unmounts
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [actions, isInitialized]);
 };

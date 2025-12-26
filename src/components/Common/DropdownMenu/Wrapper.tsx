@@ -21,6 +21,7 @@ const DropdownMenuWrapper = ({
   contentProps?: Partial<DM.DropdownMenuContentProps>;
 }) => {
   const isInitialized = useAppSelector((state) => state.global.isInitialized);
+
   return (
     <DM.Root modal={false} open={isOpen}>
       <DM.Trigger
