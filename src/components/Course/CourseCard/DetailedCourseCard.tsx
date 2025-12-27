@@ -9,7 +9,7 @@ import type {
 } from "@hello-pangea/dnd";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
-  selectCurrentPlanIsCourseExpanded,
+  selectIsCourseExpanded,
   selectCourseDepGraph,
   selectIsOverwritten,
 } from "@/store/selectors";
@@ -101,7 +101,7 @@ const DetailedCourseCard = ({
 
   // whether the course is expanded, controlled by redux
   const isExpanded = useAppSelector((state) =>
-    selectCurrentPlanIsCourseExpanded(state, id),
+    selectIsCourseExpanded(state, id),
   );
 
   // whether the course req is overwritten, controlled by redux
