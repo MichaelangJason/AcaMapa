@@ -1,7 +1,7 @@
 "use client";
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import ItemTag from "./ItemTag";
+import ItemTag from "@/components/Common/ItemTag";
 import { useCallback, useMemo } from "react";
 import { I18nKey, Language, t } from "@/lib/i18n";
 import { useAppSelector } from "@/store/hooks";

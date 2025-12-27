@@ -12,7 +12,7 @@ import { clamp } from "@/lib/utils";
 import MiniCourseCard from "../../Course/CourseCard/MiniCourseCard";
 import clsx from "clsx";
 import { I18nKey, Language, t } from "@/lib/i18n";
-import ScrollBar from "../ScrollBar";
+import ScrollBar from "@/components/Common/ScrollBar";
 
 const getMarginTop = (
   idx: number,

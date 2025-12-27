@@ -20,7 +20,7 @@ import { selectAllCourseData } from "@/store/selectors";
 import FootNote from "../../Course/CourseCard/FootNote";
 import { MiniCourseCardSkeleton } from "@/components/Skeleton";
 import { I18nKey, Language, t } from "@/lib/i18n";
-import ScrollBar from "../ScrollBar";
+import ScrollBar from "@/components/Common/ScrollBar";
 import clsx from "clsx";
 
 const SearchResults = ({ result }: { result: SearchResult }) => {

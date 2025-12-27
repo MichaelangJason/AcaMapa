@@ -1,6 +1,7 @@
 "use client";
 
-import { SearchResults, MultiSelect } from "@/components/Common/SideBar";
+import MultiSelect from "./MultiSelect";
+import SearchResults from "./SearchResults";
 import { CourseTaken } from "@/components/Course";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { toggleIsSideBarFolded } from "@/store/slices/globalSlice";

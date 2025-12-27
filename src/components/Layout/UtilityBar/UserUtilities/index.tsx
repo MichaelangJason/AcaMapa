@@ -1,4 +1,9 @@
-import { Help, Sync, UserSession, UserLang } from "@/components/Common";
+import {
+  Help,
+  Sync,
+  UserSession,
+  UserLang,
+} from "@/components/Common/UserUtilities";
 import ItemTagSkeleton from "@/components/Skeleton/ItemTagSkeleton";
 import { TooltipId } from "@/lib/enums";
 import { Language, t, I18nKey } from "@/lib/i18n";
