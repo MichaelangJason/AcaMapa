@@ -3,12 +3,16 @@ import {
   clearSelectedCourses,
   setSearchInput,
   setIsCourseExpanded,
+  addSelectedCourse,
 } from "@/store/slices/localDataSlice";
-import { deleteCourse } from "@/store/slices/userDataSlice";
+import { addCourseTaken, deleteCourse } from "@/store/slices/userDataSlice";
 import { addCourseToTerm } from "@/store/thunks";
 import { useCallback } from "react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { selectCurrentPlan } from "@/store/selectors";
+import { setIsCourseTakenExpanded } from "@/store/slices/globalSlice";
+import { COURSE_TAKEN_SCROLL_DELAY } from "../constants";
+import { scrollCourseCardToView } from "../utils";
 
 export const useCourseActions = () => {
   const dispatch = useAppDispatch();
@@ -90,4 +94,42 @@ export const useCourseActions = () => {
     handleDeleteCourse,
     handleSetIsCourseExpanded,
   };
+};
+
+export const useAddToCourseTakenOrJump = () => {
+  const dispatch = useAppDispatch();
+  const handleAddToCourseTakenOrJump = useCallback(
+    (
+      e: React.MouseEvent<HTMLSpanElement>,
+      courseId?: string,
+      source?: string,
+    ) => {
+      if (!courseId) return;
+      if (!source) {
+        if (e.ctrlKey || e.metaKey) {
+          e.preventDefault();
+          e.stopPropagation();
+          dispatch(addSelectedCourse(courseId));
+        } else {
+          dispatch(addCourseTaken([courseId]));
+        }
+      } else {
+        if (source.toLowerCase() === "course taken") {
+          dispatch(setIsCourseTakenExpanded(true));
+          setTimeout(() => {
+            document
+              .getElementById(`course-taken-${courseId}`)
+              ?.scrollIntoView({
+                behavior: "smooth",
+                block: "center",
+              });
+          }, COURSE_TAKEN_SCROLL_DELAY);
+        } else {
+          scrollCourseCardToView(courseId, { duration: 200 });
+        }
+      }
+    },
+    [dispatch],
+  );
+  return handleAddToCourseTakenOrJump;
 };
