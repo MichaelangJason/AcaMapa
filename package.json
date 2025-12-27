@@ -5,8 +5,8 @@
   "scripts": {
     "prepare": "husky",
     "dev": "next dev",
-    "build": "next build --turbopack",
-    "build:webpack": "next build --webpack",
+    "build": "next build --webpack",
+    "build:turbopack": "next build --turbopack",
     "start": "next start",
     "lint": "next lint",
     "format": "prettier --write",
