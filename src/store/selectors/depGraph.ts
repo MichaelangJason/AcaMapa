@@ -118,7 +118,6 @@ export const selectCourseDepMeta = createAppSelector(
 
       if (
         !isValid &&
-        reqType !== ReqType.ANTI_REQ &&
         targetTermOrder !== undefined &&
         currentTermOrder !== undefined
       ) {
@@ -127,6 +126,9 @@ export const selectCourseDepMeta = createAppSelector(
           : includeCurrentTerm
             ? targetTermOrder <= currentTermOrder
             : targetTermOrder < currentTermOrder;
+        if (reqType === ReqType.ANTI_REQ) {
+          isValid = !isValid;
+        }
       }
 
       const source = isCourseTaken(courseId)
@@ -139,6 +141,21 @@ export const selectCourseDepMeta = createAppSelector(
         source === "Course Taken" ||
         !!depGraph.get(courseId)?.isSatisfied ||
         plan.courseMetadata.get(courseId)?.isOverwritten;
+
+      // if (courseId === '') {
+      //   console.group('getCourseSource', courseId);
+      //   console.log('source', source);
+      //   console.log('isSatisfied', isSatisfied);
+      //   console.log('isValid', isValid);
+      //   console.log('targetTermId', targetTermId);
+      //   console.log('targetTermOrder', targetTermOrder);
+      //   console.log('currentTermOrder', currentTermOrder);
+      //   console.log('includeCurrentTerm', includeCurrentTerm);
+      //   console.log('reqType', reqType);
+      //   console.log('isCourseTaken', isCourseTaken(courseId));
+      //   console.log('isCourseInGraph', isCourseInGraph(depData, courseId));
+      //   console.groupEnd();
+      // }
 
       return {
         isValid: !!isValid,
