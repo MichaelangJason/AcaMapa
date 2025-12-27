@@ -216,12 +216,13 @@
       align-items: center;
       align-self: flex-start;
 
-      &:not(.skeleton) > span {
+      &:not(.skeleton) > div {
+        position: relative;
         flex-shrink: 0;
         width: fit-content;
         min-width: 1.75rem;
         height: 1.25rem;
-        display: flex;
+        // display: flex;
         padding: 0 0.25rem;
         box-sizing: border-box;
 
@@ -236,6 +237,11 @@
         font-size: 1rem;
         font-weight: bold;
         line-height: 1rem;
+
+        & > span {
+          display: block;
+          transform: translateY(0.16rem);
+        }
       }
     }
   }

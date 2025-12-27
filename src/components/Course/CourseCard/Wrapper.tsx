@@ -227,7 +227,9 @@ const Wrapper = ({
 
         {/* credits for the course/program */}
         <div className="credits">
-          <span>{credits}</span>
+          <div>
+            <span>{credits}</span>
+          </div>
         </div>
       </header>
 
