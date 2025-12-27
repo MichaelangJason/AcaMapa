@@ -2,11 +2,10 @@
 
 import type { Term } from "@/types/db";
 import type { CachedDetailedCourse } from "@/types/local";
-import SelectIcon from "@/public/icons/select.svg";
 import clsx from "clsx";
-import { useMemo, useState, useCallback, useRef } from "react";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import DetailedCourseCard from "../Course/CourseCard/DetailedCourseCard";
+import { useRef } from "react";
+import { useAppSelector } from "@/store/hooks";
+import DetailedCourseCard from "@/components/Course/CourseCard/DetailedCourseCard";
 import {
   Draggable,
   DraggableStateSnapshot,
@@ -14,18 +13,17 @@ import {
   DroppableProvided,
   DroppableStateSnapshot,
 } from "@hello-pangea/dnd";
-import { Season } from "@/lib/enums";
-import { setSimpleModalInfo } from "@/store/slices/localDataSlice";
 import { I18nKey, Language, t } from "@/lib/i18n";
-import ScrollBar from "../Common/ScrollBar";
-import { isCurrentTerm, isThisYearTerm } from "@/lib/term";
+import ScrollBar from "@/components/Common/ScrollBar";
+
 import {
-  CurrStatusIndicator,
-  AddTermButton,
-  TermDropdown,
-  TermSeasonIcon,
-  TermSeasonSelect,
-} from "./Components";
+  useTermCardActions,
+  useTermSeason,
+  useTermStatus,
+} from "@/lib/hooks/termCard";
+import AddTermButton from "./AddTermButton";
+import CurrStatusIndicator from "./CurrStatusIndicator";
+import TermHeader from "./TermHeader";
 
 interface TermCardProps {
   // possible contents
@@ -120,12 +118,7 @@ const TermCard = ({
   droppableProvided,
   droppableSnapshot,
 }: TermCardProps) => {
-  const dispatch = useAppDispatch();
-
   // global states
-  const hasSelectedCourses = useAppSelector(
-    (state) => state.global.hasSelectedCourses,
-  );
   const isDragging = useAppSelector((state) => state.global.isDragging);
   const isSeekingCourse = useAppSelector(
     (state) => state.global.isSeekingCourse,
@@ -133,90 +126,30 @@ const TermCard = ({
   const userLang = useAppSelector((state) => state.userData.lang) as Language;
   const lang = displayLang || userLang; // override the language if provided
 
-  // local state
-  const [isEditing, setIsEditing] = useState(false);
-
   // refs
   const termBodyRef = useRef<HTMLDivElement>(null);
   const termContainerRef = useRef<HTMLDivElement>(null);
 
-  // derived state
-  // TODO: normalize term name to avoid this hack
-  const termSeason = useMemo(() => {
-    const normalizedTermName = term.name.toLowerCase();
-    if (
-      Object.values(Language).some((l) =>
-        normalizedTermName.includes(t([I18nKey.WINTER], l).toLowerCase()),
-      )
-    ) {
-      return Season.WINTER;
-    } else if (
-      Object.values(Language).some((l) =>
-        normalizedTermName.includes(t([I18nKey.SUMMER], l).toLowerCase()),
-      )
-    ) {
-      return Season.SUMMER;
-    } else if (
-      Object.values(Language).some((l) =>
-        normalizedTermName.includes(t([I18nKey.FALL], l).toLowerCase()),
-      )
-    ) {
-      return Season.FALL;
-    }
-    return Season.NOT_OFFERED;
-  }, [term]);
-  // use name to check if the term is the current term or the current year term
-  const isCurrTerm = useMemo(() => isCurrentTerm(term.name), [term.name]);
-  const isCurrYearTerm = useMemo(() => isThisYearTerm(term.name), [term.name]);
-  const totalCredits = useMemo(() => {
-    return courses.reduce((acc, course) => acc + course.credits, 0);
-  }, [courses]);
-
-  // handle adding a course to the term
-  const handleAddCourse = useCallback(async () => {
-    await addCourse?.(term._id.toString());
-  }, [addCourse, term._id]);
-
-  // handle deleting a course from the term
-  const handleDeleteCourse = useCallback(
-    (courseId: string) => {
-      deleteCourse?.(term._id.toString(), courseId);
-    },
-    [deleteCourse, term._id],
+  // derived state and actions
+  const termSeason = useTermSeason(term);
+  const { isCurrTerm, isCurrYearTerm, totalCredits } = useTermStatus(
+    term,
+    courses,
   );
-
-  // handle adding a term to the plan
-  const handleAddTerm = useCallback(
-    (isBefore: boolean) => {
-      addTerm?.(term._id.toString(), isBefore);
-    },
-    [addTerm, term._id],
-  );
-
-  // handle deleting a term from the plan
-  const handleDeleteTerm = useCallback(() => {
-    // ask for confirmation if the term has courses
-    if (courses.length > 0) {
-      dispatch(
-        setSimpleModalInfo({
-          isOpen: true,
-          title: t([I18nKey.DELETE_TERM_TITLE], lang),
-          description: t([I18nKey.DELETE_TERM_DESC], lang, {
-            item1: term.name,
-          }),
-          confirmCb: () => {
-            deleteTerm?.(term._id.toString(), idx);
-            return Promise.resolve();
-          },
-          closeCb: () => {
-            return Promise.resolve();
-          },
-        }),
-      );
-    } else {
-      deleteTerm?.(term._id.toString(), idx);
-    }
-  }, [deleteTerm, idx, dispatch, term, courses.length, lang]);
+  const {
+    handleAddCourse,
+    handleDeleteCourse,
+    handleAddTerm,
+    handleDeleteTerm,
+  } = useTermCardActions({
+    idx,
+    term,
+    courses,
+    addCourse,
+    deleteCourse,
+    addTerm,
+    deleteTerm,
+  });
 
   // derived state, no need to memoize
   const isDraggingTerm = draggableSnapshot?.isDragging;
@@ -247,59 +180,17 @@ const TermCard = ({
       )}
 
       {/* header for the term card */}
-      <header className="term-header" {...draggableProvided?.dragHandleProps}>
-        {/* show add course button or term name container */}
-        {hasSelectedCourses && showButtons ? (
-          // add course button for the term card
-          <button className="add-course-button" onClick={handleAddCourse}>
-            {t([I18nKey.ADD_TO], lang, { item1: term.name })}
-          </button>
-        ) : (
-          // term name container for the term card
-          <span className="term-name-container">
-            {/* term season icon */}
-            <TermSeasonIcon termSeason={termSeason} />
-
-            {/* term name */}
-            <span className="term-name">
-              <span>{term.name}</span>
-
-              {/* select element for the term name, hidden under the span */}
-              <TermSeasonSelect
-                termId={term._id.toString()}
-                termName={term.name}
-                lang={lang}
-                isEditing={isEditing}
-              />
-            </span>
-
-            {/* select icon */}
-            <SelectIcon
-              className={clsx([
-                "select clickable",
-                (hasSelectedCourses || !showButtons) && "hidden",
-              ])}
-              onClick={() => {
-                setIsEditing((prev) => !prev);
-                setTimeout(() => {
-                  setIsEditing(false);
-                }, 100);
-              }}
-            />
-          </span>
-        )}
-
-        {/* term dropdown menu */}
-        {showButtons && (
-          <TermDropdown
-            termName={term.name}
-            courseIds={courses.map((course) => course.id)}
-            handleDeleteTerm={handleDeleteTerm}
-            isCurrYearTerm={isCurrYearTerm}
-            lang={lang}
-          />
-        )}
-      </header>
+      <TermHeader
+        lang={lang}
+        term={term}
+        termSeason={termSeason}
+        isCurrYearTerm={isCurrYearTerm}
+        courses={courses}
+        isExport={isExport}
+        handleAddCourse={handleAddCourse}
+        handleDeleteTerm={handleDeleteTerm}
+        draggableProvided={draggableProvided}
+      />
 
       <div
         className={clsx([
