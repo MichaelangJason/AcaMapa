@@ -1,51 +1,27 @@
 import type {
   Course,
-  CourseMetadata,
+  ProgramReq,
+  Program,
   DetailedCourse,
-  GuestUserData,
-  MemberData,
+  CourseMetadata,
   Plan,
   Term,
-  Program,
-  ProgramReq,
 } from "@/types/db";
+import type { CourseId } from "@/types/local";
 import { ObjectId } from "bson";
-import type {
-  PlanAction,
-  TermAction,
-  CourseAction,
-  CourseTakenAction,
-  LocalDataAction,
-  ProgramAction,
-} from "@/types/actions";
-import { localDataActions } from "@/store/slices/localDataSlice";
-import {
-  courseActions,
-  courseTakenActions,
-  programActions,
-  planActions,
-  termActions,
-} from "@/store/slices/userDataSlice";
-import { isAction, isAnyOf } from "@reduxjs/toolkit";
-import { checkObjectKeys } from "./utils";
-import { I18nKey, Language, t } from "./i18n";
-import { CourseId, SavingData } from "@/types/local";
+import { Language, t } from "../i18n";
+import { I18nKey } from "../i18n";
 
-export const isValidImportPlanData = (
-  planData: unknown,
-): planData is {
-  terms: Term[];
-  plan: Plan;
-} => {
-  if (!planData || typeof planData !== "object") return false;
-  if (!("terms" in planData) || !("plan" in planData)) return false;
-  if (
-    !Array.isArray(planData.terms) ||
-    planData.terms.some((t: any) => !isValidTerm(t))
-  )
-    return false;
-
-  return isValidPlan(planData.plan);
+export const isValidTermName = (
+  name: unknown,
+  lang: Language = Language.EN,
+): name is string => {
+  if (typeof name !== "string") return false;
+  const regex = new RegExp(
+    `^(${t([I18nKey.WINTER], lang)}|${t([I18nKey.SUMMER], lang)}|${t([I18nKey.FALL], lang)})20\\d{2}$`,
+    "i",
+  );
+  return !!name.replaceAll(" ", "").match(regex);
 };
 
 export const isValidCourse = (course: unknown): course is Course => {
@@ -199,40 +175,6 @@ export const isValidCourseId = (id: unknown): id is CourseId => {
   return id.length <= 10;
 };
 
-export const isPlanAction = (action: unknown): action is PlanAction => {
-  if (!isAction(action)) return false;
-  return isAnyOf(...Object.values(planActions))(action);
-};
-
-export const isTermAction = (action: unknown): action is TermAction => {
-  if (!isAction(action)) return false;
-  return isAnyOf(...Object.values(termActions))(action);
-};
-
-export const isCourseAction = (action: unknown): action is CourseAction => {
-  if (!isAction(action)) return false;
-  return isAnyOf(...Object.values(courseActions))(action);
-};
-
-export const isProgramAction = (action: unknown): action is ProgramAction => {
-  if (!isAction(action)) return false;
-  return isAnyOf(...Object.values(programActions))(action);
-};
-
-export const isLocalDataAction = (
-  action: unknown,
-): action is LocalDataAction => {
-  if (!isAction(action)) return false;
-  return isAnyOf(...Object.values(localDataActions))(action);
-};
-
-export const isCourseTakenAction = (
-  action: unknown,
-): action is CourseTakenAction => {
-  if (!isAction(action)) return false;
-  return isAnyOf(...Object.values(courseTakenActions))(action);
-};
-
 export const isValidCourseTaken = (
   courseTaken: unknown,
 ): courseTaken is Map<string, string[]> => {
@@ -301,120 +243,4 @@ export const isValidTerm = (term: unknown): term is Term => {
     return false;
 
   return true;
-};
-
-export const isValidPlanData = (
-  planData: unknown,
-): planData is Map<string, Plan> => {
-  if (!(planData instanceof Map)) return false;
-  if (
-    [...planData.keys()].some(
-      (key) => typeof key !== "string" || !isValidObjectId(key),
-    )
-  )
-    return false;
-  if ([...planData.values()].some((value) => !isValidPlan(value))) return false;
-  return true;
-};
-
-export const isValidTermData = (
-  termData: unknown,
-): termData is Map<string, Term> => {
-  if (!(termData instanceof Map)) return false;
-  if (
-    [...termData.keys()].some(
-      (key) => typeof key !== "string" || !isValidObjectId(key),
-    )
-  )
-    return false;
-  if ([...termData.values()].some((value) => !isValidTerm(value))) return false;
-  return true;
-};
-
-export const isValidGuestData = (
-  data: unknown,
-  validateLvl: "basic" | "full" = "basic",
-): data is GuestUserData => {
-  if (!data || typeof data !== "object") return false;
-
-  const d = data as GuestUserData;
-
-  if (
-    !checkObjectKeys(d, [
-      "lang",
-      "courseTaken",
-      "planData",
-      "termData",
-      "planOrder",
-    ])
-  )
-    return false;
-
-  // can be simplified with chained type guards, but this is more readable
-  if (
-    typeof d.lang !== "string" ||
-    !Object.values(Language).includes(d.lang as Language)
-  )
-    return false;
-
-  // this is acceptable since userData operations are performed and controlled by well-defined redux actions and middlewares
-  if (!(d.courseTaken instanceof Map)) return false;
-  if (!(d.planData instanceof Map)) return false;
-  if (!(d.termData instanceof Map)) return false;
-  if (!Array.isArray(d.planOrder)) return false;
-
-  if (validateLvl === "basic") {
-    return true;
-  }
-
-  if (!isValidCourseTaken(d.courseTaken)) return false;
-  if (!isValidPlanData(d.planData)) return false;
-  if (!isValidTermData(d.termData)) return false;
-
-  return true;
-};
-
-export const isValidMemberData = (
-  data: unknown,
-  validateLvl: "basic" | "full" = "basic",
-): data is MemberData => {
-  if (!data || typeof data !== "object") return false;
-  if (!isValidGuestData(data, validateLvl)) return false;
-
-  const d = data as MemberData;
-
-  if (
-    !Array.isArray(d.chatThreadIds) ||
-    d.chatThreadIds.some((t) => typeof t !== "string" || !isValidObjectId(t))
-  )
-    return false;
-
-  return true;
-};
-
-export const isValidSavingData = (
-  savingData: unknown,
-  validateLvl: "basic" | "full" = "basic",
-): savingData is SavingData => {
-  if (!savingData || typeof savingData !== "object") return false;
-
-  const d = savingData as SavingData;
-
-  if (typeof d.timestamp !== "number" || new Date(d.timestamp) === null)
-    return false;
-  if (!isValidGuestData(d.data, validateLvl)) return false;
-
-  return true;
-};
-
-export const isValidTermName = (
-  name: unknown,
-  lang: Language = Language.EN,
-): name is string => {
-  if (typeof name !== "string") return false;
-  const regex = new RegExp(
-    `^(${t([I18nKey.WINTER], lang)}|${t([I18nKey.SUMMER], lang)}|${t([I18nKey.FALL], lang)})20\\d{2}$`,
-    "i",
-  );
-  return !!name.replaceAll(" ", "").match(regex);
 };
