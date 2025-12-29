@@ -31,6 +31,7 @@ export const isCourseTaken = (
   return courseTaken.get(subjectCode)?.includes(courseId) ?? false;
 };
 
+// main logic to check if a group is satisfied or not
 export const isGroupSatisfied = (args: {
   input: ReqGroup | string;
   includeCurrentTerm: boolean;
@@ -52,100 +53,186 @@ export const isGroupSatisfied = (args: {
     currentOrder,
   } = args;
   const { depGraph } = graph;
-  // input is a course id
+
+  // input is a course id, base case
   if (typeof input === "string") {
-    const isMultiTerm = input.match(COURSE_PATTERN.MULTI_TERM);
-    if (!isMultiTerm && isCourseTaken(courseTaken, input)) return true;
-
-    const inputOrder = termOrderMap.get(depGraph.get(input)?.termId ?? "");
-
-    // not planned
-    if (inputOrder === undefined) {
-      return false;
-    }
-
-    // consecutive requirements (i.e. COMP361D1, COMP361D2)
-    if (isMultiTerm && inputOrder !== currentOrder - 1) {
-      return false;
-    }
-
-    return includeCurrentTerm
-      ? inputOrder <= currentOrder
-      : inputOrder < currentOrder;
+    return isCourseSatisfied(input);
   }
 
   // input is a group
   switch (input.type) {
+    /**
+     * Empty group, always true
+     */
     case GroupType.EMPTY:
       return true;
+    /**
+     * Single and OR group, at least one of the courses must be taken
+     */
     case GroupType.SINGLE:
     case GroupType.OR:
-      return input.inner.some((i) => isGroupSatisfied({ ...args, input: i }));
+      return isOneSatisfied(input);
+    /**
+     * AND group, all of the courses must be taken
+     */
     case GroupType.AND:
-      return input.inner.every((i) => isGroupSatisfied({ ...args, input: i }));
-    case GroupType.PAIR: {
-      let count = 0;
-      for (const group of input.inner) {
-        if (isGroupSatisfied({ ...args, input: group })) {
-          count++;
-        }
-        if (count >= 2) {
-          return true;
-        }
-      }
+      return isAllSatisfied(input);
+    /**
+     * Pair group, two of the following courses must be taken
+     */
+    case GroupType.PAIR:
+      return isKSatisfied(input, 2);
+    /**
+     * Credit group
+     * check if the required credit is satisfied for all given subjects
+     */
+    case GroupType.CREDIT:
+      return isAllSubjectSatisfied(input);
+  }
+
+  /**
+   * Utilized hoisting to put the function declarations at the bottom of the function
+   */
+
+  function isCourseSatisfied(courseId: string) {
+    /**
+     * 1.
+     * If the required course is part of a multi-term course
+     * e.g. COMP361D1, COMP361D2
+     */
+    const isMultiTerm = courseId.match(COURSE_PATTERN.MULTI_TERM);
+
+    /**
+     * 2.
+     * If the required course is already taken, return true
+     */
+    if (!isMultiTerm && isCourseTaken(courseTaken, courseId)) return true;
+
+    /**
+     * 3.
+     * get the term order of the required course
+     */
+    const reqOrder = termOrderMap.get(depGraph.get(courseId)?.termId ?? "");
+
+    /**
+     * 4.
+     * If the required course is not planned, return false
+     */
+    if (reqOrder === undefined) {
       return false;
     }
-    case GroupType.CREDIT:
-      const [requiredCredit, scopes, ...subjects] = input.inner as string[];
-      const levels = scopes.split("");
-      const subjectsSet = new Set(subjects);
-      const requiredCreditFloat = parseFloat(requiredCredit);
-      // closures
-      const isCourseValid = (courseId: string) => {
-        if (isCourseTaken(courseTaken, courseId)) return "Course Taken";
-        if (!isCourseInGraph(graph, courseId)) {
-          throw new Error("Course not in graph: " + courseId);
+
+    /**
+     * 5.
+     * If the required course is part of a multi-term course
+     * and the term order is not consecutive, return false
+     * e.g. COMP361D2 requires COMP361D1, which must be taken at the previous term
+     */
+    if (isMultiTerm && reqOrder !== currentOrder - 1) {
+      return false;
+    }
+
+    /**
+     * 6.
+     * If the required course is planned
+     * check if the term order is satisfied
+     * includeCurrentTerm is true if the required course can be taken in the same term
+     */
+    return includeCurrentTerm
+      ? reqOrder <= currentOrder // co-requisite and restriction
+      : reqOrder < currentOrder; // pre-requisite
+  }
+
+  function isKSatisfied(req: ReqGroup, k: number) {
+    let count = 0;
+
+    for (const i of req.inner) {
+      if (isGroupSatisfied({ ...args, input: i })) {
+        count++;
+        // short circuit
+        if (count >= k) {
+          return true;
         }
-
-        const { termId: courseTermId } = depGraph.get(courseId)!;
-        const courseOrder = termOrderMap.get(courseTermId)!;
-
-        if (courseOrder < 0) {
-          // not planned
-          return "";
+      } else {
+        // short circuit for every
+        if (k === req.inner.length) {
+          return false;
         }
+      }
+    }
 
-        const isOrderSatisfied = includeCurrentTerm
-          ? courseOrder <= currentOrder
-          : courseOrder < currentOrder;
-        const isLevelSatisfied =
-          levels[0] === "0" || levels.includes(getCourseLevel(courseId));
+    return false;
+  }
 
-        if (!isOrderSatisfied || !isLevelSatisfied) {
-          return "";
-        }
+  function isOneSatisfied(req: ReqGroup) {
+    return isKSatisfied(req, 1);
+  }
 
-        return courseTermId;
-      };
-      const isSubjectValid = (subject: string) => {
-        return subjectsSet.has(subject);
-      };
-      const isEarlyReturn = (accumulatedCredits: number) => {
-        return accumulatedCredits >= requiredCreditFloat;
-      };
+  function isAllSatisfied(req: ReqGroup) {
+    return isKSatisfied(req, req.inner.length);
+  }
 
-      const { totalCredits } = getValidCoursePerSubject(
-        combinedSubjectMap,
-        allCourseData,
-        isSubjectValid,
-        isCourseValid,
-        isEarlyReturn,
-      );
+  function isAllSubjectSatisfied(req: ReqGroup) {
+    const [requiredCredit, scopes, ...subjects] = req.inner as string[];
+    const levels = scopes.split("");
+    const subjectsSet = new Set(subjects);
+    const requiredCreditFloat = parseFloat(requiredCredit);
 
-      return totalCredits >= requiredCreditFloat;
+    // closures
+    const getCourseSource = (courseId: string) => {
+      // course already taken
+      if (isCourseTaken(courseTaken, courseId)) return "Course Taken";
+
+      // course not in graph
+      if (!isCourseInGraph(graph, courseId)) {
+        throw new Error("Course not in graph: " + courseId);
+      }
+
+      const { termId: courseTermId } = depGraph.get(courseId)!;
+      const courseOrder = termOrderMap.get(courseTermId)!;
+
+      // not planned
+      if (courseOrder < 0) {
+        return "";
+      }
+
+      const isOrderSatisfied = includeCurrentTerm
+        ? courseOrder <= currentOrder
+        : courseOrder < currentOrder;
+      const isLevelSatisfied =
+        levels[0] === "0" || levels.includes(getCourseLevel(courseId));
+
+      if (!isOrderSatisfied || !isLevelSatisfied) {
+        return "";
+      }
+
+      return courseTermId;
+    };
+
+    // check if the subject is in the required subjects
+    const isSubjectValid = (subject: string) => {
+      return subjectsSet.has(subject);
+    };
+
+    // early return if the accumulated credits
+    // is greater than or equal to the required credit
+    const isEarlyReturn = (accumulatedCredits: number) => {
+      return accumulatedCredits >= requiredCreditFloat;
+    };
+
+    const { totalCredits } = getValidCoursePerSubject(
+      combinedSubjectMap,
+      allCourseData,
+      isSubjectValid,
+      getCourseSource,
+      isEarlyReturn,
+    );
+
+    return totalCredits >= requiredCreditFloat;
   }
 };
 
+// check if a course is satisfied
 export const isSatisfied = (args: {
   course: CachedDetailedCourse;
   graph: CourseDepData;
@@ -158,44 +245,46 @@ export const isSatisfied = (args: {
   const { depGraph } = graph;
   const { prerequisites, corequisites, restrictions } = course;
 
+  // if course not in graph throw an error
   if (!isCourseInGraph(graph, course.id)) {
     throw new Error("Course not in graph: " + course.id);
   }
 
+  // get the current order of the course
   const { termId } = depGraph.get(course.id)!;
   const currentOrder = termOrderMap.get(termId)!;
 
   // check restrictions (OR group), should not be satisfied
   if (
-    restrictions.group.type !== GroupType.EMPTY &&
+    restrictions.group.type !== GroupType.EMPTY && // ignore empty restrictions
     isGroupSatisfied({
       ...args,
       input: restrictions.group,
-      includeCurrentTerm: true,
+      includeCurrentTerm: true, // restrict course cannot be taken in the same term
       currentOrder,
     })
   ) {
     return false;
   }
 
-  // check prerequisites
+  // check prerequisites, should be satisfied
   if (
     !isGroupSatisfied({
       ...args,
       input: prerequisites.group,
-      includeCurrentTerm: false,
+      includeCurrentTerm: false, // prerequisites course cannot be taken in the same term
       currentOrder,
     })
   ) {
     return false;
   }
 
-  // check corequisites
+  // check corequisites, should be satisfied
   if (
     !isGroupSatisfied({
       ...args,
       input: corequisites.group,
-      includeCurrentTerm: true,
+      includeCurrentTerm: true, // corequisites course can be taken in the same term
       currentOrder,
     })
   ) {
@@ -206,6 +295,7 @@ export const isSatisfied = (args: {
   return true;
 };
 
+// main function to update the satisfiability
 export const updateAffectedCourses = (args: {
   graph: WritableDraft<CourseDepData>;
   courseToBeUpdated: Set<string>;
@@ -236,6 +326,7 @@ export const updateAffectedCourses = (args: {
     ]),
   );
 
+  // calculate satisfiability for all courses that are affected
   courseToBeUpdated.forEach((c) => {
     if (!depGraph.get(c)?.termId) return; // not planned
     const courseDetail = cachedDetailedCourseData[c];

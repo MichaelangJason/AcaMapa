@@ -4,7 +4,7 @@ export const getValidCoursePerSubject = (
   courseMap: Map<string, Set<string> | string[]>,
   allCourseData: { [courseId: string]: Course },
   isSubjectValid: (subject: string) => boolean,
-  isCourseValid: (courseId: string) => string, // returns the source of course as result,
+  getCourseSource: (courseId: string) => string, // returns the source of course as result,
   earlyReturnFn?: (accumulatedCredits: number) => boolean, // returns true if the accumulated credits is enough to satisfy the requirement
 ) => {
   const isEarlyReturn = (accumulatedCredits: number) => {
@@ -33,7 +33,7 @@ export const getValidCoursePerSubject = (
     }
 
     for (const c of courseIds) {
-      const source = isCourseValid(c);
+      const source = getCourseSource(c);
       if (!source) continue;
 
       if (!validSubjectMap[subject]) {
