@@ -5,13 +5,7 @@ export const getValidCoursePerSubject = (
   allCourseData: { [courseId: string]: Course },
   isSubjectValid: (subject: string) => boolean,
   getCourseSource: (courseId: string) => string, // returns the source of course as result,
-  earlyReturnFn?: (accumulatedCredits: number) => boolean, // returns true if the accumulated credits is enough to satisfy the requirement
 ) => {
-  const isEarlyReturn = (accumulatedCredits: number) => {
-    if (!earlyReturnFn) return false;
-    return earlyReturnFn(accumulatedCredits);
-  };
-
   let totalCredits = 0;
   const validSubjectMap: {
     [subject: string]: {
@@ -19,13 +13,6 @@ export const getValidCoursePerSubject = (
       validCourses: { [courseId: string]: { source: string; credits: number } };
     };
   } = {};
-
-  if (isEarlyReturn(totalCredits)) {
-    return {
-      validSubjectMap,
-      totalCredits,
-    };
-  }
 
   for (const [subject, courseIds] of courseMap.entries()) {
     if (!isSubjectValid(subject)) {
@@ -49,13 +36,6 @@ export const getValidCoursePerSubject = (
       validSubjectMap[subject].totalCredits += allCourseData[c].credits;
     }
     totalCredits += validSubjectMap[subject]?.totalCredits ?? 0;
-
-    if (isEarlyReturn(totalCredits)) {
-      return {
-        validSubjectMap,
-        totalCredits,
-      };
-    }
   }
 
   return {

@@ -27,7 +27,7 @@ export const findIdInReqGroup = (item: ReqGroup | string): string[] => {
 
 // REVIEW: may need further refactoring
 export const parseGroup = (parsed: string) => {
-  const formatCourseId = (id: string) => {
+  const trim = (id: string) => {
     return id.trim();
   };
 
@@ -46,21 +46,19 @@ export const parseGroup = (parsed: string) => {
     }
 
     let next;
-    let nextCourseId = "";
+    let nextChunk = "";
 
     const pushToGroup = () => {
-      if (nextCourseId.length === 0) return;
+      if (nextChunk.length === 0) return;
 
       if (
         group.type !== GroupType.CREDIT &&
-        findCourseIds(nextCourseId, false).length === 0
+        findCourseIds(nextChunk, false).length === 0
       ) {
-        throw new Error(
-          "pushed string is not a valid courseId: " + nextCourseId,
-        );
+        throw new Error("pushed string is not a valid courseId: " + nextChunk);
       }
-      group.inner.push(formatCourseId(nextCourseId));
-      nextCourseId = "";
+      group.inner.push(trim(nextChunk));
+      nextChunk = "";
     };
 
     while (remaining.length > 0) {
@@ -129,22 +127,22 @@ export const parseGroup = (parsed: string) => {
             );
           }
           // special push case
-          if (nextCourseId.length > 0) {
+          if (nextChunk.length > 0) {
             // verify that its either a number or a string of len 4
-            if (!nextCourseId.match(/^((\d){1,7}|[a-zA-Z0-9]{4})$/)) {
+            if (!nextChunk.match(/^((\d){1,7}|[a-zA-Z0-9]{4})$/)) {
               // console.log(nextCourseId);
 
               throw new Error(
                 "Invalid group: credit must be a number or a string of len 4: " +
-                  nextCourseId,
+                  nextChunk,
               );
             }
-            group.inner.push(formatCourseId(nextCourseId));
-            nextCourseId = "";
+            group.inner.push(trim(nextChunk));
+            nextChunk = "";
           }
           break;
         default:
-          nextCourseId += next;
+          nextChunk += next;
       }
     }
 
@@ -155,7 +153,7 @@ export const parseGroup = (parsed: string) => {
     }
     group.inner = group.inner.map((item) => {
       if (typeof item !== "string") return item;
-      else return formatCourseId(item);
+      else return trim(item);
     });
 
     const simplified = simplify(group);

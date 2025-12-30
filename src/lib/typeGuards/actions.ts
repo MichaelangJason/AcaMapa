@@ -5,6 +5,7 @@ import {
   courseActions,
   programActions,
   courseTakenActions,
+  equivRulesActions,
 } from "@/store/slices/userDataSlice";
 import type {
   PlanAction,
@@ -13,6 +14,7 @@ import type {
   ProgramAction,
   LocalDataAction,
   CourseTakenAction,
+  EquivRulesAction,
 } from "@/types/actions";
 import { isAction, isAnyOf } from "@reduxjs/toolkit";
 
@@ -48,4 +50,11 @@ export const isCourseTakenAction = (
 ): action is CourseTakenAction => {
   if (!isAction(action)) return false;
   return isAnyOf(...Object.values(courseTakenActions))(action);
+};
+
+export const isEquivRulesAction = (
+  action: unknown,
+): action is EquivRulesAction => {
+  if (!isAction(action)) return false;
+  return isAnyOf(...Object.values(equivRulesActions))(action);
 };

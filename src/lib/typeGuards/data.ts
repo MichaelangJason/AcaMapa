@@ -37,6 +37,7 @@ export const isValidTermData = (
   return true;
 };
 
+// does not check for chatThreadIds and equivRules
 export const isValidGuestData = (
   data: unknown,
   validateLvl: "basic" | "full" = "basic",

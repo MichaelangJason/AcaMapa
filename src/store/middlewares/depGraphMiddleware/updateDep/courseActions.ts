@@ -7,7 +7,7 @@ import { CourseAction } from "@/types/actions";
 import { HandlerContext } from "../core";
 import { getTermOrderMap } from "./helpers";
 
-export const handleCourseAction = ({
+export const handleCourseActions = ({
   action,
   listenerApi,
 }: HandlerContext<CourseAction>) => {

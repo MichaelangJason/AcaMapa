@@ -35,18 +35,25 @@ export type CourseLocalMetadata = {
   isExpanded: boolean;
 };
 
+export type EquivGroups = {
+  groups: Map<string, Set<string>>;
+  courseToGroupId: Map<string, string>;
+};
+
+export type DepGraph = Map<
+  string,
+  {
+    isSatisfied: boolean;
+    termId: string;
+    affectedCourseIds: Set<string>;
+  }
+>;
+
 export type CourseDepData = {
   isDirty: boolean;
   subjectMap: Map<string, Set<string>>;
   creditsReqMap: Map<string, Set<string>>; // subscribe courses with CREDIT group
-  depGraph: Map<
-    string,
-    {
-      isSatisfied: boolean;
-      termId: string;
-      affectedCourseIds: Set<string>;
-    }
-  >;
+  depGraph: DepGraph;
 };
 
 export type ReqGroup = {

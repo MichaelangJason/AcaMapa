@@ -4,7 +4,11 @@ import type { RootState, AppDispatch } from "..";
 import { LocalStorageKey } from "@/lib/enums";
 import { Language, t, I18nKey } from "@/lib/i18n";
 import { mockPlanData } from "@/lib/mock";
-import { mapStringfyReviver, getLocalData, setLocalData } from "@/lib/sync";
+import {
+  mapStringfyReviver,
+  getLocalData,
+  setLocalData as saveToLocalStorage,
+} from "@/lib/sync";
 import { isValidGuestData } from "@/lib/typeGuards";
 import { getCourseSearchFn, getProgramSearchFn } from "@/lib/utils";
 import type { Course, Program, GuestUserData } from "@/types/db";
@@ -23,6 +27,7 @@ import {
   setPrograms,
   setLang,
   setChatThreadIds,
+  setEquivRules,
 } from "../slices/userDataSlice";
 import { fetchCourseData, fetchProgramData } from "./fetchData";
 
@@ -95,6 +100,7 @@ export const fullSync = createAppAsyncThunk(
         lang: Language.EN,
         courseTaken: new Map(),
         programs: [],
+        equivRules: [],
       });
 
       return planOrder[0];
@@ -104,12 +110,21 @@ export const fullSync = createAppAsyncThunk(
       data: GuestUserData,
       chatThreadIds?: string[],
     ) => {
-      const { planData, termData, planOrder, lang, courseTaken, programs } =
-        data;
+      const {
+        planData,
+        termData,
+        planOrder,
+        lang,
+        courseTaken,
+        programs,
+        equivRules,
+      } = data;
+
       dispatch(setCourseTaken(courseTaken));
       dispatch(setTermData(termData));
       dispatch(setPlanData({ planData, planOrder }));
       dispatch(setPrograms(programs));
+
       const courseExpandPayload = [...planData.entries()].map(
         ([planId, plan]) => ({
           planId,
@@ -117,9 +132,11 @@ export const fullSync = createAppAsyncThunk(
           isExpanded: true,
         }),
       );
+
       dispatch(initPlanIsCourseExpanded(courseExpandPayload));
       dispatch(setLang(lang as Language));
       dispatch(setChatThreadIds(chatThreadIds ?? []));
+      dispatch(setEquivRules(equivRules ?? []));
     };
 
     const restoreFrom = async (restoreData: any): Promise<boolean> => {
@@ -163,7 +180,7 @@ export const fullSync = createAppAsyncThunk(
           // console.log(parsedData);
           const newCurrentPlanId = parsedData.planOrder[0];
           dispatch(setCurrentPlanId(newCurrentPlanId));
-          setLocalData(LocalStorageKey.CURRENT_PLAN_ID, newCurrentPlanId);
+          saveToLocalStorage(LocalStorageKey.CURRENT_PLAN_ID, newCurrentPlanId);
         }
 
         return true;
@@ -171,20 +188,13 @@ export const fullSync = createAppAsyncThunk(
         // create new user
         const newPlanId = initNewPlan();
         dispatch(setCurrentPlanId(newPlanId));
-        setLocalData(LocalStorageKey.CURRENT_PLAN_ID, newPlanId);
+        saveToLocalStorage(LocalStorageKey.CURRENT_PLAN_ID, newPlanId);
         return false;
       }
     };
 
     const session = state.localData.session;
     const isLoggedIn = !!session && !!session.user && !!session.user.email;
-    const localUserData = getLocalData(LocalStorageKey.GUEST_DATA, lang);
-    const isLocalDataPresent = !!localUserData;
-    const unsavedData = getLocalData(
-      isLoggedIn ? session.user!.email! : "",
-      lang,
-    );
-    const isUnsavedDataPresent = !!unsavedData;
 
     try {
       if (!isLoggedIn) {
@@ -192,11 +202,12 @@ export const fullSync = createAppAsyncThunk(
         if (isInitializing) {
           // restore from local data
           // console.log("not loggedin, restore from local data");
+          const localUserData = getLocalData(LocalStorageKey.GUEST_DATA, lang);
           await restoreFrom(localUserData);
         } else {
           // save to local data
           // console.log("not loggedin, save to local data");
-          setLocalData(LocalStorageKey.GUEST_DATA, data);
+          saveToLocalStorage(LocalStorageKey.GUEST_DATA, data);
         }
       }
       // TODO: redo remote data sync

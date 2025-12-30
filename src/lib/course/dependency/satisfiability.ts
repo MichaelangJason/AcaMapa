@@ -5,10 +5,11 @@ import type {
   CourseDepData,
   ReqGroup,
   CachedDetailedCourse,
+  EquivGroups,
 } from "@/types/local";
-import type { WritableDraft } from "immer";
 import { getSubjectCode, getCourseLevel } from "../helpers";
 import { getValidCoursePerSubject } from "./credits";
+import { getEquivCourses } from "./equivalents";
 
 /**
  * course dep little algorithm will be independent of the corresponding redux slice
@@ -18,9 +19,16 @@ import { getValidCoursePerSubject } from "./credits";
 
 export const isCourseInGraph = (graph: CourseDepData, courseId: string) => {
   return !!(
-    graph.depGraph.has(courseId) &&
+    graph.depGraph.has(courseId) && // in dep graph
     graph.subjectMap.get(getSubjectCode(courseId))?.has(courseId)
   );
+};
+
+export const isCoursePlanned = (
+  depGraph: CourseDepData["depGraph"],
+  courseId: string,
+) => {
+  return !!depGraph.get(courseId)?.termId;
 };
 
 export const isCourseTaken = (
@@ -31,32 +39,43 @@ export const isCourseTaken = (
   return courseTaken.get(subjectCode)?.includes(courseId) ?? false;
 };
 
-// main logic to check if a group is satisfied or not
-export const isGroupSatisfied = (args: {
-  input: ReqGroup | string;
-  includeCurrentTerm: boolean;
+interface CommonSatisfiabilityArgs {
   courseTaken: Map<string, string[]>;
   termOrderMap: Map<string, number>;
-  graph: CourseDepData;
+  depData: CourseDepData;
   allCourseData: { [courseId: string]: Course };
   combinedSubjectMap: Map<string, Set<string>>;
-  currentOrder: number;
-}): boolean => {
+  equivGroups: EquivGroups;
+}
+
+// main logic to check if a group is satisfied or not
+export const isGroupSatisfied = (
+  args: {
+    input: ReqGroup | string;
+    includeCurrentTerm: boolean;
+    currentOrder: number;
+  } & CommonSatisfiabilityArgs,
+): boolean => {
   const {
     input,
     includeCurrentTerm,
     courseTaken,
     termOrderMap,
-    graph,
+    depData,
     allCourseData,
     combinedSubjectMap,
     currentOrder,
+    equivGroups,
   } = args;
-  const { depGraph } = graph;
+  const { depGraph } = depData;
 
   // input is a course id, base case
   if (typeof input === "string") {
-    return isCourseSatisfied(input);
+    // check if course is satisfied or any of the equivalent courses is satisfied
+    return (
+      isCourseSatisfied(input) ||
+      getEquivCourses(input, equivGroups).some((c) => isCourseSatisfied(c))
+    );
   }
 
   // input is a group
@@ -109,21 +128,27 @@ export const isGroupSatisfied = (args: {
     if (!isMultiTerm && isCourseTaken(courseTaken, courseId)) return true;
 
     /**
-     * 3.
-     * get the term order of the required course
+     * 3. If the required course is not planned, return false
      */
-    const reqOrder = termOrderMap.get(depGraph.get(courseId)?.termId ?? "");
-
-    /**
-     * 4.
-     * If the required course is not planned, return false
-     */
-    if (reqOrder === undefined) {
+    if (!isCoursePlanned(depGraph, courseId)) {
       return false;
     }
 
     /**
-     * 5.
+     * 4.
+     * get the term order of the required course
+     */
+    const reqOrder = termOrderMap.get(depGraph.get(courseId)!.termId);
+
+    /**
+     * 5. If the term order is not found, throw an error
+     */
+    if (reqOrder === undefined) {
+      throw new Error("Term order not found for course: " + courseId);
+    }
+
+    /**
+     * 6.
      * If the required course is part of a multi-term course
      * and the term order is not consecutive, return false
      * e.g. COMP361D2 requires COMP361D1, which must be taken at the previous term
@@ -133,7 +158,7 @@ export const isGroupSatisfied = (args: {
     }
 
     /**
-     * 6.
+     * 7.
      * If the required course is planned
      * check if the term order is satisfied
      * includeCurrentTerm is true if the required course can be taken in the same term
@@ -183,18 +208,18 @@ export const isGroupSatisfied = (args: {
       // course already taken
       if (isCourseTaken(courseTaken, courseId)) return "Course Taken";
 
-      // course not in graph
-      if (!isCourseInGraph(graph, courseId)) {
+      // course not in graph, throw an error
+      if (!isCourseInGraph(depData, courseId)) {
         throw new Error("Course not in graph: " + courseId);
+      }
+
+      // course not planned, throw an error
+      if (!isCoursePlanned(depGraph, courseId)) {
+        return "";
       }
 
       const { termId: courseTermId } = depGraph.get(courseId)!;
       const courseOrder = termOrderMap.get(courseTermId)!;
-
-      // not planned
-      if (courseOrder < 0) {
-        return "";
-      }
 
       const isOrderSatisfied = includeCurrentTerm
         ? courseOrder <= currentOrder
@@ -214,18 +239,11 @@ export const isGroupSatisfied = (args: {
       return subjectsSet.has(subject);
     };
 
-    // early return if the accumulated credits
-    // is greater than or equal to the required credit
-    const isEarlyReturn = (accumulatedCredits: number) => {
-      return accumulatedCredits >= requiredCreditFloat;
-    };
-
     const { totalCredits } = getValidCoursePerSubject(
       combinedSubjectMap,
       allCourseData,
       isSubjectValid,
       getCourseSource,
-      isEarlyReturn,
     );
 
     return totalCredits >= requiredCreditFloat;
@@ -233,25 +251,27 @@ export const isGroupSatisfied = (args: {
 };
 
 // check if a course is satisfied
-export const isSatisfied = (args: {
-  course: CachedDetailedCourse;
-  graph: CourseDepData;
-  termOrderMap: Map<string, number>;
-  allCourseData: { [key: string]: Course };
-  courseTaken: Map<string, string[]>;
-  combinedSubjectMap: Map<string, Set<string>>;
-}) => {
-  const { course, graph, termOrderMap } = args;
-  const { depGraph } = graph;
-  const { prerequisites, corequisites, restrictions } = course;
+export const isSatisfied = (
+  args: {
+    courseDetail: CachedDetailedCourse;
+  } & CommonSatisfiabilityArgs,
+) => {
+  const { courseDetail, depData, termOrderMap } = args;
+  const { depGraph } = depData;
+  const {
+    prerequisites,
+    corequisites,
+    restrictions,
+    id: courseId,
+  } = courseDetail;
 
   // if course not in graph throw an error
-  if (!isCourseInGraph(graph, course.id)) {
-    throw new Error("Course not in graph: " + course.id);
+  if (!isCourseInGraph(depData, courseId)) {
+    throw new Error("Course not in graph: " + courseId);
   }
 
   // get the current order of the course
-  const { termId } = depGraph.get(course.id)!;
+  const { termId } = depGraph.get(courseId)!;
   const currentOrder = termOrderMap.get(termId)!;
 
   // check restrictions (OR group), should not be satisfied
@@ -296,23 +316,22 @@ export const isSatisfied = (args: {
 };
 
 // main function to update the satisfiability
-export const updateAffectedCourses = (args: {
-  graph: WritableDraft<CourseDepData>;
-  courseToBeUpdated: Set<string>;
-  cachedDetailedCourseData: { [key: string]: CachedDetailedCourse };
-  termOrderMap: Map<string, number>;
-  allCourseData: { [key: string]: Course };
-  courseTaken: Map<string, string[]>;
-}) => {
+export const updateAffectedCourses = (
+  args: {
+    courseToBeUpdated: Set<string>;
+    cachedDetailedCourseData: { [key: string]: CachedDetailedCourse };
+  } & Omit<CommonSatisfiabilityArgs, "combinedSubjectMap">,
+) => {
   const {
     courseToBeUpdated,
     cachedDetailedCourseData,
-    graph,
+    depData,
     termOrderMap,
     allCourseData,
     courseTaken,
+    equivGroups,
   } = args;
-  const { depGraph, subjectMap } = graph;
+  const { depGraph, subjectMap } = depData;
 
   const uniqueSubjects = new Set([...courseTaken.keys(), ...subjectMap.keys()]);
 
@@ -331,12 +350,13 @@ export const updateAffectedCourses = (args: {
     if (!depGraph.get(c)?.termId) return; // not planned
     const courseDetail = cachedDetailedCourseData[c];
     depGraph.get(c)!.isSatisfied = isSatisfied({
-      course: courseDetail,
-      graph,
+      courseDetail,
+      depData,
       termOrderMap,
       allCourseData,
       courseTaken,
       combinedSubjectMap,
+      equivGroups,
     });
   });
 };

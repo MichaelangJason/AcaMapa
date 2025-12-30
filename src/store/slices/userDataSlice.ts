@@ -8,6 +8,7 @@ import { getNewTermName } from "@/lib/term";
 export const initialState = {
   lang: Language.EN,
   courseTaken: new Map<string, string[]>(),
+  equivRules: [] as string[],
 
   planData: new Map<string, Plan>(),
   termData: new Map<string, Term>(),
@@ -26,15 +27,20 @@ export const userDataSlice = createSlice({
   name: "userData",
   initialState,
   reducers: {
+    /* LANGUAGE RELATED */
     setLang: (state, action: PayloadAction<Language>) => {
       state.lang = action.payload;
     },
     toggleLang: (state) => {
       state.lang = state.lang === Language.EN ? Language.FR : Language.EN;
     },
+
+    /* CHAT THREAD IDs RELATED */
     setChatThreadIds: (state, action: PayloadAction<string[]>) => {
       state.chatThreadIds = [...action.payload];
     },
+
+    /* COURSE TAKEN RELATED */
     setCourseTaken: (state, action: PayloadAction<Map<string, string[]>>) => {
       state.courseTaken = new Map(action.payload);
     },
@@ -61,6 +67,23 @@ export const userDataSlice = createSlice({
           state.courseTaken.delete(subjectCode);
         }
       });
+    },
+
+    /* EQUIVALENT COURSES RELATED */
+    /* can be optimized with UNION-FIND if necessary */
+    setEquivRules: (state, action: PayloadAction<string[]>) => {
+      // re-construct the equivalent courses from the rules
+      const rules = action.payload;
+      state.equivRules = [...rules];
+    },
+    addEquivRule(state, action: PayloadAction<string>) {
+      const rule = action.payload;
+      state.equivRules.push(rule);
+    },
+    // rule is passed to middleware for removal
+    removeEquivRule(state, action: PayloadAction<number>) {
+      const idx = action.payload;
+      state.equivRules.splice(idx, 1);
     },
 
     /* PROGRAM RELATED */
@@ -327,6 +350,11 @@ export const {
   addCourseTaken,
   removeCourseTaken,
 
+  /* EQUIVALENT COURSES RELATED */
+  setEquivRules,
+  addEquivRule,
+  removeEquivRule,
+
   /* PROGRAM RELATED */
   setPrograms,
   addProgram,
@@ -389,6 +417,12 @@ export const courseTakenActions = {
   removeCourseTaken,
 };
 
+export const equivRulesActions = {
+  setEquivRules,
+  addEquivRule,
+  removeEquivRule,
+};
+
 export const programActions = {
   setPrograms,
   addProgram,
@@ -410,6 +444,9 @@ export type CourseAction = ReturnType<
 >;
 export type CourseTakenAction = ReturnType<
   (typeof courseTakenActions)[keyof typeof courseTakenActions]
+>;
+export type EquivRulesAction = ReturnType<
+  (typeof equivRulesActions)[keyof typeof equivRulesActions]
 >;
 
 export default userDataSlice.reducer;

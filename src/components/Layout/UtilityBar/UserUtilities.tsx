@@ -1,9 +1,4 @@
-import {
-  Help,
-  Sync,
-  UserSession,
-  UserLang,
-} from "@/components/Common/UserUtilities";
+import { Help, Sync, UserLang } from "@/components/Common/UserUtilities";
 import ItemTagSkeleton from "@/components/Skeleton/ItemTagSkeleton";
 import { TooltipId } from "@/lib/enums";
 import { Language, t, I18nKey } from "@/lib/i18n";
@@ -41,7 +36,7 @@ const UserUtilities = () => {
           <Sync />
 
           {/* user session login/logout */}
-          <UserSession />
+          {/* <UserSession /> */}
 
           {/* user language */}
           <UserLang />

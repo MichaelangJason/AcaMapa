@@ -3,13 +3,15 @@ import {
   isPlanAction,
   isTermAction,
   isCourseAction,
+  isEquivRulesAction,
 } from "@/lib/typeGuards";
 import { setCurrentPlanId } from "@/store/slices/localDataSlice";
 import { startListening } from "../core";
 import { handleSetCurrentPlan, handlePlanAction } from "./planActions";
 import { handleTermAction } from "./termActions";
 import { handleCourseTakenAction } from "./courseTakenActions";
-import { handleCourseAction } from "./courseActions";
+import { handleCourseActions } from "./courseActions";
+import { handleEquivRulesActions } from "./equivRulesActions";
 import type { PayloadAction } from "@reduxjs/toolkit";
 
 startListening({
@@ -30,7 +32,9 @@ startListening({
     } else if (isCourseTakenAction(action)) {
       handleCourseTakenAction({ action, listenerApi });
     } else if (isCourseAction(action)) {
-      handleCourseAction({ action, listenerApi });
+      handleCourseActions({ action, listenerApi });
+    } else if (isEquivRulesAction(action)) {
+      handleEquivRulesActions({ action, listenerApi });
     }
   },
 });

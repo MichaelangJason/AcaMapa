@@ -1,4 +1,4 @@
-import { GroupType, ResultType } from "@/lib/enums";
+import { ResultType } from "@/lib/enums";
 import type { Course, Program } from "@/types/db";
 import type {
   CachedDetailedCourse,
@@ -7,16 +7,19 @@ import type {
   SearchResult,
   SimpleModalProps,
   ImportModalInfo,
+  EquivGroups,
 } from "@/types/local";
 import type { Session } from "@/types/auth";
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import {
-  findIdInReqGroup,
-  getSubjectCode,
-  getTargetGroup,
-  isCourseInGraph,
   updateAffectedCourses,
-} from "@/lib/course";
+  // graph utils
+  _addCourseToGraph,
+  _deleteCourseFromGraph,
+  _moveCourseInGraph,
+  _addEquivRulesToGraph,
+  _removeEquivRulesFromGraph,
+} from "@/lib/course/dependency";
 
 export const initialState = {
   // course data
@@ -48,6 +51,10 @@ export const initialState = {
 
   // course dependency graph
   courseDepData: new Map<string, CourseDepData>(),
+  equivGroups: {
+    groups: new Map(),
+    courseToGroupId: new Map(),
+  } as EquivGroups,
 
   // seeking information
   seekingCourseId: "" as string,
@@ -235,123 +242,39 @@ const localDataSlice = createSlice({
     addCoursesToGraph: (
       state,
       action: PayloadAction<{
+        // passed to addCourseToGraph
         planId: string;
         courseIds: Set<string>; // course ids specific to the term
         termId: string;
+
+        // passed to updateAffectedCourses
         courseTaken: Map<string, string[]>;
         termOrderMap: Map<string, number>;
         isSkipUpdate?: boolean;
       }>,
     ) => {
-      const {
-        planId,
-        courseIds,
-        termId,
-        courseTaken,
-        termOrderMap,
-        isSkipUpdate,
-      } = action.payload;
+      const { courseTaken, termOrderMap, isSkipUpdate } = action.payload;
 
-      // invalid plan id
-      if (!state.courseDepData.has(planId)) {
-        throw new Error(`Plan id not found in course dep data: ${planId}`);
-      }
-
-      // get current dependency graph
-      const depData = state.courseDepData.get(planId)!;
-      const { subjectMap, depGraph, creditsReqMap } = depData;
-
-      // invalid course ids
-      if (
-        Array.from(courseIds).some((c) => !state.cachedDetailedCourseData[c])
-      ) {
-        throw new Error(
-          "Course not in cached detailed course data: " +
-            Array.from(courseIds).join(", "),
-        );
-      }
-
-      // set of courses that needs to be updated
-      const courseToBeUpdated = new Set<string>();
-
-      // fill the set
-      courseIds.forEach((id) => {
-        const course = state.cachedDetailedCourseData[id];
-
-        // add course to depGraph if not already in graph
-        if (!depGraph.has(course.id)) {
-          depGraph.set(course.id, {
-            isSatisfied: false,
-            termId,
-            affectedCourseIds: new Set(),
-          });
-        } else {
-          // already in graph, update termId and termOrder only
-          depGraph.get(course.id)!.termId = termId;
-        }
-
-        // update subjectMap if not already in map
-        const subject = getSubjectCode(course.id);
-        if (!subjectMap.has(subject)) {
-          subjectMap.set(subject, new Set<string>());
-        }
-        subjectMap.get(subject)!.add(course.id);
-
-        // update creditsReqMap if course has credit group and not already in map
-        const creditGroup = getTargetGroup(
-          course.prerequisites.group,
-          GroupType.CREDIT,
-        );
-        if (creditGroup !== undefined) {
-          const subjects = creditGroup.inner.slice(2) as string[];
-          subjects.forEach((s) => {
-            if (!creditsReqMap.has(s)) {
-              creditsReqMap.set(s, new Set<string>());
-            }
-            creditsReqMap.get(s)!.add(course.id);
-          });
-        }
-
-        /* update depGraph */
-        const allDeps = findIdInReqGroup(course.prerequisites.group)
-          .concat(findIdInReqGroup(course.corequisites.group))
-          .concat(findIdInReqGroup(course.restrictions.group));
-
-        // push to deps affectedCourseIds
-        allDeps.forEach((c) => {
-          // not in dep graph == not in plan
-          if (!depGraph.has(c)) {
-            depGraph.set(c, {
-              isSatisfied: false,
-              termId: "",
-              affectedCourseIds: new Set(),
-            });
-          }
-
-          depGraph.get(c)!.affectedCourseIds.add(course.id);
-        });
-
-        depGraph.get(course.id)!.affectedCourseIds.forEach((c) => {
-          courseToBeUpdated.add(c);
-        });
-        creditsReqMap.get(subject)?.forEach((c) => {
-          courseToBeUpdated.add(c);
-        });
-        courseToBeUpdated.add(course.id); // add self
-      });
+      const { courseToBeUpdated, depData } = _addCourseToGraph(state, action);
 
       if (isSkipUpdate) {
         return;
       }
 
+      const {
+        cachedDetailedCourseData,
+        courseData: allCourseData,
+        equivGroups,
+      } = state;
       // calculate isSatisfied for all courses that are affected by the added courses
       updateAffectedCourses({
-        graph: depData,
+        depData,
         courseToBeUpdated,
-        cachedDetailedCourseData: state.cachedDetailedCourseData,
+        cachedDetailedCourseData,
         termOrderMap,
-        allCourseData: state.courseData,
+        allCourseData,
         courseTaken,
+        equivGroups,
       });
     },
 
@@ -365,92 +288,30 @@ const localDataSlice = createSlice({
         isSkipUpdate?: boolean;
       }>,
     ) => {
-      const { planId, courseTaken, courseIds, termOrderMap, isSkipUpdate } =
-        action.payload;
-      if (!state.courseDepData.has(planId)) {
-        throw new Error(`Plan id not found in course dep data: ${planId}`);
-      }
+      const { courseTaken, termOrderMap, isSkipUpdate } = action.payload;
 
-      const depData = state.courseDepData.get(planId)!;
-      const { depGraph, subjectMap, creditsReqMap } = depData;
-
-      // invalid course ids
-      if (
-        Array.from(courseIds).some(
-          (c) =>
-            !isCourseInGraph(depData, c) || !state.cachedDetailedCourseData[c],
-        )
-      ) {
-        throw new Error(
-          "Course not in dependency graph or cached detailed course data: " +
-            Array.from(courseIds).join(", "),
-        );
-      }
-
-      const courseToBeUpdated = new Set<string>();
-
-      // fill the set of courses that needs to be updated
-      courseIds.forEach((id) => {
-        const depCourse = depGraph.get(id)!;
-        const affectedCourses = Array.from(depCourse.affectedCourseIds);
-
-        // add all affected courses to the set, they need to be updated
-        affectedCourses.forEach((c) => {
-          courseToBeUpdated.add(c);
-        });
-
-        const subject = getSubjectCode(id);
-
-        // trigger update for all courses that require this subject
-        creditsReqMap.get(subject)?.forEach((c) => {
-          courseToBeUpdated.add(c); // update
-        });
-
-        // delete from graph if none of its affected courses are in the graph
-        const removedAffectedCourses = affectedCourses.filter(
-          (c) => !isCourseInGraph(depData, c),
-        );
-
-        // no affected courses left, acceptable overhead (usually very small number)
-        if (removedAffectedCourses.length === affectedCourses.length) {
-          depGraph.delete(id);
-        } else {
-          // REVIEW: should this cleanup be done each time an update is made?
-          removedAffectedCourses.forEach((c) => {
-            depGraph.get(c)!.affectedCourseIds.delete(id); // clear affected course id
-          });
-          depCourse.termId = "";
-        }
-        subjectMap.get(subject)!.delete(id); // must exist
-        if (subjectMap.get(subject)!.size === 0) {
-          subjectMap.delete(subject);
-        }
-
-        // delete/unsubscribe from creditsReqMap if course has credit group
-        const courseDetail = state.cachedDetailedCourseData[id]!;
-        const creditGroup = getTargetGroup(
-          courseDetail.prerequisites.group,
-          GroupType.CREDIT,
-        );
-        if (creditGroup !== undefined) {
-          const subjects = creditGroup.inner.slice(2) as string[];
-          subjects.forEach((s) => {
-            creditsReqMap.get(s)?.delete(id);
-          });
-        }
-      });
+      const { courseToBeUpdated, depData } = _deleteCourseFromGraph(
+        state,
+        action,
+      );
 
       if (isSkipUpdate) {
         return;
       }
 
+      const {
+        cachedDetailedCourseData,
+        courseData: allCourseData,
+        equivGroups,
+      } = state;
       updateAffectedCourses({
-        graph: depData,
+        depData,
         courseToBeUpdated,
-        cachedDetailedCourseData: state.cachedDetailedCourseData,
+        cachedDetailedCourseData,
         termOrderMap,
-        allCourseData: state.courseData,
+        allCourseData,
         courseTaken,
+        equivGroups,
       });
     },
 
@@ -465,56 +326,101 @@ const localDataSlice = createSlice({
         isSkipUpdate?: boolean;
       }>,
     ) => {
-      const {
-        planId,
-        courseIds,
-        newTermId,
-        courseTaken,
-        termOrderMap,
-        isSkipUpdate,
-      } = action.payload;
+      const { courseTaken, termOrderMap, isSkipUpdate } = action.payload;
 
-      if (!state.courseDepData.has(planId)) {
-        throw new Error(`Plan id not found in course dep data: ${planId}`);
-      }
-
-      const depData = state.courseDepData.get(planId)!;
-      const { depGraph, creditsReqMap } = depData;
-
-      if (Array.from(courseIds).some((c) => !isCourseInGraph(depData, c))) {
-        throw new Error(
-          "Course not in dependency graph: " + Array.from(courseIds).join(", "),
-        );
-      }
-
-      const courseToBeUpdated = new Set<string>();
-
-      courseIds.forEach((id) => {
-        courseToBeUpdated.add(id);
-        const entry = depGraph.get(id)!;
-
-        entry.termId = newTermId;
-        entry.affectedCourseIds.forEach((c) => {
-          courseToBeUpdated.add(c);
-        });
-
-        const subject = getSubjectCode(id);
-        creditsReqMap.get(subject)?.forEach((c) => {
-          courseToBeUpdated.add(c); // also update
-        });
-      });
+      const { courseToBeUpdated, depData } = _moveCourseInGraph(state, action);
 
       if (isSkipUpdate) {
         return;
       }
 
+      const {
+        cachedDetailedCourseData,
+        courseData: allCourseData,
+        equivGroups,
+      } = state;
       updateAffectedCourses({
-        graph: depData,
+        depData,
         courseToBeUpdated,
-        cachedDetailedCourseData: state.cachedDetailedCourseData,
+        cachedDetailedCourseData,
         termOrderMap,
-        allCourseData: state.courseData,
+        allCourseData,
         courseTaken,
+        equivGroups,
+      });
+    },
+
+    addEquivRulesToGraph: (
+      state,
+      action: PayloadAction<{
+        rules: string[];
+        planId: string;
+        courseTaken: Map<string, string[]>;
+        termOrderMap: Map<string, number>;
+        isSkipUpdate?: boolean;
+      }>,
+    ) => {
+      const { courseTaken, termOrderMap, isSkipUpdate } = action.payload;
+
+      const { courseToBeUpdated, depData } = _addEquivRulesToGraph(
+        state,
+        action,
+      );
+
+      if (isSkipUpdate) {
+        return;
+      }
+
+      const {
+        cachedDetailedCourseData,
+        courseData: allCourseData,
+        equivGroups,
+      } = state;
+      updateAffectedCourses({
+        depData,
+        courseToBeUpdated,
+        cachedDetailedCourseData,
+        termOrderMap,
+        allCourseData,
+        courseTaken,
+        equivGroups,
+      });
+    },
+
+    removeEquivRulesFromGraph: (
+      state,
+      action: PayloadAction<{
+        rules: string[];
+        planId: string;
+        courseTaken: Map<string, string[]>;
+        termOrderMap: Map<string, number>;
+        isSkipUpdate?: boolean;
+      }>,
+    ) => {
+      const { courseTaken, termOrderMap, isSkipUpdate } = action.payload;
+
+      const { courseToBeUpdated, depData } = _removeEquivRulesFromGraph(
+        state,
+        action,
+      );
+
+      if (isSkipUpdate) {
+        return;
+      }
+
+      const {
+        cachedDetailedCourseData,
+        courseData: allCourseData,
+        equivGroups,
+      } = state;
+      updateAffectedCourses({
+        depData,
+        courseToBeUpdated,
+        cachedDetailedCourseData,
+        termOrderMap,
+        allCourseData,
+        courseTaken,
+        equivGroups,
       });
     },
 
@@ -537,13 +443,19 @@ const localDataSlice = createSlice({
 
       const depData = state.courseDepData.get(planId)!;
 
+      const {
+        cachedDetailedCourseData,
+        courseData: allCourseData,
+        equivGroups,
+      } = state;
       updateAffectedCourses({
-        graph: depData,
+        depData,
         courseToBeUpdated,
-        cachedDetailedCourseData: state.cachedDetailedCourseData,
+        cachedDetailedCourseData,
         termOrderMap,
-        allCourseData: state.courseData,
+        allCourseData,
         courseTaken,
+        equivGroups,
       });
     },
 
@@ -634,22 +546,36 @@ const localDataSlice = createSlice({
 });
 
 export const {
+  // Seeking information reducers
   setSeekingCourseId,
   clearSeekingCourseId,
+  setSeekingProgramName,
+  clearSeekingProgramName,
+
+  // Search reducers
   setSearchResult,
   setSearchInput,
+
+  // Course and program data reducers
   setCourseData,
   setProgramData,
-  updateCachedDetailedCourseData,
   setDetailedProgramData,
   updateCachedDetailedProgramData,
+  setDetailedCourseData,
+  updateCachedDetailedCourseData,
+
+  // Selected courses reducers
   addSelectedCourse,
   removeSelectedCourse,
   clearSelectedCourses,
+
+  // Plan & course expanded state reducers
   setCurrentPlanId,
   setIsCourseExpanded,
   deleteIsCourseExpanded,
   initPlanIsCourseExpanded,
+
+  // Course dependency graph reducers
   addCoursesToGraph,
   deleteCoursesFromGraph,
   moveCoursesInGraph,
@@ -657,19 +583,33 @@ export const {
   initCourseDepData,
   deleteCourseDepData,
   updateCoursesIsSatisfied,
+  addEquivRulesToGraph,
+  removeEquivRulesFromGraph,
+
+  // Simple modal reducers
   setSimpleModalInfo,
   clearSimpleModalInfo,
+
+  // Sync status reducers
   setSyncStatus,
+
+  // Session reducers
   setSession,
   clearSession,
+
+  // Export modal reducers
   setExportPlanId,
   clearExportPlanId,
+
+  // Program modal reducers
   setIsProgramModalOpen,
   clearIsProgramModalOpen,
-  setSeekingProgramName,
-  clearSeekingProgramName,
+
+  // Info modal reducers
   setIsInfoModalOpen,
   clearIsInfoModalOpen,
+
+  // Import modal reducers
   setIsImportModalOpen,
   clearIsImportModalOpen,
 } = localDataSlice.actions;
@@ -679,5 +619,7 @@ export const localDataActions = localDataSlice.actions;
 export type LocalDataAction = ReturnType<
   (typeof localDataSlice.actions)[keyof typeof localDataSlice.actions]
 >;
+
+export type LocalDataState = typeof initialState;
 
 export default localDataSlice.reducer;
