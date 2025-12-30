@@ -18,6 +18,7 @@ import {
   isCourseTakenAction,
   isLocalDataAction,
   isProgramAction,
+  isEquivRulesAction,
 } from "@/lib/typeGuards";
 import { handlePlanAction } from "./planActions";
 import { handleTermAction } from "./termActions";
@@ -25,6 +26,7 @@ import { handleCourseTakenAction } from "./courseTakenActions";
 import { handleCourseAction } from "./courseActions";
 import { handleLocalDataAction } from "./localDataActions";
 import { handleProgramAction } from "./programActions";
+import { handleEquivRulesAction } from "./equivRulesActions";
 
 // input validation middleware
 const validationMiddleware: Middleware<
@@ -40,6 +42,8 @@ const validationMiddleware: Middleware<
     handleTermAction(action, state);
   } else if (isCourseTakenAction(action)) {
     handleCourseTakenAction(action, state);
+  } else if (isEquivRulesAction(action)) {
+    handleEquivRulesAction(action, state);
   } else if (isCourseAction(action)) {
     handleCourseAction(action, state);
   } else if (isLocalDataAction(action)) {

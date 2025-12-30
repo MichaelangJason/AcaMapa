@@ -376,6 +376,7 @@ const localDataSlice = createSlice({
         courseData: allCourseData,
         equivGroups,
       } = state;
+
       updateAffectedCourses({
         depData,
         courseToBeUpdated,

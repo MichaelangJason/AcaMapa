@@ -12,39 +12,32 @@ export const handleEquivRulesActions = ({
 }: HandlerContext<EquivRulesAction>) => {
   const state = listenerApi.getState();
   const dispatch = listenerApi.dispatch;
+
+  // setEquivRules is used at initialization
+  // and before restoring courses from local storage
+  // so no need to update courses' satifiability
+  // satisfiability will be updated at setCurrentPlanId
+  if (action.type === "userData/setEquivRules") {
+    return;
+  }
+
   const planId = state.localData.currentPlanId;
   const depData = state.localData.courseDepData;
-
-  if (!depData.has(planId)) {
-    throw new Error(`Plan id not found in course dep data: ${planId}`);
-  }
 
   const plan = state.userData.planData.get(planId)!;
   const termOrderMap = getTermOrderMap(plan);
   const courseTaken = state.userData.courseTaken;
 
+  if (!depData.has(planId)) {
+    throw new Error(`Plan id not found in course dep data: ${planId}`);
+  }
+
   switch (action.type) {
-    // setEquivRules is used at initialization
-    // and before restoring courses from local storage
-    // so no need to update courses' satifiability
-    case "userData/setEquivRules": {
-      const rules = action.payload;
-
-      dispatch(
-        addEquivRulesToGraph({
-          rules,
-          planId,
-          courseTaken,
-          termOrderMap,
-          isSkipUpdate: true,
-        }),
-      );
-
-      break;
-    }
-
     case "userData/addEquivRule": {
       const rule = action.payload;
+      if (!rule) {
+        break;
+      }
 
       dispatch(
         addEquivRulesToGraph({
@@ -61,6 +54,9 @@ export const handleEquivRulesActions = ({
     case "userData/removeEquivRule": {
       const idx = action.payload;
       const rule = listenerApi.getOriginalState().userData.equivRules[idx];
+      if (!rule) {
+        break;
+      }
 
       dispatch(
         removeEquivRulesFromGraph({

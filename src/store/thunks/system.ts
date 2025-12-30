@@ -174,6 +174,7 @@ export const fullSync = createAppAsyncThunk(
         }
 
         setLocalUserData(parsedData);
+
         if (parsedData.planData.has(savedCurrentPlanId)) {
           dispatch(setCurrentPlanId(savedCurrentPlanId));
         } else {
