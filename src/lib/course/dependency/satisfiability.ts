@@ -1,5 +1,5 @@
 import { COURSE_PATTERN } from "@/lib/constants";
-import { GroupType } from "@/lib/enums";
+import { GroupType, ReqType } from "@/lib/enums";
 import type { Course } from "@/types/db";
 import type {
   CourseDepData,
@@ -54,6 +54,7 @@ export const isGroupSatisfied = (
     input: ReqGroup | string;
     includeCurrentTerm: boolean;
     currentOrder: number;
+    reqType: ReqType;
   } & CommonSatisfiabilityArgs,
 ): boolean => {
   const {
@@ -66,11 +67,17 @@ export const isGroupSatisfied = (
     combinedSubjectMap,
     currentOrder,
     equivGroups,
+    reqType,
   } = args;
   const { depGraph } = depData;
 
   // input is a course id, base case
   if (typeof input === "string") {
+    // equivalent courses are not considered for anti-requisite
+    if (reqType === ReqType.ANTI_REQ) {
+      return isCourseSatisfied(input);
+    }
+
     // check if course is satisfied or any of the equivalent courses is satisfied
     return (
       isCourseSatisfied(input) ||
@@ -282,6 +289,7 @@ export const isSatisfied = (
       input: restrictions.group,
       includeCurrentTerm: true, // restrict course cannot be taken in the same term
       currentOrder,
+      reqType: ReqType.ANTI_REQ,
     })
   ) {
     return false;
@@ -294,6 +302,7 @@ export const isSatisfied = (
       input: prerequisites.group,
       includeCurrentTerm: false, // prerequisites course cannot be taken in the same term
       currentOrder,
+      reqType: ReqType.PRE_REQ,
     })
   ) {
     return false;
@@ -306,6 +315,7 @@ export const isSatisfied = (
       input: corequisites.group,
       includeCurrentTerm: true, // corequisites course can be taken in the same term
       currentOrder,
+      reqType: ReqType.CO_REQ,
     })
   ) {
     return false;

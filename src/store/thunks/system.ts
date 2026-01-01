@@ -120,7 +120,10 @@ export const fullSync = createAppAsyncThunk(
         equivRules,
       } = data;
 
+      console.log("equivRules", equivRules);
+
       dispatch(setCourseTaken(courseTaken));
+      dispatch(setEquivRules(equivRules ?? []));
       dispatch(setTermData(termData));
       dispatch(setPlanData({ planData, planOrder }));
       dispatch(setPrograms(programs));
@@ -136,7 +139,6 @@ export const fullSync = createAppAsyncThunk(
       dispatch(initPlanIsCourseExpanded(courseExpandPayload));
       dispatch(setLang(lang as Language));
       dispatch(setChatThreadIds(chatThreadIds ?? []));
-      dispatch(setEquivRules(equivRules ?? []));
     };
 
     const restoreFrom = async (restoreData: any): Promise<boolean> => {

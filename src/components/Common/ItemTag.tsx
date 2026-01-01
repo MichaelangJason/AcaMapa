@@ -10,6 +10,7 @@ import { I18nKey, Language, t } from "@/lib/i18n";
 import { TooltipId } from "@/lib/enums";
 
 const ItemTag = ({
+  ref,
   title,
   items,
   handleClickTag,
@@ -28,6 +29,7 @@ const ItemTag = ({
   displayLang,
   displayLimit = 30,
 }: {
+  ref?: React.RefObject<HTMLDivElement | null>;
   title: string;
   items: string[];
   handleClickTag?: () => void;
@@ -79,9 +81,11 @@ const ItemTag = ({
         tagRef.current.attributes.removeNamedItem("data-tag-type");
         return;
       }
+
       if (isPinnable && isExpandable) {
         setIsExpanded((prev) => !prev);
       }
+
       handleClickTag?.();
     },
     [isPinnable, isExpandable, handleClickTag],
@@ -98,7 +102,14 @@ const ItemTag = ({
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
       style={style}
-      ref={tagRef}
+      ref={(el) => {
+        if (!el) return;
+
+        tagRef.current = el as HTMLDivElement;
+        if (ref) {
+          ref.current = el as HTMLDivElement;
+        }
+      }}
     >
       <header
         className={clsx(

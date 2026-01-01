@@ -28,19 +28,15 @@ export const handleEquivRulesAction = (
 
       break;
     }
-    case "userData/addEquivRule": {
+    case "userData/addEquivRule":
+    case "userData/removeEquivRule": {
       const rule = action.payload;
+
       if (!isValidRule(rule)) {
         throw new Error(`Invalid rule: ${rule}`);
       }
 
       break;
-    }
-    case "userData/removeEquivRule": {
-      const idx = action.payload;
-      if (idx < 0 || idx >= state.userData.equivRules.length) {
-        throw new Error(`Invalid index: ${idx}`);
-      }
     }
   }
 };

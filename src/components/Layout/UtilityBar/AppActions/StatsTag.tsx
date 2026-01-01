@@ -5,7 +5,11 @@ import { t, I18nKey, Language } from "@/lib/i18n";
 import { useAppSelector } from "@/store/hooks";
 import { selectPlanStats } from "@/store/selectors";
 
-const StatsTag = () => {
+const StatsTag = ({
+  ref,
+}: {
+  ref?: React.RefObject<HTMLDivElement | null>;
+}) => {
   const currentPlanId = useAppSelector(
     (state) => state.localData.currentPlanId,
   );
@@ -24,6 +28,7 @@ const StatsTag = () => {
 
   return (
     <ItemTag
+      ref={ref}
       items={[
         `# ${t([I18nKey.COURSE], lang)}s: ${totalCourses} (${totalCredits} cr)`,
         `# ${t([I18nKey.PLANNED_COURSES], lang)}: ${totalPlannedCourses} (${totalPlanCredits} cr)`,

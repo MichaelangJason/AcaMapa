@@ -72,7 +72,7 @@ const ReqGroup = ({
         // string item = course id.
         if (typeof item === "string") {
           // TODO: source check
-          const { isValid, source } = getCourseSource(
+          const { courseId, isValid, source, isEquiv } = getCourseSource(
             item,
             termId,
             reqType,
@@ -83,15 +83,21 @@ const ReqGroup = ({
           const status = getTagStatus(source, isValid);
 
           // get the tooltip message corresponding to the status
-          const tooltipMsg = getTagToolTip(source, isValid, lang);
+          const tooltipMsg = getTagToolTip(
+            courseId,
+            source,
+            isValid,
+            lang,
+            isEquiv,
+          );
 
           // render the course tag
           return (
             <Tag
               key={`${parentCourse}-${group.type}-${idx}-${item}`}
-              sourceText={item}
+              sourceText={courseId}
               displayText={formatCourseId(item)}
-              className={clsx(status, "clickable")}
+              className={clsx(status, isEquiv && "equiv", "clickable")}
               callback={(e, item) => addToCourseTakenOrJump(e, item, source)}
               tooltipOptions={{
                 "data-tooltip-id": TooltipId.REQ_NOTES_TAG,
@@ -150,7 +156,7 @@ const ReqGroup = ({
 
       // add course tags to the group
       group.inner.forEach((item, idx) => {
-        const { isValid, source } = getCourseSource(
+        const { courseId, isValid, source, isEquiv } = getCourseSource(
           item,
           termId,
           reqType,
@@ -161,15 +167,21 @@ const ReqGroup = ({
         const status = getTagStatus(source, isValid);
 
         // get the tooltip message corresponding to the status
-        const tooltipMsg = getTagToolTip(source, isValid, lang);
+        const tooltipMsg = getTagToolTip(
+          courseId,
+          source,
+          isValid,
+          lang,
+          isEquiv,
+        );
 
         // render the course tag
         children.push(
           <Tag
             key={`${parentCourse}-${group.type}-${idx}-${item}`}
-            sourceText={item}
+            sourceText={courseId}
             displayText={formatCourseId(item)}
-            className={clsx(status, "clickable")}
+            className={clsx(status, isEquiv && "equiv", "clickable")}
             callback={(e, item) => addToCourseTakenOrJump(e, item, source)}
             tooltipOptions={{
               "data-tooltip-id": TooltipId.REQ_NOTES_TAG,

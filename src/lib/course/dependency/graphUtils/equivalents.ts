@@ -29,16 +29,29 @@ const gatherAffectedCourses = (
   return courseToBeUpdated;
 };
 
+export const _setEquivRulesToGraph = (
+  state: WritableDraft<LocalDataState>,
+  action: PayloadAction<string[]>,
+) => {
+  const rules = action.payload;
+  const equivGroups = state.equivGroups;
+
+  rules.forEach((rule) => {
+    const [courseId, equivCourseId] = parseRule(rule);
+    addEquivGroup(courseId, equivCourseId, equivGroups);
+  });
+
+  return { equivGroups };
+};
+
 export const _addEquivRulesToGraph = (
   state: WritableDraft<LocalDataState>,
   action: PayloadAction<{ rules: string[]; planId: string }>,
 ) => {
   const { rules, planId } = action.payload;
-  const depData = state.courseDepData.get(planId)!;
   const equivGroups = state.equivGroups;
 
   const ruleCourseIds = new Set<string>();
-  const depGraph = depData.depGraph;
 
   // parse rules and add to equiv groups
   rules.forEach((rule) => {
@@ -49,7 +62,9 @@ export const _addEquivRulesToGraph = (
     ruleCourseIds.add(equivCourseId);
   });
 
-  // gather all affected courses
+  // gather all affected courses if plan id is provided
+  const depData = state.courseDepData.get(planId)!;
+  const depGraph = depData.depGraph;
   const courseToBeUpdated = gatherAffectedCourses(depGraph, ruleCourseIds);
 
   return { courseToBeUpdated, depData };

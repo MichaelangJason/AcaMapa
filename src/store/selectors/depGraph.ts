@@ -6,6 +6,7 @@ import {
   getCourseLevel,
   isCourseInGraph,
   getValidCoursePerSubject,
+  getEquivCourses,
 } from "@/lib/course";
 import { ReqType } from "@/lib/enums";
 import type { ValidSubjectMap } from "@/types/local";
@@ -35,6 +36,7 @@ export const selectCourseDepMeta = createAppSelector(
     (state) => state.localData.currentPlanId,
     (state) => state.localData.courseData,
     (state) => state.localData.courseDepData,
+    (state) => state.localData.equivGroups,
     (state) => state.userData,
     (_, planId?: string) => planId,
   ],
@@ -43,15 +45,18 @@ export const selectCourseDepMeta = createAppSelector(
     currentPlanId,
     courseData,
     courseDepData,
+    equivGroups,
     userData,
     planId,
   ) => {
     if (!isInitialized) {
       return {
         getCourseSource: () => ({
+          courseId: "",
           isValid: false,
           source: "",
           isSatisfied: false,
+          isEquiv: false,
         }),
         getValidCourses: () => ({
           totalCredits: 0,
@@ -84,6 +89,7 @@ export const selectCourseDepMeta = createAppSelector(
       ...courseTaken.keys(),
       ...subjectMap.keys(),
     ]);
+
     const combinedSubjectMap = new Map(
       Array.from(uniqueSubjects).map((subject) => [
         subject,
@@ -93,18 +99,22 @@ export const selectCourseDepMeta = createAppSelector(
         ]),
       ]),
     );
+
     const isCourseTaken = (courseId: string) => {
       const subject = getSubjectCode(courseId);
       return courseTaken.get(subject)?.includes(courseId) ?? false;
     };
 
-    // return these closures
-    const getCourseSource = (
-      courseId: string,
-      sourceTermId: string,
-      reqType: ReqType | null,
-      includeCurrentTerm: boolean,
-    ) => {
+    const _getCourseSource = (args: {
+      courseId: string;
+      sourceTermId: string;
+      reqType: ReqType | null;
+      includeCurrentTerm: boolean;
+      isEquiv?: boolean;
+    }) => {
+      const { courseId, sourceTermId, reqType, includeCurrentTerm, isEquiv } =
+        args;
+
       const currentTermOrder = termOrderMap.get(sourceTermId);
       const targetTermId = depGraph.get(courseId)?.termId;
       const targetTermOrder = termOrderMap.get(targetTermId ?? "");
@@ -142,26 +152,56 @@ export const selectCourseDepMeta = createAppSelector(
         !!depGraph.get(courseId)?.isSatisfied ||
         plan.courseMetadata.get(courseId)?.isOverwritten;
 
-      // if (courseId === '') {
-      //   console.group('getCourseSource', courseId);
-      //   console.log('source', source);
-      //   console.log('isSatisfied', isSatisfied);
-      //   console.log('isValid', isValid);
-      //   console.log('targetTermId', targetTermId);
-      //   console.log('targetTermOrder', targetTermOrder);
-      //   console.log('currentTermOrder', currentTermOrder);
-      //   console.log('includeCurrentTerm', includeCurrentTerm);
-      //   console.log('reqType', reqType);
-      //   console.log('isCourseTaken', isCourseTaken(courseId));
-      //   console.log('isCourseInGraph', isCourseInGraph(depData, courseId));
-      //   console.groupEnd();
-      // }
-
       return {
+        courseId,
         isValid: !!isValid,
         source,
         isSatisfied,
+        isEquiv: !!isEquiv,
       };
+    };
+
+    // return these closures
+    const getCourseSource = (
+      courseId: string,
+      sourceTermId: string,
+      reqType: ReqType | null,
+      includeCurrentTerm: boolean,
+    ) => {
+      const thisCourseSource = _getCourseSource({
+        courseId,
+        sourceTermId,
+        reqType,
+        includeCurrentTerm,
+      });
+      const equivCourseIds = getEquivCourses(courseId, equivGroups);
+
+      if (
+        thisCourseSource.isValid || // course is already valid
+        reqType === ReqType.ANTI_REQ || // equivalent course does not count towards anti-req
+        equivCourseIds.length === 0 // no equivalent courses
+      ) {
+        return thisCourseSource;
+      }
+
+      // check for equivalent courses
+      // if any equivalent course is valid, return the valid course source
+      for (const courseId of equivCourseIds) {
+        const equivCourseSource = _getCourseSource({
+          courseId,
+          sourceTermId,
+          reqType,
+          includeCurrentTerm,
+          isEquiv: true,
+        });
+
+        if (equivCourseSource.isValid) {
+          return equivCourseSource;
+        }
+      }
+
+      // if none of the equivalent courses are valid, return the invalid course source
+      return thisCourseSource;
     };
 
     // used for credit group

@@ -81,8 +81,9 @@ export const userDataSlice = createSlice({
       state.equivRules.push(rule);
     },
     // rule is passed to middleware for removal
-    removeEquivRule(state, action: PayloadAction<number>) {
-      const idx = action.payload;
+    removeEquivRule(state, action: PayloadAction<string>) {
+      const rule = action.payload;
+      const idx = state.equivRules.indexOf(rule);
       state.equivRules.splice(idx, 1);
     },
 

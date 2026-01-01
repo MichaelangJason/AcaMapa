@@ -19,6 +19,7 @@ import {
   _moveCourseInGraph,
   _addEquivRulesToGraph,
   _removeEquivRulesFromGraph,
+  _setEquivRulesToGraph,
 } from "@/lib/course/dependency";
 
 export const initialState = {
@@ -350,6 +351,10 @@ const localDataSlice = createSlice({
       });
     },
 
+    setEquivRulesToGraph: (state, action: PayloadAction<string[]>) => {
+      _setEquivRulesToGraph(state, action);
+    },
+
     addEquivRulesToGraph: (
       state,
       action: PayloadAction<{
@@ -584,6 +589,7 @@ export const {
   initCourseDepData,
   deleteCourseDepData,
   updateCoursesIsSatisfied,
+  setEquivRulesToGraph,
   addEquivRulesToGraph,
   removeEquivRulesFromGraph,
 

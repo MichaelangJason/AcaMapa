@@ -1,6 +1,7 @@
 import type { EquivRulesAction } from "@/types/actions";
 import type { HandlerContext } from "../core";
 import {
+  setEquivRulesToGraph,
   addEquivRulesToGraph,
   removeEquivRulesFromGraph,
 } from "@/store/slices/localDataSlice";
@@ -18,6 +19,7 @@ export const handleEquivRulesActions = ({
   // so no need to update courses' satifiability
   // satisfiability will be updated at setCurrentPlanId
   if (action.type === "userData/setEquivRules") {
+    dispatch(setEquivRulesToGraph(action.payload));
     return;
   }
 
@@ -52,8 +54,8 @@ export const handleEquivRulesActions = ({
     }
 
     case "userData/removeEquivRule": {
-      const idx = action.payload;
-      const rule = listenerApi.getOriginalState().userData.equivRules[idx];
+      const rule = action.payload;
+
       if (!rule) {
         break;
       }

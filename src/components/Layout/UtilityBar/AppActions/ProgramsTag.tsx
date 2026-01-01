@@ -8,7 +8,11 @@ import { removeProgram } from "@/store/slices/userDataSlice";
 import { seekProgram } from "@/store/thunks";
 import { useCallback } from "react";
 
-const ProgramsTag = () => {
+const ProgramsTag = ({
+  ref,
+}: {
+  ref?: React.RefObject<HTMLDivElement | null>;
+}) => {
   const dispatch = useAppDispatch();
   const programs = useAppSelector((state) => state.userData.programs);
   const lang = useAppSelector((state) => state.userData.lang) as Language;
@@ -33,6 +37,7 @@ const ProgramsTag = () => {
 
   return (
     <ItemTag
+      ref={ref}
       items={programs}
       handleClickItem={handleClickProgram}
       handleDeleteItem={handleDeleteProgram}
@@ -44,7 +49,7 @@ const ProgramsTag = () => {
         "data-tooltip-id": TooltipId.ITEM_TAG,
         "data-tooltip-place": "right",
       }}
-      isPinnable={true}
+      isPinnable={false}
     />
   );
 };

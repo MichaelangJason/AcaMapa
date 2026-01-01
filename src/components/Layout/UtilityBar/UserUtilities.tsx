@@ -1,3 +1,4 @@
+"use client";
 import { Help, Sync, UserLang } from "@/components/Common/UserUtilities";
 import ItemTagSkeleton from "@/components/Skeleton/ItemTagSkeleton";
 import { TooltipId } from "@/lib/enums";
@@ -5,6 +6,7 @@ import { Language, t, I18nKey } from "@/lib/i18n";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { setIsInfoModalOpen } from "@/store/slices/localDataSlice";
 import GithubMark from "@/public/icons/github-mark.svg";
+import clsx from "clsx";
 
 const UserUtilities = () => {
   const isInitialized = useAppSelector((state) => state.global.isInitialized);
@@ -12,7 +14,7 @@ const UserUtilities = () => {
   const lang = useAppSelector((state) => state.userData.lang) as Language;
 
   return (
-    <section className="contents">
+    <section className={clsx("contents", !isInitialized && "skeleton")}>
       {/* contents: Help, Sync, UserSession, UserLang, GithubMark */}
 
       {/* skeleton loading */}
