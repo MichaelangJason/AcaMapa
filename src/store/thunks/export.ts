@@ -6,8 +6,9 @@ import {
   addCoursesToGraph,
   updateCoursesIsSatisfied,
   setCourseDepDataDirty,
-  setExportPlanId,
+  setModalState,
 } from "../slices/localDataSlice";
+import { ModalType } from "@/lib/enums";
 
 const createAppAsyncThunk = createAsyncThunk.withTypes<{
   state: RootState;
@@ -67,7 +68,16 @@ export const prepareExport = createAppAsyncThunk(
       dispatch(setCourseDepDataDirty({ planIds: [planId], isDirty: false }));
     }
 
-    dispatch(setExportPlanId(planId));
+    // dispatch(setExportPlanId(planId));
+    dispatch(
+      setModalState({
+        isOpen: true,
+        props: {
+          type: ModalType.EXPORT,
+          planId,
+        },
+      }),
+    );
     return fulfillWithValue(true);
   },
 );

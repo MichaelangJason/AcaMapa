@@ -18,10 +18,10 @@ import ReqNotes from "./ReqNotes";
 import TermNote from "./TermNote";
 import clsx from "clsx";
 import { MCGILL_URL_BASES } from "@/lib/constants";
-import { ReqType, Season, TooltipId } from "@/lib/enums";
+import { ModalType, ReqType, Season, TooltipId } from "@/lib/enums";
 import { useCallback, useMemo } from "react";
 import {
-  setSimpleModalInfo,
+  setModalState,
   setSeekingCourseId,
 } from "@/store/slices/localDataSlice";
 import { overwriteCourse, seekCourse } from "@/store/thunks";
@@ -161,17 +161,19 @@ const DetailedCourseCard = ({
   // open overwrite modal when the user clicks the overwrite icon
   const handleOverwriteModal = useCallback(() => {
     dispatch(
-      setSimpleModalInfo({
+      setModalState({
         isOpen: true,
-        title: t([I18nKey.OVERWRITE_COURSE_TITLE], lang),
-        description: t([I18nKey.OVERWRITE_COURSE_DESC], lang, {
-          item1: formatCourseId(id),
-        }),
-        confirmCb: async () => {
-          handleOverwrite(true);
+        props: {
+          type: ModalType.SIMPLE,
+          title: t([I18nKey.OVERWRITE_COURSE_TITLE], lang),
+          description: t([I18nKey.OVERWRITE_COURSE_DESC], lang, {
+            item1: formatCourseId(id),
+          }),
+          confirmCb: async () => {
+            handleOverwrite(true);
+          },
         },
-        closeCb: async () => {},
-      }), // simple modal info
+      }),
     );
   }, [dispatch, id, handleOverwrite, lang]); // dependencies
 

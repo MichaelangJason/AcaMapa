@@ -4,9 +4,10 @@ import ItemTagSkeleton from "@/components/Skeleton/ItemTagSkeleton";
 import { TooltipId } from "@/lib/enums";
 import { Language, t, I18nKey } from "@/lib/i18n";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
-import { setIsInfoModalOpen } from "@/store/slices/localDataSlice";
+import { setModalState } from "@/store/slices/localDataSlice";
 import GithubMark from "@/public/icons/github-mark.svg";
 import clsx from "clsx";
+import { ModalType } from "@/lib/enums";
 
 const UserUtilities = () => {
   const isInitialized = useAppSelector((state) => state.global.isInitialized);
@@ -30,7 +31,14 @@ const UserUtilities = () => {
           {/* help modal */}
           <Help
             callback={() => {
-              dispatch(setIsInfoModalOpen(true));
+              dispatch(
+                setModalState({
+                  isOpen: true,
+                  props: {
+                    type: ModalType.INFO,
+                  },
+                }),
+              );
             }}
           />
 

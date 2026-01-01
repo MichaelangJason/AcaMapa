@@ -3,10 +3,11 @@ import { ItemTag } from "@/components/Common";
 import { TooltipId } from "@/lib/enums";
 import { t, I18nKey, type Language } from "@/lib/i18n";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { setIsProgramModalOpen } from "@/store/slices/localDataSlice";
+import { setModalState } from "@/store/slices/localDataSlice";
 import { removeProgram } from "@/store/slices/userDataSlice";
 import { seekProgram } from "@/store/thunks";
 import { useCallback } from "react";
+import { ModalType } from "@/lib/enums";
 
 const ProgramsTag = ({
   ref,
@@ -25,7 +26,14 @@ const ProgramsTag = ({
   );
 
   const handleAddProgram = useCallback(() => {
-    dispatch(setIsProgramModalOpen(true));
+    dispatch(
+      setModalState({
+        isOpen: true,
+        props: {
+          type: ModalType.PROGRAM,
+        },
+      }),
+    );
   }, [dispatch]);
 
   const handleDeleteProgram = useCallback(

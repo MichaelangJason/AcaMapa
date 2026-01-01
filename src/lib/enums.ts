@@ -1,3 +1,12 @@
+export enum ModalType {
+  NONE = "none",
+  SIMPLE = "simple",
+  PROGRAM = "program",
+  INFO = "info",
+  IMPORT = "import",
+  EXPORT = "export",
+}
+
 export enum Season {
   SUMMER = "summer",
   FALL = "fall",

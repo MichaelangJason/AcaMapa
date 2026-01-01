@@ -1,9 +1,7 @@
 "use client";
 
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { clearExportPlanId } from "@/store/slices/localDataSlice";
+import { useAppSelector } from "@/store/hooks";
 import { useState, useEffect, useCallback, useRef } from "react";
-import Modal from "react-modal";
 import CloseIcon from "@/public/icons/delete.svg";
 import { I18nKey, Language, t } from "@/lib/i18n";
 import SpinnerIcon from "@/public/icons/spinner.svg";
@@ -16,17 +14,15 @@ import ExportElems from "./ExportElems";
 import DomToImage from "dom-to-image-more";
 import { embedPlanDataInPng } from "@/lib/export";
 import { mapStringfyReplacer } from "@/lib/sync";
-
-Modal.setAppElement("html");
+import type { ExportModalProps, CommonModalProps } from "@/types/modals";
 
 // export modal for exporting plan as image
-const ExportModal = () => {
+const ExportModalContent = ({
+  planId,
+  closeCb,
+}: ExportModalProps & CommonModalProps) => {
   // user language
   const userLang = useAppSelector((state) => state.userData.lang) as Language;
-  // plan id
-  const planId = useAppSelector((state) => state.localData.exportPlanId);
-  // dispatch
-  const dispatch = useAppDispatch();
   const { terms, plan, planStats, planCourseData } = useAppSelector((state) =>
     selectExportInfo(state, planId),
   );
@@ -42,17 +38,6 @@ const ExportModal = () => {
   const handleChange = (field: string, value: any) => {
     setFormState((prev) => ({ ...prev, [field]: value }));
   };
-
-  const handleClose = useCallback(() => {
-    setPreviewUrl(null);
-    setFormState({
-      lang: userLang,
-      includePlanStats: true,
-      includeCourseTaken: true,
-      expandCourses: true,
-    });
-    dispatch(clearExportPlanId());
-  }, [dispatch, userLang]);
 
   const handleConfirm = useCallback(() => {
     if (!previewUrl || !plan) return;
@@ -81,8 +66,9 @@ const ExportModal = () => {
         },
       );
     }
-    handleClose();
-  }, [previewUrl, plan, terms, handleClose, formState.lang]);
+
+    closeCb();
+  }, [previewUrl, plan, terms, closeCb, formState.lang]);
 
   const exportContainerRef = useRef<HTMLDivElement>(null);
 
@@ -115,23 +101,15 @@ const ExportModal = () => {
           closeButton: false,
         },
       );
-      handleClose();
+      closeCb();
     });
-  }, [planId, dispatch, handleClose, formState, prepareExport]);
+  }, [planId, closeCb, formState, prepareExport]);
 
   return (
-    <Modal
-      isOpen={!!planId}
-      shouldCloseOnOverlayClick={true}
-      shouldCloseOnEsc={true}
-      onRequestClose={handleClose}
-      className="export-modal-content"
-      overlayClassName="modal-overlay"
-      ariaHideApp={false}
-    >
+    <>
       <header>
         <h3>Export Plan</h3>
-        <button onClick={handleClose}>
+        <button onClick={closeCb}>
           <CloseIcon />
         </button>
       </header>
@@ -229,7 +207,7 @@ const ExportModal = () => {
 
       {/* footer, includes cancel/confirm buttons */}
       <footer>
-        <button className="cancel-button" onClick={handleClose}>
+        <button className="cancel-button" onClick={closeCb}>
           {t([I18nKey.CANCEL], userLang)}
         </button>
 
@@ -241,8 +219,8 @@ const ExportModal = () => {
           {t([I18nKey.EXPORT], userLang)}
         </button>
       </footer>
-    </Modal>
+    </>
   );
 };
 
-export default ExportModal;
+export default ExportModalContent;

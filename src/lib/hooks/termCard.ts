@@ -1,11 +1,11 @@
 import { Term } from "@/types/db";
 import { Language, t, I18nKey } from "../i18n";
 import { useMemo } from "react";
-import { Season } from "../enums";
+import { ModalType, Season } from "../enums";
 import { useCallback } from "react";
 import { CachedDetailedCourse } from "@/types/local";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { setSimpleModalInfo } from "@/store/slices/localDataSlice";
+import { setModalState } from "@/store/slices/localDataSlice";
 import { isCurrentTerm, isThisYearTerm } from "../term";
 
 export const useTermStatus = (term: Term, courses: CachedDetailedCourse[]) => {
@@ -96,19 +96,35 @@ export const useTermCardActions = ({
   const handleDeleteTerm = useCallback(() => {
     // ask for confirmation if the term has courses
     if (courses.length > 0) {
+      // dispatch(
+      //   setSimpleModalInfo({
+      //     isOpen: true,
+      //     title: t([I18nKey.DELETE_TERM_TITLE], lang),
+      //     description: t([I18nKey.DELETE_TERM_DESC], lang, {
+      //       item1: term.name,
+      //     }),
+      //     confirmCb: () => {
+      //       deleteTerm?.(term._id.toString(), idx);
+      //       return Promise.resolve();
+      //     },
+      //     closeCb: () => {
+      //       return Promise.resolve();
+      //     },
+      //   }),
+      // );
+      //
       dispatch(
-        setSimpleModalInfo({
+        setModalState({
           isOpen: true,
-          title: t([I18nKey.DELETE_TERM_TITLE], lang),
-          description: t([I18nKey.DELETE_TERM_DESC], lang, {
-            item1: term.name,
-          }),
-          confirmCb: () => {
-            deleteTerm?.(term._id.toString(), idx);
-            return Promise.resolve();
-          },
-          closeCb: () => {
-            return Promise.resolve();
+          props: {
+            type: ModalType.SIMPLE,
+            title: t([I18nKey.DELETE_TERM_TITLE], lang),
+            description: t([I18nKey.DELETE_TERM_DESC], lang, {
+              item1: term.name,
+            }),
+            confirmCb: async () => {
+              deleteTerm?.(term._id.toString(), idx);
+            },
           },
         }),
       );

@@ -1,10 +1,8 @@
 "use client";
 
-import Modal from "react-modal";
 import { useCallback, useEffect, useRef, useState } from "react";
 import CloseIcon from "@/public/icons/delete.svg";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
-import { clearIsProgramModalOpen } from "@/store/slices/localDataSlice";
 import { I18nKey, Language, t } from "@/lib/i18n";
 import { useDebounce } from "@/lib/hooks/common";
 import ScrollBar from "../ScrollBar";
@@ -16,11 +14,12 @@ import { MiniProgramCard } from "@/components/Program";
 import { removeProgram } from "@/store/slices/userDataSlice";
 import { addProgramToUser, seekProgram } from "@/store/thunks";
 import clsx from "clsx";
-
-Modal.setAppElement("html");
+import type { ProgramModalProps, CommonModalProps } from "@/types/modals";
 
 // program modal for searching and adding programs
-const ProgramModal = () => {
+const ProgramModalContent = ({
+  closeCb,
+}: ProgramModalProps & CommonModalProps) => {
   // dispatch
   const dispatch = useAppDispatch();
   // user language
@@ -29,10 +28,6 @@ const ProgramModal = () => {
   const programData = useAppSelector((state) => state.localData.programData);
   // program search function
   const programSearchFn = useAppSelector(selectProgramSearchFn);
-  // program modal open state
-  const isProgramModalOpen = useAppSelector(
-    (state) => state.localData.isProgramModalOpen,
-  );
   // search input value
   const [input, setInput] = useState("");
   // page number
@@ -59,13 +54,6 @@ const ProgramModal = () => {
     [userPrograms],
   );
 
-  const handleClose = useCallback(() => {
-    dispatch(clearIsProgramModalOpen());
-    setInput("");
-    setPage(1);
-    setResult([...Object.keys(programData)]);
-  }, [dispatch, programData]);
-
   const handleClickProgram = useCallback(
     async (programName: string, isSelected: boolean) => {
       if (isAdding) return;
@@ -82,10 +70,10 @@ const ProgramModal = () => {
           programTagElem.querySelector("header")?.click();
         }
         await dispatch(seekProgram(programName)).unwrap();
-        handleClose();
+        closeCb();
       }
     },
-    [dispatch, handleClose, isAdding],
+    [dispatch, closeCb, isAdding],
   );
 
   const handleSearchProgram = useCallback(
@@ -145,18 +133,10 @@ const ProgramModal = () => {
   }, [result, page]);
 
   return (
-    <Modal
-      isOpen={isProgramModalOpen}
-      shouldCloseOnOverlayClick={true}
-      shouldCloseOnEsc={true}
-      onRequestClose={handleClose}
-      className="program-modal-content"
-      overlayClassName="modal-overlay"
-      ariaHideApp={false}
-    >
+    <>
       <header>
         <h3>{t([I18nKey.SEARCH_PROGRAMS], lang)}</h3>
-        <button onClick={handleClose}>
+        <button onClick={closeCb}>
           <CloseIcon />
         </button>
       </header>
@@ -230,12 +210,12 @@ const ProgramModal = () => {
 
       {/* footer, includes cancel button */}
       <footer>
-        <button className="cancel-button" onClick={handleClose}>
+        <button className="cancel-button" onClick={closeCb}>
           {t([I18nKey.CLOSE], lang)}
         </button>
       </footer>
-    </Modal>
+    </>
   );
 };
 
-export default ProgramModal;
+export default ProgramModalContent;

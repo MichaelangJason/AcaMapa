@@ -86,33 +86,6 @@ export type DropdownOption = {
   isChecked?: boolean;
 };
 
-export type SimpleModalProps = {
-  isOpen: boolean;
-  title: string;
-  description: string;
-  confirmCb: (newValue?: string) => Promise<void>;
-  closeCb: () => Promise<void>;
-  confirmText?: string;
-  closeText?: string;
-  isConfirmOnly?: boolean; // not cancelable, just a notification.
-  isShowCloseButton?: boolean;
-  isPreventCloseOnOverlayClick?: boolean;
-  isPreventCloseOnEsc?: boolean;
-  extraOptions?: {
-    onClick: () => Promise<void>;
-    content: string;
-  }[];
-  inputConfig?: {
-    placeholder: string;
-    maxLength?: number;
-  };
-};
-
-export type ImportModalInfo = {
-  isOpen: boolean;
-  type?: "image" | "json";
-};
-
 export type TooltipProps = Partial<
   Omit<
     {

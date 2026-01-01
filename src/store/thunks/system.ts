@@ -120,8 +120,6 @@ export const fullSync = createAppAsyncThunk(
         equivRules,
       } = data;
 
-      console.log("equivRules", equivRules);
-
       dispatch(setCourseTaken(courseTaken));
       dispatch(setEquivRules(equivRules ?? []));
       dispatch(setTermData(termData));

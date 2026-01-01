@@ -7,12 +7,9 @@ import { deletePlan, renamePlan } from "@/store/slices/userDataSlice";
 import { DropdownOption } from "@/types/local";
 import type { DropResult } from "@hello-pangea/dnd";
 import { setIsDragging } from "@/store/slices/globalSlice";
-import { DraggingType } from "@/lib/enums";
+import { DraggingType, ModalType } from "@/lib/enums";
 import { movePlan } from "@/store/slices/userDataSlice";
-import {
-  setCurrentPlanId,
-  setSimpleModalInfo,
-} from "@/store/slices/localDataSlice";
+import { setCurrentPlanId, setModalState } from "@/store/slices/localDataSlice";
 import { MAX_PLAN_NAME_LEN } from "@/lib/constants";
 import { I18nKey, Language, t } from "@/lib/i18n";
 import { prepareExport } from "@/store/thunks";
@@ -41,18 +38,17 @@ const Plans = ({
   const handleDeletePlan = useCallback(
     (planId: string) => {
       dispatch(
-        setSimpleModalInfo({
+        setModalState({
           isOpen: true,
-          title: t([I18nKey.DELETE_PLAN_TITLE], lang),
-          description: t([I18nKey.DELETE_PLAN_DESC], lang, {
-            item1: plans.get(planId)!.name,
-          }),
-          confirmCb: () => {
-            dispatch(deletePlan(planId));
-            return Promise.resolve();
-          },
-          closeCb: () => {
-            return Promise.resolve();
+          props: {
+            type: ModalType.SIMPLE,
+            title: t([I18nKey.DELETE_PLAN_TITLE], lang),
+            description: t([I18nKey.DELETE_PLAN_DESC], lang, {
+              item1: plans.get(planId)!.name,
+            }),
+            confirmCb: async () => {
+              dispatch(deletePlan(planId));
+            },
           },
         }),
       );
@@ -63,21 +59,20 @@ const Plans = ({
   const handleRenamePlan = useCallback(
     (planId: string) => {
       dispatch(
-        setSimpleModalInfo({
+        setModalState({
           isOpen: true,
-          title: t([I18nKey.RENAME, I18nKey.PLAN], lang),
-          description: "",
-          inputConfig: {
-            placeholder: plans.get(planId)!.name,
-            maxLength: MAX_PLAN_NAME_LEN,
-          },
-          confirmCb: (newName?: string) => {
-            if (!newName) return Promise.resolve();
-            dispatch(renamePlan({ planId, newName }));
-            return Promise.resolve();
-          },
-          closeCb: () => {
-            return Promise.resolve();
+          props: {
+            type: ModalType.SIMPLE,
+            title: t([I18nKey.RENAME, I18nKey.PLAN], lang),
+            description: "",
+            inputConfig: {
+              placeholder: plans.get(planId)!.name,
+              maxLength: MAX_PLAN_NAME_LEN,
+            },
+            confirmCb: async (newName?: string) => {
+              if (!newName) return;
+              dispatch(renamePlan({ planId, newName }));
+            },
           },
         }),
       );

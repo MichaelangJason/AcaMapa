@@ -4,7 +4,5 @@ export { default as TextHighlighter } from "./TextHighlighter";
 export { default as Tag } from "./Tag";
 export { default as ItemTag } from "./ItemTag";
 export { default as Modals } from "./Modal";
-export { default as InfoModal } from "./Modal/InfoModal";
-export { default as ExportElems } from "./Modal/ExportElems";
 export { default as ScrollBar } from "./ScrollBar";
 export { default as Toast } from "./Toast";

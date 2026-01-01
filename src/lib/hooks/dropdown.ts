@@ -6,16 +6,13 @@ import {
   toggleIsCourseTakenExpanded,
   toggleIsUtilityDropdownMenuOpen,
 } from "@/store/slices/globalSlice";
-import {
-  setIsProgramModalOpen,
-  setSimpleModalInfo,
-  setIsImportModalOpen,
-} from "@/store/slices/localDataSlice";
+import { setModalState } from "@/store/slices/localDataSlice";
 import { addPlan, addTerm, deletePlan } from "@/store/slices/userDataSlice";
 import { prepareExport } from "@/store/thunks";
 import { useMemo, useEffect } from "react";
 import { type Language, t, I18nKey } from "../i18n";
 import { getCommandKey } from "../utils";
+import { ModalType } from "@/lib/enums";
 
 export const useDropdownActions = (
   isInitialized: boolean,
@@ -56,7 +53,15 @@ export const useDropdownActions = (
           id: "search-program",
           content: t([I18nKey.ADD, I18nKey.PROGRAM], lang),
           handleClick: () => {
-            dispatch(setIsProgramModalOpen(true));
+            // dispatch(setIsProgramModalOpen(true));
+            dispatch(
+              setModalState({
+                isOpen: true,
+                props: {
+                  type: ModalType.PROGRAM,
+                },
+              }),
+            );
           },
         },
       },
@@ -95,19 +100,35 @@ export const useDropdownActions = (
           id: "delete-current-plan",
           content: t([I18nKey.DELETE, I18nKey.CURRENT_PLAN], lang),
           handleClick: () => {
+            // dispatch(
+            //   setSimpleModalInfo({
+            //     isOpen: true,
+            //     title: t([I18nKey.DELETE_PLAN_TITLE], lang),
+            //     description: t([I18nKey.DELETE_PLAN_DESC], lang, {
+            //       item1: plans.get(currentPlanId)!.name,
+            //     }),
+            //     confirmCb: () => {
+            //       dispatch(deletePlan(currentPlanId));
+            //       return Promise.resolve();
+            //     },
+            //     closeCb: () => {
+            //       return Promise.resolve();
+            //     },
+            //   }),
+            // );
+
             dispatch(
-              setSimpleModalInfo({
+              setModalState({
                 isOpen: true,
-                title: t([I18nKey.DELETE_PLAN_TITLE], lang),
-                description: t([I18nKey.DELETE_PLAN_DESC], lang, {
-                  item1: plans.get(currentPlanId)!.name,
-                }),
-                confirmCb: () => {
-                  dispatch(deletePlan(currentPlanId));
-                  return Promise.resolve();
-                },
-                closeCb: () => {
-                  return Promise.resolve();
+                props: {
+                  type: ModalType.SIMPLE,
+                  title: t([I18nKey.DELETE_PLAN_TITLE], lang),
+                  description: t([I18nKey.DELETE_PLAN_DESC], lang, {
+                    item1: plans.get(currentPlanId)!.name,
+                  }),
+                  confirmCb: async () => {
+                    dispatch(deletePlan(currentPlanId));
+                  },
                 },
               }),
             );
@@ -128,7 +149,15 @@ export const useDropdownActions = (
           id: "import-plan",
           content: t([I18nKey.IMPORT_PLAN], lang),
           handleClick: () => {
-            dispatch(setIsImportModalOpen(true));
+            // dispatch(setIsImportModalOpen(true));
+            dispatch(
+              setModalState({
+                isOpen: true,
+                props: {
+                  type: ModalType.IMPORT,
+                },
+              }),
+            );
           },
         },
       },

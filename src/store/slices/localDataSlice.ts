@@ -1,14 +1,13 @@
-import { ResultType } from "@/lib/enums";
+import { ModalType, ResultType } from "@/lib/enums";
 import type { Course, Program } from "@/types/db";
 import type {
   CachedDetailedCourse,
   CourseDepData,
   CachedDetailedProgram,
   SearchResult,
-  SimpleModalProps,
-  ImportModalInfo,
   EquivGroups,
 } from "@/types/local";
+import type { ModalState } from "@/types/modals";
 import type { Session } from "@/types/auth";
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import {
@@ -71,21 +70,15 @@ export const initialState = {
   // session
   session: null as Session | null,
 
-  // export plan id for export mode
-  exportPlanId: "" as string,
-
-  // simple modal information
-  simpleModalInfo: {
+  // modal state
+  modalState: {
     isOpen: false,
-  } as SimpleModalProps,
-
-  // inner modal open state
-  isProgramModalOpen: false as boolean,
-  isInfoModalOpen: false as boolean,
-  isImportModalOpen: false as boolean,
-  importModalInfo: {
-    isOpen: false,
-  } as ImportModalInfo,
+    shouldCloseOnOverlayClick: true,
+    shouldCloseOnEsc: true,
+    props: {
+      type: ModalType.NONE,
+    },
+  } as ModalState,
 };
 
 const localDataSlice = createSlice({
@@ -488,13 +481,6 @@ const localDataSlice = createSlice({
       });
     },
 
-    /* simple modal */
-    setSimpleModalInfo: (state, action: PayloadAction<SimpleModalProps>) => {
-      state.simpleModalInfo = action.payload;
-    },
-    clearSimpleModalInfo: (state) => {
-      state.simpleModalInfo = { ...initialState.simpleModalInfo };
-    },
     setSyncStatus: (
       state,
       action: PayloadAction<Partial<typeof initialState.syncStatus>>,
@@ -511,21 +497,6 @@ const localDataSlice = createSlice({
       state.session = null;
     },
 
-    /* export modal */
-    setExportPlanId: (state, action: PayloadAction<string>) => {
-      state.exportPlanId = action.payload;
-    },
-    clearExportPlanId: (state) => {
-      state.exportPlanId = "";
-    },
-
-    /* program modal */
-    setIsProgramModalOpen: (state, action: PayloadAction<boolean>) => {
-      state.isProgramModalOpen = action.payload;
-    },
-    clearIsProgramModalOpen: (state) => {
-      state.isProgramModalOpen = false;
-    },
     setSeekingProgramName: (state, action: PayloadAction<string>) => {
       state.seekingProgramName = action.payload;
     },
@@ -533,20 +504,15 @@ const localDataSlice = createSlice({
       state.seekingProgramName = "";
     },
 
-    /* info modal */
-    setIsInfoModalOpen: (state, action: PayloadAction<boolean>) => {
-      state.isInfoModalOpen = action.payload;
+    /* modal state */
+    setModalState: (state, action: PayloadAction<Partial<ModalState>>) => {
+      state.modalState = {
+        ...state.modalState,
+        ...action.payload,
+      };
     },
-    clearIsInfoModalOpen: (state) => {
-      state.isInfoModalOpen = false;
-    },
-
-    /* import modal */
-    setIsImportModalOpen: (state, action: PayloadAction<boolean>) => {
-      state.isImportModalOpen = action.payload;
-    },
-    clearIsImportModalOpen: (state) => {
-      state.isImportModalOpen = false;
+    clearModalState: (state) => {
+      state.modalState = { ...initialState.modalState };
     },
   },
 });
@@ -593,10 +559,6 @@ export const {
   addEquivRulesToGraph,
   removeEquivRulesFromGraph,
 
-  // Simple modal reducers
-  setSimpleModalInfo,
-  clearSimpleModalInfo,
-
   // Sync status reducers
   setSyncStatus,
 
@@ -604,21 +566,9 @@ export const {
   setSession,
   clearSession,
 
-  // Export modal reducers
-  setExportPlanId,
-  clearExportPlanId,
-
-  // Program modal reducers
-  setIsProgramModalOpen,
-  clearIsProgramModalOpen,
-
-  // Info modal reducers
-  setIsInfoModalOpen,
-  clearIsInfoModalOpen,
-
-  // Import modal reducers
-  setIsImportModalOpen,
-  clearIsImportModalOpen,
+  // Modal state reducers
+  setModalState,
+  clearModalState,
 } = localDataSlice.actions;
 
 export const localDataActions = localDataSlice.actions;

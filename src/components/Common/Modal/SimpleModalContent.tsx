@@ -1,77 +1,48 @@
 "use client";
 
-import Modal from "react-modal";
 import { useEffect, useRef, useState } from "react";
 import CloseIcon from "@/public/icons/delete.svg";
-import type { SimpleModalProps } from "@/types/local";
-import { useAppSelector, useAppDispatch } from "@/store/hooks";
-import { clearSimpleModalInfo } from "@/store/slices/localDataSlice";
+import type { SimpleModalProps, CommonModalProps } from "@/types/modals";
 import DOMPurify from "dompurify";
 import clsx from "clsx";
-import { I18nKey, Language, t } from "@/lib/i18n";
-
-Modal.setAppElement("html");
+import { t, I18nKey, type Language } from "@/lib/i18n";
+import { useAppSelector } from "@/store/hooks";
 
 // simple modal with input field and confirm/cancel buttons
-const SimpleModal = () => {
-  const dispatch = useAppDispatch();
+const SimpleModalContent = ({
+  title,
+  description,
+  confirmCb,
+  closeCb,
+  isConfirmOnly,
+  isShowCloseButton,
+  inputConfig,
+}: SimpleModalProps & CommonModalProps) => {
   const lang = useAppSelector((state) => state.userData.lang) as Language;
-  const {
-    title = "",
-    description = "",
-    confirmCb = () => {},
-    closeCb = () => {},
-    isConfirmOnly = false,
-    isShowCloseButton = true,
-    isPreventCloseOnOverlayClick = false,
-    isPreventCloseOnEsc = false,
-    isOpen,
-    inputConfig,
-    confirmText = t([I18nKey.CONFIRM], lang),
-    closeText = t([I18nKey.CLOSE], lang),
-    extraOptions = [],
-  } = useAppSelector(
-    (state) => state.localData.simpleModalInfo,
-  ) as SimpleModalProps;
-
   // input value
   const [newValue, setNewValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // auto-focus input element
   useEffect(() => {
-    if (isOpen) {
-      setTimeout(() => {
-        inputRef.current?.focus();
-        inputRef.current?.select();
-      }, 10);
-    }
-  }, [isOpen]);
+    setTimeout(() => {
+      inputRef.current?.focus();
+      inputRef.current?.select();
+    }, 10);
+  }, []);
 
   // not memoized as they are not called frequently
   const handleClose = () => {
     closeCb();
-    dispatch(clearSimpleModalInfo());
-    setNewValue("");
   };
 
   // not memoized as they are not called frequently
   const handleConfirm = () => {
     confirmCb(newValue);
-    closeCb();
-    dispatch(clearSimpleModalInfo());
-    setNewValue("");
   };
 
   return (
-    <Modal
-      isOpen={isOpen}
-      shouldCloseOnOverlayClick={!isPreventCloseOnOverlayClick}
-      shouldCloseOnEsc={!isPreventCloseOnEsc}
-      onRequestClose={handleClose}
-      className="simple-modal-content"
-      overlayClassName="modal-overlay"
-      ariaHideApp={false}
-    >
+    <>
       <header>
         <h3>{title}</h3>
         {isShowCloseButton && (
@@ -128,10 +99,10 @@ const SimpleModal = () => {
       <footer>
         {!isConfirmOnly && (
           <button className="cancel-button" onClick={handleClose}>
-            {closeText}
+            {t([I18nKey.CANCEL], lang)}
           </button>
         )}
-        {extraOptions.length > 0 &&
+        {/* {extraOptions.length > 0 &&
           extraOptions.map((option) => (
             <button
               key={option.content}
@@ -143,13 +114,13 @@ const SimpleModal = () => {
             >
               {option.content}
             </button>
-          ))}
+          ))} */}
         <button className="confirm-button" onClick={handleConfirm}>
-          {confirmText}
+          {t([I18nKey.CONFIRM], lang)}
         </button>
       </footer>
-    </Modal>
+    </>
   );
 };
 
-export default SimpleModal;
+export default SimpleModalContent;
