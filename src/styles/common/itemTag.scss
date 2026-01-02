@@ -3,6 +3,7 @@
   --item-tag-shadow: var(--shadow-normal);
 
   --item-tag-content-color: var(--grey-1);
+  --item-tag-foot-note-color: var(--grey-3);
 
   /** Pin, plus, minus */
   .icon-container {
@@ -99,6 +100,16 @@
     &.dragging {
       cursor: grabbing;
     }
+  }
+
+  .item-tag-foot-note {
+    color: var(--item-tag-foot-note-color);
+    font-size: 0.75rem;
+    font-weight: bold;
+    width: 10rem;
+    white-space: normal;
+    word-break: break-word;
+    hyphens: auto;
   }
 
   .icon-container {

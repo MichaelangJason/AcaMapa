@@ -22,7 +22,9 @@ export const processQuery = (
 };
 
 // singleton search function
-let courseSearchFn: ((query: string) => Promise<string[]>) | null = null;
+let courseSearchFn:
+  | ((query: string, limit?: number) => Promise<string[]>)
+  | null = null;
 
 export const getCourseSearchFn = (courseData: Course[]) => {
   if (courseSearchFn) return courseSearchFn;
@@ -50,8 +52,8 @@ export const getCourseSearchFn = (courseData: Course[]) => {
     index.add(course);
   });
 
-  courseSearchFn = async (query: string) => {
-    const result = await index.searchAsync(query, { enrich: true });
+  courseSearchFn = async (query: string, limit?: number) => {
+    const result = await index.searchAsync(query, { enrich: true, limit });
     return processQuery(result); // TODO: put into searchAsync callback?
   };
 

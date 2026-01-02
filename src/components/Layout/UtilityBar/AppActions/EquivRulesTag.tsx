@@ -4,6 +4,8 @@ import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { setModalState } from "@/store/slices/localDataSlice";
 import { removeEquivRule } from "@/store/slices/userDataSlice";
 import { useCallback, useMemo } from "react";
+import { parseRule } from "@/lib/course";
+import { formatCourseId } from "@/lib/utils";
 
 const EquivRulesTag = ({
   ref,
@@ -15,7 +17,8 @@ const EquivRulesTag = ({
 
   const formattedRules = useMemo(() => {
     return items.map((item) => {
-      return item; // TODO: format the rule
+      const [courseId, equivCourseId] = parseRule(item);
+      return `${formatCourseId(courseId)} <=> ${formatCourseId(equivCourseId)}`; // TODO: format the rule
     });
   }, [items]);
 
@@ -42,6 +45,7 @@ const EquivRulesTag = ({
       handleAddItem={handleAddRule}
       handleDeleteItem={handleDeleteRule}
       className="equiv-rules-tag"
+      footNote="*only count towards prerequisites & corequisites."
       pinnable
     />
   );

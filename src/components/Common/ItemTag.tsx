@@ -28,15 +28,16 @@ const ItemTag = ({
   isExport,
   displayLang,
   displayLimit = 30,
+  footNote,
 }: {
   ref?: React.RefObject<HTMLDivElement | null>;
   title: string;
   items: string[];
   handleClickTag?: () => void;
   handleAddItem?: () => void;
-  handleClickItem?: (item: string) => void;
-  handleDeleteItem?: (item: string) => void;
-  handleSeekItem?: (item: string) => void;
+  handleClickItem?: (item: string, idx?: number) => void;
+  handleDeleteItem?: (item: string, idx?: number) => void;
+  handleSeekItem?: (item: string, idx?: number) => void;
   pinnable?: boolean;
   expandable?: boolean;
   alignItems?: "center" | "flex-start" | "flex-end";
@@ -47,6 +48,7 @@ const ItemTag = ({
   isExport?: boolean;
   displayLang?: Language;
   displayLimit?: number;
+  footNote?: string;
 }) => {
   const [isHovering, setIsHovering] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -155,6 +157,7 @@ const ItemTag = ({
         <div className="item-tag-items" style={{ alignItems }}>
           {items.length === 0 && handleAddItem ? (
             <Item
+              idx={items.length}
               content={t([I18nKey.ADD, I18nKey.P_ITEM1], lang, {
                 item1: title,
               })}
@@ -163,12 +166,13 @@ const ItemTag = ({
               className={itemClassName + " no-items"}
             />
           ) : (
-            items.map((item) => (
+            items.map((item, index) => (
               <Item
                 key={item}
                 content={item}
+                idx={index}
                 displayLimit={displayLimit}
-                handleClickItem={() => handleClickItem?.(item)}
+                handleClickItem={handleClickItem}
                 handleDeleteItem={handleDeleteItem}
                 handleSeekItem={handleSeekItem}
                 className={itemClassName}
@@ -177,12 +181,16 @@ const ItemTag = ({
           )}
         </div>
       )}
+      {showExpanded && footNote && (
+        <footer className="item-tag-foot-note">{footNote}</footer>
+      )}
     </article>
   );
 };
 
 const Item = ({
   content,
+  idx,
   handleClickItem,
   handleDeleteItem,
   handleSeekItem,
@@ -190,12 +198,25 @@ const Item = ({
   displayLimit,
 }: {
   content: string;
-  handleClickItem?: () => void;
-  handleDeleteItem?: (item: string) => void;
-  handleSeekItem?: (item: string) => void;
+  idx: number;
+  handleClickItem?: (item: string, idx?: number) => void;
+  handleDeleteItem?: (item: string, idx?: number) => void;
+  handleSeekItem?: (item: string, idx?: number) => void;
   className?: string;
   displayLimit: number;
 }) => {
+  const handleClick = useCallback(() => {
+    handleClickItem?.(content, idx);
+  }, [handleClickItem, content, idx]);
+
+  const handleDelete = useCallback(() => {
+    handleDeleteItem?.(content, idx);
+  }, [handleDeleteItem, content, idx]);
+
+  const handleSeek = useCallback(() => {
+    handleSeekItem?.(content, idx);
+  }, [handleSeekItem, content, idx]);
+
   return (
     <div
       className={clsx(
@@ -206,15 +227,12 @@ const Item = ({
     >
       {handleSeekItem && (
         <div className="icon-container">
-          <SeekIcon
-            className="seek"
-            onClick={() => handleSeekItem?.(content)}
-          />
+          <SeekIcon className="seek" onClick={handleSeek} />
         </div>
       )}
       <span
         className="content"
-        onClick={handleClickItem}
+        onClick={handleClick}
         {...{
           "data-tooltip-content": content,
           "data-tooltip-place": "top",
@@ -227,10 +245,7 @@ const Item = ({
       </span>
       {handleDeleteItem && (
         <div className="icon-container">
-          <MinusIcon
-            className="minus"
-            onClick={() => handleDeleteItem?.(content)}
-          />
+          <MinusIcon className="minus" onClick={handleDelete} />
         </div>
       )}
     </div>

@@ -15,6 +15,7 @@ export const handleEquivRulesAction = (
     const [courseId, equivCourseId] = parseRule(rule);
     return isValidCourseId(courseId) && isValidCourseId(equivCourseId);
   };
+  const existingRules = state.userData.equivRules;
 
   switch (action.type) {
     case "userData/setEquivRules": {
@@ -28,9 +29,26 @@ export const handleEquivRulesAction = (
 
       break;
     }
-    case "userData/addEquivRule":
-    case "userData/removeEquivRule": {
+    case "userData/addEquivRule": {
       const rule = action.payload;
+
+      if (!isValidRule(rule)) {
+        throw new Error(`Invalid rule: ${rule}`);
+      }
+
+      const thisRule = new Set(parseRule(rule));
+
+      for (const r of existingRules) {
+        const [rCourseId, rEquivCourseId] = parseRule(r);
+        if (thisRule.has(rCourseId) && thisRule.has(rEquivCourseId)) {
+          throw new Error(`Rule already exists: ${rule}`);
+        }
+      }
+
+      break;
+    }
+    case "userData/removeEquivRule": {
+      const rule = action.payload.replace(/\s+/g, "").toLowerCase();
 
       if (!isValidRule(rule)) {
         throw new Error(`Invalid rule: ${rule}`);

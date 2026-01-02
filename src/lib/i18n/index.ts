@@ -68,6 +68,8 @@ export enum I18nKey {
   IMPORT_PLAN = "import-plan",
   UPLOAD_IMAGE = "upload-image",
 
+  EQUIV_RULES = "equiv-rules",
+
   // common errors
   FAILED_TO_IMPORT_PLAN = "failed-to-import-plan",
   ERROR = "error",

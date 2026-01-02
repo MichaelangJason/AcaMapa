@@ -10,6 +10,7 @@ import SimpleModalContent from "./SimpleModalContent";
 import ProgramModalContent from "./ProgramModalContent";
 import ExportModalContent from "./ExportModalContent";
 import ImportModalContent from "./ImportModalContent";
+import EquivRulesModalContent from "./EquivRulesModalContent";
 import dynamic from "next/dynamic";
 
 const InfoModalContent = dynamic(() => import("./InfoModalContent"), {
@@ -39,6 +40,7 @@ const Modals = () => {
         "info-modal-content": type === ModalType.INFO,
         "import-modal-content": type === ModalType.IMPORT,
         "export-modal-content": type === ModalType.EXPORT,
+        "equiv-rules-modal-content": type === ModalType.EQUIV_RULE,
       })}
       overlayClassName="modal-overlay"
       ariaHideApp={false}
@@ -57,6 +59,9 @@ const Modals = () => {
       )}
       {type === ModalType.IMPORT && (
         <ImportModalContent closeCb={handleClose} {...modalState.props} />
+      )}
+      {type === ModalType.EQUIV_RULE && (
+        <EquivRulesModalContent closeCb={handleClose} {...modalState.props} />
       )}
     </Modal>
   );
