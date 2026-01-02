@@ -18,16 +18,10 @@ import {
 import { useCallback } from "react";
 import { useDropdownActions, useRegisterShortcuts } from "@/lib/hooks/dropdown";
 
-const MapIcon = ({
-  isInitialized,
-  lang,
-  className,
-  ...rest
-}: {
-  isInitialized: boolean;
-  lang: Language;
-  className?: string;
-}) => {
+const MapIcon = ({ className, ...rest }: { className?: string }) => {
+  const isInitialized = useAppSelector((state) => state.global.isInitialized);
+  const lang = useAppSelector((state) => state.userData.lang) as Language;
+
   return (
     // map icon
     <PlanIcon
@@ -84,7 +78,7 @@ const UtilityDropdown = () => {
       isOpen={isUtilityDropdownMenuOpen && isInitialized}
       handleClose={handleCloseDropdownMenu}
       trigger={{
-        node: <MapIcon isInitialized={isInitialized} lang={lang} />,
+        node: <MapIcon />,
         toggleIsOpen: handleToggleDropdownMenu,
       }}
     >
