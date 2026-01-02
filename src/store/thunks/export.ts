@@ -9,6 +9,7 @@ import {
   setModalState,
 } from "../slices/localDataSlice";
 import { ModalType } from "@/lib/enums";
+import { getPlanCourseIds } from "@/lib/plan";
 
 const createAppAsyncThunk = createAsyncThunk.withTypes<{
   state: RootState;
@@ -30,7 +31,7 @@ export const prepareExport = createAppAsyncThunk(
 
     const termOrderMap = new Map(plan.termOrder.map((t, i) => [t, i]));
     const courseTaken = state.userData.courseTaken;
-    const courses = [...plan.courseMetadata.keys()];
+    const courses = getPlanCourseIds(plan, state.userData.termData);
 
     if (!state.localData.courseDepData.has(planId)) {
       dispatch(initCourseDepData({ planId }));

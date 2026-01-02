@@ -44,7 +44,7 @@ const ExportElems = forwardRef<HTMLDivElement, ExportElemsProps>(
       totalCourseTaken,
       totalPlanCredits,
       averageCreditsPerTerm,
-      totalCourseTakenCretids,
+      totalCourseTakenCredits,
     } = planStats;
 
     const hasOptionalElems =
@@ -61,7 +61,7 @@ const ExportElems = forwardRef<HTMLDivElement, ExportElemsProps>(
                   items={[
                     `# ${t([I18nKey.COURSE], lang)}s: ${totalCourses} (${totalCredits} cr)`,
                     `# ${t([I18nKey.PLANNED_COURSES], lang)}: ${totalPlannedCourses} (${totalPlanCredits} cr)`,
-                    `# ${t([I18nKey.COURSE_TAKEN], lang)}: ${totalCourseTaken} (${totalCourseTakenCretids} cr)`,
+                    `# ${t([I18nKey.COURSE_TAKEN], lang)}: ${totalCourseTaken} (${totalCourseTakenCredits} cr)`,
                     `# ${t([I18nKey.SEMESTER], lang)}s: ${totalTerm} (${averageCreditsPerTerm} cr/term)`,
                   ]}
                   title={t([I18nKey.PLAN_STATS], lang)}

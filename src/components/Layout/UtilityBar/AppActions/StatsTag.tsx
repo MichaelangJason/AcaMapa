@@ -20,7 +20,7 @@ const StatsTag = ({
     totalPlannedCourses,
     totalCourseTaken,
     totalPlanCredits,
-    totalCourseTakenCretids,
+    totalCourseTakenCredits,
     totalTerm,
     averageCreditsPerTerm,
   } = useAppSelector((state) => selectPlanStats(state, currentPlanId));
@@ -32,7 +32,7 @@ const StatsTag = ({
       items={[
         `# ${t([I18nKey.COURSE], lang)}s: ${totalCourses} (${totalCredits} cr)`,
         `# ${t([I18nKey.PLANNED_COURSES], lang)}: ${totalPlannedCourses} (${totalPlanCredits} cr)`,
-        `# ${t([I18nKey.COURSE_TAKEN], lang)}: ${totalCourseTaken} (${totalCourseTakenCretids} cr)`,
+        `# ${t([I18nKey.COURSE_TAKEN], lang)}: ${totalCourseTaken} (${totalCourseTakenCredits} cr)`,
         `# ${t([I18nKey.SEMESTER], lang)}s: ${totalTerm} (${averageCreditsPerTerm} cr/term)`,
       ]}
       title={t([I18nKey.PLAN_STATS], lang)}

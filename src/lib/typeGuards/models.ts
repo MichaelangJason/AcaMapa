@@ -219,9 +219,8 @@ export const isValidPlan = (plan: unknown): plan is Plan => {
     return false;
   if (
     !(p.courseMetadata instanceof Map) ||
-    [...p.courseMetadata.keys()].some((key) => !isValidCourseId(key)) ||
-    [...p.courseMetadata.values()].some(
-      (value) => !isValidCourseMetadata(value),
+    [...p.courseMetadata.entries()].some(
+      ([key, value]) => !isValidCourseId(key) || !isValidCourseMetadata(value),
     )
   )
     return false;

@@ -150,7 +150,7 @@ export const selectCourseDepMeta = createAppSelector(
       const isSatisfied =
         source === "Course Taken" ||
         !!depGraph.get(courseId)?.isSatisfied ||
-        plan.courseMetadata.get(courseId)?.isOverwritten;
+        !!plan.courseMetadata.get(courseId)?.isOverwritten;
 
       return {
         courseId,

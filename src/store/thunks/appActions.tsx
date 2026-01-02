@@ -56,12 +56,12 @@ export const addCourseToTerm = createAppAsyncThunk(
         t([I18nKey.SEMESTER_DATA, I18nKey.NOT_FOUND], lang),
       );
     }
-
+    const termCourseSet = new Set(termData.courseIds);
     const duplicateCourseIds: string[] = [];
     const newCourseIds: string[] = [];
 
     courseIds.forEach((id) => {
-      if (plan.courseMetadata.has(id)) {
+      if (termCourseSet.has(id)) {
         duplicateCourseIds.push(id);
       } else {
         newCourseIds.push(id);

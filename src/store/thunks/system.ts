@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import type { RootState, AppDispatch } from "..";
 import { LocalStorageKey } from "@/lib/enums";
@@ -30,6 +29,7 @@ import {
   setEquivRules,
 } from "../slices/userDataSlice";
 import { fetchCourseData, fetchProgramData } from "./fetchData";
+import { getPlanCourseIds } from "@/lib/plan";
 
 const createAppAsyncThunk = createAsyncThunk.withTypes<{
   state: RootState;
@@ -87,7 +87,7 @@ export const fullSync = createAppAsyncThunk(
   ) => {
     const state = getState();
     const data = state.userData;
-    const currentPlanId = state.localData.currentPlanId;
+    // const currentPlanId = state.localData.currentPlanId;
     const lang = state.userData.lang as Language;
     const programData = state.localData.programData;
 
@@ -129,7 +129,7 @@ export const fullSync = createAppAsyncThunk(
       const courseExpandPayload = [...planData.entries()].map(
         ([planId, plan]) => ({
           planId,
-          courseIds: [...plan.courseMetadata.keys()],
+          courseIds: getPlanCourseIds(plan, termData),
           isExpanded: true,
         }),
       );
@@ -154,9 +154,9 @@ export const fullSync = createAppAsyncThunk(
 
       if (isValidGuestData(parsedData, "full")) {
         // fetch course data for all courses in all plans
-        const allCourseIds = [...parsedData.planData.values()].flatMap((p) => [
-          ...p.courseMetadata.keys(),
-        ]);
+        const allCourseIds = [...parsedData.termData.values()].flatMap(
+          (t) => t.courseIds,
+        );
         const distinctCourseIds = new Set(allCourseIds);
 
         dispatch(setLang(parsedData.lang as Language));

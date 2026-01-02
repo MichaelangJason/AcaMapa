@@ -77,13 +77,14 @@ export const selectPlanStats = createAppSelector(
     (state) => state.localData.courseData,
     (state) => state.userData.planData,
     (state) => state.userData.courseTaken,
+    (state) => state.userData.termData,
     (_, planId: string) => planId,
   ],
-  (isInitialized, courseData, planData, courseTaken, planId) => {
+  (isInitialized, courseData, planData, courseTaken, termData, planId) => {
     if (!isInitialized) {
       return {
         totalPlanCredits: 0,
-        totalCourseTakenCretids: 0,
+        totalCourseTakenCredits: 0,
         totalCredits: 0,
         totalCourseTaken: 0,
         totalPlannedCourses: 0,
@@ -96,6 +97,6 @@ export const selectPlanStats = createAppSelector(
     if (!plan) {
       throw new Error(`Plan id not found in plan data: ${planId}`);
     }
-    return getPlanStats(plan, courseData, courseTaken);
+    return getPlanStats(plan, courseData, courseTaken, termData);
   },
 );

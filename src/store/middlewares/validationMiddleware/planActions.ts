@@ -99,21 +99,6 @@ export const handlePlanAction = (action: PlanAction, state: RootState) => {
           ) {
             errors.push(`Invalid course metadata: ${plan?.courseMetadata}`);
           }
-
-          const courseIds = plan?.termOrder?.flatMap(
-            (termId) => state.userData.termData.get(termId)?.courseIds ?? [],
-          );
-          if (courseIds?.length !== plan?.courseMetadata?.size) {
-            errors.push(
-              `Course metadata size mismatch: ${courseIds?.length} !== ${plan?.courseMetadata?.size}`,
-            );
-          }
-          if (courseIds?.some((id) => !plan?.courseMetadata?.has(id))) {
-            errors.push(
-              `Course metadata size mismatch: ${courseIds?.length} !== ${plan?.courseMetadata?.size}`,
-            );
-          }
-
           plan?.termOrder?.forEach((termId: string) => {
             if (!isValidObjectId(termId)) {
               errors.push(`Invalid term id in plan: ${termId}`);

@@ -1,28 +1,34 @@
 import type { Course, Plan, CourseTaken, TermData } from "@/types/db";
 import { CachedDetailedCourse } from "@/types/local";
 
+export const getPlanCourseIds: (plan: Plan, termData: TermData) => string[] = (
+  plan,
+  termData,
+) => {
+  return plan.termOrder.flatMap(
+    (termId) => termData.get(termId)?.courseIds ?? [],
+  );
+};
+
 export const getPlanStats = (
   plan: Plan,
   courseData: { [key: string]: Course },
   courseTaken: CourseTaken,
+  termData: TermData,
 ) => {
-  const totalPlanCredits = [...plan.courseMetadata.keys()].reduce(
-    (acc, courseId) => {
-      const course = courseData[courseId];
-      if (!course) {
-        throw new Error(`Course data not found: ${courseId}`);
-      }
-      return acc + course.credits;
-    },
-    0,
-  );
+  const allCourseIds = getPlanCourseIds(plan, termData);
 
-  const totalCourseTakenCretids = [...courseTaken.keys()].reduce(
-    (acc, subject) => {
-      const courses = courseTaken.get(subject);
-      if (!courses) {
-        throw new Error(`Course taken not found for subject: ${subject}`);
-      }
+  const totalPlanCredits = allCourseIds.reduce((acc, courseId) => {
+    const course = courseData[courseId];
+    if (!course) {
+      throw new Error(`Course data not found: ${courseId}`);
+    }
+    return acc + course.credits;
+  }, 0);
+
+  const totalCourseTakenCredits = courseTaken.entries().reduce(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    (acc, [_, courses]) => {
       return (
         acc +
         courses.reduce((acc, courseId) => {
@@ -37,7 +43,7 @@ export const getPlanStats = (
     0,
   );
 
-  const totalCredits = totalPlanCredits + totalCourseTakenCretids;
+  const totalCredits = totalPlanCredits + totalCourseTakenCredits;
 
   const totalCourseTaken = [...courseTaken.keys()].reduce((acc, subject) => {
     const courses = courseTaken.get(subject);
@@ -46,7 +52,7 @@ export const getPlanStats = (
     }
     return acc + courses.length;
   }, 0);
-  const totalPlannedCourses = Object.keys(plan.courseMetadata).length;
+  const totalPlannedCourses = allCourseIds.length;
   const totalCourses = totalPlannedCourses + totalCourseTaken;
 
   const totalTerm = plan.termOrder.length;
@@ -55,7 +61,7 @@ export const getPlanStats = (
 
   return {
     totalPlanCredits,
-    totalCourseTakenCretids,
+    totalCourseTakenCredits,
     totalCredits,
     totalCourseTaken,
     totalPlannedCourses,

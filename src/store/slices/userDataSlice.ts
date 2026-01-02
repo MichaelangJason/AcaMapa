@@ -110,6 +110,17 @@ export const userDataSlice = createSlice({
     ) => {
       // toString is called here to handle the case where the plan id is an ObjectId
       state.planData = new Map(action.payload.planData);
+      // clean up the plan data by removing unnecessary course metadata
+      for (const plan of state.planData.values()) {
+        const planCourseIds = [...plan.courseMetadata.keys()];
+
+        for (const courseId of planCourseIds) {
+          if (!plan.courseMetadata.get(courseId)!.isOverwritten) {
+            plan.courseMetadata.delete(courseId);
+          }
+        }
+      }
+
       state.planOrder = action.payload.planOrder;
     },
     setPlanOrder: (state, action: PayloadAction<string[]>) => {
@@ -275,14 +286,10 @@ export const userDataSlice = createSlice({
       }>,
     ) => {
       // TODO: is planId needed here for sync?
-      const { courseIds, termId, planId } = action.payload;
+      const { courseIds, termId } = action.payload;
 
       const term = state.termData.get(termId)!;
       term.courseIds.unshift(...courseIds); // duplicate check among entire plan is handled in middleware
-      const plan = state.planData.get(planId)!;
-      courseIds.forEach((courseId) => {
-        plan.courseMetadata.set(courseId, { isOverwritten: false });
-      });
     },
     deleteCourse: (
       state,
@@ -330,7 +337,11 @@ export const userDataSlice = createSlice({
       const { courseId, planId, isOverwritten } = action.payload;
 
       const plan = state.planData.get(planId)!;
-      plan.courseMetadata.get(courseId)!.isOverwritten = isOverwritten;
+      if (isOverwritten) {
+        plan.courseMetadata.set(courseId, { isOverwritten: true });
+      } else {
+        plan.courseMetadata.delete(courseId);
+      }
     },
   },
 });

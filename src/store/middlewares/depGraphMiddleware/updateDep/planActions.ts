@@ -11,6 +11,7 @@ import type { PayloadAction } from "@reduxjs/toolkit";
 import type { HandlerContext } from "../core";
 import { getTermOrderMap } from "./helpers";
 import type { PlanAction } from "@/types/actions";
+import { getPlanCourseIds } from "@/lib/plan";
 
 export const handleSetCurrentPlan = ({
   action,
@@ -33,7 +34,7 @@ export const handleSetCurrentPlan = ({
 
   const termOrderMap = getTermOrderMap(plan);
   const courseTaken = state.userData.courseTaken;
-  const courses = [...plan.courseMetadata.keys()];
+  const courses = getPlanCourseIds(plan, state.userData.termData);
 
   if (!depData.has(planId)) {
     dispatch(initCourseDepData({ planId }));

@@ -46,7 +46,7 @@ export const selectExportInfo = createAppSelector(
       throw new Error(`Some terms are missing in the plan: ${plan.termOrder}`);
     }
 
-    const planStats = getPlanStats(plan, courseData, courseTaken);
+    const planStats = getPlanStats(plan, courseData, courseTaken, termData);
     const planCourseData = getPlanCourseData(
       plan,
       termData,

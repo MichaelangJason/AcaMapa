@@ -22,9 +22,11 @@ export const handleCourseAction = (action: CourseAction, state: RootState) => {
       ) {
         throw new Error(`Max course per term reached: ${MAX_COURSE_PER_TERM}`);
       }
-      const plan = state.userData.planData.get(planId)!;
+      const termCourseSet = new Set(
+        state.userData.termData.get(termId)!.courseIds,
+      );
       const duplicateCourseIds = courseIds.filter((id: string) =>
-        plan.courseMetadata.has(id),
+        termCourseSet.has(id),
       );
       if (duplicateCourseIds.length > 0) {
         throw new Error(
@@ -73,9 +75,15 @@ export const handleCourseAction = (action: CourseAction, state: RootState) => {
       if (!isValidObjectId(planId)) {
         throw new Error(`Invalid plan id: ${planId}`);
       }
-      if (!state.userData.planData.get(planId)?.courseMetadata?.has(courseId)) {
+      const plan = state.userData.planData.get(planId);
+      if (
+        !plan?.termOrder.some((termId) =>
+          state.userData.termData.get(termId)?.courseIds.includes(courseId),
+        )
+      ) {
         throw new Error(`Course id not found in plan data: ${courseId}`);
       }
+
       break;
     }
     default:
