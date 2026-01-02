@@ -114,7 +114,7 @@ const InfoModalContent = ({ closeCb }: InfoModalProps & CommonModalProps) => {
 
   const scrollToHeading = (id: string) => {
     const element = document.getElementById(id);
-    console.log(element?.textContent);
+    // console.log(element?.textContent);
     if (element) {
       element.scrollIntoView({ behavior: "smooth" });
     }

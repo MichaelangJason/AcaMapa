@@ -1,3 +1,5 @@
+"use client";
+
 import { useAppSelector } from "@/store/hooks";
 import type { Plan, Term } from "@/types/db";
 import clsx from "clsx";

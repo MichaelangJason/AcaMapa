@@ -95,19 +95,6 @@ const SimpleModalContent = ({
             {t([I18nKey.CANCEL], lang)}
           </button>
         )}
-        {/* {extraOptions.length > 0 &&
-          extraOptions.map((option) => (
-            <button
-              key={option.content}
-              className="option-button"
-              onClick={() => {
-                option.onClick();
-                handleClose();
-              }}
-            >
-              {option.content}
-            </button>
-          ))} */}
         <button className="confirm-button" onClick={handleConfirm}>
           {t([I18nKey.CONFIRM], lang)}
         </button>

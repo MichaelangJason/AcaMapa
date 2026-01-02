@@ -13,6 +13,7 @@ import ImportModalContent from "./ImportModalContent";
 import EquivRulesModalContent from "./EquivRulesModalContent";
 import dynamic from "next/dynamic";
 
+// markdown modal content is dynamically imported to avoid hydration errors
 const InfoModalContent = dynamic(() => import("./InfoModalContent"), {
   ssr: false,
 });
