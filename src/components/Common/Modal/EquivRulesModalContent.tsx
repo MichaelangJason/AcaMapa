@@ -19,6 +19,7 @@ const EquivRulesModalContent = ({
   const courseSearchFn = useAppSelector(selectCourseSearchFn);
   const formRef = useRef<HTMLFormElement>(null);
   const [availableCourses, setAvailableCourses] = useState<string[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   const getAvailableCourses = useDebounce(
     async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -46,7 +47,7 @@ const EquivRulesModalContent = ({
       let equivCourseId = formData.get("equiv-course-2") as string;
 
       if (!courseId || !equivCourseId) {
-        alert("Please enter both course ids");
+        setError("Please enter both course ids");
         return;
       }
 
@@ -55,17 +56,17 @@ const EquivRulesModalContent = ({
       equivCourseId = equivCourseId.replace(/\s+/g, "").toLowerCase();
 
       if (courseId === equivCourseId) {
-        alert("Course ids cannot be the same");
+        setError("Course ids cannot be the same");
         return;
       }
 
       if (!courseData[courseId]) {
-        alert(`${courseId} not found`);
+        setError(`${courseId} not found`);
         return;
       }
 
       if (!courseData[equivCourseId]) {
-        alert(`${equivCourseId} not found`);
+        setError(`${equivCourseId} not found`);
         return;
       }
 
@@ -127,6 +128,8 @@ const EquivRulesModalContent = ({
           ))}
         </datalist>
       </form>
+
+      {error && <p className="error-message">{error}</p>}
 
       {/* footer, includes cancel/confirm buttons */}
       <footer>

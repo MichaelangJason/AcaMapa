@@ -1,4 +1,5 @@
 import { type Language, t, I18nKey } from "@/lib/i18n";
+import { formatCourseId } from "@/lib/utils";
 
 export const getTagStatus = (source: string, isValid: boolean) => {
   return source === "" ? undefined : isValid ? "satisfied" : "unsatisfied";
@@ -25,12 +26,11 @@ export const getTagToolTip = (
   lang: Language,
   isEquiv = false,
 ) => {
-  // eslint-disable-next-line prefer-const
-  let tooltip = _getTagToolTip(source, isValid, lang);
-
   if (isEquiv) {
-    // TODO: add equivalent courses tooltip
+    return t([I18nKey.EQUIV_COURSE_SATISFIED], lang, {
+      item1: formatCourseId(courseId),
+    });
+  } else {
+    return _getTagToolTip(source, isValid, lang);
   }
-
-  return tooltip;
 };

@@ -1,14 +1,12 @@
+import { formatCourseId } from "@/lib/utils";
 import type { EquivGroups } from "@/types/local";
 import { ObjectId } from "bson";
 /**
  * Can be optimized with UNION-FIND if heavy usage
  */
 
-export const createEquivRule = (
-  courseId: string,
-  equivCourseId: string,
-): string => {
-  return `${courseId}<=>${equivCourseId}`;
+export const formatRule = (rule: [string, string]): string => {
+  return `${formatCourseId(rule[0])} <=> ${formatCourseId(rule[1])}`;
 };
 
 export const parseRule = (rule: string): [string, string] => {

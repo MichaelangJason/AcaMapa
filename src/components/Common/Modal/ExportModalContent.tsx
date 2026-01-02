@@ -31,7 +31,7 @@ const ExportModalContent = ({
     lang: userLang,
     includePlanStats: true,
     includeCourseTaken: true,
-    includeEquivRules: false,
+    includeEquivRules: true,
     expandCourses: true,
   });
 

@@ -19,7 +19,6 @@ export const embedPlanDataInPng = (dataUrl: string, planData: string) => {
   }
 
   const parsedPlanData = JSON.parse(itxtText, mapStringfyReviver);
-  console.log(parsedPlanData);
 
   return newDataUrl;
 };

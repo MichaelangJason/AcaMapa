@@ -10,8 +10,8 @@ export const handleEquivRulesAction = (
   const isValidCourseId = (id: string) => {
     return courseData[id] !== undefined;
   };
-  const isValidRule = (courseId: string, equivCourseId: string) => {
-    return isValidCourseId(courseId) && isValidCourseId(equivCourseId);
+  const isValidRule = (rule: [string, string]) => {
+    return isValidCourseId(rule[0]) && isValidCourseId(rule[1]);
   };
   const existingRules = state.userData.equivRules;
 
@@ -20,7 +20,7 @@ export const handleEquivRulesAction = (
       const rules = action.payload;
 
       for (const rule of rules) {
-        if (!isValidRule(rule[0], rule[1])) {
+        if (!isValidRule(rule)) {
           throw new Error(`Invalid rule: ${rule}`);
         }
       }
@@ -28,19 +28,17 @@ export const handleEquivRulesAction = (
       break;
     }
     case "userData/addEquivRule": {
-      const [courseId, equivCourseId] = action.payload;
+      const rule = action.payload;
 
-      if (!isValidRule(courseId, equivCourseId)) {
-        throw new Error(`Invalid rule: ${courseId} <=> ${equivCourseId}`);
+      if (!isValidRule(rule)) {
+        throw new Error(`Invalid rule: ${rule[0]} <=> ${rule[1]}`);
       }
 
-      const thisRule = new Set([courseId, equivCourseId]);
+      const thisRule = new Set(rule);
 
       for (const r of existingRules) {
         if (thisRule.has(r[0]) && thisRule.has(r[1])) {
-          throw new Error(
-            `Rule already exists: ${courseId} <=> ${equivCourseId}`,
-          );
+          throw new Error(`Rule already exists: ${rule[0]} <=> ${rule[1]}`);
         }
       }
 
@@ -53,7 +51,7 @@ export const handleEquivRulesAction = (
         throw new Error(`Invalid index: ${idx}`);
       }
 
-      if (!isValidRule(existingRules[idx][0], existingRules[idx][1])) {
+      if (!isValidRule(existingRules[idx])) {
         throw new Error(
           `Invalid rule: ${existingRules[idx][0]} <=> ${existingRules[idx][1]}`,
         );

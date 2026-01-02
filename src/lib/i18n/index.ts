@@ -70,6 +70,10 @@ export enum I18nKey {
 
   EQUIV_RULES = "equiv-rules",
   INCLUDE_EQUIV_RULES = "include-equiv-rules",
+  EQUIV_RULE = "equiv-rule",
+  EQUIV_RULE_ADDED = "equiv-rule-added",
+  EQUIV_RULE_REMOVED = "equiv-rule-removed",
+  EQUIV_COURSE_SATISFIED = "equiv-course-satisfied",
 
   // common errors
   FAILED_TO_IMPORT_PLAN = "failed-to-import-plan",

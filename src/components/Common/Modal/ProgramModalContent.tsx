@@ -62,13 +62,13 @@ const ProgramModalContent = ({
         dispatch(removeProgram([programName]));
       } else {
         await dispatch(addProgramToUser([programName])).unwrap();
-        const programTagElem = document.querySelector(`.program-tag`);
-        if (programTagElem) {
-          const openAttr = document.createAttribute("data-tag-type");
-          openAttr.value = "open";
-          programTagElem.attributes.setNamedItem(openAttr);
-          programTagElem.querySelector("header")?.click();
-        }
+        // const programTagElem = document.querySelector(`.program-tag`);
+        // if (programTagElem) {
+        //   const openAttr = document.createAttribute("data-tag-type");
+        //   openAttr.value = "open";
+        //   programTagElem.attributes.setNamedItem(openAttr);
+        //   programTagElem.querySelector("header")?.click();
+        // }
         await dispatch(seekProgram(programName)).unwrap();
         closeCb();
       }

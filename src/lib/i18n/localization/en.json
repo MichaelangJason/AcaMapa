@@ -104,6 +104,13 @@
   "import-plan-desc": "*Supports png exported by AcaMapa since the availability of import feature.",
   "upload": "Upload",
   "upload-image": "Upload PNG",
+  
+  "equiv-rule": "Equivalent Course",
+  "equiv-rules": "Equivalent Courses",
+  "include-equiv-rules": "Include Equivalent Courses",
+  "equiv-rule-added": "Equivalent course added: \n",
+  "equiv-rule-removed": "Equivalent course removed: \n",
+  "equiv-course-satisfied": "Satisfied by equivalent course: {{item1}}",
 
   "include-plan-stats": "Include Plan Stats",
   "include-course-taken": "Include Course Taken",

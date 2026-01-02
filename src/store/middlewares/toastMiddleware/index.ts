@@ -12,5 +12,6 @@ import "./planActions";
 import "./courseActions";
 import "./courseTakenActions";
 import "./termActions";
+import "./equivRulesActions";
 
 export { middleware as default } from "./core";

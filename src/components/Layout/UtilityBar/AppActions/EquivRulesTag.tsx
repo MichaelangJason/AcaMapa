@@ -58,7 +58,7 @@ const EquivRulesTag = ({
       displayLang={displayLang}
       className="equiv-rules-tag"
       footNote="*only count towards prerequisites & corequisites."
-      pinnable
+      pinnable={false}
     />
   );
 };
