@@ -30,13 +30,9 @@ const SimpleModalContent = ({
   }, []);
 
   // not memoized as they are not called frequently
-  const handleClose = () => {
-    closeCb();
-  };
-
-  // not memoized as they are not called frequently
   const handleConfirm = () => {
     confirmCb(newValue);
+    closeCb();
   };
 
   return (
@@ -91,7 +87,7 @@ const SimpleModalContent = ({
       {/* footer, includes cancel/confirm buttons and extra options */}
       <footer>
         {!isConfirmOnly && (
-          <button className="cancel-button" onClick={handleClose}>
+          <button className="cancel-button" onClick={closeCb}>
             {t([I18nKey.CANCEL], lang)}
           </button>
         )}
