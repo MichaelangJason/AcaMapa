@@ -8,7 +8,7 @@ import { getNewTermName } from "@/lib/term";
 export const initialState = {
   lang: Language.EN,
   courseTaken: new Map<string, string[]>(),
-  equivRules: [] as string[],
+  equivRules: [] as [string, string][],
 
   planData: new Map<string, Plan>(),
   termData: new Map<string, Term>(),
@@ -71,19 +71,18 @@ export const userDataSlice = createSlice({
 
     /* EQUIVALENT COURSES RELATED */
     /* can be optimized with UNION-FIND if necessary */
-    setEquivRules: (state, action: PayloadAction<string[]>) => {
+    setEquivRules: (state, action: PayloadAction<[string, string][]>) => {
       // re-construct the equivalent courses from the rules
       const rules = action.payload;
       state.equivRules = [...rules];
     },
-    addEquivRule(state, action: PayloadAction<string>) {
+    addEquivRule(state, action: PayloadAction<[string, string]>) {
       const rule = action.payload;
-      state.equivRules.push(rule);
+      state.equivRules.push([...rule]);
     },
     // rule is passed to middleware for removal
-    removeEquivRule(state, action: PayloadAction<string>) {
-      const rule = action.payload;
-      const idx = state.equivRules.indexOf(rule);
+    removeEquivRule(state, action: PayloadAction<number>) {
+      const idx = action.payload;
       state.equivRules.splice(idx, 1);
     },
 
@@ -284,11 +283,6 @@ export const userDataSlice = createSlice({
       courseIds.forEach((courseId) => {
         plan.courseMetadata.set(courseId, { isOverwritten: false });
       });
-
-      // console.group(action.type);
-      // console.log(action.payload);
-      // console.log("current term data", state.termData);
-      // console.groupEnd();
     },
     deleteCourse: (
       state,

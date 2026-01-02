@@ -344,14 +344,17 @@ const localDataSlice = createSlice({
       });
     },
 
-    setEquivRulesToGraph: (state, action: PayloadAction<string[]>) => {
+    setEquivRulesToGraph: (
+      state,
+      action: PayloadAction<[string, string][]>,
+    ) => {
       _setEquivRulesToGraph(state, action);
     },
 
     addEquivRulesToGraph: (
       state,
       action: PayloadAction<{
-        rules: string[];
+        rules: [string, string][];
         planId: string;
         courseTaken: Map<string, string[]>;
         termOrderMap: Map<string, number>;
@@ -389,7 +392,7 @@ const localDataSlice = createSlice({
     removeEquivRulesFromGraph: (
       state,
       action: PayloadAction<{
-        rules: string[];
+        rules: [string, string][];
         planId: string;
         courseTaken: Map<string, string[]>;
         termOrderMap: Map<string, number>;

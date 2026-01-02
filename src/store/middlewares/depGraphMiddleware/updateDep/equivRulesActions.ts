@@ -54,7 +54,10 @@ export const handleEquivRulesActions = ({
     }
 
     case "userData/removeEquivRule": {
-      const rule = action.payload;
+      const idx = action.payload;
+
+      const originalRules = listenerApi.getOriginalState().userData.equivRules;
+      const rule = originalRules[idx];
 
       if (!rule) {
         break;

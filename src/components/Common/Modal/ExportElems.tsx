@@ -7,6 +7,7 @@ import type { Plan, Term } from "@/types/db";
 import type { getPlanCourseData, getPlanStats } from "@/lib/plan";
 import TermCard from "../../Term/TermCard";
 import { forwardRef } from "react";
+import EquivRulesTag from "@/components/Layout/UtilityBar/AppActions/EquivRulesTag";
 
 interface ExportElemsProps {
   plan: Plan;
@@ -16,6 +17,7 @@ interface ExportElemsProps {
   terms: Term[];
   includePlanStats: boolean;
   includeCourseTaken: boolean;
+  includeEquivRules: boolean;
   expandCourses: boolean;
 }
 
@@ -29,6 +31,7 @@ const ExportElems = forwardRef<HTMLDivElement, ExportElemsProps>(
       terms,
       includePlanStats,
       includeCourseTaken,
+      includeEquivRules,
       expandCourses,
     },
     ref,
@@ -44,11 +47,14 @@ const ExportElems = forwardRef<HTMLDivElement, ExportElemsProps>(
       totalCourseTakenCretids,
     } = planStats;
 
+    const hasOptionalElems =
+      includePlanStats || includeCourseTaken || includeEquivRules;
+
     return (
       <div className="export-container" ref={ref}>
         <span className="plan-name">{plan.name}</span>
         <section className="info-container">
-          {(includePlanStats || includeCourseTaken) && (
+          {hasOptionalElems && (
             <div className="optional-container">
               {includePlanStats && (
                 <ItemTag
@@ -62,6 +68,9 @@ const ExportElems = forwardRef<HTMLDivElement, ExportElemsProps>(
                   isExport={true}
                   displayLang={lang}
                 />
+              )}
+              {includeEquivRules && (
+                <EquivRulesTag isExport={true} displayLang={lang} />
               )}
               {includeCourseTaken && (
                 <CourseTaken isExport={true} displayLang={lang} />

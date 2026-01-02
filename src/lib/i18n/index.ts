@@ -69,6 +69,7 @@ export enum I18nKey {
   UPLOAD_IMAGE = "upload-image",
 
   EQUIV_RULES = "equiv-rules",
+  INCLUDE_EQUIV_RULES = "include-equiv-rules",
 
   // common errors
   FAILED_TO_IMPORT_PLAN = "failed-to-import-plan",

@@ -1,4 +1,3 @@
-import { parseRule } from "@/lib/course";
 import type { RootState } from "@/store";
 import type { EquivRulesAction } from "@/types/actions";
 
@@ -11,8 +10,7 @@ export const handleEquivRulesAction = (
   const isValidCourseId = (id: string) => {
     return courseData[id] !== undefined;
   };
-  const isValidRule = (rule: string) => {
-    const [courseId, equivCourseId] = parseRule(rule);
+  const isValidRule = (courseId: string, equivCourseId: string) => {
     return isValidCourseId(courseId) && isValidCourseId(equivCourseId);
   };
   const existingRules = state.userData.equivRules;
@@ -22,7 +20,7 @@ export const handleEquivRulesAction = (
       const rules = action.payload;
 
       for (const rule of rules) {
-        if (!isValidRule(rule)) {
+        if (!isValidRule(rule[0], rule[1])) {
           throw new Error(`Invalid rule: ${rule}`);
         }
       }
@@ -30,28 +28,35 @@ export const handleEquivRulesAction = (
       break;
     }
     case "userData/addEquivRule": {
-      const rule = action.payload;
+      const [courseId, equivCourseId] = action.payload;
 
-      if (!isValidRule(rule)) {
-        throw new Error(`Invalid rule: ${rule}`);
+      if (!isValidRule(courseId, equivCourseId)) {
+        throw new Error(`Invalid rule: ${courseId} <=> ${equivCourseId}`);
       }
 
-      const thisRule = new Set(parseRule(rule));
+      const thisRule = new Set([courseId, equivCourseId]);
 
       for (const r of existingRules) {
-        const [rCourseId, rEquivCourseId] = parseRule(r);
-        if (thisRule.has(rCourseId) && thisRule.has(rEquivCourseId)) {
-          throw new Error(`Rule already exists: ${rule}`);
+        if (thisRule.has(r[0]) && thisRule.has(r[1])) {
+          throw new Error(
+            `Rule already exists: ${courseId} <=> ${equivCourseId}`,
+          );
         }
       }
 
       break;
     }
     case "userData/removeEquivRule": {
-      const rule = action.payload.replace(/\s+/g, "").toLowerCase();
+      const idx = action.payload;
 
-      if (!isValidRule(rule)) {
-        throw new Error(`Invalid rule: ${rule}`);
+      if (idx < 0 || idx >= existingRules.length) {
+        throw new Error(`Invalid index: ${idx}`);
+      }
+
+      if (!isValidRule(existingRules[idx][0], existingRules[idx][1])) {
+        throw new Error(
+          `Invalid rule: ${existingRules[idx][0]} <=> ${existingRules[idx][1]}`,
+        );
       }
 
       break;

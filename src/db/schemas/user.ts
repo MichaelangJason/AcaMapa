@@ -24,9 +24,9 @@ const UserSchema = new Schema(
     email: { type: String, required: true, unique: true },
 
     equivRules: {
-      type: [String],
+      type: [[String, String]],
       required: true,
-      default: [],
+      default: [] as [string, string][],
     },
 
     courseTaken: {

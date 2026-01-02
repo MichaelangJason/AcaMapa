@@ -9,7 +9,6 @@ import { selectCourseSearchFn } from "@/store/selectors";
 import { formatCourseId } from "@/lib/utils";
 import { useDebounce } from "@/lib/hooks/common";
 import { addEquivRule } from "@/store/slices/userDataSlice";
-import { createEquivRule } from "@/lib/course";
 
 const EquivRulesModalContent = ({
   closeCb,
@@ -43,39 +42,37 @@ const EquivRulesModalContent = ({
       if (!formRef.current) return;
       // validate form
       const formData = new FormData(formRef.current);
-      let courseId1 = formData.get("equiv-course-1") as string;
-      let courseId2 = formData.get("equiv-course-2") as string;
+      let courseId = formData.get("equiv-course-1") as string;
+      let equivCourseId = formData.get("equiv-course-2") as string;
 
-      console.log(formData);
-      console.log(courseId1, courseId2);
-
-      if (!courseId1 || !courseId2) {
+      if (!courseId || !equivCourseId) {
         alert("Please enter both course ids");
         return;
       }
 
-      courseId1 = courseId1.replace(/\s+/g, "").toLowerCase();
-      courseId2 = courseId2.replace(/\s+/g, "").toLowerCase();
+      // normalize course ids
+      courseId = courseId.replace(/\s+/g, "").toLowerCase();
+      equivCourseId = equivCourseId.replace(/\s+/g, "").toLowerCase();
 
-      if (courseId1 === courseId2) {
+      if (courseId === equivCourseId) {
         alert("Course ids cannot be the same");
         return;
       }
 
-      if (!courseData[courseId1]) {
-        alert(`${courseId1} not found`);
+      if (!courseData[courseId]) {
+        alert(`${courseId} not found`);
         return;
       }
 
-      if (!courseData[courseId2]) {
-        alert(`${courseId2} not found`);
+      if (!courseData[equivCourseId]) {
+        alert(`${equivCourseId} not found`);
         return;
       }
 
-      dispatch(addEquivRule(createEquivRule(courseId1, courseId2)));
+      dispatch(addEquivRule([courseId, equivCourseId]));
       closeCb();
     },
-    [courseData, courseSearchFn, dispatch],
+    [courseData, courseSearchFn, dispatch, closeCb],
   );
 
   // focus on the first input at mount

@@ -1,7 +1,7 @@
 import { type LocalDataState } from "@/store/slices/localDataSlice";
 import type { WritableDraft } from "immer";
 import { type PayloadAction } from "@reduxjs/toolkit";
-import { addEquivGroup, parseRule, removeEquivGroup } from "../equivalents";
+import { addEquivGroup, removeEquivGroup } from "../equivalents";
 
 const gatherAffectedCourses = (
   depGraph: Map<
@@ -31,13 +31,13 @@ const gatherAffectedCourses = (
 
 export const _setEquivRulesToGraph = (
   state: WritableDraft<LocalDataState>,
-  action: PayloadAction<string[]>,
+  action: PayloadAction<[string, string][]>,
 ) => {
   const rules = action.payload;
   const equivGroups = state.equivGroups;
 
   rules.forEach((rule) => {
-    const [courseId, equivCourseId] = parseRule(rule);
+    const [courseId, equivCourseId] = rule;
     addEquivGroup(courseId, equivCourseId, equivGroups);
   });
 
@@ -46,7 +46,7 @@ export const _setEquivRulesToGraph = (
 
 export const _addEquivRulesToGraph = (
   state: WritableDraft<LocalDataState>,
-  action: PayloadAction<{ rules: string[]; planId: string }>,
+  action: PayloadAction<{ rules: [string, string][]; planId: string }>,
 ) => {
   const { rules, planId } = action.payload;
   const equivGroups = state.equivGroups;
@@ -55,7 +55,7 @@ export const _addEquivRulesToGraph = (
 
   // parse rules and add to equiv groups
   rules.forEach((rule) => {
-    const [courseId, equivCourseId] = parseRule(rule);
+    const [courseId, equivCourseId] = rule;
 
     addEquivGroup(courseId, equivCourseId, equivGroups);
     ruleCourseIds.add(courseId);
@@ -72,7 +72,7 @@ export const _addEquivRulesToGraph = (
 
 export const _removeEquivRulesFromGraph = (
   state: WritableDraft<LocalDataState>,
-  action: PayloadAction<{ rules: string[]; planId: string }>,
+  action: PayloadAction<{ rules: [string, string][]; planId: string }>,
 ) => {
   const { rules, planId } = action.payload;
   const depData = state.courseDepData.get(planId)!;
@@ -81,7 +81,7 @@ export const _removeEquivRulesFromGraph = (
 
   const ruleCourseIds = new Set<string>();
   rules.forEach((rule) => {
-    const [courseId, equivCourseId] = parseRule(rule);
+    const [courseId, equivCourseId] = rule;
 
     removeEquivGroup(courseId, equivCourseId, equivGroups);
     ruleCourseIds.add(courseId);

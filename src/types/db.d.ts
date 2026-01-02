@@ -41,7 +41,7 @@ export type Course = Omit<
 >;
 
 // exclude embeddings from DetailedCourse
-import type { NonNullableRequired } from "./utils";
+import type { NonNullableRequired, Override } from "./utils";
 export type FullCourse = NonNullableRequired<Course>;
 export type DetailedCourse = Omit<
   FullCourse,
@@ -54,7 +54,7 @@ export type Plan = PlanSchemaType;
 export type Term = TermSchemaType;
 
 export type MemberData = Omit<
-  UserSchemaType,
+  Override<UserSchemaType, { equivRules: [string, string][] }>,
   "createdAt" | "updatedAt" | "lastLogin" | "email"
 >;
 export type GuestUserData = Omit<MemberData, "chatThreadIds">;

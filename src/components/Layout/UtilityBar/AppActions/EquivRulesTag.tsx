@@ -4,20 +4,24 @@ import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { setModalState } from "@/store/slices/localDataSlice";
 import { removeEquivRule } from "@/store/slices/userDataSlice";
 import { useCallback, useMemo } from "react";
-import { parseRule } from "@/lib/course";
 import { formatCourseId } from "@/lib/utils";
+import type { Language } from "@/lib/i18n";
 
 const EquivRulesTag = ({
   ref,
+  isExport,
+  displayLang,
 }: {
   ref?: React.RefObject<HTMLDivElement | null>;
+  isExport?: boolean;
+  displayLang?: Language;
 }) => {
   const items = useAppSelector((state) => state.userData.equivRules);
   const dispatch = useAppDispatch();
 
   const formattedRules = useMemo(() => {
     return items.map((item) => {
-      const [courseId, equivCourseId] = parseRule(item);
+      const [courseId, equivCourseId] = item;
       return `${formatCourseId(courseId)} <=> ${formatCourseId(equivCourseId)}`; // TODO: format the rule
     });
   }, [items]);
@@ -31,11 +35,17 @@ const EquivRulesTag = ({
         },
       }),
     );
-  }, []);
+  }, [dispatch]);
 
-  const handleDeleteRule = useCallback((rule: string) => {
-    dispatch(removeEquivRule(rule));
-  }, []);
+  const handleDeleteRule = useCallback(
+    (_: string, idx?: number) => {
+      if (idx === undefined) {
+        return;
+      }
+      dispatch(removeEquivRule(idx));
+    },
+    [dispatch],
+  );
 
   return (
     <ItemTag
@@ -44,6 +54,8 @@ const EquivRulesTag = ({
       items={formattedRules}
       handleAddItem={handleAddRule}
       handleDeleteItem={handleDeleteRule}
+      isExport={isExport}
+      displayLang={displayLang}
       className="equiv-rules-tag"
       footNote="*only count towards prerequisites & corequisites."
       pinnable

@@ -31,6 +31,7 @@ const ExportModalContent = ({
     lang: userLang,
     includePlanStats: true,
     includeCourseTaken: true,
+    includeEquivRules: false,
     expandCourses: true,
   });
 
@@ -114,13 +115,10 @@ const ExportModalContent = ({
         <ExportElems // fixed position, now shown to user
           ref={exportContainerRef}
           plan={plan}
-          lang={formState.lang}
           planStats={planStats}
           courseDataPerTerm={planCourseData}
           terms={terms}
-          includePlanStats={formState.includePlanStats}
-          includeCourseTaken={formState.includeCourseTaken}
-          expandCourses={formState.expandCourses}
+          {...formState}
         />
       )}
 
@@ -147,6 +145,19 @@ const ExportModalContent = ({
             }
           />
           {t([I18nKey.INCLUDE_COURSE_TAKEN], userLang)}
+        </label>
+
+        <label htmlFor="includeEquivRules">
+          <input
+            id="includeEquivRules"
+            type="checkbox"
+            name="includeEquivRules"
+            checked={formState.includeEquivRules}
+            onChange={(e) =>
+              handleChange("includeEquivRules", e.target.checked)
+            }
+          />
+          {t([I18nKey.INCLUDE_EQUIV_RULES], userLang)}
         </label>
 
         <label htmlFor="expandCourses">
