@@ -18,8 +18,8 @@ const ItemTag = ({
   handleClickItem,
   handleDeleteItem,
   handleSeekItem,
-  isPinnable = true,
-  isExpandable = true,
+  pinnable = true,
+  expandable = true,
   className,
   style,
   tooltipProps,
@@ -37,8 +37,8 @@ const ItemTag = ({
   handleClickItem?: (item: string) => void;
   handleDeleteItem?: (item: string) => void;
   handleSeekItem?: (item: string) => void;
-  isPinnable?: boolean;
-  isExpandable?: boolean;
+  pinnable?: boolean;
+  expandable?: boolean;
   alignItems?: "center" | "flex-start" | "flex-end";
   tooltipProps?: TooltipProps;
   className?: string;
@@ -82,13 +82,13 @@ const ItemTag = ({
         return;
       }
 
-      if (isPinnable && isExpandable) {
+      if (pinnable && expandable) {
         setIsExpanded((prev) => !prev);
       }
 
       handleClickTag?.();
     },
-    [isPinnable, isExpandable, handleClickTag],
+    [pinnable, expandable, handleClickTag],
   );
 
   return (
@@ -119,7 +119,7 @@ const ItemTag = ({
         )}
         onClick={handleClick}
       >
-        {isPinnable && (
+        {pinnable && (
           <div className="icon-container">
             <PinIcon
               className={clsx(
@@ -134,7 +134,7 @@ const ItemTag = ({
           {...{
             "data-tooltip-delay-show": 500,
             "data-tooltip-content":
-              (isPinnable
+              (pinnable
                 ? isTagExpanded
                   ? t([I18nKey.UNPIN], lang) + " "
                   : t([I18nKey.PIN], lang) + " "

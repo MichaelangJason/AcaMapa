@@ -40,7 +40,7 @@ const StatsTag = ({
         "data-tooltip-id": TooltipId.ITEM_TAG,
         "data-tooltip-place": "right",
       }}
-      isPinnable
+      pinnable
     />
   );
 };

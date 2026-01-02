@@ -33,7 +33,7 @@ const UserSession = () => {
     <ItemTag
       items={[]}
       title={t([I18nKey.LOGIN_WITH_MCGILL_EMAIL], lang)}
-      isPinnable={false}
+      pinnable={false}
       className="user-session-tag"
       tooltipProps={{
         "data-tooltip-id": TooltipId.USER_SESSION,

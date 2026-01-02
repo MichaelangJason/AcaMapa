@@ -10,7 +10,8 @@ export type ModalState = {
     | ProgramModalProps
     | InfoModalProps
     | ImportModalProps
-    | ExportModalProps;
+    | ExportModalProps
+    | EquivRuleModalProps;
 };
 
 export type NoneModalProps = {
@@ -29,7 +30,6 @@ export type SimpleModalProps = {
   confirmCb: (newValue?: string) => Promise<void>;
 
   isConfirmOnly?: boolean; // not cancelable, just a notification.
-  isShowCloseButton?: boolean;
 
   inputConfig?: {
     placeholder: string;
@@ -53,4 +53,8 @@ export type ImportModalProps = {
 export type ExportModalProps = {
   type: ModalType.EXPORT;
   planId: string;
+};
+
+export type EquivRuleModalProps = {
+  type: ModalType.EQUIV_RULE;
 };

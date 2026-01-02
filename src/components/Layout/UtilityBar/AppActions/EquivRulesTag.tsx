@@ -1,5 +1,7 @@
 import { ItemTag } from "@/components/Common";
+import { ModalType } from "@/lib/enums";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
+import { setModalState } from "@/store/slices/localDataSlice";
 import { removeEquivRule } from "@/store/slices/userDataSlice";
 import { useCallback, useMemo } from "react";
 
@@ -18,11 +20,17 @@ const EquivRulesTag = ({
   }, [items]);
 
   const handleAddRule = useCallback(() => {
-    // TODO: add a rule
+    dispatch(
+      setModalState({
+        isOpen: true,
+        props: {
+          type: ModalType.EQUIV_RULE,
+        },
+      }),
+    );
   }, []);
 
   const handleDeleteRule = useCallback((rule: string) => {
-    // TODO: delete a rule
     dispatch(removeEquivRule(rule));
   }, []);
 
@@ -34,7 +42,7 @@ const EquivRulesTag = ({
       handleAddItem={handleAddRule}
       handleDeleteItem={handleDeleteRule}
       className="equiv-rules-tag"
-      isPinnable={false}
+      pinnable
     />
   );
 };

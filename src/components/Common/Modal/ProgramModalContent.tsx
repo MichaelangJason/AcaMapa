@@ -207,13 +207,6 @@ const ProgramModalContent = ({
           />
         </div>
       </section>
-
-      {/* footer, includes cancel button */}
-      <footer>
-        <button className="cancel-button" onClick={closeCb}>
-          {t([I18nKey.CLOSE], lang)}
-        </button>
-      </footer>
     </>
   );
 };

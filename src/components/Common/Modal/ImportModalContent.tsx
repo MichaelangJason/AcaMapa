@@ -2,7 +2,6 @@
 
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { useCallback, useState } from "react";
-import CloseIcon from "@/public/icons/delete.svg";
 import { t, I18nKey, type Language } from "@/lib/i18n";
 import clsx from "clsx";
 import SpinnerIcon from "@/public/icons/spinner.svg";
@@ -93,9 +92,6 @@ const ImportModalContent = ({
       {/* header */}
       <header>
         <h3>{t([I18nKey.IMPORT, I18nKey.PLAN], lang)}</h3>
-        <button onClick={closeCb}>
-          <CloseIcon />
-        </button>
       </header>
       {/* plan preview */}
       {planData && <PlanPreview planData={planData} />}

@@ -57,7 +57,7 @@ const ProgramsTag = ({
         "data-tooltip-id": TooltipId.ITEM_TAG,
         "data-tooltip-place": "right",
       }}
-      isPinnable={false}
+      pinnable
     />
   );
 };

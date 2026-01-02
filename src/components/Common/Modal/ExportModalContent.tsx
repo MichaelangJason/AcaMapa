@@ -2,7 +2,6 @@
 
 import { useAppSelector } from "@/store/hooks";
 import { useState, useEffect, useCallback, useRef } from "react";
-import CloseIcon from "@/public/icons/delete.svg";
 import { I18nKey, Language, t } from "@/lib/i18n";
 import SpinnerIcon from "@/public/icons/spinner.svg";
 import clsx from "clsx";
@@ -109,9 +108,6 @@ const ExportModalContent = ({
     <>
       <header>
         <h3>Export Plan</h3>
-        <button onClick={closeCb}>
-          <CloseIcon />
-        </button>
       </header>
 
       {planId && plan && (

@@ -5,6 +5,7 @@ export enum ModalType {
   INFO = "info",
   IMPORT = "import",
   EXPORT = "export",
+  EQUIV_RULE = "equiv-rule",
 }
 
 export enum Season {

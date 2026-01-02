@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import CloseIcon from "@/public/icons/delete.svg";
 import type { SimpleModalProps, CommonModalProps } from "@/types/modals";
 import DOMPurify from "dompurify";
 import clsx from "clsx";
@@ -15,7 +14,6 @@ const SimpleModalContent = ({
   confirmCb,
   closeCb,
   isConfirmOnly,
-  isShowCloseButton,
   inputConfig,
 }: SimpleModalProps & CommonModalProps) => {
   const lang = useAppSelector((state) => state.userData.lang) as Language;
@@ -45,11 +43,6 @@ const SimpleModalContent = ({
     <>
       <header>
         <h3>{title}</h3>
-        {isShowCloseButton && (
-          <button onClick={handleClose}>
-            <CloseIcon />
-          </button>
-        )}
       </header>
 
       {/* description */}

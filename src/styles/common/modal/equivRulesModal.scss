@@ -1,0 +1,8 @@
+@use "./common";
+
+.equiv-rules-modal-content {
+}
+
+.equiv-rules-modal-content {
+  @extend .common-content;
+}
