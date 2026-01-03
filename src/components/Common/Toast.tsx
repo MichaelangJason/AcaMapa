@@ -3,7 +3,7 @@ import { ToastContainer, Slide } from "react-toastify";
 export default function Toast() {
   return (
     <ToastContainer
-      position="bottom-center"
+      position="bottom-right"
       autoClose={3000}
       hideProgressBar={true}
       newestOnTop={false}
