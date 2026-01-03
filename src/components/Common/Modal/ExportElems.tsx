@@ -6,8 +6,9 @@ import { ItemTag } from "..";
 import type { Plan, Term } from "@/types/db";
 import type { getPlanCourseData, getPlanStats } from "@/lib/plan";
 import TermCard from "../../Term/TermCard";
-import { forwardRef } from "react";
+import { forwardRef, useCallback, useEffect, useState } from "react";
 import EquivRulesTag from "@/components/Layout/UtilityBar/AppActions/EquivRulesTag";
+import { exportInfoToQRCodeDataUrl } from "@/lib/export/qrCode";
 
 interface ExportElemsProps {
   plan: Plan;
@@ -15,6 +16,7 @@ interface ExportElemsProps {
   planStats: ReturnType<typeof getPlanStats>;
   courseDataPerTerm: ReturnType<typeof getPlanCourseData>;
   terms: Term[];
+  includeImportQRCode: boolean;
   includePlanStats: boolean;
   includeCourseTaken: boolean;
   includeEquivRules: boolean;
@@ -29,6 +31,7 @@ const ExportElems = forwardRef<HTMLDivElement, ExportElemsProps>(
       planStats,
       courseDataPerTerm,
       terms,
+      includeImportQRCode,
       includePlanStats,
       includeCourseTaken,
       includeEquivRules,
@@ -46,6 +49,22 @@ const ExportElems = forwardRef<HTMLDivElement, ExportElemsProps>(
       averageCreditsPerTerm,
       totalCourseTakenCredits,
     } = planStats;
+
+    const [qrCodeDataUrl, setQRCodeDataUrl] = useState<string | null>(null);
+
+    const prepareQRCode = useCallback(async () => {
+      setQRCodeDataUrl(null);
+      try {
+        const dataUrl = await exportInfoToQRCodeDataUrl(plan, terms);
+        setQRCodeDataUrl(dataUrl);
+      } catch (error) {
+        console.error(error);
+      }
+    }, [plan, terms]);
+
+    useEffect(() => {
+      prepareQRCode();
+    }, [plan, terms]);
 
     const hasOptionalElems =
       includePlanStats || includeCourseTaken || includeEquivRules;
@@ -74,6 +93,11 @@ const ExportElems = forwardRef<HTMLDivElement, ExportElemsProps>(
               )}
               {includeCourseTaken && (
                 <CourseTaken isExport={true} displayLang={lang} />
+              )}
+              {includeImportQRCode && qrCodeDataUrl && (
+                <div className="qr-code-container">
+                  <img src={qrCodeDataUrl} alt="Import QR Code" />
+                </div>
               )}
             </div>
           )}

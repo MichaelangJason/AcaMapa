@@ -116,7 +116,8 @@
   "include-plan-stats": "Inclure les statistiques du plan",
   "include-course-taken": "Inclure les cours suivis",
   "preparing-export": "Préparation de l'exportation",
-  "prepared-export": "Exportation prête",
+  "prepared-export": "Données d'exportation prêtes",
+  "export-ready": "Prêt à exporter",
 
   "fetch-course-failed": "Échec de la récupération du cours",
   "fetched-m": "récupéré",

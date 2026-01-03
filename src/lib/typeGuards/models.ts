@@ -205,16 +205,20 @@ export const isValidCourseMetadata = (
   return true;
 };
 
-export const isValidPlan = (plan: unknown): plan is Plan => {
+export const isValidPlan = (
+  plan: unknown,
+  skip?: { id?: boolean; termOrder?: boolean },
+): plan is Plan => {
   if (!plan || typeof plan !== "object") return false;
 
   const p = plan as Plan;
 
-  if (!isValidObjectId(p._id)) return false;
+  if (!skip?.id && !isValidObjectId(p._id)) return false;
   if (typeof p.name !== "string") return false;
   if (
-    !Array.isArray(p.termOrder) ||
-    p.termOrder.some((t) => typeof t !== "string" || !isValidObjectId(t))
+    !skip?.termOrder &&
+    (!Array.isArray(p.termOrder) ||
+      p.termOrder.some((t) => typeof t !== "string" || !isValidObjectId(t)))
   )
     return false;
   if (
@@ -228,12 +232,15 @@ export const isValidPlan = (plan: unknown): plan is Plan => {
   return true;
 };
 
-export const isValidTerm = (term: unknown): term is Term => {
+export const isValidTerm = (
+  term: unknown,
+  skipIdCheck: boolean = false,
+): term is Term => {
   if (!term || typeof term !== "object") return false;
 
   const t = term as Term;
 
-  if (!isValidObjectId(t._id)) return false;
+  if (!skipIdCheck && !isValidObjectId(t._id)) return false;
   if (typeof t.name !== "string") return false;
   if (
     !Array.isArray(t.courseIds) ||

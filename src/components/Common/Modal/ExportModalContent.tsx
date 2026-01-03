@@ -11,7 +11,7 @@ import { selectExportInfo } from "@/store/selectors";
 import ExportElems from "./ExportElems";
 // @ts-expect-error no typescript for dom-to-image-more
 import DomToImage from "dom-to-image-more";
-import { embedPlanDataInPng } from "@/lib/export";
+import { cloneExportInfo, embedPlanDataInPng } from "@/lib/export";
 import { mapStringfyReplacer } from "@/lib/sync";
 import type { ExportModalProps, CommonModalProps } from "@/types/modals";
 
@@ -29,6 +29,7 @@ const ExportModalContent = ({
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [formState, setFormState] = useState({
     lang: userLang,
+    includeImportQRCode: true,
     includePlanStats: true,
     includeCourseTaken: true,
     includeEquivRules: true,
@@ -44,10 +45,7 @@ const ExportModalContent = ({
 
     try {
       const planData = JSON.stringify(
-        {
-          terms,
-          plan,
-        },
+        cloneExportInfo(plan, terms),
         mapStringfyReplacer,
       );
       const newPreviewUrl = embedPlanDataInPng(previewUrl, planData);
@@ -88,6 +86,7 @@ const ExportModalContent = ({
     });
 
     setPreviewUrl(dataUrl);
+    toast.success(t([I18nKey.EXPORT_READY], formState.lang));
   }, [setPreviewUrl]);
 
   useEffect(() => {
@@ -158,6 +157,19 @@ const ExportModalContent = ({
             }
           />
           {t([I18nKey.INCLUDE_EQUIV_RULES], userLang)}
+        </label>
+
+        <label htmlFor="includeImportQRCode">
+          <input
+            id="includeImportQRCode"
+            type="checkbox"
+            name="includeImportQRCode"
+            checked={formState.includeImportQRCode}
+            onChange={(e) =>
+              handleChange("includeImportQRCode", e.target.checked)
+            }
+          />
+          {t([I18nKey.INCLUDE_IMPORT_QR_CODE], userLang)}
         </label>
 
         <label htmlFor="expandCourses">

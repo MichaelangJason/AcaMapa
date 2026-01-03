@@ -4,7 +4,7 @@
  * most of the code here is AI generated, following the PNG specification
  */
 
-import { mapStringfyReviver } from "./sync";
+import { mapStringfyReviver } from "@/lib/sync";
 
 export const embedPlanDataInPng = (dataUrl: string, planData: string) => {
   const pngData = dataUrlToUint8Array(dataUrl);

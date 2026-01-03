@@ -8,13 +8,18 @@ import clsx from "clsx";
 import { ModalType } from "@/lib/enums";
 import SimpleModalContent from "./SimpleModalContent";
 import ProgramModalContent from "./ProgramModalContent";
-import ExportModalContent from "./ExportModalContent";
-import ImportModalContent from "./ImportModalContent";
 import EquivRulesModalContent from "./EquivRulesModalContent";
 import dynamic from "next/dynamic";
 
 // markdown modal content is dynamically imported to avoid hydration errors
 const InfoModalContent = dynamic(() => import("./InfoModalContent"), {
+  ssr: false,
+});
+// import and export modal content is dynamically imported to avoid hydration errors
+const ExportModalContent = dynamic(() => import("./ExportModalContent"), {
+  ssr: false,
+});
+const ImportModalContent = dynamic(() => import("./ImportModalContent"), {
   ssr: false,
 });
 
@@ -31,6 +36,7 @@ const Modals = () => {
 
   return (
     <Modal
+      id="modal"
       isOpen={modalState.isOpen}
       shouldCloseOnOverlayClick={modalState.shouldCloseOnOverlayClick}
       shouldCloseOnEsc={modalState.shouldCloseOnEsc}

@@ -68,12 +68,16 @@ export enum I18nKey {
   IMPORT_PLAN = "import-plan",
   UPLOAD_IMAGE = "upload-image",
 
+  // equiv rules related
   EQUIV_RULES = "equiv-rules",
   INCLUDE_EQUIV_RULES = "include-equiv-rules",
   EQUIV_RULE = "equiv-rule",
   EQUIV_RULE_ADDED = "equiv-rule-added",
   EQUIV_RULE_REMOVED = "equiv-rule-removed",
   EQUIV_COURSE_SATISFIED = "equiv-course-satisfied",
+
+  // import QR code related
+  INCLUDE_IMPORT_QR_CODE = "include-import-qr-code",
 
   // common errors
   FAILED_TO_IMPORT_PLAN = "failed-to-import-plan",
@@ -94,6 +98,7 @@ export enum I18nKey {
   NO_RESULTS = "no-results",
   NO_SUBSEQUENT_COURSES = "no-subsequent-courses",
   FAILED_TO_EXPORT = "failed-to-export",
+  EXPORT_READY = "export-ready",
   NO_NEW_PROGRAMS_TO_ADD = "no-new-programs-to-add",
 
   // seek related

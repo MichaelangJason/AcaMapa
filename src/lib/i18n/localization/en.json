@@ -75,6 +75,7 @@
   "no-results": "No results",
   "no-subsequent-courses": "No subsequent courses",
   "failed-to-export": "Failed to export",
+  "export-ready": "Ready to export",
   "no-new-programs-to-add": "No new programs to add",
 
   "seeking-title": "Seeking subsequent courses for",
@@ -115,7 +116,7 @@
   "include-plan-stats": "Include Plan Stats",
   "include-course-taken": "Include Course Taken",
   "preparing-export": "Preparing export",
-  "prepared-export": "Export ready",
+  "prepared-export": "Export Data Ready",
 
   "fetch-course-failed": "Failed to fetch course",
   "fetched-m": "fetched",

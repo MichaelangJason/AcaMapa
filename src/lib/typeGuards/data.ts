@@ -124,9 +124,9 @@ export const isValidImportPlanData = (
   if (!("terms" in planData) || !("plan" in planData)) return false;
   if (
     !Array.isArray(planData.terms) ||
-    planData.terms.some((t: any) => !isValidTerm(t))
+    planData.terms.some((t: any) => !isValidTerm(t, true))
   )
     return false;
 
-  return isValidPlan(planData.plan);
+  return isValidPlan(planData.plan, { id: true, termOrder: true });
 };

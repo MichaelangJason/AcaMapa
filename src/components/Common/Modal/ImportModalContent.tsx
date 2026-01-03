@@ -8,10 +8,10 @@ import SpinnerIcon from "@/public/icons/spinner.svg";
 import PlanPreview from "./PlanPreview";
 import type { Plan, Term } from "@/types/db";
 import { toast } from "react-toastify";
-import { parsePlanDataFromPng } from "@/lib/export";
 import { isValidImportPlanData } from "@/lib/typeGuards";
 import { importPlanData } from "@/store/thunks";
 import type { ImportModalProps, CommonModalProps } from "@/types/modals";
+import { importQRCodeFromImage, parseQRCodeData } from "@/lib/export/qrCode";
 
 const ImportModalContent = ({
   closeCb,
@@ -50,36 +50,40 @@ const ImportModalContent = ({
       const file = e.target.files?.[0];
       if (!file) return;
 
-      setFile(file);
       setIsLoading(true);
+      setFile(file);
 
       const reader = new FileReader();
 
       reader.onload = () => {
-        const base64Data = reader.result as string;
-        setPreviewURL(base64Data);
+        const dataUrl = reader.result as string;
+        setPreviewURL(dataUrl);
 
-        try {
-          const planData = parsePlanDataFromPng(base64Data);
-          if (!isValidImportPlanData(planData)) {
-            throw new Error("Invalid plan data");
-          }
-
-          setPlanData(planData);
-          setIsReadyToImport(true);
-        } catch (error) {
-          toast.error(error instanceof Error ? error.message : String(error));
-          setFile(null);
-          setPreviewURL(null);
-        } finally {
-          setIsLoading(false);
-        }
+        importQRCodeFromImage(dataUrl)
+          .then((data) => {
+            const parsed = parseQRCodeData(new Uint8Array(data));
+            if (!isValidImportPlanData(parsed)) {
+              throw new Error("Invalid plan data");
+            }
+            setPlanData(parsed);
+            setIsReadyToImport(true);
+          })
+          .catch((error) => {
+            toast.error(error instanceof Error ? error.message : String(error));
+            setIsLoading(false);
+            setFile(null);
+          })
+          .finally(() => {
+            setIsLoading(false);
+          });
       };
+
       reader.onerror = () => {
         toast.error(t([I18nKey.FAILED_TO_IMPORT_PLAN], lang));
         setIsLoading(false);
         setFile(null);
       };
+
       reader.readAsDataURL(file);
 
       setIsLoading(false);
@@ -125,7 +129,7 @@ const ImportModalContent = ({
         disabled={isLoading}
         id="import-plan-file"
         type="file"
-        accept=".png"
+        accept=".png, .jpg, .jpeg"
         style={{ display: "none" }}
         onChange={handleFileChange}
       />

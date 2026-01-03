@@ -28,8 +28,8 @@ const PlanPreview = ({
     <div className={clsx("plan-preview", className)} style={style}>
       <header>{plan.name}</header>
       <div className="terms-container scrollbar-hidden" ref={termsContainerRef}>
-        {terms.map((term) => (
-          <div className="term-preview" key={"term-preview-" + term._id}>
+        {terms.map((term, index) => (
+          <div className="term-preview" key={"term-preview-" + index}>
             <span className="term-name">{term.name}</span>
             <div className="courses-container">
               {term.courseIds.map((courseId) => {
