@@ -98,7 +98,6 @@ const EquivRulesModalContent = ({
         id="equiv-rules-form"
         onSubmit={handleSubmit}
       >
-        <label htmlFor="equiv-course-1">Enter course id:</label>
         <input
           type="text"
           name="equiv-course-1"
@@ -108,9 +107,11 @@ const EquivRulesModalContent = ({
           onFocus={getAvailableCourses}
           onChange={getAvailableCourses}
           onBlur={clearAvailableCourses}
+          placeholder={"Course ID"}
         />
-        <br />
-        <label htmlFor="equiv-course-2">Enter equivalent course id:</label>
+
+        <span className="separator">⇔</span>
+
         <input
           type="text"
           name="equiv-course-2"
@@ -120,6 +121,7 @@ const EquivRulesModalContent = ({
           onFocus={getAvailableCourses}
           onChange={getAvailableCourses}
           onBlur={clearAvailableCourses}
+          placeholder={"Course ID"}
         />
 
         <datalist id="available-courses">

@@ -63,6 +63,7 @@ startListening({
         onClick: handleClose,
         closeButton: false,
         className: "toast-seeking-course",
+        position: "bottom-center",
       } as ToastOptions;
 
       if (toast.isActive(ToastId.SEEKING)) {

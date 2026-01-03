@@ -102,19 +102,21 @@
   "click-to-sync": "Click to sync",
   "create-with-local-data-title": "Local Data Detected",
   "create-with-local-data-desc": "You are about to create a new user, do you want to upload your local data? Your local data will be cleared after upload.",
-  "import-plan-desc": "*Supports png exported by AcaMapa since the availability of import feature.",
+  "import-plan-desc": "*Supports PNG/JPG/JPEG exported by AcaMapa since the availability of import feature.",
   "upload": "Upload",
-  "upload-image": "Upload PNG",
+  "upload-image": "Upload PNG/JPG/JPEG",
   
   "equiv-rule": "Equivalent Course",
   "equiv-rules": "Equivalent Courses",
-  "include-equiv-rules": "Include Equivalent Courses",
+  "include-equiv-rules": "Equivalent Courses",
   "equiv-rule-added": "Equivalent course added: \n",
   "equiv-rule-removed": "Equivalent course removed: \n",
   "equiv-course-satisfied": "Satisfied by equivalent course: {{item1}}",
+  
+  "include-import-qr-code": "Import QR Code",
 
-  "include-plan-stats": "Include Plan Stats",
-  "include-course-taken": "Include Course Taken",
+  "include-plan-stats": "Plan Stats",
+  "include-course-taken": "Course Taken",
   "preparing-export": "Preparing export",
   "prepared-export": "Export Data Ready",
 

@@ -7,12 +7,14 @@
 
     &.equiv {
       --tag-bg: repeating-linear-gradient(
-        45deg,
+        -45deg,
         var(--satisfied-green-light),
         var(--satisfied-green-light) 8px,
         var(--grey-1) 8px,
-        var(--grey-1) 15px
+        var(--grey-1) 16px
       );
+
+      --tag-equiv-color: var(--grey-7);
     }
   }
 
@@ -31,6 +33,7 @@
   flex-shrink: 0;
   height: fit-content;
   cursor: pointer;
+  position: relative;
 
   user-select: none;
 
@@ -46,4 +49,19 @@
   &.clickable:hover:not(.disabled) {
     opacity: 0.7;
   }
+
+  // &.equiv::after {
+  //   position: absolute;
+  //   content: "⇔";
+  //   font-size: 1rem;
+  //   color: var(--tag-equiv-color);
+  //   top: 0;
+  //   right: 0;
+  //   transform: translate(45%, -45%) rotate(45deg);
+  // }
+
+  // &.equiv {
+  //   background: var(--grey-1);
+  //   box-shadow: inset 0 0 0 2.5px var(--satisfied-green-light);
+  // }
 }

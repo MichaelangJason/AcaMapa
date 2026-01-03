@@ -67,7 +67,10 @@ const ExportElems = forwardRef<HTMLDivElement, ExportElemsProps>(
     }, [plan, terms]);
 
     const hasOptionalElems =
-      includePlanStats || includeCourseTaken || includeEquivRules;
+      includePlanStats ||
+      includeCourseTaken ||
+      includeEquivRules ||
+      includeImportQRCode;
 
     return (
       <div className="export-container" ref={ref}>

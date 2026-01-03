@@ -5,7 +5,7 @@ import { setModalState } from "@/store/slices/localDataSlice";
 import { removeEquivRule } from "@/store/slices/userDataSlice";
 import { useCallback, useMemo } from "react";
 import { formatCourseId } from "@/lib/utils";
-import type { Language } from "@/lib/i18n";
+import { type Language, I18nKey, t } from "@/lib/i18n";
 
 const EquivRulesTag = ({
   ref,
@@ -18,6 +18,7 @@ const EquivRulesTag = ({
 }) => {
   const items = useAppSelector((state) => state.userData.equivRules);
   const dispatch = useAppDispatch();
+  const lang = useAppSelector((state) => state.userData.lang) as Language;
 
   const formattedRules = useMemo(() => {
     return items.map((item) => {
@@ -50,7 +51,7 @@ const EquivRulesTag = ({
   return (
     <ItemTag
       ref={ref}
-      title="Equivalent Courses"
+      title={t([I18nKey.EQUIV_RULES], lang)}
       items={formattedRules}
       handleAddItem={handleAddRule}
       handleDeleteItem={handleDeleteRule}
