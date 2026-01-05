@@ -117,7 +117,8 @@
       gap: 0.5rem;
       padding-bottom: 0.75rem;
       width: 100%;
-      overflow: scroll;
+      overflow: visible;
+      // overflow: scroll;
       background: transparent;
     }
   }

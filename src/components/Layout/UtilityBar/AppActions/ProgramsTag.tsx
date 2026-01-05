@@ -1,6 +1,6 @@
 "use client";
 import { ItemTag } from "@/components/Common";
-import { TooltipId } from "@/lib/enums";
+// import { TooltipId } from "@/lib/enums";
 import { t, I18nKey, type Language } from "@/lib/i18n";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { setModalState } from "@/store/slices/localDataSlice";
@@ -53,10 +53,10 @@ const ProgramsTag = ({
       handleSeekItem={handleClickProgram}
       className="program-tag"
       title={t([I18nKey.PROGRAM], lang) + "s"}
-      tooltipProps={{
-        "data-tooltip-id": TooltipId.ITEM_TAG,
-        "data-tooltip-place": "right",
-      }}
+      // tooltipProps={{
+      //   "data-tooltip-id": TooltipId.ITEM_TAG,
+      //   "data-tooltip-place": "right",
+      // }}
       pinnable={false}
     />
   );

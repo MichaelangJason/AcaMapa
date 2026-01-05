@@ -1,6 +1,6 @@
 "use client";
 import { ItemTag } from "@/components/Common";
-import { TooltipId } from "@/lib/enums";
+// import { TooltipId } from "@/lib/enums";
 import { t, I18nKey, Language } from "@/lib/i18n";
 import { useAppSelector } from "@/store/hooks";
 import { selectPlanStats } from "@/store/selectors";
@@ -36,10 +36,10 @@ const StatsTag = ({
         `# ${t([I18nKey.SEMESTER], lang)}s: ${totalTerm} (${averageCreditsPerTerm} cr/term)`,
       ]}
       title={t([I18nKey.PLAN_STATS], lang)}
-      tooltipProps={{
-        "data-tooltip-id": TooltipId.ITEM_TAG,
-        "data-tooltip-place": "right",
-      }}
+      // tooltipProps={{
+      //   "data-tooltip-id": TooltipId.ITEM_TAG,
+      //   "data-tooltip-place": "right",
+      // }}
       pinnable
     />
   );

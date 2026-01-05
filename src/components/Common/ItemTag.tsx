@@ -7,7 +7,7 @@ import clsx from "clsx";
 import { useAppSelector } from "@/store/hooks";
 import type { TooltipProps } from "@/types/local";
 import { I18nKey, Language, t } from "@/lib/i18n";
-import { TooltipId } from "@/lib/enums";
+// import { TooltipId } from "@/lib/enums";
 
 const ItemTag = ({
   ref,
@@ -33,13 +33,17 @@ const ItemTag = ({
   ref?: React.RefObject<HTMLDivElement | null>;
   title: string;
   items: string[];
+
+  // callbacks for items
   handleClickTag?: () => void;
   handleAddItem?: () => void;
   handleClickItem?: (item: string, idx?: number) => void;
   handleDeleteItem?: (item: string, idx?: number) => void;
   handleSeekItem?: (item: string, idx?: number) => void;
+
   pinnable?: boolean;
   expandable?: boolean;
+
   alignItems?: "center" | "flex-start" | "flex-end";
   tooltipProps?: TooltipProps;
   className?: string;
@@ -51,14 +55,14 @@ const ItemTag = ({
   footNote?: string;
 }) => {
   const [isHovering, setIsHovering] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isPinned, setIsPinned] = useState(false);
   const isDragging = useAppSelector((state) => state.global.isDragging);
   const userLang = useAppSelector((state) => state.userData.lang) as Language;
   const showExpanded =
     !isDragging &&
     (items.length > 0 || handleAddItem) &&
-    (isExpanded || isHovering || isExport);
-  const isTagExpanded = isExport || isExpanded;
+    (isPinned || isHovering || isExport);
+  const isTagExpanded = isExport || isPinned;
   const lang = displayLang || userLang;
   const tagRef = useRef<HTMLDivElement>(null);
 
@@ -79,13 +83,13 @@ const ItemTag = ({
           "open"
       ) {
         e.stopPropagation();
-        setIsExpanded(true);
+        setIsPinned(true);
         tagRef.current.attributes.removeNamedItem("data-tag-type");
         return;
       }
 
       if (pinnable && expandable) {
-        setIsExpanded((prev) => !prev);
+        setIsPinned((prev) => !prev);
       }
 
       handleClickTag?.();
@@ -98,6 +102,7 @@ const ItemTag = ({
       className={clsx(
         "item-tag",
         showExpanded && "expanded",
+        isPinned && "pinned",
         className,
         isExport && "export",
       )}
@@ -153,36 +158,40 @@ const ItemTag = ({
           </div>
         )}
       </header>
+
       {showExpanded && (
-        <div className="item-tag-items" style={{ alignItems }}>
-          {items.length === 0 && handleAddItem ? (
-            <Item
-              idx={items.length}
-              content={t([I18nKey.ADD, I18nKey.P_ITEM1], lang, {
-                item1: title,
-              })}
-              displayLimit={displayLimit}
-              handleClickItem={handleAddItem}
-              className={itemClassName + " no-items"}
-            />
-          ) : (
-            items.map((item, index) => (
+        <div className="item-tag-expanded-container">
+          <div className="item-tag-items" style={{ alignItems }}>
+            {items.length === 0 && handleAddItem ? (
               <Item
-                key={item}
-                content={item}
-                idx={index}
+                idx={items.length}
+                content={t([I18nKey.ADD, I18nKey.P_ITEM1], lang, {
+                  item1: title,
+                })}
                 displayLimit={displayLimit}
-                handleClickItem={handleClickItem}
-                handleDeleteItem={handleDeleteItem}
-                handleSeekItem={handleSeekItem}
-                className={itemClassName}
+                handleClickItem={handleAddItem}
+                className={itemClassName + " no-items"}
               />
-            ))
+            ) : (
+              items.map((item, index) => (
+                <Item
+                  key={item}
+                  content={item}
+                  idx={index}
+                  displayLimit={displayLimit}
+                  handleClickItem={handleClickItem}
+                  handleDeleteItem={handleDeleteItem}
+                  handleSeekItem={handleSeekItem}
+                  className={itemClassName}
+                />
+              ))
+            )}
+          </div>
+
+          {footNote && (
+            <footer className="item-tag-foot-note">{footNote}</footer>
           )}
         </div>
-      )}
-      {showExpanded && footNote && (
-        <footer className="item-tag-foot-note">{footNote}</footer>
       )}
     </article>
   );
@@ -233,11 +242,11 @@ const Item = ({
       <span
         className="content"
         onClick={handleClick}
-        {...{
-          "data-tooltip-content": content,
-          "data-tooltip-place": "top",
-          "data-tooltip-id": TooltipId.ITEM_TAG_ITEM,
-        }}
+        // {...{
+        //   "data-tooltip-content": content,
+        //   "data-tooltip-place": "top",
+        //   "data-tooltip-id": TooltipId.ITEM_TAG_ITEM,
+        // }}
       >
         {content.length > displayLimit
           ? content.slice(0, displayLimit) + "..."
