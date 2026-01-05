@@ -46,7 +46,7 @@ As a McGill student, I often find it frustrating to plan my degree:
      3. **Select two from a list:** `Two from COMP 206, COMP 302, COMP 250, COMP 330`  
      4. **Credit-based:** `12 credits from COMP at 300-level or higher`  
    - You can overwrite a course’s requirements to mark it as satisfied.  
-   - **Equivalent checks** (e.g. `COMP 252` vs `COMP 251`) are supported by custom rules.
+   - **Equivalent checks** (e.g. `COMP 252` vs `COMP 251`) are supported by custom rules, they count towards pre-requisites, co-requisites, and restrictions.
    - Add completed courses to **Courses Taken** to provide context for prerequisite checks across all plans.  
    - Create multiple plans aiming at different programs or degrees.  
    - Inspect plan statistics, including **total credits** and **average credits per term**, to better evaluate your workload.
