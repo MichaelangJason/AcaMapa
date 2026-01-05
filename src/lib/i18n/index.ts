@@ -67,6 +67,7 @@ export enum I18nKey {
   IMPORT = "import",
   IMPORT_PLAN = "import-plan",
   UPLOAD_IMAGE = "upload-image",
+  SURVEY = "survey",
 
   // equiv rules related
   EQUIV_RULES = "equiv-rules",

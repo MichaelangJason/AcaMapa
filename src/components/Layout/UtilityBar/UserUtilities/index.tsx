@@ -1,22 +1,22 @@
 "use client";
-import { Help, Sync, UserLang } from "@/components/Common/UserUtilities";
+import Help from "./Help";
+import Sync from "./Sync";
+import UserLang from "./UserLang";
+import Survey from "./Survey";
 import ItemTagSkeleton from "@/components/Skeleton/ItemTagSkeleton";
 import { TooltipId } from "@/lib/enums";
 import { Language, t, I18nKey } from "@/lib/i18n";
-import { useAppSelector, useAppDispatch } from "@/store/hooks";
-import { setModalState } from "@/store/slices/localDataSlice";
+import { useAppSelector } from "@/store/hooks";
 import GithubMark from "@/public/icons/github-mark.svg";
 import clsx from "clsx";
-import { ModalType } from "@/lib/enums";
 
 const UserUtilities = () => {
   const isInitialized = useAppSelector((state) => state.global.isInitialized);
-  const dispatch = useAppDispatch();
   const lang = useAppSelector((state) => state.userData.lang) as Language;
 
   return (
     <section className={clsx("contents", !isInitialized && "skeleton")}>
-      {/* contents: Help, Sync, UserSession, UserLang, GithubMark */}
+      {/* contents: Help, Sync, UserLang, GithubMark */}
 
       {/* skeleton loading */}
       {!isInitialized ? (
@@ -28,25 +28,14 @@ const UserUtilities = () => {
       ) : (
         // render contents
         <>
+          {/* survey */}
+          <Survey />
+
           {/* help modal */}
-          <Help
-            callback={() => {
-              dispatch(
-                setModalState({
-                  isOpen: true,
-                  props: {
-                    type: ModalType.INFO,
-                  },
-                }),
-              );
-            }}
-          />
+          <Help />
 
           {/* local/remote sync status */}
           <Sync />
-
-          {/* user session login/logout */}
-          {/* <UserSession /> */}
 
           {/* user language */}
           <UserLang />

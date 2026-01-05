@@ -1,3 +1,4 @@
+"use client";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import SyncIcon from "@/public/icons/sync-2.svg";
 import clsx from "clsx";

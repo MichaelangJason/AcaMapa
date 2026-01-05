@@ -1,6 +1,10 @@
 @use "./common";
 
 .equiv-rules-modal-content {
+  --error-color: var(--unsatisfied-red-normal);
+}
+
+.equiv-rules-modal-content {
   form {
     margin: 1rem 0;
     display: flex;
@@ -23,8 +27,14 @@
       text-align: center;
     }
   }
-}
 
+  p.error-message {
+    margin-top: -0.75rem;
+    color: var(--error-color);
+    font-size: 0.875rem;
+    text-align: center;
+  }
+}
 .equiv-rules-modal-content {
   @extend .common-content;
 

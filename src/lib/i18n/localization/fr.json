@@ -105,12 +105,13 @@
   "import-plan-desc": "*Supporte les PNG/JPG/JPEG exportées par AcaMapa depuis la disponibilité de la fonctionnalité d'importation.",
   "upload": "Téléverser",
   "upload-image": "Téléverser un PNG/JPG/JPEG",
-  
-  "equiv-rule": "Cours équivalent",
-  "equiv-rules": "Cours équivalents",
-  "include-equiv-rules": "Cours équivalents",
-  "equiv-rule-added": "Cours équivalent ajouté: \n",
-  "equiv-rule-removed": "Cours équivalent retiré: \n",
+  "survey": "Sondage",
+
+  "equiv-rule": "Règle-Cours équivalent",
+  "equiv-rules": "Règles-Cours équivalents",
+  "include-equiv-rules": "Règles-Cours équivalents",
+  "equiv-rule-added": "Règle-Cours équivalent ajoutée: \n",
+  "equiv-rule-removed": "Règle-Cours équivalent retirée: \n",
   "equiv-course-satisfied": "Satisfait par le cours équivalent: {{item1}}",
 
   "include-plan-stats": "Statistiques du plan",

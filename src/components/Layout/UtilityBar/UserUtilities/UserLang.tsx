@@ -1,3 +1,4 @@
+"use client";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { useCallback } from "react";
 import { toggleLang } from "@/store/slices/userDataSlice";

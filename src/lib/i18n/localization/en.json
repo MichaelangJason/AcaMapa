@@ -105,12 +105,13 @@
   "import-plan-desc": "*Supports PNG/JPG/JPEG exported by AcaMapa since the availability of import feature.",
   "upload": "Upload",
   "upload-image": "Upload PNG/JPG/JPEG",
+  "survey": "Survey",
   
-  "equiv-rule": "Equivalent Course",
-  "equiv-rules": "Equivalent Courses",
-  "include-equiv-rules": "Equivalent Courses",
-  "equiv-rule-added": "Equivalent course added: \n",
-  "equiv-rule-removed": "Equivalent course removed: \n",
+  "equiv-rule": "Equivalent-Course Rule",
+  "equiv-rules": "Equivalent-Course Rules",
+  "include-equiv-rules": "Equivalent-Course Rules",
+  "equiv-rule-added": "Equivalent-Course rule added: \n",
+  "equiv-rule-removed": "Equivalent-Course rule removed: \n",
   "equiv-course-satisfied": "Satisfied by equivalent course: {{item1}}",
   
   "include-import-qr-code": "Import QR Code",

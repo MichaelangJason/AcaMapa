@@ -24,6 +24,10 @@
   .help-container {
     --help-color: var(--grey-8);
   }
+
+  .survey-container {
+    --survey-color: var(--grey-8);
+  }
 }
 
 .utility-bar {
@@ -174,14 +178,44 @@
     }
   }
 
+  .survey-container {
+    height: 100%;
+    width: 1.4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    flex-shrink: 0;
+
+    svg {
+      width: 1.25rem;
+      height: 1.25rem;
+      opacity: 0.6;
+      transition: opacity 0.2s ease;
+
+      path {
+        fill: var(--survey-color);
+      }
+
+      &:hover:not(.disabled) {
+        opacity: 1;
+      }
+    }
+  }
+
   .help-container {
     flex-shrink: 0;
-    width: 1.5rem;
+    width: fit-content;
     height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
     justify-self: center;
+
+    span {
+      font-size: 0.875rem;
+      font-weight: bold;
+    }
 
     svg {
       width: 1.4rem;

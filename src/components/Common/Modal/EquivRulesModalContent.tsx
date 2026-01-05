@@ -20,6 +20,7 @@ const EquivRulesModalContent = ({
   const formRef = useRef<HTMLFormElement>(null);
   const [availableCourses, setAvailableCourses] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const existingRules = useAppSelector((state) => state.userData.equivRules);
 
   const getAvailableCourses = useDebounce(
     async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,14 +61,28 @@ const EquivRulesModalContent = ({
         return;
       }
 
-      if (!courseData[courseId]) {
-        setError(`${courseId} not found`);
+      const courseNotFound = !courseData[courseId];
+      const equivCourseNotFound = !courseData[equivCourseId];
+      const bothCoursesNotFound = courseNotFound && equivCourseNotFound;
+
+      if (courseNotFound || equivCourseNotFound) {
+        setError(
+          clsx([
+            "Course not found: ",
+            courseNotFound && `${courseId}`,
+            bothCoursesNotFound && `and`,
+            equivCourseNotFound && `${equivCourseId}`,
+          ]),
+        );
         return;
       }
 
-      if (!courseData[equivCourseId]) {
-        setError(`${equivCourseId} not found`);
-        return;
+      const thisRule = new Set([courseId, equivCourseId]);
+      for (const rule of existingRules) {
+        if (thisRule.has(rule[0]) && thisRule.has(rule[1])) {
+          setError("Rule already exists");
+          return;
+        }
       }
 
       dispatch(addEquivRule([courseId, equivCourseId]));
