@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { COURSE_PATTERN } from "@/lib/constants";
 import { GroupType, ReqType } from "@/lib/enums";
 import type { Course } from "@/types/db";
@@ -51,14 +52,16 @@ interface CommonSatisfiabilityArgs {
 // main logic to check if a group is satisfied or not
 export const isGroupSatisfied = (
   args: {
-    input: ReqGroup | string;
+    courseId: string; // course that is being checked
+    req: ReqGroup | string; // requirement that needs to be satisfied
     includeCurrentTerm: boolean;
     currentOrder: number;
     reqType: ReqType;
   } & CommonSatisfiabilityArgs,
 ): boolean => {
   const {
-    input,
+    courseId,
+    req,
     includeCurrentTerm,
     courseTaken,
     termOrderMap,
@@ -72,21 +75,24 @@ export const isGroupSatisfied = (
   const { depGraph } = depData;
 
   // input is a course id, base case
-  if (typeof input === "string") {
+  if (typeof req === "string") {
     // equivalent courses are not considered for anti-requisite
-    if (reqType === ReqType.ANTI_REQ) {
-      return isCourseSatisfied(input);
-    }
+    // if (reqType === ReqType.ANTI_REQ) {
+    //   return isCourseSatisfied(input);
+    // }
 
     // check if course is satisfied or any of the equivalent courses is satisfied
+    // exclude the current course from the equivalent courses, one cannot satisfy/invalidate itself.
     return (
-      isCourseSatisfied(input) ||
-      getEquivCourses(input, equivGroups).some((c) => isCourseSatisfied(c))
+      isCourseSatisfied(req) ||
+      getEquivCourses(req, equivGroups).some(
+        (c) => c !== courseId && isCourseSatisfied(c),
+      )
     );
   }
 
   // input is a group
-  switch (input.type) {
+  switch (req.type) {
     /**
      * Empty group, always true
      */
@@ -97,23 +103,23 @@ export const isGroupSatisfied = (
      */
     case GroupType.SINGLE:
     case GroupType.OR:
-      return isOneSatisfied(input);
+      return isOneSatisfied(req);
     /**
      * AND group, all of the courses must be taken
      */
     case GroupType.AND:
-      return isAllSatisfied(input);
+      return isAllSatisfied(req);
     /**
      * Pair group, two of the following courses must be taken
      */
     case GroupType.PAIR:
-      return isKSatisfied(input, 2);
+      return isKSatisfied(req, 2);
     /**
      * Credit group
      * check if the required credit is satisfied for all given subjects
      */
     case GroupType.CREDIT:
-      return isAllSubjectSatisfied(input);
+      return isAllSubjectSatisfied(req);
   }
 
   /**
@@ -179,7 +185,7 @@ export const isGroupSatisfied = (
     let count = 0;
 
     for (const i of req.inner) {
-      if (isGroupSatisfied({ ...args, input: i })) {
+      if (isGroupSatisfied({ ...args, req: i })) {
         count++;
         // short circuit
         if (count >= k) {
@@ -286,7 +292,8 @@ export const isSatisfied = (
     restrictions.group.type !== GroupType.EMPTY && // ignore empty restrictions
     isGroupSatisfied({
       ...args,
-      input: restrictions.group,
+      courseId,
+      req: restrictions.group,
       includeCurrentTerm: true, // restrict course cannot be taken in the same term
       currentOrder,
       reqType: ReqType.ANTI_REQ,
@@ -299,7 +306,8 @@ export const isSatisfied = (
   if (
     !isGroupSatisfied({
       ...args,
-      input: prerequisites.group,
+      courseId,
+      req: prerequisites.group,
       includeCurrentTerm: false, // prerequisites course cannot be taken in the same term
       currentOrder,
       reqType: ReqType.PRE_REQ,
@@ -312,7 +320,8 @@ export const isSatisfied = (
   if (
     !isGroupSatisfied({
       ...args,
-      input: corequisites.group,
+      courseId,
+      req: corequisites.group,
       includeCurrentTerm: true, // corequisites course can be taken in the same term
       currentOrder,
       reqType: ReqType.CO_REQ,

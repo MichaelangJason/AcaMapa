@@ -20,6 +20,18 @@
 
   &.unsatisfied {
     --tag-bg: var(--unsatisfied-red-light);
+
+    &.equiv {
+      --tag-bg: repeating-linear-gradient(
+        -45deg,
+        var(--unsatisfied-red-light),
+        var(--unsatisfied-red-light) 8px,
+        var(--grey-1) 8px,
+        var(--grey-1) 16px
+      );
+
+      --tag-equiv-color: var(--grey-7);
+    }
   }
 }
 

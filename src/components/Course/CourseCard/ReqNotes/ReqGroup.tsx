@@ -68,15 +68,15 @@ const ReqGroup = ({
       const delimiter =
         group.type === GroupType.SINGLE ? null : group.type.valueOf();
 
-      const entries = group.inner.map((item, idx) => {
+      const entries = group.inner.map((req: ReqGroup | string, idx: number) => {
         // string item = course id.
-        if (typeof item === "string") {
-          // TODO: source check
+        if (typeof req === "string") {
           const { courseId, isValid, source, isEquiv } = getCourseSource(
-            item,
+            req,
             termId,
             reqType,
             includeCurrentTerm,
+            parentCourse,
           );
 
           // get the status: not planned or satisfied/unsatisfied
@@ -89,14 +89,15 @@ const ReqGroup = ({
             isValid,
             lang,
             isEquiv,
+            reqType,
           );
 
           // render the course tag
           return (
             <Tag
-              key={`${parentCourse}-${group.type}-${idx}-${item}`}
+              key={`${parentCourse}-${group.type}-${idx}-${req}`}
               sourceText={courseId}
-              displayText={formatCourseId(item)}
+              displayText={formatCourseId(req)}
               className={clsx(status, isEquiv && "equiv", "clickable")}
               callback={(e, item) => addToCourseTakenOrJump(e, item, source)}
               tooltipOptions={{
@@ -109,11 +110,11 @@ const ReqGroup = ({
           // nested group, recursively render it
           return (
             <ReqGroup
-              key={`${parentCourse}-${group.type}-${idx}-${item.type.valueOf()}`}
+              key={`${parentCourse}-${group.type}-${idx}-${req.type.valueOf()}`}
               parentCourse={parentCourse}
               termId={termId}
               planId={planId}
-              group={item}
+              group={req}
               reqType={reqType}
               addToCourseTakenOrJump={addToCourseTakenOrJump}
               flexDirection={flexDirection === "row" ? "column" : "row"}
@@ -161,6 +162,7 @@ const ReqGroup = ({
           termId,
           reqType,
           includeCurrentTerm,
+          parentCourse,
         );
 
         // get the status: not planned or satisfied/unsatisfied
@@ -173,6 +175,7 @@ const ReqGroup = ({
           isValid,
           lang,
           isEquiv,
+          reqType,
         );
 
         // render the course tag

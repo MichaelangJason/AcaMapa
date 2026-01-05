@@ -113,6 +113,7 @@
   "equiv-rule-added": "Règle-Cours équivalent ajoutée: \n",
   "equiv-rule-removed": "Règle-Cours équivalent retirée: \n",
   "equiv-course-satisfied": "Satisfait par le cours équivalent: {{item1}}",
+  "equiv-course-unsatisfied": "Non satisfait par le cours équivalent: {{item1}}",
 
   "include-plan-stats": "Statistiques du plan",
   "include-course-taken": "Cours suivis",

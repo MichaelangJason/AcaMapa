@@ -1,3 +1,4 @@
+import { ReqType } from "@/lib/enums";
 import { type Language, t, I18nKey } from "@/lib/i18n";
 import { formatCourseId } from "@/lib/utils";
 
@@ -25,11 +26,18 @@ export const getTagToolTip = (
   isValid: boolean,
   lang: Language,
   isEquiv = false,
+  reqType: ReqType | null = null, // only used for anti-req
 ) => {
   if (isEquiv) {
-    return t([I18nKey.EQUIV_COURSE_SATISFIED], lang, {
-      item1: formatCourseId(courseId),
-    });
+    if (reqType === ReqType.ANTI_REQ) {
+      return t([I18nKey.EQUIV_COURSE_UNSATISFIED], lang, {
+        item1: formatCourseId(courseId),
+      });
+    } else {
+      return t([I18nKey.EQUIV_COURSE_SATISFIED], lang, {
+        item1: formatCourseId(courseId),
+      });
+    }
   } else {
     return _getTagToolTip(source, isValid, lang);
   }

@@ -167,6 +167,7 @@ export const selectCourseDepMeta = createAppSelector(
       sourceTermId: string,
       reqType: ReqType | null,
       includeCurrentTerm: boolean,
+      parentCourseId?: string,
     ) => {
       const thisCourseSource = _getCourseSource({
         courseId,
@@ -178,15 +179,22 @@ export const selectCourseDepMeta = createAppSelector(
 
       if (
         thisCourseSource.isValid || // course is already valid
-        reqType === ReqType.ANTI_REQ || // equivalent course does not count towards anti-req
-        equivCourseIds.length === 0 // no equivalent courses
+        // reqType === ReqType.ANTI_REQ || // equivalent course does not count towards anti-req
+        equivCourseIds.length === 0 // n equivalent courses
       ) {
         return thisCourseSource;
       }
 
       // check for equivalent courses
-      // if any equivalent course is valid, return the valid course source
+      // if any equivalent course is valid, return the valid course source'
+      let lastInvalidUnemptyEquivCourseSource: ReturnType<
+        typeof _getCourseSource
+      > | null = null;
       for (const courseId of equivCourseIds) {
+        if (courseId === parentCourseId) {
+          continue;
+        }
+
         const equivCourseSource = _getCourseSource({
           courseId,
           sourceTermId,
@@ -198,10 +206,14 @@ export const selectCourseDepMeta = createAppSelector(
         if (equivCourseSource.isValid) {
           return equivCourseSource;
         }
+
+        if (!equivCourseSource.isValid && equivCourseSource.source !== "") {
+          lastInvalidUnemptyEquivCourseSource = equivCourseSource;
+        }
       }
 
-      // if none of the equivalent courses are valid, return the invalid course source
-      return thisCourseSource;
+      // if none of the equivalent courses are valid, return the last invalid unempty equivalent course source
+      return lastInvalidUnemptyEquivCourseSource ?? thisCourseSource;
     };
 
     // used for credit group

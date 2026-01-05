@@ -113,6 +113,7 @@
   "equiv-rule-added": "Equivalent-Course rule added: \n",
   "equiv-rule-removed": "Equivalent-Course rule removed: \n",
   "equiv-course-satisfied": "Satisfied by equivalent course: {{item1}}",
+  "equiv-course-unsatisfied": "Unsatisfied by equivalent course: {{item1}}",
   
   "include-import-qr-code": "Import QR Code",
 

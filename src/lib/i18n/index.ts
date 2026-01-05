@@ -76,6 +76,7 @@ export enum I18nKey {
   EQUIV_RULE_ADDED = "equiv-rule-added",
   EQUIV_RULE_REMOVED = "equiv-rule-removed",
   EQUIV_COURSE_SATISFIED = "equiv-course-satisfied",
+  EQUIV_COURSE_UNSATISFIED = "equiv-course-unsatisfied",
 
   // import QR code related
   INCLUDE_IMPORT_QR_CODE = "include-import-qr-code",
