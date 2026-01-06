@@ -13,23 +13,18 @@ import type {
   EquivGroups,
   DepGraph,
 } from "@/types/local";
-import { getEquivCourses } from "../equivalents";
+import { getReverseEquivCourses } from "../equivalents";
 
 const gatherEquivAffectedCourses = (
-  id: string,
+  courseId: string,
   equivGroups: EquivGroups,
   depGraph: DepGraph,
   courseToBeUpdated: Set<string>,
 ) => {
-  getEquivCourses(id, equivGroups).forEach((c) => {
-    // skip unplanned courses
-    if (!depGraph.get(c)?.termId) {
-      return;
-    }
-
+  getReverseEquivCourses(courseId, equivGroups).forEach((revEquivId) => {
     // add affected courses of the equivalent course to the set
-    depGraph.get(c)!.affectedCourseIds.forEach((c) => {
-      courseToBeUpdated.add(c);
+    depGraph.get(revEquivId)?.affectedCourseIds.forEach((affectedId) => {
+      courseToBeUpdated.add(affectedId);
     });
   });
 };

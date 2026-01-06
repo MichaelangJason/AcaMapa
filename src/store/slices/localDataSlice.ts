@@ -52,8 +52,8 @@ export const initialState = {
   // course dependency graph
   courseDepData: new Map<string, CourseDepData>(),
   equivGroups: {
-    groups: new Map(),
-    courseToGroupId: new Map(),
+    courseToEquivCourses: new Map<string, Set<string>>(), // course id to equivalent course ids
+    equivCourseToCourses: new Map<string, Set<string>>(), // reverse map
   } as EquivGroups,
 
   // seeking information

@@ -77,6 +77,7 @@ export enum I18nKey {
   EQUIV_RULE_REMOVED = "equiv-rule-removed",
   EQUIV_COURSE_SATISFIED = "equiv-course-satisfied",
   EQUIV_COURSE_UNSATISFIED = "equiv-course-unsatisfied",
+  EQUIV_COURSE_FOUND = "equiv-course-found",
 
   // import QR code related
   INCLUDE_IMPORT_QR_CODE = "include-import-qr-code",
@@ -86,6 +87,7 @@ export enum I18nKey {
   ERROR = "error",
   NOT_FOUND = "not-found",
   NOT_FOUND_IN = "not-found-in",
+  VALID = "valid",
   INVALID = "invalid",
   NO_NEW_COURSES_TO_ADD = "no-new-courses-to-add",
   ALREADY_IN = "already-in",

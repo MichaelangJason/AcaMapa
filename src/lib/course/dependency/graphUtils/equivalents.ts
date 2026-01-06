@@ -37,8 +37,8 @@ export const _setEquivRulesToGraph = (
   const equivGroups = state.equivGroups;
 
   rules.forEach((rule) => {
-    const [courseId, equivCourseId] = rule;
-    addEquivGroup(courseId, equivCourseId, equivGroups);
+    const [equivCourseId, courseId] = rule;
+    addEquivGroup(equivCourseId, courseId, equivGroups);
   });
 
   return { equivGroups };
@@ -55,11 +55,11 @@ export const _addEquivRulesToGraph = (
 
   // parse rules and add to equiv groups
   rules.forEach((rule) => {
-    const [courseId, equivCourseId] = rule;
+    const [equivCourseId, courseId] = rule;
 
-    addEquivGroup(courseId, equivCourseId, equivGroups);
+    addEquivGroup(equivCourseId, courseId, equivGroups);
     ruleCourseIds.add(courseId);
-    ruleCourseIds.add(equivCourseId);
+    // ruleCourseIds.add(equivCourseId);
   });
 
   // gather all affected courses if plan id is provided
@@ -81,11 +81,11 @@ export const _removeEquivRulesFromGraph = (
 
   const ruleCourseIds = new Set<string>();
   rules.forEach((rule) => {
-    const [courseId, equivCourseId] = rule;
+    const [equivCourseId, courseId] = rule;
 
-    removeEquivGroup(courseId, equivCourseId, equivGroups);
+    removeEquivGroup(equivCourseId, courseId, equivGroups);
     ruleCourseIds.add(courseId);
-    ruleCourseIds.add(equivCourseId);
+    // ruleCourseIds.add(equivCourseId);
   });
 
   // gather all affected courses

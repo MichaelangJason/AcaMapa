@@ -61,6 +61,7 @@
   "error": "Error",
   "not-found": "Not found",
   "not-found-in": "Not found in",
+  "valid": "Valid",
   "invalid": "Invalid",
   "no-new-courses-to-add": "No new courses to add",
   "already-in": "Already in",
@@ -114,6 +115,7 @@
   "equiv-rule-removed": "Equivalent-Course rule removed: \n",
   "equiv-course-satisfied": "Satisfied by equivalent course: {{item1}}",
   "equiv-course-unsatisfied": "Unsatisfied by equivalent course: {{item1}}",
+  "equiv-course-found": "{{item1}} equivalent course found: {{item2}}",
   
   "include-import-qr-code": "Import QR Code",
 

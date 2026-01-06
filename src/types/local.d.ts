@@ -36,8 +36,8 @@ export type CourseLocalMetadata = {
 };
 
 export type EquivGroups = {
-  groups: Map<string, Set<string>>;
-  courseToGroupId: Map<string, string>;
+  courseToEquivCourses: Map<string, Set<string>>;
+  equivCourseToCourses: Map<string, Set<string>>;
 };
 
 export type DepGraph = Map<

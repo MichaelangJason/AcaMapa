@@ -30,8 +30,9 @@ export const getTagToolTip = (
 ) => {
   if (isEquiv) {
     if (reqType === ReqType.ANTI_REQ) {
-      return t([I18nKey.EQUIV_COURSE_UNSATISFIED], lang, {
-        item1: formatCourseId(courseId),
+      return t([I18nKey.EQUIV_COURSE_FOUND], lang, {
+        item1: isValid ? t([I18nKey.VALID], lang) : t([I18nKey.INVALID], lang),
+        item2: formatCourseId(courseId),
       });
     } else {
       return t([I18nKey.EQUIV_COURSE_SATISFIED], lang, {

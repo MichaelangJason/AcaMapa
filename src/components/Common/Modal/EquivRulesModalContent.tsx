@@ -77,9 +77,8 @@ const EquivRulesModalContent = ({
         return;
       }
 
-      const thisRule = new Set([courseId, equivCourseId]);
       for (const rule of existingRules) {
-        if (thisRule.has(rule[0]) && thisRule.has(rule[1])) {
+        if (rule[0] === courseId && rule[1] === equivCourseId) {
           setError("Rule already exists");
           return;
         }
@@ -88,7 +87,7 @@ const EquivRulesModalContent = ({
       dispatch(addEquivRule([courseId, equivCourseId]));
       closeCb();
     },
-    [courseData, courseSearchFn, dispatch, closeCb],
+    [courseData, courseSearchFn, dispatch, closeCb, existingRules],
   );
 
   // focus on the first input at mount
@@ -125,7 +124,7 @@ const EquivRulesModalContent = ({
           placeholder={"Course ID"}
         />
 
-        <span className="separator">⇔</span>
+        <span className="separator">&rArr;</span>
 
         <input
           type="text"

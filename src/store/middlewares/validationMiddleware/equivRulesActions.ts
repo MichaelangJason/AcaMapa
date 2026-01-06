@@ -34,10 +34,8 @@ export const handleEquivRulesAction = (
         throw new Error(`Invalid rule: ${rule[0]} <=> ${rule[1]}`);
       }
 
-      const thisRule = new Set(rule);
-
       for (const r of existingRules) {
-        if (thisRule.has(r[0]) && thisRule.has(r[1])) {
+        if (r[0] === rule[0] && r[1] === rule[1]) {
           throw new Error(`Rule already exists: ${rule[0]} <=> ${rule[1]}`);
         }
       }

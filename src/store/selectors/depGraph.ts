@@ -177,43 +177,36 @@ export const selectCourseDepMeta = createAppSelector(
       });
       const equivCourseIds = getEquivCourses(courseId, equivGroups);
 
-      if (
-        thisCourseSource.isValid || // course is already valid
-        // reqType === ReqType.ANTI_REQ || // equivalent course does not count towards anti-req
-        equivCourseIds.length === 0 // n equivalent courses
-      ) {
+      if (reqType !== ReqType.ANTI_REQ && thisCourseSource.isValid) {
         return thisCourseSource;
       }
 
       // check for equivalent courses
       // if any equivalent course is valid, return the valid course source'
-      let lastInvalidUnemptyEquivCourseSource: ReturnType<
-        typeof _getCourseSource
-      > | null = null;
-      for (const courseId of equivCourseIds) {
-        if (courseId === parentCourseId) {
+      for (const equivId of equivCourseIds) {
+        // skip the parent course and the required course itself
+        if (equivId === parentCourseId || equivId === courseId) {
           continue;
         }
 
         const equivCourseSource = _getCourseSource({
-          courseId,
+          courseId: equivId,
           sourceTermId,
           reqType,
           includeCurrentTerm,
           isEquiv: true,
         });
 
-        if (equivCourseSource.isValid) {
+        // if any equivalent course id valid
+        // or its invalid but planned (source is not empty)
+        // then return the equivalent course source
+        if (equivCourseSource.isValid || equivCourseSource.source !== "") {
           return equivCourseSource;
-        }
-
-        if (!equivCourseSource.isValid && equivCourseSource.source !== "") {
-          lastInvalidUnemptyEquivCourseSource = equivCourseSource;
         }
       }
 
       // if none of the equivalent courses are valid, return the last invalid unempty equivalent course source
-      return lastInvalidUnemptyEquivCourseSource ?? thisCourseSource;
+      return thisCourseSource;
     };
 
     // used for credit group
