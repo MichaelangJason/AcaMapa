@@ -9,6 +9,7 @@ import {
 } from "../slices/userDataSlice";
 import { fetchCourseData, fetchProgramData } from "./fetchData";
 import { formatCourseId } from "@/lib/utils";
+import { getPlanCourseIds } from "@/lib/plan";
 
 const createAppAsyncThunk = createAsyncThunk.withTypes<{
   state: RootState;
@@ -56,12 +57,14 @@ export const addCourseToTerm = createAppAsyncThunk(
         t([I18nKey.SEMESTER_DATA, I18nKey.NOT_FOUND], lang),
       );
     }
-    const termCourseSet = new Set(termData.courseIds);
+    const planCourseIds = new Set(
+      getPlanCourseIds(plan, state.userData.termData),
+    );
     const duplicateCourseIds: string[] = [];
     const newCourseIds: string[] = [];
 
     courseIds.forEach((id) => {
-      if (termCourseSet.has(id)) {
+      if (planCourseIds.has(id)) {
         duplicateCourseIds.push(id);
       } else {
         newCourseIds.push(id);
