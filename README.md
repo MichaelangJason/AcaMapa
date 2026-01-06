@@ -15,6 +15,12 @@ _A Web App that helps McGill students plan their degree_
 
 ---
 
+## 🎥 Screenshots
+![og](./public/og.webp)
+
+
+---
+
 
 ## 📌 Motivation  
 
@@ -136,9 +142,9 @@ pnpm start
 * [x] Equivalent course check
 * [x] UI refinement
 * [ ] Automatic updater(crawler) of Courses and Programs
-* [ ] ~~Remote plan saving with McGill login~~
-* [ ] ~~AI-powered program & course search~~
-* [ ] ~~Automated plan generation (workload-based)~~
+* [ ] ~~Remote plan saving with McGill login (deprecated)~~
+* [ ] ~~AI-powered program & course search (deprecated)~~
+* [ ] ~~Automated plan generation (workload-based) (deprecated)~~
 
 ---
 
