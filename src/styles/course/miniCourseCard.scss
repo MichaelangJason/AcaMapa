@@ -1,4 +1,44 @@
 .mini-course-card {
+  --mini-course-card-bg: var(--grey-1);
+  --mini-course-card-shadow: var(--shadow-normal);
+  --info-color: var(--grey-10);
+  --credits-span-bg: var(--grey-1);
+  --credits-span-content-color: var(--grey-6);
+
+  &.satisfied .credits span {
+    --credits-span-content-color: var(--grey-1);
+    --credits-span-bg: var(--satisfied-green-normal);
+  }
+
+  &.unsatisfied .credits span {
+    --credits-span-content-color: var(--grey-1);
+    --credits-span-bg: var(--unsatisfied-red-normal);
+  }
+
+  /* add and remove icons */
+  .icon-container {
+    --icon-color: var(--grey-4);
+
+    &:hover:not(.disabled) {
+      --icon-color: var(--grey-7);
+    }
+
+    &.disabled {
+      --icon-color: var(--grey-3);
+    }
+  }
+
+  /* selected course card */
+  &.selected .icon-container {
+    --icon-color: var(--grey-8);
+
+    &:hover:not(.disabled) {
+      --icon-color: var(--grey-6);
+    }
+  }
+}
+
+.mini-course-card {
   display: flex;
   width: 16.25rem;
   height: fit-content;
@@ -9,26 +49,13 @@
   box-sizing: border-box;
 
   border-radius: var(--border-radius-default);
-  background: var(--gray-000);
-  box-shadow: var(--shadow-default);
-
-  &.satisfied .credits span {
-    background: var(--satisfy-green, #b2e026);
-    color: var(--gray-000);
-  }
-
-  &.unsatisfied .credits span {
-    background: var(--unsatisfy-red, #ff0000);
-    color: var(--gray-000);
-  }
+  background: var(--mini-course-card-bg);
+  box-shadow: var(--mini-course-card-shadow);
 
   &.skeleton {
     height: 3.9375rem;
     .info {
       gap: 0rem;
-    }
-    svg path {
-      stroke: var(--gray-100);
     }
   }
 
@@ -51,10 +78,11 @@
 
       box-sizing: border-box;
 
+      background: var(--credits-span-bg);
       font-size: 1rem;
       font-weight: bold;
       line-height: 1.2rem;
-      color: var(--gray-400);
+      color: var(--credits-span-content-color);
       backface-visibility: hidden;
       transform: translateZ(0);
 
@@ -83,7 +111,7 @@
 
     .name {
       margin: 0rem;
-      color: var(--gray-1000);
+      color: var(--info-color);
       font-family: Arial;
       font-size: 0.75rem;
       font-style: normal;
@@ -93,7 +121,7 @@
 
     .id {
       overflow: hidden;
-      color: var(--gray-1000);
+      color: var(--info-color);
       text-overflow: ellipsis;
       font-family: Arial;
       font-size: 1.125rem;
@@ -113,36 +141,17 @@
     align-items: center;
 
     path {
-      stroke: var(--gray-300);
+      stroke: var(--icon-color);
       transition: stroke 0.2s ease;
-    }
-
-    &:hover:not(.disabled) path {
-      stroke: var(--gray-500);
     }
 
     &.disabled {
       cursor: not-allowed;
-      path {
-        stroke: var(--gray-100);
-      }
     }
 
     svg {
       width: 1rem;
       height: auto;
-    }
-  }
-
-  &.selected {
-    .icon-container {
-      &:not(.disabled) path {
-        stroke: var(--gray-800);
-      }
-
-      &:hover:not(.disabled) path {
-        stroke: var(--gray-500);
-      }
     }
   }
 }

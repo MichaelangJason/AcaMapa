@@ -3,7 +3,6 @@ import type { Course, Program } from "@/types/db";
 import { withDatabase } from "@/db";
 import { Courses, Programs } from "@/db/schemas";
 import { unstable_cache as nextCache } from "next/cache";
-// import { auth } from "@/auth";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const getInitCourses = nextCache(async (school?: string) => {

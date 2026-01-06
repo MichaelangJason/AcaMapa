@@ -4,7 +4,7 @@ import { useRef, useEffect, useCallback } from "react";
 import clsx from "clsx";
 import DeleteIcon from "@/public/icons/delete.svg";
 import MagnifierIcon from "@/public/icons/magnifier.svg";
-import { useDebounce } from "@/lib/hooks";
+import { useDebounce } from "@/lib/hooks/common";
 import { useAppSelector } from "@/store/hooks";
 import { I18nKey, t, Language } from "@/lib/i18n";
 

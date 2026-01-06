@@ -15,10 +15,12 @@ const DetailedCourseCardSkeleton = ({
   }, [numReqNotes]);
 
   return (
-    <article className="course-card expanded">
+    <article className="course-card expanded skeleton">
       <header className="course-card-header">
         <h4 className="heading">
           <Skeleton
+            baseColor="var(--grey-2)"
+            highlightColor="var(--grey-1)"
             width={SKELETON_CONFIG.COURSE_CARD.HEADING.WIDTH}
             height={SKELETON_CONFIG.COURSE_CARD.HEADING.HEIGHT}
             borderRadius={SKELETON_CONFIG.COURSE_CARD.HEADING.RADIUS}
@@ -26,6 +28,8 @@ const DetailedCourseCardSkeleton = ({
         </h4>
         <h5 className="subheading">
           <Skeleton
+            baseColor="var(--grey-2)"
+            highlightColor="var(--grey-1)"
             width={SKELETON_CONFIG.COURSE_CARD.HEADING.WIDTH}
             height={SKELETON_CONFIG.COURSE_CARD.SUBHEADING_HEIGHT}
           />
@@ -43,6 +47,8 @@ const DetailedCourseCardSkeleton = ({
         </section>
         <div className="credits skeleton">
           <Skeleton
+            baseColor="var(--grey-2)"
+            highlightColor="var(--grey-1)"
             width={SKELETON_CONFIG.COURSE_CARD.CREDITS.DETAILED_WIDTH}
             height={SKELETON_CONFIG.COURSE_CARD.CREDITS.COMMON}
             borderRadius={SKELETON_CONFIG.COURSE_CARD.CREDITS.RADIUS}
@@ -53,7 +59,9 @@ const DetailedCourseCardSkeleton = ({
         return (
           <Skeleton
             key={idx}
-            className="req-note-skeleton"
+            baseColor="var(--grey-2)"
+            highlightColor="var(--grey-1)"
+            containerClassName="req-note-skeleton"
             height={SKELETON_CONFIG.COURSE_CARD.REQNOTES.HEIGHT}
             width={SKELETON_CONFIG.COURSE_CARD.REQNOTES.WIDTH}
             borderRadius={SKELETON_CONFIG.COURSE_CARD.REQNOTES.RADIUS}

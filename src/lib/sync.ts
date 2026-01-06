@@ -9,6 +9,7 @@ import { I18nKey, Language, t } from "./i18n";
 
 let debouncedSync: (() => void) | undefined;
 
+// get the debounced sync function
 export const getDebouncedSync = (dispatch: AppDispatch) => {
   if (!debouncedSync) {
     debouncedSync = throttledDebounce(
@@ -22,6 +23,7 @@ export const getDebouncedSync = (dispatch: AppDispatch) => {
   return debouncedSync;
 };
 
+// map stringify replacer, to handle restoring Map objects from localStorage
 export const mapStringfyReplacer = (key: string, value: any) => {
   if (value instanceof Map) {
     return {
@@ -32,6 +34,7 @@ export const mapStringfyReplacer = (key: string, value: any) => {
   return value;
 };
 
+// map stringify reviver, to handle restoring Map objects from localStorage
 export const mapStringfyReviver = (key: string, value: any) => {
   if (value && typeof value === "object" && value.dataType === "Map") {
     if (typeof value.value === "object") {

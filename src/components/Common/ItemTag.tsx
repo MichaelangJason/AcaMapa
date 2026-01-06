@@ -7,9 +7,10 @@ import clsx from "clsx";
 import { useAppSelector } from "@/store/hooks";
 import type { TooltipProps } from "@/types/local";
 import { I18nKey, Language, t } from "@/lib/i18n";
-import { TooltipId } from "@/lib/enums";
+// import { TooltipId } from "@/lib/enums";
 
 const ItemTag = ({
+  ref,
   title,
   items,
   handleClickTag,
@@ -17,8 +18,8 @@ const ItemTag = ({
   handleClickItem,
   handleDeleteItem,
   handleSeekItem,
-  isPinnable = true,
-  isExpandable = true,
+  pinnable = true,
+  expandable = true,
   className,
   style,
   tooltipProps,
@@ -27,16 +28,22 @@ const ItemTag = ({
   isExport,
   displayLang,
   displayLimit = 30,
+  footNote,
 }: {
+  ref?: React.RefObject<HTMLDivElement | null>;
   title: string;
   items: string[];
+
+  // callbacks for items
   handleClickTag?: () => void;
   handleAddItem?: () => void;
-  handleClickItem?: (item: string) => void;
-  handleDeleteItem?: (item: string) => void;
-  handleSeekItem?: (item: string) => void;
-  isPinnable?: boolean;
-  isExpandable?: boolean;
+  handleClickItem?: (item: string, idx?: number) => void;
+  handleDeleteItem?: (item: string, idx?: number) => void;
+  handleSeekItem?: (item: string, idx?: number) => void;
+
+  pinnable?: boolean;
+  expandable?: boolean;
+
   alignItems?: "center" | "flex-start" | "flex-end";
   tooltipProps?: TooltipProps;
   className?: string;
@@ -45,16 +52,17 @@ const ItemTag = ({
   isExport?: boolean;
   displayLang?: Language;
   displayLimit?: number;
+  footNote?: string;
 }) => {
   const [isHovering, setIsHovering] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isPinned, setIsPinned] = useState(false);
   const isDragging = useAppSelector((state) => state.global.isDragging);
   const userLang = useAppSelector((state) => state.userData.lang) as Language;
   const showExpanded =
     !isDragging &&
     (items.length > 0 || handleAddItem) &&
-    (isExpanded || isHovering || isExport);
-  const isTagExpanded = isExport || isExpanded;
+    (isPinned || isHovering || isExport);
+  const isTagExpanded = isExport || isPinned;
   const lang = displayLang || userLang;
   const tagRef = useRef<HTMLDivElement>(null);
 
@@ -75,16 +83,18 @@ const ItemTag = ({
           "open"
       ) {
         e.stopPropagation();
-        setIsExpanded(true);
+        setIsPinned(true);
         tagRef.current.attributes.removeNamedItem("data-tag-type");
         return;
       }
-      if (isPinnable && isExpandable) {
-        setIsExpanded((prev) => !prev);
+
+      if (pinnable && expandable) {
+        setIsPinned((prev) => !prev);
       }
+
       handleClickTag?.();
     },
-    [isPinnable, isExpandable, handleClickTag],
+    [pinnable, expandable, handleClickTag],
   );
 
   return (
@@ -92,13 +102,21 @@ const ItemTag = ({
       className={clsx(
         "item-tag",
         showExpanded && "expanded",
+        isPinned && "pinned",
         className,
         isExport && "export",
       )}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
       style={style}
-      ref={tagRef}
+      ref={(el) => {
+        if (!el) return;
+
+        tagRef.current = el as HTMLDivElement;
+        if (ref) {
+          ref.current = el as HTMLDivElement;
+        }
+      }}
     >
       <header
         className={clsx(
@@ -108,7 +126,7 @@ const ItemTag = ({
         )}
         onClick={handleClick}
       >
-        {isPinnable && (
+        {pinnable && (
           <div className="icon-container">
             <PinIcon
               className={clsx(
@@ -123,7 +141,7 @@ const ItemTag = ({
           {...{
             "data-tooltip-delay-show": 500,
             "data-tooltip-content":
-              (isPinnable
+              (pinnable
                 ? isTagExpanded
                   ? t([I18nKey.UNPIN], lang) + " "
                   : t([I18nKey.PIN], lang) + " "
@@ -140,29 +158,38 @@ const ItemTag = ({
           </div>
         )}
       </header>
+
       {showExpanded && (
-        <div className="item-tag-items" style={{ alignItems }}>
-          {items.length === 0 && handleAddItem ? (
-            <Item
-              content={t([I18nKey.ADD, I18nKey.P_ITEM1], lang, {
-                item1: title,
-              })}
-              displayLimit={displayLimit}
-              handleClickItem={handleAddItem}
-              className={itemClassName + " no-items"}
-            />
-          ) : (
-            items.map((item) => (
+        <div className="item-tag-expanded-container">
+          <div className="item-tag-items" style={{ alignItems }}>
+            {items.length === 0 && handleAddItem ? (
               <Item
-                key={item}
-                content={item}
+                idx={items.length}
+                content={t([I18nKey.ADD, I18nKey.P_ITEM1], lang, {
+                  item1: title,
+                })}
                 displayLimit={displayLimit}
-                handleClickItem={() => handleClickItem?.(item)}
-                handleDeleteItem={handleDeleteItem}
-                handleSeekItem={handleSeekItem}
-                className={itemClassName}
+                handleClickItem={handleAddItem}
+                className={itemClassName + " no-items"}
               />
-            ))
+            ) : (
+              items.map((item, index) => (
+                <Item
+                  key={item}
+                  content={item}
+                  idx={index}
+                  displayLimit={displayLimit}
+                  handleClickItem={handleClickItem}
+                  handleDeleteItem={handleDeleteItem}
+                  handleSeekItem={handleSeekItem}
+                  className={itemClassName}
+                />
+              ))
+            )}
+          </div>
+
+          {footNote && (
+            <footer className="item-tag-foot-note">{footNote}</footer>
           )}
         </div>
       )}
@@ -172,6 +199,7 @@ const ItemTag = ({
 
 const Item = ({
   content,
+  idx,
   handleClickItem,
   handleDeleteItem,
   handleSeekItem,
@@ -179,12 +207,25 @@ const Item = ({
   displayLimit,
 }: {
   content: string;
-  handleClickItem?: () => void;
-  handleDeleteItem?: (item: string) => void;
-  handleSeekItem?: (item: string) => void;
+  idx: number;
+  handleClickItem?: (item: string, idx?: number) => void;
+  handleDeleteItem?: (item: string, idx?: number) => void;
+  handleSeekItem?: (item: string, idx?: number) => void;
   className?: string;
   displayLimit: number;
 }) => {
+  const handleClick = useCallback(() => {
+    handleClickItem?.(content, idx);
+  }, [handleClickItem, content, idx]);
+
+  const handleDelete = useCallback(() => {
+    handleDeleteItem?.(content, idx);
+  }, [handleDeleteItem, content, idx]);
+
+  const handleSeek = useCallback(() => {
+    handleSeekItem?.(content, idx);
+  }, [handleSeekItem, content, idx]);
+
   return (
     <div
       className={clsx(
@@ -195,20 +236,17 @@ const Item = ({
     >
       {handleSeekItem && (
         <div className="icon-container">
-          <SeekIcon
-            className="seek"
-            onClick={() => handleSeekItem?.(content)}
-          />
+          <SeekIcon className="seek" onClick={handleSeek} />
         </div>
       )}
       <span
         className="content"
-        onClick={handleClickItem}
-        {...{
-          "data-tooltip-content": content,
-          "data-tooltip-place": "top",
-          "data-tooltip-id": TooltipId.ITEM_TAG_ITEM,
-        }}
+        onClick={handleClick}
+        // {...{
+        //   "data-tooltip-content": content,
+        //   "data-tooltip-place": "top",
+        //   "data-tooltip-id": TooltipId.ITEM_TAG_ITEM,
+        // }}
       >
         {content.length > displayLimit
           ? content.slice(0, displayLimit) + "..."
@@ -216,10 +254,7 @@ const Item = ({
       </span>
       {handleDeleteItem && (
         <div className="icon-container">
-          <MinusIcon
-            className="minus"
-            onClick={() => handleDeleteItem?.(content)}
-          />
+          <MinusIcon className="minus" onClick={handleDelete} />
         </div>
       )}
     </div>

@@ -1,4 +1,41 @@
 .tag {
+  --tag-bg: var(--neutral-grey-light, --grey-3);
+  --tag-content-color: var(--grey-9);
+
+  &.satisfied {
+    --tag-bg: var(--satisfied-green-light);
+
+    &.equiv {
+      --tag-bg: repeating-linear-gradient(
+        -45deg,
+        var(--satisfied-green-light),
+        var(--satisfied-green-light) 8px,
+        var(--grey-1) 8px,
+        var(--grey-1) 16px
+      );
+
+      --tag-equiv-color: var(--grey-7);
+    }
+  }
+
+  &.unsatisfied {
+    --tag-bg: var(--unsatisfied-red-light);
+
+    &.equiv {
+      --tag-bg: repeating-linear-gradient(
+        -45deg,
+        var(--unsatisfied-red-light),
+        var(--unsatisfied-red-light) 8px,
+        var(--grey-1) 8px,
+        var(--grey-1) 16px
+      );
+
+      --tag-equiv-color: var(--grey-7);
+    }
+  }
+}
+
+.tag {
   display: flex;
   padding: 0rem 0.25rem;
   flex-direction: column;
@@ -8,35 +45,35 @@
   flex-shrink: 0;
   height: fit-content;
   cursor: pointer;
+  position: relative;
+
+  user-select: none;
 
   border-radius: 0.25rem;
-  background: var(--gray-200);
+  background: var(--tag-bg);
 
-  color: var(--gray-1000);
+  color: var(--tag-content-color);
   font-size: 0.75rem;
   font-weight: bold;
   text-wrap: nowrap;
   line-height: 1rem;
 
-  &.satisfied {
-    background: var(--satisfy-green);
+  &.clickable:hover:not(.disabled) {
+    opacity: 0.7;
   }
 
-  &.unsatisfied {
-    background: var(--unsatisfy-red);
-  }
+  // &.equiv::after {
+  //   position: absolute;
+  //   content: "⇔";
+  //   font-size: 1rem;
+  //   color: var(--tag-equiv-color);
+  //   top: 0;
+  //   right: 0;
+  //   transform: translate(45%, -45%) rotate(45deg);
+  // }
 
-  &.clickable {
-    &:hover:not(.satisfied):not(.unsatisfied) {
-      background: var(--gray-400);
-    }
-
-    &.satisfied:hover {
-      background: var(--satisfy-green-hover);
-    }
-
-    &.unsatisfied:hover {
-      background: var(--unsatisfy-red-hover);
-    }
-  }
+  // &.equiv {
+  //   background: var(--grey-1);
+  //   box-shadow: inset 0 0 0 2.5px var(--satisfied-green-light);
+  // }
 }

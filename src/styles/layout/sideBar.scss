@@ -1,7 +1,25 @@
 .left-sidebar {
+  --left-sidebar-bg: var(--grey-3);
+  --left-sidebar-shadow: var(--shadow-normal);
+
+  .right-handle {
+    --left-sidebar-handle-bg: var(--grey-3);
+    --left-sidebar-handle-stroke: var(--grey-5);
+
+    &:hover {
+      --left-sidebar-handle-stroke: var(--grey-7);
+    }
+
+    &.disabled {
+      --left-sidebar-handle-stroke: var(--grey-4);
+    }
+  }
+}
+
+.left-sidebar {
   position: fixed;
-  background: var(--gray-300);
-  box-shadow: var(--shadow-default);
+  background: var(--left-sidebar-bg);
+  box-shadow: var(--left-sidebar-shadow);
   left: 0;
   z-index: 1000;
 
@@ -57,7 +75,7 @@
 
   padding: 0 0.375rem 0 0.25rem;
   border-radius: 0rem 0.5rem 0.5rem 0rem;
-  background: var(--gray-200);
+  background: var(--left-sidebar-handle-bg);
   box-shadow: var(--shadow-default-right);
 
   height: 2.5rem;
@@ -78,22 +96,12 @@
     path {
       transition: stroke 0.2s ease;
       stroke-width: 12.5rem; // svg default
-      stroke: var(--gray-400);
+      stroke: var(--left-sidebar-handle-stroke);
       transition: stroke 0.2s ease;
     }
 
     &.flipped {
       transform: scaleX(-1);
     }
-
-    &.disabled {
-      path {
-        stroke: var(--gray-300);
-      }
-    }
-  }
-
-  &:hover .expand path {
-    stroke: var(--gray-500);
   }
 }

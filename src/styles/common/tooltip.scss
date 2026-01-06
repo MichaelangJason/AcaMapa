@@ -1,4 +1,11 @@
 .tooltip-container {
+  --tooltip-bg: var(--grey-10);
+  --tooltip-color: var(--grey-1);
+  --sync-time-color: var(--grey-6);
+  --sync-error-color: var(--unsatisfied-red-light);
+}
+
+.tooltip-container {
   position: absolute;
   width: 0;
   height: 0;
@@ -6,6 +13,8 @@
 
   .tooltip-common {
     border-radius: 0.5rem;
+    background: var(--tooltip-bg);
+    color: var(--tooltip-color);
   }
 
   .sync-message-container {
@@ -15,11 +24,11 @@
     justify-content: center;
 
     .sync-error {
-      color: var(--error-red);
+      color: var(--sync-error-color);
     }
 
     .sync-time {
-      color: var(--gray-600);
+      color: var(--sync-time-color);
     }
   }
 }

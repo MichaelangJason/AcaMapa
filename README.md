@@ -1,4 +1,5 @@
-# AcaMapa  
+# AcaMapa (updated to year 2025-2026)
+
 _A Web App that helps McGill students plan their degree_
 
 <p align="center">
@@ -9,13 +10,22 @@ _A Web App that helps McGill students plan their degree_
   <img src="https://img.shields.io/badge/License-APACHE-blue?style=for-the-badge"/>
 </p>
 
-> a HUGE THANK to [@EvEnzyme](https://github.com/EvEnzyme) for ideation, UI/UX design, writups and mental supports :)
+
+> a HUGE THANK to [@EvEnzyme](https://github.com/EvEnzyme) for ideation, UX, writups and mental supports :)
+
+---
+
+## 🎥 Screenshots
+![og](./public/og.webp)
+
 
 ---
 
 
 ## 📌 Motivation  
+
 As a McGill student, I often find it frustrating to plan my degree:  
+
 - I had to jump between different webpages (course descriptions, program requirements) and keep my own notes in Google Docs or text files, which I would eventually lose the following year.  
 - It was hard to figure out which electives I could take based on the courses I had already completed.  
 - Finding courses and programs that actually matched my interests was even harder.  
@@ -25,22 +35,14 @@ As a McGill student, I often find it frustrating to plan my degree:
 
 ---
 
-## 🎥 Demo  
-(Youtube Video, GIFs comming soon)  
-![og](./public/og.webp)
-
----
-
 ## ✨ Features  
 
 1. **Find & pin your program(s)**  
    - Add required and complementary courses directly from the parsed results.  
-
 2. **Plan your degree semester by semester**  
    - Reorder and organize terms and courses with simple drag-and-drop.  
    - Add extra or missing courses into terms through search.  
    - Explore future electives directly from course cards and dive deeper into areas of interest.  
-
 3. **Validate your plan with requirement checks**  
    - Courses are shown in <strong><span style="color:#b2e026">green</span></strong> if all requirements are satisfied and <strong><span style="color:#ed7155">red</span></strong> if not. 
    - Requirements are validated against pre-, co-, and anti-requisites.  
@@ -50,29 +52,25 @@ As a McGill student, I often find it frustrating to plan my degree:
      3. **Select two from a list:** `Two from COMP 206, COMP 302, COMP 250, COMP 330`  
      4. **Credit-based:** `12 credits from COMP at 300-level or higher`  
    - You can overwrite a course’s requirements to mark it as satisfied.  
-   - **Equivalent checks** (e.g. `COMP 252` vs `COMP 251`) are not supported, since all requirements are parsed automatically.  
+   - **Equivalent checks** (e.g. `COMP 252` vs `COMP 251`) are supported by custom rules, they count towards pre-requisites, co-requisites, and restrictions.
    - Add completed courses to **Courses Taken** to provide context for prerequisite checks across all plans.  
    - Create multiple plans aiming at different programs or degrees.  
    - Inspect plan statistics, including **total credits** and **average credits per term**, to better evaluate your workload.
-
 4. **Validate in VSB**
    - Terms indicated with red triangle (current term) or red circle (term in current academic year) can be checked in VSB
-
-6. **Share with others**  
-   - Export plans as **JPEG images**, including stats and courses taken, to share with academic advisors or fellow students.  
-
-7. **Save your plans**  
+5. **Share with others**  
+   - Export plans as **PNG images**, including stats and courses taken, to share with academic advisors or fellow students.  
+   - Import exported plans from the embedded QR codes, plan based on previous experiances!
+6. **Save your plans**  
    - Plans are stored locally and persist across page refreshes.  
-   - Login with your McGill email (coming soon) to save plans remotely.
-
-8. **Localization**  
+   - Plans can be stored as the exported image.
+7. **Localization**  
    - English is fully supported.  
    - French support is included but still needs refinement — contributions are welcome! Open an issue if you’d like to help.  
-
-9. **AI (coming before Winter 2026)**  
-   - Semantic search (RAG) for programs and courses based on your interests.  
-   - Automated plan generation tailored to your workload preferences.  
-   - **Enhanced subsequent course search**: recommendations based on your entire plan, not just a single course.  
+8. ~~**AI (Deprecated)**~~
+   - ~~Semantic search (RAG) for programs and courses based on your interests.~~  
+   - ~~Automated plan generation tailored to your workload preferences.~~  
+   - ~~**Enhanced subsequent course search**: recommendations based on your entire plan, not just a single course.~~  
 
 ---
 
@@ -81,6 +79,7 @@ As a McGill student, I often find it frustrating to plan my degree:
 ---
 
 ## 🛠️ Tech Stack  
+
 - **Frontend & Backend:** Next.js, MongoDB, Redux Toolkit, Hello-pangea/dnd  
 - **Auth & Email:** Auth.js, Resend  
 - **AI (incoming):** MongoDB Atlas, LangGraph  
@@ -88,16 +87,25 @@ As a McGill student, I often find it frustrating to plan my degree:
 ---
 
 ## ⚙️ Environment Variables  
+
 Add the following to your `.env`:  
 
 ```bash
-MONGODB_URI=
-MONGODB_DATABASE_NAME=
-USER_DATABASE_NAME=   # auth.js user database name
-RESEND_FROM=          # Resend email sender
-AUTH_SECRET=          # Auth.js secret
-AUTH_RESEND_KEY=      # Resend API key
-USE_DIFF_SYNC=0
+ANALYZE="false"
+APP_HOST="0.0.0.0"
+APP_PORT="3030"
+DOMAIN="your.domain"
+MONGODB_DATABASE_NAME="a MongoDB Database that implements the interface"
+MONGODB_URI="URI to your MongoDB Database"
+USE_DIFF_SYNC="0"
+# I used upstash redis, optional for yours
+UPSTASH_KV_REST_API_READ_ONLY_TOKEN=
+UPSTASH_KV_REST_API_TOKEN=
+UPSTASH_KV_REST_API_URL=
+UPSTASH_KV_URL=
+UPSTASH_REDIS_URL=
+USER_DATABASE_NAME="auth"
+
 ````
 
 > MongoDB files: open an issue to contact me, and I’ll share the parsed results.
@@ -130,12 +138,13 @@ pnpm start
 
 * [x] Local degree planning with drag & drop
 * [x] Current Academic Year + Check viability in VSB 
-* [ ] Import from JSON/image (exported by this app)
-* [ ] Equivalent course check
-* [ ] Remote plan saving with McGill login
-* [ ] UI refinement
-* [ ] AI-powered program & course search
-* [ ] Automated plan generation (workload-based)
+* [x] Import from JSON/image (exported by this app)
+* [x] Equivalent course check
+* [x] UI refinement
+* [ ] Automatic updater(crawler) of Courses and Programs
+* [ ] ~~Remote plan saving with McGill login (deprecated)~~
+* [ ] ~~AI-powered program & course search (deprecated)~~
+* [ ] ~~Automated plan generation (workload-based) (deprecated)~~
 
 ---
 
@@ -144,4 +153,3 @@ pnpm start
 [Apache 2.0](./LICENSE)
 
 # 
-

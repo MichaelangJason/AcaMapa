@@ -1,3 +1,5 @@
+"use client";
+
 import type { Course } from "@/types/db";
 import { TextHighlighter } from "@/components/Common";
 import { useCallback } from "react";
@@ -12,6 +14,18 @@ import { TooltipId } from "@/lib/enums";
 import { setIsCourseTakenExpanded } from "@/store/slices/globalSlice";
 import { I18nKey, Language, t } from "@/lib/i18n";
 
+/**
+ * Used to display a mini course card
+ *
+ * @param data - the course data
+ *
+ * @param query - the query string, used for highlighting the text
+ * @param callback - the callback function, called when the course card is clicked
+ * @param isSelected - whether the course is selected
+ * @param isSatisfied - whether the course is satisfied
+ * @param style - the style of the course card, optional
+ * @returns
+ */
 const MiniCourseCard = ({
   data,
   query,
@@ -28,18 +42,18 @@ const MiniCourseCard = ({
   style?: React.CSSProperties;
 }) => {
   const { id, name, credits } = data;
+  const dispatch = useAppDispatch();
   const { getCourseSource } = useAppSelector(selectCourseDepMeta);
-  const { source, isSatisfied: isSatisfiedSource } = getCourseSource(
-    id,
-    "",
-    null,
-    false,
-  );
+  const {
+    source,
+    isSatisfied: isSatisfiedSource,
+    // isValid,
+  } = getCourseSource(id, "", null, false);
   const isAddingCourse = useAppSelector((state) => state.global.isAdding);
   const isDragging = useAppSelector((state) => state.global.isDragging);
-  const dispatch = useAppDispatch();
   const lang = useAppSelector((state) => state.userData.lang) as Language;
 
+  // handle the clicking of the course card, add or remove the course from the plan
   const handleClick = useCallback(
     async (e: React.MouseEvent<HTMLDivElement>) => {
       e.stopPropagation();
@@ -51,6 +65,7 @@ const MiniCourseCard = ({
     [callback, data, isSelected, isAddingCourse],
   );
 
+  // handle the clicking of the credits, scroll to the course planned
   const handleClickCredits = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
       e.stopPropagation();

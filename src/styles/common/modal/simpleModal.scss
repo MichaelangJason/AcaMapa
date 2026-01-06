@@ -1,0 +1,95 @@
+@use "./common";
+
+.simple-modal-content {
+  --simple-modal-border-color: var(--grey-5);
+  --simple-modal-content-shadow: var(--shadow-normal);
+
+  --simple-modal-content-color: var(--grey-8);
+
+  input {
+    --simple-modal-input-border-color: var(--grey-6);
+
+    --simple-modal-input-shadow: none;
+
+    &:focus {
+      --simple-modal-input-border-color: var(--input-focus-color);
+      --simple-modal-input-shadow: var(--input-focus-shadow);
+    }
+
+    &.max-length-exceeded {
+      --simple-modal-input-border-color: var(--unsatisfied-red-normal);
+      --simple-modal-input-shadow: var(--input-error-shadow);
+    }
+  }
+
+  .max-length {
+    --simple-modal-max-length-color: var(--grey-6);
+
+    &.max-length-exceeded {
+      --simple-modal-max-length-color: var(--unsatisfied-red-normal);
+    }
+  }
+}
+
+.simple-modal-content {
+  @extend .common-content;
+
+  outline: none;
+
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+
+  border: 0.0625rem solid var(--simple-modal-border-color);
+  box-shadow: var(--simple-modal-content-shadow);
+
+  .value {
+    font-weight: 600;
+  }
+
+  input {
+    width: calc(100% - 1.5rem);
+    height: 1.875rem;
+    border: 0.0625rem solid var(--simple-modal-input-border-color);
+    box-shadow: var(--simple-modal-input-shadow);
+    border-radius: 0.3125rem;
+    padding: 0 0.625rem;
+
+    &:focus {
+      outline: none;
+    }
+  }
+
+  .input-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: fit-content;
+  }
+
+  .max-length {
+    position: absolute;
+    right: 0.75rem;
+    transform: translateY(-50%);
+    top: 50%;
+
+    font-size: 0.8rem;
+    color: var(--simple-modal-max-length-color);
+  }
+
+  h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+
+  p {
+    color: var(--simple-modal-content-color);
+  }
+
+  p > span {
+    width: 100%;
+    word-wrap: break-word;
+  }
+}

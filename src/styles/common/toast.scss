@@ -9,10 +9,15 @@
 }
 
 .toast-seeking-course {
+  --toast-bg: var(--grey-8);
+  --toast-text-color: var(--grey-1);
+}
+
+.toast-seeking-course {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background-color: var(--gray-800);
-  color: var(--gray-300);
+  background-color: var(--toast-bg);
+  color: var(--toast-text-color);
 }

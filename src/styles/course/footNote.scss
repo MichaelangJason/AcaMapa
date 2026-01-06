@@ -1,4 +1,9 @@
 .foot-note {
+  --foot-note-bg: var(--course-card-dark, var(--grey-8));
+  --foot-note-content-color: var(--grey-1);
+}
+
+.foot-note {
   position: relative;
   width: 100%;
   display: flex;
@@ -11,11 +16,10 @@
   box-sizing: border-box;
 
   border-radius: 0.65625rem;
-  opacity: 0.7;
-  background: var(--gray-1000-50-opac);
+  background: var(--foot-note-bg);
 
   span {
-    color: var(--gray-000);
+    color: var(--foot-note-content-color);
     font-size: 0.75rem;
     font-weight: bold;
     line-height: normal;
@@ -46,24 +50,20 @@
     background-color: transparent;
 
     right: 0.5rem;
+    transition: opacity 0.2s ease;
 
     svg {
       width: 0.625rem;
       height: auto;
 
       path {
-        stroke: var(--gray-000);
+        stroke: var(--foot-note-content-color);
         stroke-width: 0.125rem;
-        transition: all 0.2s ease;
       }
     }
 
     &:hover {
-      svg {
-        path {
-          stroke: var(--gray-200);
-        }
-      }
+      opacity: 0.7;
     }
   }
 }

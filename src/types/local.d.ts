@@ -14,7 +14,6 @@ import type {
   VariantType,
   WrapperType,
 } from "react-tooltip";
-export type { Session } from "next-auth";
 
 export type CourseId = string;
 export type SearchResult = { query: string } & (
@@ -36,18 +35,25 @@ export type CourseLocalMetadata = {
   isExpanded: boolean;
 };
 
+export type EquivGroups = {
+  courseToEquivCourses: Map<string, Set<string>>;
+  equivCourseToCourses: Map<string, Set<string>>;
+};
+
+export type DepGraph = Map<
+  string,
+  {
+    isSatisfied: boolean;
+    termId: string;
+    affectedCourseIds: Set<string>;
+  }
+>;
+
 export type CourseDepData = {
   isDirty: boolean;
   subjectMap: Map<string, Set<string>>;
   creditsReqMap: Map<string, Set<string>>; // subscribe courses with CREDIT group
-  depGraph: Map<
-    string,
-    {
-      isSatisfied: boolean;
-      termId: string;
-      affectedCourseIds: Set<string>;
-    }
-  >;
+  depGraph: DepGraph;
 };
 
 export type ReqGroup = {
@@ -78,28 +84,6 @@ export type DropdownOption = {
   isHideIndicator?: boolean;
   isHideFiller?: boolean;
   isChecked?: boolean;
-};
-
-export type SimpleModalProps = {
-  isOpen: boolean;
-  title: string;
-  description: string;
-  confirmCb: (newValue?: string) => Promise<void>;
-  closeCb: () => Promise<void>;
-  confirmText?: string;
-  closeText?: string;
-  isConfirmOnly?: boolean; // not cancelable, just a notification.
-  isShowCloseButton?: boolean;
-  isPreventCloseOnOverlayClick?: boolean;
-  isPreventCloseOnEsc?: boolean;
-  extraOptions?: {
-    onClick: () => Promise<void>;
-    content: string;
-  }[];
-  inputConfig?: {
-    placeholder: string;
-    maxLength?: number;
-  };
 };
 
 export type TooltipProps = Partial<

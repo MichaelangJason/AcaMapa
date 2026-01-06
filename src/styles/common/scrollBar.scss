@@ -1,6 +1,20 @@
 .scroll-track {
+  --scroll-track-bg: var(--grey-1);
+  --scroll-track-thumb-bg: var(--grey-3);
+
+  &:hover:not(.hidden),
+  &.show:not(.hidden),
+  &.dragging {
+    --scroll-track-thumb-bg: var(--grey-5);
+  }
+
+  &.hidden {
+    --scroll-track-thumb-bg: transparent;
+  }
+}
+
+.scroll-track {
   position: absolute;
-  // background-color: var(--gray-100);
   transition:
     width 0.2s ease-in-out,
     left 0.2s ease-in-out,
@@ -14,30 +28,21 @@
 
   &.hidden {
     opacity: 0;
-
-    .scroll-bar-thumb {
-      background-color: transparent;
-    }
   }
 
   &:hover:not(.hidden),
   &.show:not(.hidden),
   &.dragging {
-    // background-color: var(--gray-200);
-    opacity: 0.75;
+    opacity: 1;
 
     .scroll-bar-thumb {
-      background-color: var(--gray-500);
-
-      &:hover {
-        cursor: pointer;
-      }
+      cursor: pointer;
     }
   }
 
   .scroll-bar-thumb {
     position: absolute;
-    background-color: var(--gray-200);
+    background-color: var(--scroll-track-thumb-bg);
     border-radius: 0.25rem;
     transition: background-color 0.2s ease;
   }
@@ -91,5 +96,26 @@
       border-radius: 0.4rem;
       width: 50%;
     }
+  }
+}
+
+/* show scrollbar on hover for elements with a scroll-track */
+*:not(.terms-container):has(> .scroll-track):hover {
+  & > .scroll-track:not(.hidden) {
+    opacity: 1 !important;
+    .scroll-bar-thumb {
+      background-color: var(--grey-5) !important;
+    }
+  }
+}
+
+.scrollbar-hidden {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: auth;
+
+  &::-webkit-scrollbar {
+    display: none;
   }
 }

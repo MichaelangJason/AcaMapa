@@ -1,17 +1,54 @@
 .utility-bar {
+  --utility-bar-bg: var(--grey-3);
+  --utility-content-color: var(--grey-8);
+
+  .hamburger {
+    --hamburger-color: var(--grey-7);
+    &.disabled {
+      --hamburger-color: var(--grey-5);
+    }
+  }
+
+  .sync-container {
+    --sync-color: var(--grey-8);
+
+    &.error:not(.syncing) {
+      --sync-color: var(--unsatisfied-red-dark);
+    }
+
+    &.success:not(.syncing) {
+      --sync-color: var(--satisfied-green-dark);
+    }
+  }
+
+  .help-container {
+    --help-color: var(--grey-8);
+  }
+
+  .survey-container {
+    --survey-color: var(--grey-8);
+  }
+}
+
+.utility-bar {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   z-index: 950;
-  gap: 0.75rem;
 
   box-sizing: border-box;
-  display: flex;
+  // display: flex;
+
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
+
+  overscroll-behavior: contain;
+
   height: 2.75rem;
   padding: 0.75rem;
-  background: var(--gray-300);
+  background: var(--utility-bar-bg);
   padding-left: calc(var(--sidebar-width) + 0.75rem);
 
   transition: padding-left 0.2s ease-in-out;
@@ -21,8 +58,11 @@
     flex-shrink: 0;
     width: 1.25rem;
     height: auto;
-    cursor: pointer;
     outline: none;
+
+    &:hover:not(.disabled) {
+      cursor: pointer;
+    }
   }
 
   .github-mark {
@@ -31,45 +71,60 @@
   }
 
   .hamburger {
-    &.disabled {
-      cursor: not-allowed;
-      path {
-        stroke: var(--gray-400);
-      }
-    }
     path {
-      transition: fill 0.2s ease;
-      stroke: var(--gray-1000-50-opac);
+      transition: stroke 0.2s ease;
+      stroke: var(--hamburger-color);
     }
     &:hover:not(.disabled) {
-      path {
-        stroke: var(--gray-500);
-      }
+      opacity: 0.7;
     }
   }
 
   .contents {
-    flex-grow: 1;
+    // flex-grow: 1;
+    flex-shrink: 0;
+    width: fit-content;
+    min-height: 0;
     // padding: 0 0.75rem;
-    height: 1.5rem;
+    height: 1.25rem;
+    overflow: visible;
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     justify-content: flex-end;
     gap: 0.5rem;
-    color: var(--gray-800);
+    color: var(--utility-content-color);
   }
 
   .item-tag-container {
     flex-grow: 1;
     flex-shrink: 0;
+    min-width: 0;
+    min-height: 0;
     // padding: 0 0.75rem;
-    min-width: fit-content;
-    height: 1.5rem;
-    display: flex;
-    align-items: flex-start;
-    justify-content: flex-start;
-    gap: 0.5rem;
-    color: var(--gray-800);
+    overflow: visible;
+    padding: 0 0.75rem;
+    box-sizing: border-box;
+    height: 1.25rem;
+
+    &.skeleton {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .item-tag-scroll-container {
+      transform: translateY(-0.125rem);
+      box-sizing: border-box;
+      display: flex;
+      align-items: flex-start;
+      justify-content: flex-start;
+      gap: 0.5rem;
+      padding-bottom: 0.75rem;
+      width: 100%;
+      overflow: visible;
+      // overflow: scroll;
+      background: transparent;
+    }
   }
 
   .lang {
@@ -95,26 +150,22 @@
     align-items: center;
     justify-content: center;
 
-    &.error:not(.syncing) svg {
-      opacity: 1;
-      fill: var(--mcgill-red);
-    }
-
-    &.success:not(.syncing) svg {
-      opacity: 1;
-      fill: var(--sync-green);
+    &.error:not(.syncing),
+    &.success:not(.syncing),
+    &.syncing {
+      svg {
+        opacity: 1;
+      }
     }
 
     &.syncing svg {
-      opacity: 1;
-      fill: var(--gray-600);
       animation: sync-icon-spin 1s linear infinite;
     }
 
     svg {
       width: 1.5rem;
       height: 1.5rem;
-      fill: var(--gray-600);
+      fill: var(--sync-color);
       opacity: 0.6;
       rotate: -45deg;
       transition:
@@ -127,18 +178,48 @@
     }
   }
 
+  .survey-container {
+    height: 100%;
+    width: 1.4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    flex-shrink: 0;
+
+    svg {
+      width: 1.25rem;
+      height: 1.25rem;
+      opacity: 0.6;
+      transition: opacity 0.2s ease;
+
+      path {
+        fill: var(--survey-color);
+      }
+
+      &:hover:not(.disabled) {
+        opacity: 1;
+      }
+    }
+  }
+
   .help-container {
     flex-shrink: 0;
-    width: 1.5rem;
+    width: fit-content;
     height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
     justify-self: center;
 
+    span {
+      font-size: 0.875rem;
+      font-weight: bold;
+    }
+
     svg {
       width: 1.4rem;
-      fill: var(--gray-600);
+      fill: var(--help-color);
       opacity: 0.6;
       transition:
         fill 0.2s ease,

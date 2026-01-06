@@ -1,0 +1,42 @@
+@use "./common";
+
+.equiv-rules-modal-content {
+  --error-color: var(--unsatisfied-red-normal);
+}
+
+.equiv-rules-modal-content {
+  form {
+    margin: 1rem 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.75rem;
+
+    & > span {
+      color: var(--grey-7);
+      font-size: 1.5rem;
+      transform: translateY(-0.125rem);
+    }
+
+    & > input {
+      width: 7rem;
+      height: 1.25rem;
+      border-radius: 0.5rem;
+      border: 2px solid var(--grey-3);
+
+      text-align: center;
+    }
+  }
+
+  p.error-message {
+    margin-top: -0.75rem;
+    color: var(--error-color);
+    font-size: 0.875rem;
+    text-align: center;
+  }
+}
+.equiv-rules-modal-content {
+  @extend .common-content;
+
+  outline: none;
+}

@@ -1,4 +1,9 @@
 .term-note {
+  --term-note-bg: var(--grey-1);
+  --term-note-color: var(--grey-9);
+}
+
+.term-note {
   position: relative;
   width: 100%;
   display: grid;
@@ -6,6 +11,7 @@
   gap: 0.5rem;
 
   box-sizing: border-box;
+  color: var(--term-note-color);
 
   .season {
     padding: 0.25rem;
@@ -16,7 +22,7 @@
     justify-content: center;
     gap: 0.1rem;
     flex-shrink: 0;
-    background: var(--gray-000);
+    background: var(--term-note-bg);
     border-radius: 0.65625rem;
 
     opacity: 0.6;

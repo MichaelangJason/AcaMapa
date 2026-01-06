@@ -8,13 +8,18 @@ import { getNewTermName } from "@/lib/term";
 export const initialState = {
   lang: Language.EN,
   courseTaken: new Map<string, string[]>(),
+  equivRules: [] as [string, string][],
 
   planData: new Map<string, Plan>(),
   termData: new Map<string, Term>(),
 
+  // selected programs
   programs: [] as string[],
 
+  // plan id order
   planOrder: [] as string[],
+
+  // chat thread ids, may not needed
   chatThreadIds: [] as string[],
 } as MemberData;
 
@@ -22,15 +27,20 @@ export const userDataSlice = createSlice({
   name: "userData",
   initialState,
   reducers: {
+    /* LANGUAGE RELATED */
     setLang: (state, action: PayloadAction<Language>) => {
       state.lang = action.payload;
     },
     toggleLang: (state) => {
       state.lang = state.lang === Language.EN ? Language.FR : Language.EN;
     },
+
+    /* CHAT THREAD IDs RELATED */
     setChatThreadIds: (state, action: PayloadAction<string[]>) => {
       state.chatThreadIds = [...action.payload];
     },
+
+    /* COURSE TAKEN RELATED */
     setCourseTaken: (state, action: PayloadAction<Map<string, string[]>>) => {
       state.courseTaken = new Map(action.payload);
     },
@@ -59,6 +69,23 @@ export const userDataSlice = createSlice({
       });
     },
 
+    /* EQUIVALENT COURSES RELATED */
+    /* can be optimized with UNION-FIND if necessary */
+    setEquivRules: (state, action: PayloadAction<[string, string][]>) => {
+      // re-construct the equivalent courses from the rules
+      const rules = action.payload;
+      state.equivRules = [...rules];
+    },
+    addEquivRule(state, action: PayloadAction<[string, string]>) {
+      const rule = action.payload;
+      state.equivRules.push([...rule]);
+    },
+    // rule is passed to middleware for removal
+    removeEquivRule(state, action: PayloadAction<number>) {
+      const idx = action.payload;
+      state.equivRules.splice(idx, 1);
+    },
+
     /* PROGRAM RELATED */
     setPrograms: (state, action: PayloadAction<string[]>) => {
       state.programs = [...action.payload];
@@ -83,6 +110,17 @@ export const userDataSlice = createSlice({
     ) => {
       // toString is called here to handle the case where the plan id is an ObjectId
       state.planData = new Map(action.payload.planData);
+      // clean up the plan data by removing unnecessary course metadata
+      for (const plan of state.planData.values()) {
+        const planCourseIds = [...plan.courseMetadata.keys()];
+
+        for (const courseId of planCourseIds) {
+          if (!plan.courseMetadata.get(courseId)!.isOverwritten) {
+            plan.courseMetadata.delete(courseId);
+          }
+        }
+      }
+
       state.planOrder = action.payload.planOrder;
     },
     setPlanOrder: (state, action: PayloadAction<string[]>) => {
@@ -132,6 +170,32 @@ export const userDataSlice = createSlice({
     ) => {
       const { planId, newName } = action.payload;
       state.planData.get(planId)!.name = newName;
+    },
+    importPlan: (
+      state,
+      action: PayloadAction<{
+        plan: Plan;
+        terms: Term[];
+        generateNewId?: boolean;
+      }>,
+    ) => {
+      const { plan, terms, generateNewId = false } = action.payload;
+
+      // generate new plan id
+      if (generateNewId) {
+        plan._id = new ObjectId().toString();
+        terms.forEach((term) => {
+          term._id = new ObjectId().toString();
+        });
+      }
+
+      plan.termOrder = terms.map((term) => term._id);
+      state.planData.set(plan._id, plan);
+      state.planOrder.unshift(plan._id);
+
+      terms.forEach((term) => {
+        state.termData.set(term._id, term);
+      });
     },
 
     /* TERM RELATED */
@@ -222,19 +286,10 @@ export const userDataSlice = createSlice({
       }>,
     ) => {
       // TODO: is planId needed here for sync?
-      const { courseIds, termId, planId } = action.payload;
+      const { courseIds, termId } = action.payload;
 
       const term = state.termData.get(termId)!;
       term.courseIds.unshift(...courseIds); // duplicate check among entire plan is handled in middleware
-      const plan = state.planData.get(planId)!;
-      courseIds.forEach((courseId) => {
-        plan.courseMetadata.set(courseId, { isOverwritten: false });
-      });
-
-      // console.group(action.type);
-      // console.log(action.payload);
-      // console.log("current term data", state.termData);
-      // console.groupEnd();
     },
     deleteCourse: (
       state,
@@ -282,7 +337,11 @@ export const userDataSlice = createSlice({
       const { courseId, planId, isOverwritten } = action.payload;
 
       const plan = state.planData.get(planId)!;
-      plan.courseMetadata.get(courseId)!.isOverwritten = isOverwritten;
+      if (isOverwritten) {
+        plan.courseMetadata.set(courseId, { isOverwritten: true });
+      } else {
+        plan.courseMetadata.delete(courseId);
+      }
     },
   },
 });
@@ -297,6 +356,11 @@ export const {
   addCourseTaken,
   removeCourseTaken,
 
+  /* EQUIVALENT COURSES RELATED */
+  setEquivRules,
+  addEquivRule,
+  removeEquivRule,
+
   /* PROGRAM RELATED */
   setPrograms,
   addProgram,
@@ -309,6 +373,7 @@ export const {
   deletePlan,
   movePlan,
   renamePlan,
+  importPlan,
 
   /* TERM RELATED */
   setTermData,
@@ -324,6 +389,7 @@ export const {
   setIsOverwritten,
 } = userDataSlice.actions;
 
+// used for type inference
 export const userDataActions = userDataSlice.actions;
 
 export const planActions = {
@@ -333,6 +399,7 @@ export const planActions = {
   deletePlan,
   movePlan,
   renamePlan,
+  importPlan,
 };
 
 export const termActions = {
@@ -356,12 +423,19 @@ export const courseTakenActions = {
   removeCourseTaken,
 };
 
+export const equivRulesActions = {
+  setEquivRules,
+  addEquivRule,
+  removeEquivRule,
+};
+
 export const programActions = {
   setPrograms,
   addProgram,
   removeProgram,
 };
 
+// used for type guards in sync middleware
 export type ProgramAction = ReturnType<
   (typeof programActions)[keyof typeof programActions]
 >;
@@ -376,6 +450,9 @@ export type CourseAction = ReturnType<
 >;
 export type CourseTakenAction = ReturnType<
   (typeof courseTakenActions)[keyof typeof courseTakenActions]
+>;
+export type EquivRulesAction = ReturnType<
+  (typeof equivRulesActions)[keyof typeof equivRulesActions]
 >;
 
 export default userDataSlice.reducer;

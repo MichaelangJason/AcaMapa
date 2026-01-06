@@ -15,6 +15,8 @@ const TermCardSkeleton = ({
     <div className="term-card">
       <div className="term-header">
         <Skeleton
+          baseColor="var(--grey-2)"
+          highlightColor="var(--grey-1)"
           width={SKELETON_CONFIG.TERM_CARD_CONTENT.WIDTH}
           height={SKELETON_CONFIG.TERM_CARD_CONTENT.HEIGHT}
         />
@@ -27,6 +29,8 @@ const TermCardSkeleton = ({
       </div>
       <footer className="term-footer">
         <Skeleton
+          baseColor="var(--grey-2)"
+          highlightColor="var(--grey-1)"
           width={SKELETON_CONFIG.TERM_CARD_CONTENT.WIDTH}
           height={SKELETON_CONFIG.TERM_CARD_CONTENT.HEIGHT}
         />

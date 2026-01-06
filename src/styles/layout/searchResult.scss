@@ -1,4 +1,8 @@
 .result-container {
+  --loading-placeholder-color: var(--grey-6);
+}
+
+.result-container {
   position: relative;
   width: 100%;
   flex-grow: 1;
@@ -30,11 +34,20 @@
 
     & > .loading-placeholder {
       margin-bottom: 0.75rem;
-      color: var(--gray-600);
+      color: var(--loading-placeholder-color);
       font-size: 0.75rem;
       font-style: italic;
       // font-weight: bold;
     }
+  }
+}
+
+.multi-select-container {
+  --multi-select-info-color: var(--grey-8);
+
+  --multi-select-clear-color: var(--grey-8);
+  .multi-select-clear:hover {
+    --multi-select-clear-color: var(--grey-6);
   }
 }
 
@@ -50,7 +63,7 @@
   .multi-select-info {
     flex-shrink: 0;
     font-size: 0.75rem;
-    color: var(--gray-600);
+    color: var(--multi-select-info-color);
   }
 
   .multi-select-clear {
@@ -58,10 +71,7 @@
     text-decoration: underline;
     text-underline-offset: 0.125rem;
     transition: color 0.15s ease;
-
-    &:hover {
-      color: var(--gray-800);
-    }
+    color: var(--multi-select-clear-color);
   }
 
   &.expanded {

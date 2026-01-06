@@ -1,3 +1,13 @@
+export enum ModalType {
+  NONE = "none",
+  SIMPLE = "simple",
+  PROGRAM = "program",
+  INFO = "info",
+  IMPORT = "import",
+  EXPORT = "export",
+  EQUIV_RULE = "equiv-rule",
+}
+
 export enum Season {
   SUMMER = "summer",
   FALL = "fall",
@@ -69,6 +79,7 @@ export enum TooltipId {
   USER_SESSION = "user-session",
   SEASON_INDICATOR = "season-indicator",
   TERM_NOTE = "term-note",
+  SURVEY = "survey",
 }
 
 export enum ToastId {

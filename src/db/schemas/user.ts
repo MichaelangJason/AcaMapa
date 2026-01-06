@@ -23,6 +23,12 @@ const UserSchema = new Schema(
   {
     email: { type: String, required: true, unique: true },
 
+    equivRules: {
+      type: [[String, String]],
+      required: true,
+      default: [] as [string, string][],
+    },
+
     courseTaken: {
       type: Map,
       of: [String],

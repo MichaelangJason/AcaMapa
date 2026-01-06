@@ -1,28 +1,34 @@
-import { GroupType, ResultType } from "@/lib/enums";
+import { ModalType, ResultType } from "@/lib/enums";
 import type { Course, Program } from "@/types/db";
 import type {
   CachedDetailedCourse,
   CourseDepData,
   CachedDetailedProgram,
   SearchResult,
-  Session,
-  SimpleModalProps,
+  EquivGroups,
 } from "@/types/local";
+import type { ModalState } from "@/types/modals";
+import type { Session } from "@/types/auth";
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import {
-  findIdInReqGroup,
-  getSubjectCode,
-  getTargetGroup,
-  isCourseInGraph,
   updateAffectedCourses,
-} from "@/lib/course";
+  // graph utils
+  _addCourseToGraph,
+  _deleteCourseFromGraph,
+  _moveCourseInGraph,
+  _addEquivRulesToGraph,
+  _removeEquivRulesFromGraph,
+  _setEquivRulesToGraph,
+} from "@/lib/course/dependency";
 
 export const initialState = {
+  // course data
   courseData: {} as { [key: string]: Course }, // init once, for quick lookup
   cachedDetailedCourseData: {} as { [key: string]: CachedDetailedCourse },
   cachedDetailedProgramData: {} as { [key: string]: CachedDetailedProgram },
   programData: {} as { [key: string]: Program },
 
+  // search result for sidebar display
   searchResult: {
     type: ResultType.DEFAULT,
     query: "",
@@ -30,54 +36,72 @@ export const initialState = {
   } as SearchResult,
   searchInput: "",
 
+  // current plan id to retrieve plan data
   currentPlanId: "" as string,
 
+  // INSPECT: do we really need map here?
   // utilize the hashmap for quick lookup and ordering
   selectedCourses: new Map<string, Course>(),
 
+  // course UI expanded state
+  // stored in store to avoid card closing during drag
   isCourseExpanded: {} as {
     [planId: string]: { [courseId: string]: boolean };
   },
 
+  // course dependency graph
   courseDepData: new Map<string, CourseDepData>(),
+  equivGroups: {
+    courseToEquivCourses: new Map<string, Set<string>>(), // course id to equivalent course ids
+    equivCourseToCourses: new Map<string, Set<string>>(), // reverse map
+  } as EquivGroups,
 
+  // seeking information
   seekingCourseId: "" as string,
   seekingProgramName: "" as string,
 
-  simpleModalInfo: {
-    isOpen: false,
-  } as SimpleModalProps,
-
+  // sync status
   syncStatus: {
     isSyncing: false,
     syncError: null as string | null,
     lastSyncedAt: 0, // number of milliseconds
   },
 
+  // session
   session: null as Session | null,
 
-  exportPlanId: "" as string,
-
-  isProgramModalOpen: false as boolean,
-  isInfoModalOpen: false as boolean,
+  // modal state
+  modalState: {
+    isOpen: false,
+    shouldCloseOnOverlayClick: true,
+    shouldCloseOnEsc: true,
+    props: {
+      type: ModalType.NONE,
+    },
+  } as ModalState,
 };
 
 const localDataSlice = createSlice({
   name: "localData",
   initialState,
   reducers: {
+    /* seeking information */
     setSeekingCourseId: (state, action: PayloadAction<string>) => {
       state.seekingCourseId = action.payload;
     },
     clearSeekingCourseId: (state) => {
       state.seekingCourseId = "";
     },
+
+    /* search result */
     setSearchResult: (state, action: PayloadAction<SearchResult>) => {
       state.searchResult = action.payload;
     },
     setSearchInput: (state, action: PayloadAction<string>) => {
       state.searchInput = action.payload;
     },
+
+    /* used for initializing course and program data */
     setCourseData: (state, action: PayloadAction<Course[]>) => {
       action.payload.forEach((course) => {
         // guaranteed insertion order
@@ -89,6 +113,8 @@ const localDataSlice = createSlice({
         state.programData[program.name] = program;
       });
     },
+
+    /* cached detailed course and program data */
     setDetailedCourseData: (
       state,
       action: PayloadAction<CachedDetailedCourse[]>,
@@ -111,6 +137,8 @@ const localDataSlice = createSlice({
         state.cachedDetailedCourseData[id] = course;
       });
     },
+
+    /* cached detailed program data */
     setDetailedProgramData: (
       state,
       action: PayloadAction<CachedDetailedProgram[]>,
@@ -131,6 +159,8 @@ const localDataSlice = createSlice({
         state.cachedDetailedProgramData[name] = program;
       });
     },
+
+    /* selected courses */
     addSelectedCourse: (state, action: PayloadAction<Course | string>) => {
       if (typeof action.payload === "string") {
         state.selectedCourses.set(
@@ -148,19 +178,16 @@ const localDataSlice = createSlice({
         state.selectedCourses.delete(action.payload.id);
       }
     },
-    toggleSelectedCourse: (state, action: PayloadAction<Course>) => {
-      if (state.selectedCourses.has(action.payload.id)) {
-        state.selectedCourses.delete(action.payload.id);
-      } else {
-        state.selectedCourses.set(action.payload.id, action.payload);
-      }
-    },
     clearSelectedCourses: (state) => {
       state.selectedCourses.clear();
     },
+
+    /* set current plan id */
     setCurrentPlanId: (state, action: PayloadAction<string>) => {
       state.currentPlanId = action.payload;
     },
+
+    /* plan is course expanded */
     initPlanIsCourseExpanded: (
       state,
       action: PayloadAction<
@@ -203,121 +230,45 @@ const localDataSlice = createSlice({
       }
     },
 
-    /* course dep updates, input validation will be handled in middleware */
+    /**
+     * @description course dep updates, input validation will be handled in middleware
+     */
     addCoursesToGraph: (
       state,
       action: PayloadAction<{
+        // passed to addCourseToGraph
         planId: string;
-        courseIds: Set<string>;
+        courseIds: Set<string>; // course ids specific to the term
         termId: string;
+
+        // passed to updateAffectedCourses
         courseTaken: Map<string, string[]>;
         termOrderMap: Map<string, number>;
         isSkipUpdate?: boolean;
       }>,
     ) => {
-      const {
-        planId,
-        courseIds,
-        termId,
-        courseTaken,
-        termOrderMap,
-        isSkipUpdate,
-      } = action.payload;
+      const { courseTaken, termOrderMap, isSkipUpdate } = action.payload;
 
-      if (!state.courseDepData.has(planId)) {
-        throw new Error(`Plan id not found in course dep data: ${planId}`);
-      }
-
-      const depData = state.courseDepData.get(planId)!;
-      const { subjectMap, depGraph, creditsReqMap } = depData;
-
-      if (
-        Array.from(courseIds).some((c) => !state.cachedDetailedCourseData[c])
-      ) {
-        throw new Error(
-          "Course not in cached detailed course data: " +
-            Array.from(courseIds).join(", "),
-        );
-      }
-
-      const courseToBeUpdated = new Set<string>();
-
-      courseIds.forEach((id) => {
-        const course = state.cachedDetailedCourseData[id];
-
-        // update depGraph
-        if (!depGraph.has(course.id)) {
-          depGraph.set(course.id, {
-            isSatisfied: false,
-            termId,
-            affectedCourseIds: new Set(),
-          });
-        } else {
-          // already in graph, update termId and termOrder only
-          depGraph.get(course.id)!.termId = termId;
-        }
-
-        // update subjectMap
-        const subject = getSubjectCode(course.id);
-        if (!subjectMap.has(subject)) {
-          subjectMap.set(subject, new Set<string>());
-        }
-        subjectMap.get(subject)!.add(course.id);
-
-        // update creditsReqMap if course has credit group
-        const creditGroup = getTargetGroup(
-          course.prerequisites.group,
-          GroupType.CREDIT,
-        );
-        if (creditGroup !== undefined) {
-          const subjects = creditGroup.inner.slice(2) as string[];
-          subjects.forEach((s) => {
-            if (!creditsReqMap.has(s)) {
-              creditsReqMap.set(s, new Set<string>());
-            }
-            creditsReqMap.get(s)!.add(course.id);
-          });
-        }
-
-        /* update depGraph */
-        const allDeps = findIdInReqGroup(course.prerequisites.group)
-          .concat(findIdInReqGroup(course.corequisites.group))
-          .concat(findIdInReqGroup(course.restrictions.group));
-
-        // push to deps affectedCourseIds
-        allDeps.forEach((c) => {
-          // not in dep graph == not in plan
-          if (!depGraph.has(c)) {
-            depGraph.set(c, {
-              isSatisfied: false,
-              termId: "",
-              affectedCourseIds: new Set(),
-            });
-          }
-
-          depGraph.get(c)!.affectedCourseIds.add(course.id);
-        });
-
-        depGraph.get(course.id)!.affectedCourseIds.forEach((c) => {
-          courseToBeUpdated.add(c);
-        });
-        creditsReqMap.get(subject)?.forEach((c) => {
-          courseToBeUpdated.add(c);
-        });
-        courseToBeUpdated.add(course.id); // add self
-      });
+      const { courseToBeUpdated, depData } = _addCourseToGraph(state, action);
 
       if (isSkipUpdate) {
         return;
       }
 
+      const {
+        cachedDetailedCourseData,
+        courseData: allCourseData,
+        equivGroups,
+      } = state;
+      // calculate isSatisfied for all courses that are affected by the added courses
       updateAffectedCourses({
-        graph: depData,
+        depData,
         courseToBeUpdated,
-        cachedDetailedCourseData: state.cachedDetailedCourseData,
+        cachedDetailedCourseData,
         termOrderMap,
-        allCourseData: state.courseData,
+        allCourseData,
         courseTaken,
+        equivGroups,
       });
     },
 
@@ -331,88 +282,30 @@ const localDataSlice = createSlice({
         isSkipUpdate?: boolean;
       }>,
     ) => {
-      const { planId, courseTaken, courseIds, termOrderMap, isSkipUpdate } =
-        action.payload;
-      if (!state.courseDepData.has(planId)) {
-        throw new Error(`Plan id not found in course dep data: ${planId}`);
-      }
+      const { courseTaken, termOrderMap, isSkipUpdate } = action.payload;
 
-      const depData = state.courseDepData.get(planId)!;
-      const { depGraph, subjectMap, creditsReqMap } = depData;
-
-      if (
-        Array.from(courseIds).some(
-          (c) =>
-            !isCourseInGraph(depData, c) || !state.cachedDetailedCourseData[c],
-        )
-      ) {
-        throw new Error(
-          "Course not in dependency graph or cached detailed course data: " +
-            Array.from(courseIds).join(", "),
-        );
-      }
-
-      const courseToBeUpdated = new Set<string>();
-
-      courseIds.forEach((id) => {
-        const depCourse = depGraph.get(id)!;
-        const affectedCourses = Array.from(depCourse.affectedCourseIds);
-        affectedCourses.forEach((c) => {
-          courseToBeUpdated.add(c);
-        });
-
-        const subject = getSubjectCode(id);
-
-        // trigger update for all courses that require this subject
-        creditsReqMap.get(subject)?.forEach((c) => {
-          courseToBeUpdated.add(c); // update
-        });
-
-        // delete from graph if non of its affected courses are in the graph
-        const removedAffectedCourses = affectedCourses.filter(
-          (c) => !isCourseInGraph(depData, c),
-        );
-
-        // no affected courses left, acceptable overhead (usually very small number)
-        if (removedAffectedCourses.length === affectedCourses.length) {
-          depGraph.delete(id);
-        } else {
-          // REVIEW: should this cleanup be done each time an update is made?
-          removedAffectedCourses.forEach((c) => {
-            depGraph.get(c)!.affectedCourseIds.delete(id); // clear affected course id
-          });
-          depCourse.termId = "";
-        }
-        subjectMap.get(subject)!.delete(id); // must exist
-        if (subjectMap.get(subject)!.size === 0) {
-          subjectMap.delete(subject);
-        }
-
-        // delete/unsubscribe from creditsReqMap if course has credit group
-        const courseDetail = state.cachedDetailedCourseData[id]!;
-        const creditGroup = getTargetGroup(
-          courseDetail.prerequisites.group,
-          GroupType.CREDIT,
-        );
-        if (creditGroup !== undefined) {
-          const subjects = creditGroup.inner.slice(2) as string[];
-          subjects.forEach((s) => {
-            creditsReqMap.get(s)?.delete(id);
-          });
-        }
-      });
+      const { courseToBeUpdated, depData } = _deleteCourseFromGraph(
+        state,
+        action,
+      );
 
       if (isSkipUpdate) {
         return;
       }
 
+      const {
+        cachedDetailedCourseData,
+        courseData: allCourseData,
+        equivGroups,
+      } = state;
       updateAffectedCourses({
-        graph: depData,
+        depData,
         courseToBeUpdated,
-        cachedDetailedCourseData: state.cachedDetailedCourseData,
+        cachedDetailedCourseData,
         termOrderMap,
-        allCourseData: state.courseData,
+        allCourseData,
         courseTaken,
+        equivGroups,
       });
     },
 
@@ -427,59 +320,113 @@ const localDataSlice = createSlice({
         isSkipUpdate?: boolean;
       }>,
     ) => {
-      const {
-        planId,
-        courseIds,
-        newTermId,
-        courseTaken,
-        termOrderMap,
-        isSkipUpdate,
-      } = action.payload;
+      const { courseTaken, termOrderMap, isSkipUpdate } = action.payload;
 
-      if (!state.courseDepData.has(planId)) {
-        throw new Error(`Plan id not found in course dep data: ${planId}`);
-      }
-
-      const depData = state.courseDepData.get(planId)!;
-      const { depGraph, creditsReqMap } = depData;
-
-      if (Array.from(courseIds).some((c) => !isCourseInGraph(depData, c))) {
-        throw new Error(
-          "Course not in dependency graph: " + Array.from(courseIds).join(", "),
-        );
-      }
-
-      const courseToBeUpdated = new Set<string>();
-
-      courseIds.forEach((id) => {
-        courseToBeUpdated.add(id);
-        const entry = depGraph.get(id)!;
-
-        entry.termId = newTermId;
-        entry.affectedCourseIds.forEach((c) => {
-          courseToBeUpdated.add(c);
-        });
-
-        const subject = getSubjectCode(id);
-        creditsReqMap.get(subject)?.forEach((c) => {
-          courseToBeUpdated.add(c); // also update
-        });
-      });
+      const { courseToBeUpdated, depData } = _moveCourseInGraph(state, action);
 
       if (isSkipUpdate) {
         return;
       }
 
+      const {
+        cachedDetailedCourseData,
+        courseData: allCourseData,
+        equivGroups,
+      } = state;
       updateAffectedCourses({
-        graph: depData,
+        depData,
         courseToBeUpdated,
-        cachedDetailedCourseData: state.cachedDetailedCourseData,
+        cachedDetailedCourseData,
         termOrderMap,
-        allCourseData: state.courseData,
+        allCourseData,
         courseTaken,
+        equivGroups,
       });
     },
 
+    setEquivRulesToGraph: (
+      state,
+      action: PayloadAction<[string, string][]>,
+    ) => {
+      _setEquivRulesToGraph(state, action);
+    },
+
+    addEquivRulesToGraph: (
+      state,
+      action: PayloadAction<{
+        rules: [string, string][];
+        planId: string;
+        courseTaken: Map<string, string[]>;
+        termOrderMap: Map<string, number>;
+        isSkipUpdate?: boolean;
+      }>,
+    ) => {
+      const { courseTaken, termOrderMap, isSkipUpdate } = action.payload;
+
+      const { courseToBeUpdated, depData } = _addEquivRulesToGraph(
+        state,
+        action,
+      );
+
+      if (isSkipUpdate) {
+        return;
+      }
+
+      const {
+        cachedDetailedCourseData,
+        courseData: allCourseData,
+        equivGroups,
+      } = state;
+
+      updateAffectedCourses({
+        depData,
+        courseToBeUpdated,
+        cachedDetailedCourseData,
+        termOrderMap,
+        allCourseData,
+        courseTaken,
+        equivGroups,
+      });
+    },
+
+    removeEquivRulesFromGraph: (
+      state,
+      action: PayloadAction<{
+        rules: [string, string][];
+        planId: string;
+        courseTaken: Map<string, string[]>;
+        termOrderMap: Map<string, number>;
+        isSkipUpdate?: boolean;
+      }>,
+    ) => {
+      const { courseTaken, termOrderMap, isSkipUpdate } = action.payload;
+
+      const { courseToBeUpdated, depData } = _removeEquivRulesFromGraph(
+        state,
+        action,
+      );
+
+      if (isSkipUpdate) {
+        return;
+      }
+
+      const {
+        cachedDetailedCourseData,
+        courseData: allCourseData,
+        equivGroups,
+      } = state;
+      updateAffectedCourses({
+        depData,
+        courseToBeUpdated,
+        cachedDetailedCourseData,
+        termOrderMap,
+        allCourseData,
+        courseTaken,
+        equivGroups,
+      });
+    },
+
+    // update courses is satisfied
     updateCoursesIsSatisfied: (
       state,
       action: PayloadAction<{
@@ -498,15 +445,23 @@ const localDataSlice = createSlice({
 
       const depData = state.courseDepData.get(planId)!;
 
+      const {
+        cachedDetailedCourseData,
+        courseData: allCourseData,
+        equivGroups,
+      } = state;
       updateAffectedCourses({
-        graph: depData,
+        depData,
         courseToBeUpdated,
-        cachedDetailedCourseData: state.cachedDetailedCourseData,
+        cachedDetailedCourseData,
         termOrderMap,
-        allCourseData: state.courseData,
+        allCourseData,
         courseTaken,
+        equivGroups,
       });
     },
+
+    /* course dep data */
     initCourseDepData: (state, action: PayloadAction<{ planId: string }>) => {
       state.courseDepData.set(action.payload.planId, {
         isDirty: true,
@@ -529,13 +484,6 @@ const localDataSlice = createSlice({
       });
     },
 
-    /* simple modal */
-    setSimpleModalInfo: (state, action: PayloadAction<SimpleModalProps>) => {
-      state.simpleModalInfo = action.payload;
-    },
-    clearSimpleModalInfo: (state) => {
-      state.simpleModalInfo = { ...initialState.simpleModalInfo };
-    },
     setSyncStatus: (
       state,
       action: PayloadAction<Partial<typeof initialState.syncStatus>>,
@@ -552,21 +500,6 @@ const localDataSlice = createSlice({
       state.session = null;
     },
 
-    /* export modal */
-    setExportPlanId: (state, action: PayloadAction<string>) => {
-      state.exportPlanId = action.payload;
-    },
-    clearExportPlanId: (state) => {
-      state.exportPlanId = "";
-    },
-
-    /* program modal */
-    setIsProgramModalOpen: (state, action: PayloadAction<boolean>) => {
-      state.isProgramModalOpen = action.payload;
-    },
-    clearIsProgramModalOpen: (state) => {
-      state.isProgramModalOpen = false;
-    },
     setSeekingProgramName: (state, action: PayloadAction<string>) => {
       state.seekingProgramName = action.payload;
     },
@@ -574,34 +507,50 @@ const localDataSlice = createSlice({
       state.seekingProgramName = "";
     },
 
-    /* info modal */
-    setIsInfoModalOpen: (state, action: PayloadAction<boolean>) => {
-      state.isInfoModalOpen = action.payload;
+    /* modal state */
+    setModalState: (state, action: PayloadAction<Partial<ModalState>>) => {
+      state.modalState = {
+        ...state.modalState,
+        ...action.payload,
+      };
     },
-    clearIsInfoModalOpen: (state) => {
-      state.isInfoModalOpen = false;
+    clearModalState: (state) => {
+      state.modalState = { ...initialState.modalState };
     },
   },
 });
 
 export const {
+  // Seeking information reducers
   setSeekingCourseId,
   clearSeekingCourseId,
+  setSeekingProgramName,
+  clearSeekingProgramName,
+
+  // Search reducers
   setSearchResult,
   setSearchInput,
+
+  // Course and program data reducers
   setCourseData,
   setProgramData,
-  updateCachedDetailedCourseData,
   setDetailedProgramData,
   updateCachedDetailedProgramData,
+  setDetailedCourseData,
+  updateCachedDetailedCourseData,
+
+  // Selected courses reducers
   addSelectedCourse,
   removeSelectedCourse,
-  toggleSelectedCourse,
   clearSelectedCourses,
+
+  // Plan & course expanded state reducers
   setCurrentPlanId,
   setIsCourseExpanded,
   deleteIsCourseExpanded,
   initPlanIsCourseExpanded,
+
+  // Course dependency graph reducers
   addCoursesToGraph,
   deleteCoursesFromGraph,
   moveCoursesInGraph,
@@ -609,19 +558,20 @@ export const {
   initCourseDepData,
   deleteCourseDepData,
   updateCoursesIsSatisfied,
-  setSimpleModalInfo,
-  clearSimpleModalInfo,
+  setEquivRulesToGraph,
+  addEquivRulesToGraph,
+  removeEquivRulesFromGraph,
+
+  // Sync status reducers
   setSyncStatus,
+
+  // Session reducers
   setSession,
   clearSession,
-  setExportPlanId,
-  clearExportPlanId,
-  setIsProgramModalOpen,
-  clearIsProgramModalOpen,
-  setSeekingProgramName,
-  clearSeekingProgramName,
-  setIsInfoModalOpen,
-  clearIsInfoModalOpen,
+
+  // Modal state reducers
+  setModalState,
+  clearModalState,
 } = localDataSlice.actions;
 
 export const localDataActions = localDataSlice.actions;
@@ -629,5 +579,7 @@ export const localDataActions = localDataSlice.actions;
 export type LocalDataAction = ReturnType<
   (typeof localDataSlice.actions)[keyof typeof localDataSlice.actions]
 >;
+
+export type LocalDataState = typeof initialState;
 
 export default localDataSlice.reducer;

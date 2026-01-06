@@ -16,6 +16,8 @@ const MiniCourseCardSkeleton = ({
     <article className="mini-course-card skeleton">
       <aside className="credits">
         <Skeleton
+          baseColor="var(--grey-3)"
+          highlightColor="var(--grey-2)"
           width={credisWidthHeight}
           height={credisWidthHeight}
           borderRadius={radius}
@@ -23,11 +25,15 @@ const MiniCourseCardSkeleton = ({
       </aside>
       <section className="info">
         <Skeleton
+          baseColor="var(--grey-3)"
+          highlightColor="var(--grey-2)"
           width={headingWidth}
           height={SKELETON_CONFIG.COURSE_CARD.SUBHEADING_HEIGHT}
           borderRadius={radius}
         />
         <Skeleton
+          baseColor="var(--grey-3)"
+          highlightColor="var(--grey-2)"
           width={headingWidth}
           height={SKELETON_CONFIG.COURSE_CARD.HEADING.HEIGHT}
           borderRadius={radius}

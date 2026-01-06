@@ -15,4 +15,9 @@ export type ReplaceObjectId<T> = {
       : T[K];
 };
 
-export type Override<T, U> = Omit<T, keyof U> & U;
+// Replace specific properties in T with properties from R
+export type Override<T, R extends Partial<Record<keyof T, unknown>>> = Omit<
+  T,
+  keyof R
+> &
+  R;
