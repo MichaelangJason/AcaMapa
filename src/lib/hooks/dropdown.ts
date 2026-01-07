@@ -1,36 +1,139 @@
 import { ItemProps } from "@/components/Common/DropdownMenu";
-import { AppDispatch } from "@/store";
-import { useAppSelector } from "@/store/hooks";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
   toggleIsSideBarFolded,
   toggleIsCourseTakenExpanded,
   toggleIsUtilityDropdownMenuOpen,
 } from "@/store/slices/globalSlice";
-import { setModalState } from "@/store/slices/localDataSlice";
+import {
+  setAllCoursesExpanded,
+  setModalState,
+} from "@/store/slices/localDataSlice";
 import { addPlan, addTerm, deletePlan } from "@/store/slices/userDataSlice";
 import { prepareExport } from "@/store/thunks";
-import { useMemo, useEffect } from "react";
+import { useMemo, useEffect, useCallback } from "react";
 import { type Language, t, I18nKey } from "../i18n";
 import { getCommandKey } from "../utils";
 import { ModalType } from "@/lib/enums";
 
-export const useDropdownActions = (
-  isInitialized: boolean,
-  lang: Language,
-  dispatch: AppDispatch,
-  currentPlanId: string,
-) => {
+export const useDropdownActions = () => {
+  const isInitialized = useAppSelector((state) => state.global.isInitialized);
+  const lang = useAppSelector((state) => state.userData.lang) as Language;
+  const dispatch = useAppDispatch();
   const plans = useAppSelector((state) => state.userData.planData);
+  const currentPlanId = useAppSelector(
+    (state) => state.localData.currentPlanId,
+  );
+
+  const handleAddPlan = useCallback(() => {
+    dispatch(addPlan());
+  }, [dispatch]);
+
+  const handleAddTerm = useCallback(() => {
+    dispatch(
+      addTerm({
+        planId: currentPlanId,
+        idx: -1,
+      }),
+    );
+  }, [dispatch, currentPlanId]);
+
+  const handleOpenProgramModal = useCallback(() => {
+    dispatch(
+      setModalState({
+        isOpen: true,
+        props: {
+          type: ModalType.PROGRAM,
+        },
+      }),
+    );
+  }, [dispatch]);
+
+  const handleToggleSideBar = useCallback(() => {
+    dispatch(toggleIsSideBarFolded());
+  }, [dispatch]);
+
+  const handleToggleCourseTaken = useCallback(() => {
+    dispatch(toggleIsCourseTakenExpanded());
+  }, [dispatch]);
+
+  const handleToggleDropdownMenu = useCallback(() => {
+    dispatch(toggleIsUtilityDropdownMenuOpen());
+  }, [dispatch]);
+
+  const handleExportPlan = useCallback(() => {
+    dispatch(prepareExport(currentPlanId));
+  }, [dispatch, currentPlanId]);
+
+  const handleImportPlan = useCallback(() => {
+    dispatch(
+      setModalState({
+        isOpen: true,
+        props: {
+          type: ModalType.IMPORT,
+        },
+      }),
+    );
+  }, [dispatch]);
+
+  const handleDeletePlan = useCallback(() => {
+    dispatch(
+      setModalState({
+        isOpen: true,
+        props: {
+          type: ModalType.SIMPLE,
+          title: t([I18nKey.DELETE_PLAN_TITLE], lang),
+          description: t([I18nKey.DELETE_PLAN_DESC], lang, {
+            item1: plans.get(currentPlanId)!.name,
+          }),
+          confirmCb: async () => {
+            dispatch(deletePlan(currentPlanId));
+          },
+        },
+      }),
+    );
+  }, [dispatch, currentPlanId, plans, lang]);
+
+  const handleFoldAllCourses = useCallback(() => {
+    dispatch(
+      setAllCoursesExpanded({
+        planId: currentPlanId,
+        isExpanded: false,
+      }),
+    );
+  }, [dispatch, currentPlanId]);
+
+  const handleUnfoldAllCourses = useCallback(() => {
+    dispatch(
+      setAllCoursesExpanded({
+        planId: currentPlanId,
+        isExpanded: true,
+      }),
+    );
+  }, [dispatch, currentPlanId]);
+
   const actions = useMemo(() => {
     if (!isInitialized) return [];
     return [
       {
         self: {
+          id: "fold-all-courses",
+          content: t([I18nKey.FOLD_ALL_COURSES], lang),
+          handleClick: handleFoldAllCourses,
+        },
+      },
+      {
+        self: {
+          id: "unfold-all-courses",
+          content: t([I18nKey.UNFOLD_ALL_COURSES], lang),
+          handleClick: handleUnfoldAllCourses,
+        },
+      },
+      {
+        self: {
           id: "add-plan",
           content: t([I18nKey.ADD, I18nKey.PLAN], lang),
-          handleClick: () => {
-            dispatch(addPlan());
-          }, // add an empty plan
+          handleClick: handleAddPlan,
         },
         shortcut: [getCommandKey(), "P"],
       },
@@ -38,13 +141,7 @@ export const useDropdownActions = (
         self: {
           id: "add-term",
           content: t([I18nKey.ADD, I18nKey.SEMESTER], lang),
-          handleClick: () =>
-            dispatch(
-              addTerm({
-                planId: currentPlanId,
-                idx: -1,
-              }),
-            ), // add an empty term
+          handleClick: handleAddTerm,
         },
         shortcut: [getCommandKey(), "N"],
       },
@@ -52,26 +149,14 @@ export const useDropdownActions = (
         self: {
           id: "search-program",
           content: t([I18nKey.ADD, I18nKey.PROGRAM], lang),
-          handleClick: () => {
-            // dispatch(setIsProgramModalOpen(true));
-            dispatch(
-              setModalState({
-                isOpen: true,
-                props: {
-                  type: ModalType.PROGRAM,
-                },
-              }),
-            );
-          },
+          handleClick: handleOpenProgramModal,
         },
       },
       {
         self: {
           id: "toggle-sidebar",
           content: t([I18nKey.TOGGLE, I18nKey.SIDEBAR], lang),
-          handleClick: () => {
-            dispatch(toggleIsSideBarFolded());
-          },
+          handleClick: handleToggleSideBar,
         },
         shortcut: [getCommandKey(), "B"],
       },
@@ -79,9 +164,7 @@ export const useDropdownActions = (
         self: {
           id: "toggle-course-taken",
           content: t([I18nKey.TOGGLE, I18nKey.COURSE_TAKEN], lang),
-          handleClick: () => {
-            dispatch(toggleIsCourseTakenExpanded());
-          },
+          handleClick: handleToggleCourseTaken,
         },
         shortcut: [getCommandKey(), "I"],
       },
@@ -89,9 +172,7 @@ export const useDropdownActions = (
         self: {
           id: "toggle-dropdown-menu",
           content: t([I18nKey.TOGGLE, I18nKey.DROPDOWN_MENU], lang),
-          handleClick: () => {
-            dispatch(toggleIsUtilityDropdownMenuOpen());
-          },
+          handleClick: handleToggleDropdownMenu,
         },
         shortcut: [getCommandKey(), "M"],
       },
@@ -99,70 +180,42 @@ export const useDropdownActions = (
         self: {
           id: "delete-current-plan",
           content: t([I18nKey.DELETE, I18nKey.CURRENT_PLAN], lang),
-          handleClick: () => {
-            // dispatch(
-            //   setSimpleModalInfo({
-            //     isOpen: true,
-            //     title: t([I18nKey.DELETE_PLAN_TITLE], lang),
-            //     description: t([I18nKey.DELETE_PLAN_DESC], lang, {
-            //       item1: plans.get(currentPlanId)!.name,
-            //     }),
-            //     confirmCb: () => {
-            //       dispatch(deletePlan(currentPlanId));
-            //       return Promise.resolve();
-            //     },
-            //     closeCb: () => {
-            //       return Promise.resolve();
-            //     },
-            //   }),
-            // );
-
-            dispatch(
-              setModalState({
-                isOpen: true,
-                props: {
-                  type: ModalType.SIMPLE,
-                  title: t([I18nKey.DELETE_PLAN_TITLE], lang),
-                  description: t([I18nKey.DELETE_PLAN_DESC], lang, {
-                    item1: plans.get(currentPlanId)!.name,
-                  }),
-                  confirmCb: async () => {
-                    dispatch(deletePlan(currentPlanId));
-                  },
-                },
-              }),
-            );
-          },
+          handleClick: handleDeletePlan,
         },
       },
       {
         self: {
           id: "export-current-plan",
           content: t([I18nKey.EXPORT, I18nKey.CURRENT_PLAN], lang),
-          handleClick: () => {
-            dispatch(prepareExport(currentPlanId));
-          },
+          handleClick: handleExportPlan,
         },
       },
       {
         self: {
           id: "import-plan",
           content: t([I18nKey.IMPORT_PLAN], lang),
-          handleClick: () => {
-            // dispatch(setIsImportModalOpen(true));
-            dispatch(
-              setModalState({
-                isOpen: true,
-                props: {
-                  type: ModalType.IMPORT,
-                },
-              }),
-            );
-          },
+          handleClick: handleImportPlan,
         },
       },
     ];
-  }, [dispatch, currentPlanId, isInitialized, lang]) as ItemProps[];
+  }, [
+    handleAddPlan,
+    handleAddTerm,
+    handleOpenProgramModal,
+    handleToggleSideBar,
+    handleToggleCourseTaken,
+    handleToggleDropdownMenu,
+    handleDeletePlan,
+    handleExportPlan,
+    handleImportPlan,
+    handleFoldAllCourses,
+    handleUnfoldAllCourses,
+    dispatch,
+    isInitialized,
+    lang,
+    currentPlanId,
+    plans,
+  ]) as ItemProps[];
 
   return actions;
 };

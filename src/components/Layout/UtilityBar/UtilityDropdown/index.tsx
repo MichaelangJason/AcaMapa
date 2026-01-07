@@ -48,9 +48,6 @@ const UtilityDropdown = () => {
   const isUtilityDropdownMenuOpen = useAppSelector(
     (state) => state.global.isUtilityDropdownMenuOpen,
   );
-  const currentPlanId = useAppSelector(
-    (state) => state.localData.currentPlanId,
-  );
 
   // handle close dropdown menu
   const handleCloseDropdownMenu = useCallback(() => {
@@ -63,12 +60,7 @@ const UtilityDropdown = () => {
   }, [dispatch]);
 
   // actions
-  const actions = useDropdownActions(
-    isInitialized,
-    lang,
-    dispatch,
-    currentPlanId,
-  );
+  const actions = useDropdownActions();
 
   // register action shortcuts
   useRegisterShortcuts(actions, isInitialized);

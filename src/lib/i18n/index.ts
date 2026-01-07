@@ -224,6 +224,8 @@ export enum I18nKey {
   INVALID_PLACE = "invalid-place",
   P_ITEM1 = "p-item1",
   P_ITEM2 = "p-item2",
+  FOLD_ALL_COURSES = "fold-all-courses",
+  UNFOLD_ALL_COURSES = "unfold-all-courses",
 
   // term related
   CURRENT_TERM = "current-term",

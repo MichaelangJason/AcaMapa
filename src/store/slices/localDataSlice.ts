@@ -229,6 +229,23 @@ const localDataSlice = createSlice({
         delete state.isCourseExpanded[action.payload.planId];
       }
     },
+    setAllCoursesExpanded: (
+      state,
+      action: PayloadAction<{
+        planId: string;
+        isExpanded: boolean;
+      }>,
+    ) => {
+      const { planId, isExpanded } = action.payload;
+
+      if (!state.isCourseExpanded[planId]) {
+        return;
+      }
+
+      Object.keys(state.isCourseExpanded[planId]).forEach((courseId) => {
+        state.isCourseExpanded[planId][courseId] = isExpanded;
+      });
+    },
 
     /**
      * @description course dep updates, input validation will be handled in middleware
@@ -549,6 +566,7 @@ export const {
   setIsCourseExpanded,
   deleteIsCourseExpanded,
   initPlanIsCourseExpanded,
+  setAllCoursesExpanded,
 
   // Course dependency graph reducers
   addCoursesToGraph,

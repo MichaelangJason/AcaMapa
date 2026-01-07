@@ -199,6 +199,8 @@
   "switch-lang": "Passer en Français",
   "valid-place": "Valid place: {{item1}}",
   "invalid-place": "Invalid place: {{item1}}",
+  "fold-all-courses": "Fold All Courses",
+  "unfold-all-courses": "Unfold All Courses",
 
   "faq": "FAQ/How-to",
   "table-of-contents": "Table of Contents",
