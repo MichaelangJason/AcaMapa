@@ -150,10 +150,17 @@
 
         transition: opacity 0.2s ease;
 
+        svg {
+          width: 100%;
+          height: auto;
+        }
+
         svg path {
           stroke: var(--course-card-button);
           stroke-width: 0.125rem;
-          transition: all 0.2s ease;
+          transition:
+            stroke 0.2s ease,
+            fill 0.2s ease;
         }
 
         &:hover:not(.active):not(.disabled) {
