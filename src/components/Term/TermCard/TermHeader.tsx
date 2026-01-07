@@ -9,7 +9,7 @@ import { type Term } from "@/types/db";
 import { type CachedDetailedCourse } from "@/types/local";
 import { Season } from "@/lib/enums";
 import SelectIcon from "@/public/icons/select.svg";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 const TermHeader = ({
   term,
@@ -39,6 +39,14 @@ const TermHeader = ({
   const [isEditing, setIsEditing] = useState(false);
 
   const showButtons = !isExport;
+
+  const handleClick = useCallback(() => {
+    setIsEditing((prev) => !prev);
+    setTimeout(() => {
+      setIsEditing(false);
+    }, 100);
+  }, [setIsEditing]);
+
   return (
     /* header for the term card */
     <header className="term-header" {...draggableProvided?.dragHandleProps}>
@@ -55,7 +63,7 @@ const TermHeader = ({
           <TermSeasonIcon termSeason={termSeason} />
 
           {/* term name */}
-          <span className="term-name">
+          <span className="term-name" onClick={handleClick}>
             <span>{term.name}</span>
 
             {/* select element for the term name, hidden under the span */}
@@ -73,12 +81,7 @@ const TermHeader = ({
               "select clickable",
               (hasSelectedCourses || !showButtons) && "hidden",
             ])}
-            onClick={() => {
-              setIsEditing((prev) => !prev);
-              setTimeout(() => {
-                setIsEditing(false);
-              }, 100);
-            }}
+            onClick={handleClick}
           />
         </span>
       )}

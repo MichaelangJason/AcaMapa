@@ -13,7 +13,6 @@ const ItemTag = ({
   ref,
   title,
   items,
-  handleClickTag,
   handleAddItem,
   handleClickItem,
   handleDeleteItem,
@@ -35,7 +34,6 @@ const ItemTag = ({
   items: string[];
 
   // callbacks for items
-  handleClickTag?: () => void;
   handleAddItem?: () => void;
   handleClickItem?: (item: string, idx?: number) => void;
   handleDeleteItem?: (item: string, idx?: number) => void;
@@ -83,18 +81,22 @@ const ItemTag = ({
           "open"
       ) {
         e.stopPropagation();
-        setIsPinned(true);
+
+        if (pinnable) {
+          setIsPinned(true);
+        }
+
         tagRef.current.attributes.removeNamedItem("data-tag-type");
         return;
       }
 
       if (pinnable && expandable) {
         setIsPinned((prev) => !prev);
+      } else {
+        handleAddItem?.();
       }
-
-      handleClickTag?.();
     },
-    [pinnable, expandable, handleClickTag],
+    [pinnable, expandable],
   );
 
   return (

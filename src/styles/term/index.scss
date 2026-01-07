@@ -181,6 +181,10 @@
         line-height: 1rem;
         display: flex;
 
+        &:hover {
+          cursor: pointer;
+        }
+
         select {
           position: absolute;
           opacity: 0;
@@ -195,6 +199,10 @@
           &.safari {
             z-index: unset;
             opacity: 1;
+          }
+
+          &:hover {
+            cursor: pointer;
           }
         }
       }
