@@ -1,5 +1,5 @@
 import type { Config } from "jest";
-import nextJest from "next/jest";
+import nextJest from "next/jest.js";
 
 const createJestConfig = nextJest({
   // Provide the path to your Next.js app to load next.config.js and .env files
@@ -7,7 +7,7 @@ const createJestConfig = nextJest({
 });
 
 // Custom Jest configuration
-const customJestConfig = {
+const customJestConfig: Config & { testMatch?: string[] | undefined } = {
   testEnvironment: "jest-environment-jsdom", // Use jsdom for React testing
   coverageProvider: "v8", // Use V8 for coverage
   moduleNameMapper: {
