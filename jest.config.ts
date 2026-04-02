@@ -7,7 +7,7 @@ const createJestConfig = nextJest({
 });
 
 // Custom Jest configuration
-const customJestConfig: Config = {
+const customJestConfig = {
   testEnvironment: "jest-environment-jsdom", // Use jsdom for React testing
   coverageProvider: "v8", // Use V8 for coverage
   moduleNameMapper: {
@@ -18,6 +18,7 @@ const customJestConfig: Config = {
   testPathIgnorePatterns: [
     "<rootDir>/.next/", // Ignore .next folder
     "<rootDir>/node_modules/", // Ignore node_modules
+    "<rootDir>/src/tests/e2e/", // Ignore e2e tests
   ],
   collectCoverage: false, // Enable code coverage
   collectCoverageFrom: [
