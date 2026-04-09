@@ -1,32 +1,35 @@
-import type { ReqGroup } from "@/types/local";
+import type { ReqGroup, CourseId } from "@/types/local";
 import { GroupType } from "../../enums";
 import { findCourseIds } from "../helpers";
 
-export const findIdInReqGroup = (item: ReqGroup | string): string[] => {
-  if (typeof item === "string") {
-    return [item];
+export const findIdInReqGroup = (initReq: ReqGroup | string) => {
+  const stack = [initReq] as Array<ReqGroup | string>;
+  const courseIds = [] as Array<CourseId>;
+
+  while (stack.length > 0) {
+    const req = stack.pop()!;
+
+    if (typeof req === "string") {
+      courseIds.push(req);
+      continue;
+    }
+
+    if (req.type === GroupType.EMPTY || req.type === GroupType.CREDIT) {
+      continue;
+    }
+
+    stack.push(...req.inner);
   }
 
-  if ([GroupType.EMPTY, GroupType.CREDIT].includes(item.type)) {
-    // empty group or credit group
-    return [];
-  }
-
-  if (item.type === GroupType.SINGLE) {
-    // single group
-    return findIdInReqGroup(item.inner[0]);
-  }
-
-  if ([GroupType.OR, GroupType.AND, GroupType.PAIR].includes(item.type)) {
-    // or, and, pair group
-    return item.inner.flatMap(findIdInReqGroup);
-  }
-
-  throw new Error("Invalid group type: " + item.type);
+  return courseIds;
 };
 
 // REVIEW: may need further refactoring
-export const parseGroup = (parsed: string) => {
+export const parseGroup = (
+  parsed?: string,
+  opts?: { skipIdCheck?: boolean },
+) => {
+  const { skipIdCheck = false } = opts || {};
   const trim = (id: string) => {
     return id.trim();
   };
@@ -53,7 +56,8 @@ export const parseGroup = (parsed: string) => {
 
       if (
         group.type !== GroupType.CREDIT &&
-        findCourseIds(nextChunk, false).length === 0
+        !skipIdCheck &&
+        findCourseIds(nextChunk, { findAll: false }).length === 0
       ) {
         throw new Error("pushed string is not a valid courseId: " + nextChunk);
       }
@@ -190,14 +194,14 @@ export const parseGroup = (parsed: string) => {
     return group; // same reference
   };
 
-  return parse(parsed.split("")); // split in to array of chars
+  return parse((parsed || "").split("")); // split in to array of chars
 };
 
 export const getTargetGroup = (
   group: ReqGroup | string,
   targetGroupType: GroupType,
 ): ReqGroup | undefined => {
-  if (typeof group === "string") return undefined;
+  if (!group || typeof group === "string") return undefined;
   if (group.type === targetGroupType) return group;
   return group.inner.find((i) => getTargetGroup(i, targetGroupType)) as
     | ReqGroup

@@ -2,19 +2,13 @@ import { type LocalDataState } from "@/store/slices/localDataSlice";
 import type { WritableDraft } from "immer";
 import { type PayloadAction } from "@reduxjs/toolkit";
 import { addEquivGroup, removeEquivGroup } from "../equivalents";
+import type { CourseId, DepGraph } from "@/types/local";
 
 const gatherAffectedCourses = (
-  depGraph: Map<
-    string,
-    WritableDraft<{
-      isSatisfied: boolean;
-      termId: string;
-      affectedCourseIds: Set<string>;
-    }>
-  >,
+  depGraph: DepGraph,
   ruleCourseIds: Set<string>,
 ) => {
-  const courseToBeUpdated = new Set<string>();
+  const courseToBeUpdated = new Set<CourseId>();
 
   ruleCourseIds.forEach((courseId) => {
     const course = depGraph.get(courseId);

@@ -1,43 +1,41 @@
 import { formatCourseId } from "@/lib/utils";
-import type { EquivGroups } from "@/types/local";
+import type { EquivGroups, CourseId } from "@/types/local";
 /**
  * Can be optimized with UNION-FIND if heavy usage
  */
 
-export const formatRule = (rule: [string, string]): string => {
+export const formatRule = (rule: [CourseId, CourseId]): string => {
   return `${formatCourseId(rule[0])} ⇒ ${formatCourseId(rule[1])}`;
 };
 
 export function addEquivGroup(
-  equivCourseId: string,
-  courseId: string,
+  equivCourseId: CourseId,
+  courseId: CourseId,
   equivGroups: EquivGroups,
 ) {
   const { courseToEquivCourses, equivCourseToCourses } = equivGroups;
 
   // update course to equiv courses map
   if (!courseToEquivCourses.has(courseId)) {
-    courseToEquivCourses.set(courseId, new Set<string>());
+    courseToEquivCourses.set(courseId, new Set<CourseId>());
   }
   courseToEquivCourses.get(courseId)!.add(equivCourseId);
 
   // update equiv course to courses map
   if (!equivCourseToCourses.has(equivCourseId)) {
-    equivCourseToCourses.set(equivCourseId, new Set<string>());
+    equivCourseToCourses.set(equivCourseId, new Set<CourseId>());
   }
   equivCourseToCourses.get(equivCourseId)!.add(courseId);
 }
 
 export function removeEquivGroup(
-  equivCourseId: string,
-  courseId: string,
+  equivCourseId: CourseId,
+  courseId: CourseId,
   equivGroups: EquivGroups,
 ) {
   const { courseToEquivCourses, equivCourseToCourses } = equivGroups;
 
-  if (!courseToEquivCourses.has(courseId)) {
-    return;
-  }
+  if (!courseToEquivCourses.has(courseId)) return;
 
   // update course to equiv courses map
   const group1 = courseToEquivCourses.get(courseId)!;
@@ -57,38 +55,30 @@ export function removeEquivGroup(
 }
 
 export function getEquivCourses(
-  courseId: string,
+  courseId: CourseId,
   equivGroups: EquivGroups,
-): string[] {
+): CourseId[] {
   const { courseToEquivCourses } = equivGroups;
   const group = courseToEquivCourses.get(courseId);
 
-  if (!group) {
-    return [];
-  }
-
-  return Array.from(group);
+  return group ? Array.from(group) : [];
 }
 
 export const getReverseEquivCourses = (
-  equivCourseId: string,
+  courseId: CourseId,
   equivGroups: EquivGroups,
-): string[] => {
+): CourseId[] => {
   const { equivCourseToCourses } = equivGroups;
-  const group = equivCourseToCourses.get(equivCourseId);
+  const group = equivCourseToCourses.get(courseId);
 
-  if (!group) {
-    return [];
-  }
-
-  return Array.from(group);
+  return group ? Array.from(group) : [];
 };
 
 export function isEquivalent(
-  courseId: string,
-  equivCourseId: string,
+  courseId1: CourseId,
+  courseId2: CourseId,
   equivGroups: EquivGroups,
 ): boolean {
   const { courseToEquivCourses } = equivGroups;
-  return !!courseToEquivCourses.get(courseId)?.has(equivCourseId);
+  return !!courseToEquivCourses.get(courseId1)?.has(courseId2);
 }

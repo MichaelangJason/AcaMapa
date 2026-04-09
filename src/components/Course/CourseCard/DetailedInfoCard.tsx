@@ -3,7 +3,7 @@ import Wrapper from "./Wrapper";
 import MiniCourseCard from "./MiniCourseCard";
 import ReqNotes from "./ReqNotes";
 import FootNote from "./FootNote";
-import { I18nKey, Language, t } from "@/lib/i18n";
+import { I18nKey, t } from "@/lib/i18n";
 import { Course } from "@/types/db";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { isValidCourse } from "@/lib/typeGuards";
@@ -12,9 +12,11 @@ import {
   addSelectedCourse,
   removeSelectedCourse,
 } from "@/store/slices/localDataSlice";
-import { selectCourseDepMeta } from "@/store/selectors";
+import { selectCurrDepGraph } from "@/store/selectors";
 import { useMemo } from "react";
 import clsx from "clsx";
+import { getSubjectCode } from "@/lib/course";
+import { CONST_STR } from "@/lib/constants";
 
 /**
  * Used to display one section of a program card
@@ -45,25 +47,32 @@ const DetailedInfoCard = ({
   className?: string;
 }) => {
   const [isExpanded, setIsExpanded] = useState(true); // default to expanded
-  const lang = useAppSelector((state) => state.userData.lang) as Language;
+  const lang = useAppSelector((state) => state.userData.lang);
   const courseData = useAppSelector((state) => state.localData.courseData);
   const selectedCourses = useAppSelector(
     (state) => state.localData.selectedCourses,
   );
   const dispatch = useAppDispatch();
-  const { getCourseSource } = useAppSelector(selectCourseDepMeta);
+  const depGraph = useAppSelector(selectCurrDepGraph);
+  const courseTaken = useAppSelector((state) => state.userData.courseTaken);
 
   // aggregate credits of the courses of this section that are present in the plan
   const presentCredits = useMemo(() => {
     return courseIds.reduce((acc, id) => {
       const courseId = id.replace(" ", "");
-      const { source } = getCourseSource(courseId, "", null, false);
+      const subject = getSubjectCode(courseId);
+      const source =
+        (courseTaken.get(subject)?.includes(courseId) &&
+          CONST_STR.COURSE_TAKEN) ||
+        depGraph.get(courseId)?.source ||
+        CONST_STR.EMPTY;
+
       if (!source) return acc;
 
       const course = courseData[courseId];
       return acc + course.credits;
     }, 0);
-  }, [getCourseSource, courseData, courseIds]);
+  }, [courseData, courseIds, depGraph, courseTaken]);
 
   // handle the addition or removal of a course
   const handleAddCourse = useCallback(

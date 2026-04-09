@@ -1,0 +1,44 @@
+import type { S_Map, S_Set } from "@/types/utils";
+
+export function new_S<K extends string, V = undefined>() {
+  return {
+    data: {},
+    size: 0,
+  } as V extends undefined ? S_Set<K> : S_Map<K, V>;
+}
+
+export function add_S<K extends string, V>(
+  set: S_Map<K, V>,
+  key: K,
+  value = undefined as V,
+) {
+  if (key in set.data) return;
+  set.data[key] = value;
+  set.size++;
+}
+
+export function remove_S<K extends string, V>(set: S_Map<K, V>, key: K) {
+  if (!(key in set.data)) return;
+  delete set.data[key];
+  set.size--;
+}
+
+export function has_S<K extends string, V>(set: S_Map<K, V>, key: K) {
+  return key in set.data;
+}
+
+export function isEmpty_S<K extends string, V>(set: S_Map<K, V>) {
+  return set.size === 0;
+}
+
+export function keys_S<K extends string, V>(set: S_Map<K, V>) {
+  return Object.keys(set.data);
+}
+
+export function values_S<K extends string, V>(set: S_Map<K, V>) {
+  return Object.values(set.data);
+}
+
+export function toArray_S<K extends string>(set: S_Set<K>) {
+  return Object.keys(set.data);
+}

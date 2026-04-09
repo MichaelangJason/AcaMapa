@@ -19,6 +19,8 @@ export type Program = Omit<ProgramSchemaType, "createdAt" | "updatedAt"> & {
   _id: string;
 };
 
+export type ProgramId = string;
+
 export type ProgramReq = {
   heading: string;
   subheading: string;
@@ -42,6 +44,7 @@ export type Course = Omit<
 
 // exclude embeddings from DetailedCourse
 import type { NonNullableRequired, Override } from "./utils";
+import type { Language } from "@/lib/i18n";
 export type FullCourse = NonNullableRequired<Course>;
 export type DetailedCourse = Omit<
   FullCourse,
@@ -54,7 +57,13 @@ export type Plan = PlanSchemaType;
 export type Term = TermSchemaType;
 
 export type MemberData = Omit<
-  Override<UserSchemaType, { equivRules: [string, string][] }>,
+  Override<
+    UserSchemaType,
+    {
+      equivRules: [CourseId, CourseId][];
+      lang: Language;
+    }
+  >,
   "createdAt" | "updatedAt" | "lastLogin" | "email"
 >;
 export type GuestUserData = Omit<MemberData, "chatThreadIds">;
