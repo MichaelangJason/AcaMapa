@@ -8,7 +8,7 @@ import { formatCourseId, scrollCourseCardToView } from "@/lib/utils";
 import RemoveIcon from "@/public/icons/minus.svg";
 import AddIcon from "@/public/icons/plus.svg";
 import clsx from "clsx";
-import { selectCourseDepMeta } from "@/store/selectors";
+import { selectCourseDepDetail } from "@/store/selectors";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { TooltipId } from "@/lib/enums";
 import { setIsCourseTakenExpanded } from "@/store/slices/globalSlice";
@@ -31,7 +31,7 @@ const MiniCourseCard = ({
   query,
   callback,
   isSelected = false,
-  isSatisfied = false,
+  isSatisfied = false, // override
   style = {},
 }: {
   data: Course;
@@ -43,12 +43,9 @@ const MiniCourseCard = ({
 }) => {
   const { id, name, credits } = data;
   const dispatch = useAppDispatch();
-  const { getCourseSource } = useAppSelector(selectCourseDepMeta);
-  const {
-    source,
-    isSatisfied: isSatisfiedSource,
-    // isValid,
-  } = getCourseSource(id, "", null, false);
+  const { isSatisfied: isSatisfiedSource, source } = useAppSelector((state) =>
+    selectCourseDepDetail(state, id),
+  );
   const isAddingCourse = useAppSelector((state) => state.global.isAdding);
   const isDragging = useAppSelector((state) => state.global.isDragging);
   const lang = useAppSelector((state) => state.userData.lang) as Language;

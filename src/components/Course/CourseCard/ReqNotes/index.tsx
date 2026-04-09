@@ -1,12 +1,13 @@
 "use client";
 
 import { GroupType, ReqType } from "@/lib/enums";
-import type { EnhancedRequisites } from "@/types/local";
+import type { SourcedReqGroup } from "@/types/local";
 import { useRef } from "react";
 import clsx from "clsx";
 import ReqGroup from "./ReqGroup";
 import { useAddToCourseTakenOrJump } from "@/lib/hooks/course";
 import ScrollWrapper from "./ScrollWrapper";
+import { useAppSelector } from "@/store/hooks";
 
 /**
  * Used to display the requisites and notes of a course
@@ -23,29 +24,26 @@ import ScrollWrapper from "./ScrollWrapper";
 const ReqNotes = ({
   parentCourse,
   title,
-  requisites,
+  sourcedReqGroup,
+  reqText,
   notes = [],
-  planId,
-  termId,
-  includeCurrentTerm = false,
   type,
 }: {
   parentCourse?: string;
   title: string;
   type: ReqType;
-  requisites?: EnhancedRequisites;
+  reqText?: string;
+  sourcedReqGroup?: SourcedReqGroup;
   notes?: string[];
-  planId?: string;
-  termId?: string;
-  includeCurrentTerm?: boolean;
 }) => {
   const reqNotesRef = useRef<HTMLDivElement>(null);
   const reqGroupRef = useRef<HTMLDivElement>(null);
 
   const addToCourseTakenOrJump = useAddToCourseTakenOrJump();
+  const lang = useAppSelector((state) => state.userData.lang);
 
-  const hasReq = requisites?.group && requisites.group.type !== GroupType.EMPTY;
-  const showReqGroup = hasReq && parentCourse && termId && planId; // unsafe validity check
+  const hasReq = sourcedReqGroup && sourcedReqGroup.type !== GroupType.EMPTY;
+  const showReqGroup = hasReq && parentCourse; // unsafe validity check
 
   return (
     <section className="req-note" ref={reqNotesRef}>
@@ -61,13 +59,11 @@ const ReqNotes = ({
           <ScrollWrapper reqGroupRef={reqGroupRef} reqNotesRef={reqNotesRef}>
             {/* requirement group */}
             <ReqGroup
-              parentCourse={parentCourse}
-              group={requisites.group}
-              includeCurrentTerm={includeCurrentTerm}
-              termId={termId}
+              lang={lang}
+              rootCourse={parentCourse}
+              group={sourcedReqGroup}
               reqType={type}
               addToCourseTakenOrJump={addToCourseTakenOrJump}
-              planId={planId}
             />
           </ScrollWrapper>
         </section>
@@ -75,7 +71,7 @@ const ReqNotes = ({
 
       {/* notes */}
       <ul className="notes">
-        {requisites?.raw && <li>{requisites.raw}</li>}
+        {reqText && <li>{reqText}</li>}
         {notes.map((note, idx) => (
           <li key={`note-${parentCourse}-${type}-${idx}`}>{note}</li>
         ))}

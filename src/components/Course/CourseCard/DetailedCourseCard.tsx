@@ -10,8 +10,9 @@ import type {
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
   selectIsCourseExpanded,
-  selectCourseDepGraph,
   selectIsOverwritten,
+  selectCourseDepDetail,
+  selectIsCourseSatisfied,
 } from "@/store/selectors";
 import FootNote from "./FootNote";
 import ReqNotes from "./ReqNotes";
@@ -51,8 +52,6 @@ import { I18nKey, Language, t } from "@/lib/i18n";
  */
 const DetailedCourseCard = ({
   course,
-  planId,
-  termId,
   termSeason,
 
   isDraggingTerm = false,
@@ -99,6 +98,8 @@ const DetailedCourseCard = ({
     notes,
   } = course;
 
+  const depDetail = useAppSelector((state) => selectCourseDepDetail(state, id));
+
   // whether the course is expanded, controlled by redux
   const isExpanded = useAppSelector((state) =>
     selectIsCourseExpanded(state, id),
@@ -108,6 +109,13 @@ const DetailedCourseCard = ({
   const isOverwritten = useAppSelector((state) =>
     selectIsOverwritten(state, id),
   );
+
+  // whether the course req is satisfied
+  const isReqSatisfied = useAppSelector((state) =>
+    selectIsCourseSatisfied(state, id),
+  );
+
+  const isSatisfied = isOverwritten || isReqSatisfied;
 
   // may not need memoized selector
   const isSeekingCourse = useAppSelector(
@@ -129,16 +137,6 @@ const DetailedCourseCard = ({
       setIsExpanded?.(id, true);
     }
   }, [dispatch, id, isSeekingCourse, setIsExpanded]);
-
-  // dependency graph of the course
-  const depGraph = useAppSelector((state) =>
-    selectCourseDepGraph(state, planId),
-  );
-
-  // whether the course requirements are satisfied
-  const isSatisfied = useMemo(() => {
-    return depGraph.get(id)?.isSatisfied || isOverwritten;
-  }, [depGraph, id, isOverwritten]);
 
   // whether the course has no children
   const hasNoChildren = useMemo(() => {
@@ -226,9 +224,8 @@ const DetailedCourseCard = ({
               parentCourse={id}
               title={t([I18nKey.PRE_REQ], lang)}
               type={ReqType.PRE_REQ}
-              requisites={prerequisites}
-              termId={termId}
-              planId={planId}
+              reqText={prerequisites.raw}
+              sourcedReqGroup={depDetail.prerequisites}
             />
           )}
 
@@ -238,10 +235,8 @@ const DetailedCourseCard = ({
               parentCourse={id}
               title={t([I18nKey.CO_REQ], lang)}
               type={ReqType.CO_REQ}
-              requisites={corequisites}
-              termId={termId}
-              includeCurrentTerm
-              planId={planId}
+              reqText={corequisites.raw}
+              sourcedReqGroup={depDetail.corequisites}
             />
           )}
 
@@ -251,10 +246,8 @@ const DetailedCourseCard = ({
               parentCourse={id}
               title={t([I18nKey.ANTI_REQ], lang)}
               type={ReqType.ANTI_REQ}
-              requisites={restrictions}
-              termId={termId}
-              includeCurrentTerm
-              planId={planId}
+              reqText={restrictions.raw}
+              sourcedReqGroup={depDetail.restrictions}
             />
           )}
 
@@ -265,8 +258,6 @@ const DetailedCourseCard = ({
               title={t([I18nKey.NOTES], lang)}
               type={ReqType.NOTES}
               notes={notes}
-              termId={termId}
-              planId={planId}
             />
           )}
 
