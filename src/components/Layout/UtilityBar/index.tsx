@@ -13,14 +13,10 @@ const UtilityBar = () => {
       e.stopPropagation();
     };
 
-    if (ref.current) {
-      ref.current.addEventListener("wheel", stopScrollPropagation);
-    }
+    ref.current?.addEventListener("wheel", stopScrollPropagation);
 
     return () => {
-      if (ref.current) {
-        ref.current.removeEventListener("wheel", stopScrollPropagation);
-      }
+      ref.current?.removeEventListener("wheel", stopScrollPropagation);
     };
   }, []);
 
