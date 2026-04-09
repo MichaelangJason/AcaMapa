@@ -3,6 +3,8 @@ import type { HandlerContext } from "../core";
 import { getSubjectCode } from "@/lib/course";
 import { updateCoursesIsSatisfied } from "@/store/slices/localDataSlice";
 import { getTermOrderMap } from "./helpers";
+import type { CourseId } from "@/types/courseDep";
+import { toArray_S } from "@/lib/utils/dataStructure";
 
 export const handleCourseTakenAction = ({
   action,
@@ -20,30 +22,30 @@ export const handleCourseTakenAction = ({
       if (!depData.has(planId)) {
         throw new Error(`Plan id not found in course dep data: ${planId}`);
       }
-      const { depGraph, creditsReqMap } = depData.get(planId)!;
+      const { depGraph, subjectReqMap } = depData.get(planId)!;
 
-      const affectedCourses = new Set<string>();
+      const courseToBeUpdated = new Set<CourseId>();
 
       courseIds.forEach((courseId) => {
         const course = depGraph.get(courseId);
         if (course) {
           // some other course depends on this course
           course.affectedCourseIds.forEach((id) => {
-            affectedCourses.add(id);
+            courseToBeUpdated.add(id);
           });
         }
+
+        // update credits groups
         const subject = getSubjectCode(courseId);
-        const creditsReq = creditsReqMap.get(subject);
-        if (creditsReq) {
-          creditsReq.forEach((req) => {
-            affectedCourses.add(req);
-          });
+        const subjectReqMeta = subjectReqMap[subject];
+        if (subjectReqMeta) {
+          toArray_S(subjectReqMeta.subscribed).forEach((c) =>
+            courseToBeUpdated.add(c),
+          );
         }
       });
 
-      if (affectedCourses.size === 0) {
-        return;
-      }
+      if (courseToBeUpdated.size === 0) return;
 
       const plan = state.userData.planData.get(planId)!;
       const termOrderMap = getTermOrderMap(plan);
@@ -52,7 +54,7 @@ export const handleCourseTakenAction = ({
       dispatch(
         updateCoursesIsSatisfied({
           planId,
-          courseToBeUpdated: affectedCourses,
+          courseToBeUpdated,
           courseTaken,
           termOrderMap,
         }),

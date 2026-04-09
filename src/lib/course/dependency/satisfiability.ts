@@ -1,96 +1,234 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { COURSE_PATTERN } from "@/lib/constants";
+import { COURSE_PATTERN, CONST_STR } from "@/lib/constants";
 import { GroupType, ReqType } from "@/lib/enums";
-import type { Course } from "@/types/db";
 import type {
+  CourseId,
   CourseDepData,
-  ReqGroup,
-  CachedDetailedCourse,
-  EquivGroups,
+  CourseDepDetail,
+  SourcedReqGroup,
+  SatMeta,
+  SubjectCode,
+  SharedSatCxt,
+  PerReqSatCxt,
 } from "@/types/local";
 import { getSubjectCode, getCourseLevel } from "../helpers";
-import { getValidCoursePerSubject } from "./credits";
 import { getEquivCourses } from "./equivalents";
+import { toArray_S } from "@/lib/utils/dataStructure";
 
 /**
  * course dep little algorithm will be independent of the corresponding redux slice
  * it is designed to pass in the graph object and mutate it in place (with immer)
- * TODO: maybe switch to a dep graph object
  */
 
-export const isCourseInGraph = (graph: CourseDepData, courseId: string) => {
-  return !!(
-    graph.depGraph.has(courseId) && // in dep graph
-    graph.subjectMap.get(getSubjectCode(courseId))?.has(courseId)
-  );
-};
-
-export const isCoursePlanned = (
+export function isCoursePlanned(
   depGraph: CourseDepData["depGraph"],
-  courseId: string,
-) => {
-  return !!depGraph.get(courseId)?.termId;
-};
+  courseId: CourseId,
+) {
+  return (
+    depGraph.get(courseId)?.source !== CONST_STR.EMPTY &&
+    depGraph.get(courseId)?.source !== CONST_STR.COURSE_TAKEN
+  );
+}
 
-export const isCourseTaken = (
-  courseTaken: Map<string, string[]>,
-  courseId: string,
-) => {
+export function isCourseTaken(
+  courseTaken: SharedSatCxt["courseTaken"],
+  courseId: CourseId,
+) {
   const subjectCode = getSubjectCode(courseId);
-  return courseTaken.get(subjectCode)?.includes(courseId) ?? false;
-};
+  return !!courseTaken.get(subjectCode)?.includes(courseId);
+}
 
-interface CommonSatisfiabilityArgs {
-  courseTaken: Map<string, string[]>;
-  termOrderMap: Map<string, number>;
-  depData: CourseDepData;
-  allCourseData: { [courseId: string]: Course };
-  combinedSubjectMap: Map<string, Set<string>>;
-  equivGroups: EquivGroups;
+/**
+ * Utilized hoisting to put the function declarations at the bottom of the function
+ * Gather Dependency information and fill it for dep graph
+ */
+function getReqSatMeta(reqId: CourseId, satCxt: SharedSatCxt & PerReqSatCxt) {
+  const {
+    courseTaken,
+    depData,
+    termOrderMap,
+    includeCurrentTerm,
+    pivotTermOrder,
+  } = satCxt;
+
+  /**
+   * 1.
+   * If the required course is part of a multi-term course
+   * e.g. COMP361D1, COMP361D2
+   */
+  const isMultiTerm = reqId.match(COURSE_PATTERN.MULTI_TERM);
+
+  /**
+   * 2.
+   * If the required course is already taken, return true
+   */
+  if (!isMultiTerm && isCourseTaken(courseTaken, reqId))
+    return { isReqSat: true, source: CONST_STR.COURSE_TAKEN };
+
+  /**
+   * 3. If the required course is not planned, return false
+   */
+  if (!isCoursePlanned(depData.depGraph, reqId))
+    return { isReqSat: false, source: CONST_STR.EMPTY };
+
+  /**
+   * 4.
+   * get the term order of the required course
+   */
+  const termId = depData.depGraph.get(reqId)!.source;
+  const reqTermOrder = termOrderMap.get(termId);
+
+  /**
+   * 5. If the term order is not found, throw an error
+   */
+  if (reqTermOrder === undefined) {
+    console.error("Term order not found for course: " + reqId);
+    throw new Error("Term order not found for course: " + reqId);
+  }
+
+  /**
+   * 6.
+   * If the required course is part of a multi-term course
+   * and the term order is not consecutive, return falts
+   * e.g. COMP361D2 requires COMP361D1, which must be taken at the previous term
+   */
+  if (isMultiTerm && reqTermOrder !== pivotTermOrder - 1)
+    return { isReqSat: false, source: termId };
+
+  /**
+   * 7.
+   * If the required course is planned
+   * check if the term order is satisfied
+   * includeCurrentTerm is true if the required course can be taken in the same term
+   */
+  const orderSatisfied = includeCurrentTerm
+    ? reqTermOrder <= pivotTermOrder // co-requisite and restriction
+    : reqTermOrder < pivotTermOrder; // pre-requisite
+
+  return { isReqSat: orderSatisfied, source: termId };
+}
+
+function checkReqSat(
+  reqId: CourseId,
+  satCxt: SharedSatCxt & PerReqSatCxt,
+): SatMeta {
+  let satStatus = {
+    ...getReqSatMeta(reqId, satCxt),
+    equivId: "",
+  } as SatMeta;
+
+  // ANTI REQ/Restrictions must also check equivalents
+  // PRE_REQ and CO_REQ can return if isReqSat === true
+  if (satCxt.reqType !== ReqType.ANTI_REQ && satStatus.isReqSat) {
+    return satStatus;
+  }
+
+  const equivCourses = getEquivCourses(reqId, satCxt.equivGroups);
+
+  for (const equivId of equivCourses) {
+    if (equivId === satCxt.pivotId || equivId === reqId) continue;
+    const equivSat = getReqSatMeta(equivId, satCxt);
+
+    // if any equivalent course id valid
+    // or its invalid but planned (source is not empty)
+    // then return the equivalent course source
+    if (equivSat.isReqSat || equivSat.source !== CONST_STR.EMPTY) {
+      satStatus = { ...equivSat, equivId };
+      break;
+    }
+  }
+
+  // ANTI_REQ consider the opposite
+  if (satCxt.reqType === ReqType.ANTI_REQ) {
+    satStatus.isReqSat = !satStatus.isReqSat;
+  }
+
+  return satStatus;
+}
+
+function checkKSat(
+  reqGroup: SourcedReqGroup,
+  k: number,
+  satCxt: SharedSatCxt & PerReqSatCxt,
+): boolean {
+  // for type hint
+  if (reqGroup.type === GroupType.CREDIT)
+    throw new Error("Should not check credit group");
+
+  let count = 0,
+    isSat = false;
+
+  // lazy init satMeta
+  reqGroup.satMeta ??= {};
+
+  for (const req of reqGroup.inner) {
+    if (typeof req === "string") {
+      reqGroup.satMeta[req] = checkReqSat(req, satCxt);
+      isSat = reqGroup.satMeta[req].isReqSat;
+    } else {
+      isSat = checkGroupSat(req, { ...satCxt });
+    }
+
+    if (isSat) count++;
+  }
+
+  return count >= k;
+}
+
+function checkCrSat(
+  reqGroup: SourcedReqGroup,
+  satCxt: SharedSatCxt & PerReqSatCxt,
+) {
+  if (reqGroup.type !== GroupType.CREDIT)
+    throw Error(`Wrong GroupType: ${reqGroup.type.valueOf()}`);
+
+  const { combinedSubjectMap, allCourseData, reqType } = satCxt;
+
+  const [totalReqCrs, scopes, ...subjects] = reqGroup.inner;
+  const levels = new Set<string>(scopes.split(""));
+  const subjectsSet = new Set<SubjectCode>(subjects);
+  const totalReqCrsFloat = parseFloat(totalReqCrs);
+
+  // reset subjecMap
+  reqGroup.totalValidCr = 0;
+  reqGroup.satSubjectMap = {};
+
+  // gather from subjectMap
+  for (const [subject, courseIds] of combinedSubjectMap.entries()) {
+    if (!subjectsSet.has(subject)) continue;
+
+    const subjectSatMeta = (reqGroup.satSubjectMap[subject] = {
+      validCr: 0,
+      validCourseIds: [] as Array<CourseId>,
+    });
+
+    courseIds.forEach((cid) => {
+      // check course level, 0 includes all levels
+      if (!levels.has("0") && !levels.has(getCourseLevel(cid))) return;
+
+      const satMeta = getReqSatMeta(cid, satCxt);
+      if (satMeta.isReqSat) {
+        subjectSatMeta.validCourseIds.push(cid);
+        subjectSatMeta.validCr += allCourseData[cid].credits;
+      }
+    });
+
+    subjectSatMeta.validCourseIds.sort();
+
+    reqGroup.totalValidCr += subjectSatMeta.validCr;
+  }
+
+  // set reqGroup to NOT Satisfied for ANTI_REQ
+  reqGroup.isSat =
+    reqGroup.totalValidCr >= totalReqCrsFloat && reqType !== ReqType.ANTI_REQ;
+  return reqGroup.isSat;
 }
 
 // main logic to check if a group is satisfied or not
-export const isGroupSatisfied = (
-  args: {
-    courseId: string; // course that is being checked
-    req: ReqGroup | string; // requirement that needs to be satisfied
-    includeCurrentTerm: boolean;
-    currentOrder: number;
-    reqType: ReqType;
-  } & CommonSatisfiabilityArgs,
+export const checkGroupSat = (
+  req: SourcedReqGroup,
+  satCxt: SharedSatCxt & PerReqSatCxt,
 ): boolean => {
-  const {
-    courseId,
-    req,
-    includeCurrentTerm,
-    courseTaken,
-    termOrderMap,
-    depData,
-    allCourseData,
-    combinedSubjectMap,
-    currentOrder,
-    equivGroups,
-    reqType,
-  } = args;
-  const { depGraph } = depData;
-
-  // input is a course id, base case
-  if (typeof req === "string") {
-    // equivalent courses are not considered for anti-requisite
-    // if (reqType === ReqType.ANTI_REQ) {
-    //   return isCourseSatisfied(input);
-    // }
-
-    // check if course is satisfied or any of the equivalent courses is satisfied
-    // exclude the current course from the equivalent courses, one cannot satisfy/invalidate itself.
-    return (
-      isCourseSatisfied(req) ||
-      getEquivCourses(req, equivGroups).some(
-        (c) => c !== courseId && isCourseSatisfied(c),
-      )
-    );
-  }
-
   // input is a group
   switch (req.type) {
     /**
@@ -103,279 +241,134 @@ export const isGroupSatisfied = (
      */
     case GroupType.SINGLE:
     case GroupType.OR:
-      return isOneSatisfied(req);
+      return checkKSat(
+        req,
+        satCxt.reqType === ReqType.ANTI_REQ
+          ? req.inner.length // ANTI_REQ Checks for all
+          : 1,
+        satCxt,
+      );
     /**
      * AND group, all of the courses must be taken
      */
     case GroupType.AND:
-      return isAllSatisfied(req);
+      return checkKSat(req, req.inner.length, satCxt);
     /**
      * Pair group, two of the following courses must be taken
      */
     case GroupType.PAIR:
-      return isKSatisfied(req, 2);
+      return checkKSat(req, 2, satCxt);
     /**
      * Credit group
      * check if the required credit is satisfied for all given subjects
      */
     case GroupType.CREDIT:
-      return isAllSubjectSatisfied(req);
-  }
-
-  /**
-   * Utilized hoisting to put the function declarations at the bottom of the function
-   */
-
-  function isCourseSatisfied(courseId: string) {
-    /**
-     * 1.
-     * If the required course is part of a multi-term course
-     * e.g. COMP361D1, COMP361D2
-     */
-    const isMultiTerm = courseId.match(COURSE_PATTERN.MULTI_TERM);
-
-    /**
-     * 2.
-     * If the required course is already taken, return true
-     */
-    if (!isMultiTerm && isCourseTaken(courseTaken, courseId)) return true;
-
-    /**
-     * 3. If the required course is not planned, return false
-     */
-    if (!isCoursePlanned(depGraph, courseId)) {
-      return false;
-    }
-
-    /**
-     * 4.
-     * get the term order of the required course
-     */
-    const reqOrder = termOrderMap.get(depGraph.get(courseId)!.termId);
-
-    /**
-     * 5. If the term order is not found, throw an error
-     */
-    if (reqOrder === undefined) {
-      throw new Error("Term order not found for course: " + courseId);
-    }
-
-    /**
-     * 6.
-     * If the required course is part of a multi-term course
-     * and the term order is not consecutive, return false
-     * e.g. COMP361D2 requires COMP361D1, which must be taken at the previous term
-     */
-    if (isMultiTerm && reqOrder !== currentOrder - 1) {
-      return false;
-    }
-
-    /**
-     * 7.
-     * If the required course is planned
-     * check if the term order is satisfied
-     * includeCurrentTerm is true if the required course can be taken in the same term
-     */
-    return includeCurrentTerm
-      ? reqOrder <= currentOrder // co-requisite and restriction
-      : reqOrder < currentOrder; // pre-requisite
-  }
-
-  function isKSatisfied(req: ReqGroup, k: number) {
-    let count = 0;
-
-    for (const i of req.inner) {
-      if (isGroupSatisfied({ ...args, req: i })) {
-        count++;
-        // short circuit
-        if (count >= k) {
-          return true;
-        }
-      } else {
-        // short circuit for every
-        if (k === req.inner.length) {
-          return false;
-        }
-      }
-    }
-
-    return false;
-  }
-
-  function isOneSatisfied(req: ReqGroup) {
-    return isKSatisfied(req, 1);
-  }
-
-  function isAllSatisfied(req: ReqGroup) {
-    return isKSatisfied(req, req.inner.length);
-  }
-
-  function isAllSubjectSatisfied(req: ReqGroup) {
-    const [requiredCredit, scopes, ...subjects] = req.inner as string[];
-    const levels = scopes.split("");
-    const subjectsSet = new Set(subjects);
-    const requiredCreditFloat = parseFloat(requiredCredit);
-
-    // closures
-    const getCourseSource = (courseId: string) => {
-      // course already taken
-      if (isCourseTaken(courseTaken, courseId)) return "Course Taken";
-
-      // course not in graph, throw an error
-      if (!isCourseInGraph(depData, courseId)) {
-        throw new Error("Course not in graph: " + courseId);
-      }
-
-      // course not planned, throw an error
-      if (!isCoursePlanned(depGraph, courseId)) {
-        return "";
-      }
-
-      const { termId: courseTermId } = depGraph.get(courseId)!;
-      const courseOrder = termOrderMap.get(courseTermId)!;
-
-      const isOrderSatisfied = includeCurrentTerm
-        ? courseOrder <= currentOrder
-        : courseOrder < currentOrder;
-      const isLevelSatisfied =
-        levels[0] === "0" || levels.includes(getCourseLevel(courseId));
-
-      if (!isOrderSatisfied || !isLevelSatisfied) {
-        return "";
-      }
-
-      return courseTermId;
-    };
-
-    // check if the subject is in the required subjects
-    const isSubjectValid = (subject: string) => {
-      return subjectsSet.has(subject);
-    };
-
-    const { totalCredits } = getValidCoursePerSubject(
-      combinedSubjectMap,
-      allCourseData,
-      isSubjectValid,
-      getCourseSource,
-    );
-
-    return totalCredits >= requiredCreditFloat;
+      return checkCrSat(req, satCxt);
   }
 };
 
 // check if a course is satisfied
-export const isSatisfied = (
-  args: {
-    courseDetail: CachedDetailedCourse;
-  } & CommonSatisfiabilityArgs,
+export const isSat = (
+  courseId: CourseId,
+  depDetail: CourseDepDetail,
+  sharedSatCxt: SharedSatCxt,
 ) => {
-  const { courseDetail, depData, termOrderMap } = args;
+  const { depData, termOrderMap } = sharedSatCxt;
   const { depGraph } = depData;
-  const {
-    prerequisites,
-    corequisites,
-    restrictions,
-    id: courseId,
-  } = courseDetail;
 
-  // if course not in graph throw an error
-  if (!isCourseInGraph(depData, courseId)) {
-    throw new Error("Course not in graph: " + courseId);
-  }
+  const { prerequisites, corequisites, restrictions } = depDetail;
 
   // get the current order of the course
-  const { termId } = depGraph.get(courseId)!;
-  const currentOrder = termOrderMap.get(termId)!;
+  const { source } = depGraph.get(courseId)!;
+  const courseTermOrder = termOrderMap.get(source)!;
 
+  const perReqCxt = {
+    ...sharedSatCxt,
+    pivotId: courseId,
+    pivotTermOrder: courseTermOrder,
+  } as SharedSatCxt & PerReqSatCxt;
+
+  // restricted courses cannot be taken at the same term
+  perReqCxt.includeCurrentTerm = false;
+  perReqCxt.reqType = ReqType.ANTI_REQ;
   // check restrictions (OR group), should not be satisfied
-  if (
-    restrictions.group.type !== GroupType.EMPTY && // ignore empty restrictions
-    isGroupSatisfied({
-      ...args,
-      courseId,
-      req: restrictions.group,
-      includeCurrentTerm: true, // restrict course cannot be taken in the same term
-      currentOrder,
-      reqType: ReqType.ANTI_REQ,
-    })
-  ) {
-    return false;
-  }
+  const antireqSat = !restrictions || checkGroupSat(restrictions, perReqCxt);
 
+  // prerequisites course cannot be taken in the same term
+  perReqCxt.includeCurrentTerm = false;
+  perReqCxt.reqType = ReqType.PRE_REQ;
   // check prerequisites, should be satisfied
-  if (
-    !isGroupSatisfied({
-      ...args,
-      courseId,
-      req: prerequisites.group,
-      includeCurrentTerm: false, // prerequisites course cannot be taken in the same term
-      currentOrder,
-      reqType: ReqType.PRE_REQ,
-    })
-  ) {
-    return false;
-  }
+  const prereqSat = !prerequisites || checkGroupSat(prerequisites, perReqCxt);
 
+  // corequisites course can be taken in the same term
+  perReqCxt.includeCurrentTerm = true;
+  perReqCxt.reqType = ReqType.CO_REQ;
   // check corequisites, should be satisfied
-  if (
-    !isGroupSatisfied({
-      ...args,
-      courseId,
-      req: corequisites.group,
-      includeCurrentTerm: true, // corequisites course can be taken in the same term
-      currentOrder,
-      reqType: ReqType.CO_REQ,
-    })
-  ) {
-    return false;
-  }
+  const coreqSat = !corequisites || checkGroupSat(corequisites, perReqCxt);
 
   // can also return corequisites check, but it's more clear to return true here
-  return true;
+  return antireqSat && prereqSat && coreqSat;
 };
 
 // main function to update the satisfiability
 export const updateAffectedCourses = (
   args: {
-    courseToBeUpdated: Set<string>;
-    cachedDetailedCourseData: { [key: string]: CachedDetailedCourse };
-  } & Omit<CommonSatisfiabilityArgs, "combinedSubjectMap">,
+    courseToBeUpdated: Set<CourseId>;
+  } & Omit<SharedSatCxt, "combinedSubjectMap">,
 ) => {
   const {
     courseToBeUpdated,
-    cachedDetailedCourseData,
     depData,
     termOrderMap,
-    allCourseData,
+    allCourseData, // to gather number of credits
     courseTaken,
     equivGroups,
   } = args;
-  const { depGraph, subjectMap } = depData;
+  const { depGraph, subjectReqMap } = depData;
 
-  const uniqueSubjects = new Set([...courseTaken.keys(), ...subjectMap.keys()]);
+  // combine planned courses and course taken
+  const combinedSubjectMap = new Map() as SharedSatCxt["combinedSubjectMap"];
 
-  const combinedSubjectMap = new Map(
-    Array.from(uniqueSubjects).map((subject) => [
-      subject,
-      new Set([
-        ...(courseTaken.get(subject) ?? []),
-        ...(subjectMap.get(subject) ?? []),
-      ]),
-    ]),
-  );
+  Object.entries(subjectReqMap).forEach(([subject, subjectReqMeta]) => {
+    if (!combinedSubjectMap.has(subject)) {
+      combinedSubjectMap.set(subject, new Set());
+    }
+
+    const m = combinedSubjectMap.get(subject)!;
+    toArray_S(subjectReqMeta.planned).forEach((c) => m.add(c));
+  });
+
+  courseTaken.entries().forEach(([subject, courseIds]) => {
+    if (!combinedSubjectMap.has(subject)) {
+      combinedSubjectMap.set(subject, new Set());
+    }
+
+    const m = combinedSubjectMap.get(subject)!;
+    courseIds.forEach((c) => m.add(c));
+  });
+
+  const sharedSatCxt: SharedSatCxt = {
+    // dependency graph
+    depData,
+    // required context to calculate satisfiability
+    termOrderMap,
+    allCourseData,
+    courseTaken,
+    combinedSubjectMap,
+    equivGroups,
+  };
 
   // calculate satisfiability for all courses that are affected
-  courseToBeUpdated.forEach((c) => {
-    if (!depGraph.get(c)?.termId) return; // not planned
-    const courseDetail = cachedDetailedCourseData[c];
-    depGraph.get(c)!.isSatisfied = isSatisfied({
-      courseDetail,
-      depData,
-      termOrderMap,
-      allCourseData,
-      courseTaken,
-      combinedSubjectMap,
-      equivGroups,
-    });
+  courseToBeUpdated.forEach((courseId: CourseId) => {
+    // ignore unplanned courses and courses in course taken
+    if (!isCoursePlanned(depGraph, courseId)) return;
+
+    const depDetail = depGraph.get(courseId)!;
+
+    depGraph.get(courseId)!.isSatisfied = isSat(
+      courseId,
+      depDetail,
+      sharedSatCxt,
+    );
   });
 };

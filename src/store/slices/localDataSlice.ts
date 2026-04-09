@@ -1,11 +1,13 @@
 import { ModalType, ResultType } from "@/lib/enums";
-import type { Course, Program } from "@/types/db";
+import type { Course, Program, ProgramId } from "@/types/db";
 import type {
   CachedDetailedCourse,
   CourseDepData,
   CachedDetailedProgram,
   SearchResult,
   EquivGroups,
+  PlanId,
+  CourseId,
 } from "@/types/local";
 import type { ModalState } from "@/types/modals";
 import type { Session } from "@/types/auth";
@@ -19,14 +21,15 @@ import {
   _addEquivRulesToGraph,
   _removeEquivRulesFromGraph,
   _setEquivRulesToGraph,
+  _createCourseDepData,
 } from "@/lib/course/dependency";
 
 export const initialState = {
   // course data
-  courseData: {} as { [key: string]: Course }, // init once, for quick lookup
-  cachedDetailedCourseData: {} as { [key: string]: CachedDetailedCourse },
-  cachedDetailedProgramData: {} as { [key: string]: CachedDetailedProgram },
-  programData: {} as { [key: string]: Program },
+  courseData: {} as Record<CourseId, Course>, // init once, for quick lookup
+  cachedDetailedCourseData: {} as Record<CourseId, CachedDetailedCourse>,
+  cachedDetailedProgramData: {} as Record<ProgramId, CachedDetailedProgram>,
+  programData: {} as Record<ProgramId, Program>,
 
   // search result for sidebar display
   searchResult: {
@@ -45,19 +48,17 @@ export const initialState = {
 
   // course UI expanded state
   // stored in store to avoid card closing during drag
-  isCourseExpanded: {} as {
-    [planId: string]: { [courseId: string]: boolean };
-  },
+  isCourseExpanded: {} as Record<PlanId, Record<CourseId, boolean>>,
 
   // course dependency graph
-  courseDepData: new Map<string, CourseDepData>(),
+  courseDepData: new Map<PlanId, CourseDepData>(),
   equivGroups: {
-    courseToEquivCourses: new Map<string, Set<string>>(), // course id to equivalent course ids
-    equivCourseToCourses: new Map<string, Set<string>>(), // reverse map
+    courseToEquivCourses: new Map<CourseId, Set<string>>(), // course id to equivalent course ids
+    equivCourseToCourses: new Map<CourseId, Set<string>>(), // reverse map
   } as EquivGroups,
 
   // seeking information
-  seekingCourseId: "" as string,
+  seekingCourseId: "" as CourseId,
   seekingProgramName: "" as string,
 
   // sync status
@@ -272,16 +273,11 @@ const localDataSlice = createSlice({
         return;
       }
 
-      const {
-        cachedDetailedCourseData,
-        courseData: allCourseData,
-        equivGroups,
-      } = state;
+      const { courseData: allCourseData, equivGroups } = state;
       // calculate isSatisfied for all courses that are affected by the added courses
       updateAffectedCourses({
         depData,
         courseToBeUpdated,
-        cachedDetailedCourseData,
         termOrderMap,
         allCourseData,
         courseTaken,
@@ -310,15 +306,10 @@ const localDataSlice = createSlice({
         return;
       }
 
-      const {
-        cachedDetailedCourseData,
-        courseData: allCourseData,
-        equivGroups,
-      } = state;
+      const { courseData: allCourseData, equivGroups } = state;
       updateAffectedCourses({
         depData,
         courseToBeUpdated,
-        cachedDetailedCourseData,
         termOrderMap,
         allCourseData,
         courseTaken,
@@ -345,15 +336,10 @@ const localDataSlice = createSlice({
         return;
       }
 
-      const {
-        cachedDetailedCourseData,
-        courseData: allCourseData,
-        equivGroups,
-      } = state;
+      const { courseData: allCourseData, equivGroups } = state;
       updateAffectedCourses({
         depData,
         courseToBeUpdated,
-        cachedDetailedCourseData,
         termOrderMap,
         allCourseData,
         courseTaken,
@@ -389,16 +375,11 @@ const localDataSlice = createSlice({
         return;
       }
 
-      const {
-        cachedDetailedCourseData,
-        courseData: allCourseData,
-        equivGroups,
-      } = state;
+      const { courseData: allCourseData, equivGroups } = state;
 
       updateAffectedCourses({
         depData,
         courseToBeUpdated,
-        cachedDetailedCourseData,
         termOrderMap,
         allCourseData,
         courseTaken,
@@ -427,15 +408,10 @@ const localDataSlice = createSlice({
         return;
       }
 
-      const {
-        cachedDetailedCourseData,
-        courseData: allCourseData,
-        equivGroups,
-      } = state;
+      const { courseData: allCourseData, equivGroups } = state;
       updateAffectedCourses({
         depData,
         courseToBeUpdated,
-        cachedDetailedCourseData,
         termOrderMap,
         allCourseData,
         courseTaken,
@@ -462,15 +438,11 @@ const localDataSlice = createSlice({
 
       const depData = state.courseDepData.get(planId)!;
 
-      const {
-        cachedDetailedCourseData,
-        courseData: allCourseData,
-        equivGroups,
-      } = state;
+      const { courseData: allCourseData, equivGroups } = state;
+
       updateAffectedCourses({
         depData,
         courseToBeUpdated,
-        cachedDetailedCourseData,
         termOrderMap,
         allCourseData,
         courseTaken,
@@ -480,12 +452,7 @@ const localDataSlice = createSlice({
 
     /* course dep data */
     initCourseDepData: (state, action: PayloadAction<{ planId: string }>) => {
-      state.courseDepData.set(action.payload.planId, {
-        isDirty: true,
-        subjectMap: new Map(),
-        depGraph: new Map(),
-        creditsReqMap: new Map(),
-      });
+      state.courseDepData.set(action.payload.planId, _createCourseDepData());
     },
     deleteCourseDepData: (state, action: PayloadAction<string>) => {
       state.courseDepData.delete(action.payload);
