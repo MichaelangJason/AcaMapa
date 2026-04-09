@@ -1,10 +1,19 @@
 import { fromZonedTime } from "date-fns-tz";
 
-export const RESULT_PER_PAGE = 10;
-export const TIMEZONE = "America/Toronto";
+export const RESULT_PER_PAGE = 10 as const;
+export const TIMEZONE = "America/Toronto" as const;
+
+export const CONST_STR = {
+  COURSE_TAKEN: "Course Taken",
+  EMPTY: "",
+} as const;
 
 // REMINDER: update yearly
-export const CURR_ACADEMIC_TERMS = ["Summer 2025", "Fall 2025", "Winter 2026"];
+export const CURR_ACADEMIC_TERMS = [
+  "Summer 2025",
+  "Fall 2025",
+  "Winter 2026",
+] as const;
 export const CURR_ACADEMIC_YEAR_RANGE = ["2025", "2026"] as const satisfies [
   string,
   string,
@@ -65,21 +74,21 @@ export const MULTI_SELECT_CONFIG = {
     MIN: 0,
     MAX: 4,
   },
-};
+} as const;
 
 export const COURSE_PATTERN = {
   MULTI_TERM: /[A-Z0-9]{4}(( )*|-)\d{3}([A-Z]\d)/i,
-};
+} as const;
 
 export const MCGILL_URL_BASES = {
   COURSE_CATALOGUE: "https://coursecatalogue.mcgill.ca/courses/",
-};
+} as const;
 
 export const SCROLL_OFFSET = {
   TERM_BODY_HEIGHT_COEF: 0.05,
   COURSE_CARD: 32,
   SCROLL_ICON: 100,
-};
+} as const;
 
 export const SKELETON_CONFIG = {
   TERM_CARD_CONTENT: {
@@ -113,9 +122,9 @@ export const SKELETON_CONFIG = {
     HEIGHT: 24,
     RADIUS: 6,
   },
-};
+} as const;
 
 export const SYNC_CONFIG = {
   THROTTLE_WINDOW: 5000,
   DEBOUNCE_DELAY: 1000,
-};
+} as const;
