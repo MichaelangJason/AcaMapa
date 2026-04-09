@@ -21,3 +21,11 @@ export type Override<T, R extends Partial<Record<keyof T, unknown>>> = Omit<
   keyof R
 > &
   R;
+
+// Serializable Map
+export type S_Map<K extends string, V> = {
+  data: Record<K, V>;
+  size: number;
+};
+// Serializable Set
+export type S_Set<K extends string> = S_Map<K, undefined>;

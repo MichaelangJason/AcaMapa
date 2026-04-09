@@ -1,12 +1,5 @@
-import type { GroupType, ResultType } from "@/lib/enums";
-import type {
-  Course,
-  DetailedCourse,
-  GuestUserData,
-  Program,
-  ProgramReq,
-  Requisite,
-} from "./db";
+import type { ResultType } from "@/lib/enums";
+import type { Course, GuestUserData, Program, ProgramReq } from "./db";
 import type {
   DataAttribute,
   PlacesType,
@@ -14,12 +7,14 @@ import type {
   VariantType,
   WrapperType,
 } from "react-tooltip";
+import type { CourseId, SubjectCode } from "./courseDep";
 
-export type CourseId = string;
+export * from "./courseDep";
+
 export type SearchResult = { query: string } & (
   | {
       type: ResultType.COURSE_ID;
-      data: string[];
+      data: CourseId[];
     }
   | {
       type: ResultType.DEFAULT | ResultType.COURSE | ResultType.SEEKING;
@@ -33,42 +28,6 @@ export type SearchResult = { query: string } & (
 
 export type CourseLocalMetadata = {
   isExpanded: boolean;
-};
-
-export type EquivGroups = {
-  courseToEquivCourses: Map<string, Set<string>>;
-  equivCourseToCourses: Map<string, Set<string>>;
-};
-
-export type DepGraph = Map<
-  string,
-  {
-    isSatisfied: boolean;
-    termId: string;
-    affectedCourseIds: Set<string>;
-  }
->;
-
-export type CourseDepData = {
-  isDirty: boolean;
-  subjectMap: Map<string, Set<string>>;
-  creditsReqMap: Map<string, Set<string>>; // subscribe courses with CREDIT group
-  depGraph: DepGraph;
-};
-
-export type ReqGroup = {
-  type: GroupType;
-  inner: (string | ReqGroup)[];
-};
-
-export type EnhancedRequisites = Requisite & {
-  group: ReqGroup;
-};
-
-export type CachedDetailedCourse = DetailedCourse & {
-  prerequisites: EnhancedRequisites;
-  corequisites: EnhancedRequisites;
-  restrictions: EnhancedRequisites;
 };
 
 export type CachedDetailedProgram = {
@@ -113,12 +72,13 @@ export type TooltipProps = Partial<
   "data-tooltip-id"?: string;
 };
 
-export type ValidSubjectMap = {
-  [subject: string]: {
+export type ValidSubjectMap = Record<
+  SubjectCode,
+  {
     totalCredits: number;
-    validCourses: { [courseId: string]: { source: string; credits: number } };
-  };
-};
+    validCourses: Record<CourseId, { source: string; credits: number }>;
+  }
+>;
 
 export type SavingData = {
   data: GuestUserData;
