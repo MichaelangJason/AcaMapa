@@ -13,7 +13,7 @@ import type {
 } from "@/types/local";
 import { getSubjectCode, getCourseLevel } from "../helpers";
 import { getEquivCourses } from "./equivalents";
-import { toArray_S } from "@/lib/utils/dataStructure";
+import { get_S, toArray_S } from "@/lib/utils/dataStructure";
 
 /**
  * course dep little algorithm will be independent of the corresponding redux slice
@@ -25,8 +25,8 @@ export function isCoursePlanned(
   courseId: CourseId,
 ) {
   return (
-    depGraph.get(courseId)?.source !== CONST_STR.EMPTY &&
-    depGraph.get(courseId)?.source !== CONST_STR.COURSE_TAKEN
+    get_S(depGraph, courseId)?.source !== CONST_STR.EMPTY &&
+    get_S(depGraph, courseId)?.source !== CONST_STR.COURSE_TAKEN
   );
 }
 
@@ -75,7 +75,7 @@ function getReqSatMeta(reqId: CourseId, satCxt: SharedSatCxt & PerReqSatCxt) {
    * 4.
    * get the term order of the required course
    */
-  const termId = depData.depGraph.get(reqId)!.source;
+  const termId = get_S(depData.depGraph, reqId)?.source ?? "";
   const reqTermOrder = termOrderMap.get(termId);
 
   /**
@@ -279,7 +279,7 @@ export const isSat = (
   const { prerequisites, corequisites, restrictions } = depDetail;
 
   // get the current order of the course
-  const { source } = depGraph.get(courseId)!;
+  const { source } = get_S(depGraph, courseId)!;
   const courseTermOrder = termOrderMap.get(source)!;
 
   const perReqCxt = {
@@ -363,12 +363,8 @@ export const updateAffectedCourses = (
     // ignore unplanned courses and courses in course taken
     if (!isCoursePlanned(depGraph, courseId)) return;
 
-    const depDetail = depGraph.get(courseId)!;
+    const depDetail = get_S(depGraph, courseId)!;
 
-    depGraph.get(courseId)!.isSatisfied = isSat(
-      courseId,
-      depDetail,
-      sharedSatCxt,
-    );
+    depDetail.isSatisfied = isSat(courseId, depDetail, sharedSatCxt);
   });
 };

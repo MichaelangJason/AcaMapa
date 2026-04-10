@@ -3,7 +3,7 @@ import type { WritableDraft } from "immer";
 import { type PayloadAction } from "@reduxjs/toolkit";
 import { addEquivGroup, removeEquivGroup } from "../equivalents";
 import type { CourseId, DepGraph } from "@/types/local";
-import { get_S } from "@/lib/utils/dataStructure";
+import { get_S, toArray_S } from "@/lib/utils/dataStructure";
 
 const gatherAffectedCourses = (
   depGraph: DepGraph,
@@ -12,11 +12,14 @@ const gatherAffectedCourses = (
   const courseToBeUpdated = new Set<CourseId>();
 
   ruleCourseIds.forEach((courseId) => {
-    const course = depGraph.get(courseId);
+    const course = get_S(depGraph, courseId);
+
     if (!course) {
+      console.error(`Course ${courseId} not found in dep graph`);
       return;
     }
-    course.affectedCourseIds.forEach((c) => {
+
+    toArray_S(course.affectedCourseIds).forEach((c) => {
       courseToBeUpdated.add(c);
     });
   });

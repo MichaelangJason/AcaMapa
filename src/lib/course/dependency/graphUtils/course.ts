@@ -26,6 +26,7 @@ import {
   isEmpty_S,
   new_S,
   remove_S,
+  set_S,
   toArray_S,
 } from "@/lib/utils/dataStructure";
 import { deepClone } from "@/lib/utils";
@@ -37,17 +38,17 @@ const initDepDetail = (
   courseDetail?: CachedDetailedCourse,
 ) => {
   // init with basic information
-  if (!depGraph.has(courseId)) {
-    depGraph.set(courseId, {
+  if (!has_S(depGraph, courseId)) {
+    set_S(depGraph, courseId, {
       isSatisfied: false,
       source: "",
-      affectedCourseIds: new Set(),
+      affectedCourseIds: new_S<CourseId>(),
     });
   }
 
   if (!courseDetail) return;
 
-  const depDetail = depGraph.get(courseId)!;
+  const depDetail = get_S(depGraph, courseId)!;
 
   // use ??= to prevent multiple initialization
   depDetail.prerequisites ??= deepClone(
@@ -77,8 +78,8 @@ const initSubjectMap = (
 
 function isCourseInGraph(graph: CourseDepData["depGraph"], courseId: CourseId) {
   return !!(
-    graph.has(courseId) && // in dep graph
-    graph.get(courseId)!.source !== CONST_STR.EMPTY
+    has_S(graph, courseId) && // in dep graph
+    get_S(graph, courseId)!.source !== CONST_STR.EMPTY
   );
 }
 
@@ -105,16 +106,21 @@ const gatherEquivAffectedCourses = (
 ) => {
   getReverseEquivCourses(courseId, equivGroups).forEach((revEquivId) => {
     // add affected courses of the equivalent course to the set
-    depGraph.get(revEquivId)?.affectedCourseIds.forEach((affectedId) => {
-      courseToBeUpdated.add(affectedId);
-    });
+    const affectedCourseIds = get_S(depGraph, revEquivId)?.affectedCourseIds;
+    if (affectedCourseIds) {
+      toArray_S(affectedCourseIds).forEach((affectedId) => {
+        courseToBeUpdated.add(affectedId);
+      });
+    } else {
+      console.error(`Equivalent course ${revEquivId} not found in dep graph`);
+    }
   });
 };
 
 export const _createCourseDepData = (): CourseDepData => ({
   isDirty: true,
   subjectReqMap: {},
-  depGraph: new Map(),
+  depGraph: new_S<CourseId, CourseDepDetail>(),
 });
 
 export const _addCourseToGraph = (
@@ -177,7 +183,7 @@ export const _addCourseToGraph = (
     // add course to depGraph if not already in graph
     initDepDetail(depGraph, course.id, course);
     // set source
-    depGraph.get(course.id)!.source = termId;
+    get_S(depGraph, course.id)!.source = termId;
   }
 
   function updateSubjectReqMap(course: CachedDetailedCourse) {
@@ -214,15 +220,20 @@ export const _addCourseToGraph = (
     allDeps.forEach((c) => {
       // not in dep graph === not in plan
       initDepDetail(depGraph, c);
-      depGraph.get(c)!.affectedCourseIds.add(course.id);
+      add_S(get_S(depGraph, c)!.affectedCourseIds, course.id);
     });
   }
 
   function gatherCoursesToBeUpdated(course: CachedDetailedCourse) {
     // the course could affect other courses in the dep graph, add them to the set
-    depGraph.get(course.id)!.affectedCourseIds.forEach((c) => {
-      courseToBeUpdated.add(c);
-    });
+    const affectedCourseIds = get_S(depGraph, course.id)?.affectedCourseIds;
+    if (affectedCourseIds) {
+      toArray_S(affectedCourseIds).forEach((c) => {
+        courseToBeUpdated.add(c);
+      });
+    } else {
+      console.error(`Course ${course.id} not found in dep graph`);
+    }
 
     // check equivalent groups, add equivalent courses and their affected courses to the set
     gatherEquivAffectedCourses(
@@ -281,8 +292,8 @@ export const _deleteCourseFromGraph = (
 
   // fill the set of courses that needs to be updated
   courseIds.forEach((id) => {
-    const depDetail = depGraph.get(id)!;
-    const affectedCourses = Array.from(depDetail.affectedCourseIds);
+    const depDetail = get_S(depGraph, id)!;
+    const affectedCourses = toArray_S(depDetail.affectedCourseIds);
 
     gatherAffectedCourses(id, affectedCourses);
 
@@ -312,10 +323,10 @@ export const _deleteCourseFromGraph = (
   function updateDepGraph(id: CourseId, affectedCourses: CourseId[]) {
     // no affected courses left, acceptable overhead (usually very small number)
     if (affectedCourses.every((c) => !isCourseInGraph(depGraph, c))) {
-      depGraph.delete(id);
+      remove_S(depGraph, id);
     } else {
       // REVIEW: should this cleanup be done each time an update is made?
-      const depCourse = depGraph.get(id)!;
+      const depCourse = get_S(depGraph, id)!;
       depCourse.source = CONST_STR.EMPTY;
     }
   }
@@ -375,11 +386,11 @@ export const _moveCourseInGraph = (
   // gather affected courses
   courseIds.forEach((id) => {
     courseToBeUpdated.add(id);
-    const entry = depGraph.get(id)!;
+    const entry = get_S(depGraph, id)!;
 
     // gather affected courses
     entry.source = newTermId;
-    entry.affectedCourseIds.forEach((c) => {
+    toArray_S(entry.affectedCourseIds).forEach((c) => {
       courseToBeUpdated.add(c);
     });
 

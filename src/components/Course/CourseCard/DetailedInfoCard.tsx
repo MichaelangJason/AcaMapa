@@ -17,7 +17,7 @@ import { useMemo } from "react";
 import clsx from "clsx";
 import { getSubjectCode } from "@/lib/course";
 import { CONST_STR } from "@/lib/constants";
-import { has_S } from "@/lib/utils/dataStructure";
+import { has_S, get_S } from "@/lib/utils/dataStructure";
 
 /**
  * Used to display one section of a program card
@@ -65,7 +65,7 @@ const DetailedInfoCard = ({
       const source =
         (courseTaken.get(subject)?.includes(courseId) &&
           CONST_STR.COURSE_TAKEN) ||
-        depGraph.get(courseId)?.source ||
+        get_S(depGraph, courseId)?.source ||
         CONST_STR.EMPTY;
 
       if (!source) return acc;

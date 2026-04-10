@@ -18,14 +18,14 @@ export type EquivGroups = {
 export type CourseDepDetail = {
   isSatisfied: boolean;
   source: CourseSource;
-  affectedCourseIds: Set<CourseId>;
+  affectedCourseIds: S_Set<CourseId>;
 
   prerequisites?: SourcedReqGroup;
   corequisites?: SourcedReqGroup;
   restrictions?: SourcedReqGroup;
 };
 
-export type DepGraph = Map<CourseId, CourseDepDetail>;
+export type DepGraph = S_Map<CourseId, CourseDepDetail>;
 
 export type CourseDepData = {
   isDirty: boolean;

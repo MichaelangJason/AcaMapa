@@ -27,10 +27,10 @@ export const handleCourseTakenAction = ({
       const courseToBeUpdated = new Set<CourseId>();
 
       courseIds.forEach((courseId) => {
-        const course = depGraph.get(courseId);
+        const course = get_S(depGraph, courseId);
         if (course) {
           // some other course depends on this course
-          course.affectedCourseIds.forEach((id) => {
+          toArray_S(course.affectedCourseIds).forEach((id) => {
             courseToBeUpdated.add(id);
           });
         }
