@@ -1,6 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import type { RootState, AppDispatch } from "..";
-import { type Language, t, I18nKey } from "@/lib/i18n";
+import { t, I18nKey } from "@/lib/i18n";
 import {
   initCourseDepData,
   addCoursesToGraph,
@@ -24,7 +24,7 @@ export const prepareExport = createAppAsyncThunk(
     { getState, rejectWithValue, fulfillWithValue, dispatch },
   ) => {
     const state = getState();
-    const lang = state.userData.lang as Language;
+    const lang = state.userData.lang;
     const plan = state.userData.planData.get(planId);
     if (!plan) {
       return rejectWithValue(t([I18nKey.PLAN, I18nKey.NOT_FOUND], lang));

@@ -1,7 +1,7 @@
 "use client";
 
 import { TooltipId } from "@/lib/enums";
-import { t, I18nKey, type Language } from "@/lib/i18n";
+import { t, I18nKey } from "@/lib/i18n";
 import { useAppSelector } from "@/store/hooks";
 import ExpandIcon from "@/public/icons/expand.svg";
 import clsx from "clsx";
@@ -11,7 +11,7 @@ const Handle = ({ toggleFolded }: { toggleFolded: () => void }) => {
   const isSideBarFolded = useAppSelector(
     (state) => state.global.isSideBarFolded,
   );
-  const lang = useAppSelector((state) => state.userData.lang) as Language;
+  const lang = useAppSelector((state) => state.userData.lang);
 
   return (
     <div className="right-handle" onClick={toggleFolded}>

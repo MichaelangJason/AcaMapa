@@ -5,14 +5,14 @@ import UserLang from "./UserLang";
 import Survey from "./Survey";
 import ItemTagSkeleton from "@/components/Skeleton/ItemTagSkeleton";
 import { TooltipId } from "@/lib/enums";
-import { Language, t, I18nKey } from "@/lib/i18n";
+import { t, I18nKey } from "@/lib/i18n";
 import { useAppSelector } from "@/store/hooks";
 import GithubMark from "@/public/icons/github-mark.svg";
 import clsx from "clsx";
 
 const UserUtilities = () => {
   const isInitialized = useAppSelector((state) => state.global.isInitialized);
-  const lang = useAppSelector((state) => state.userData.lang) as Language;
+  const lang = useAppSelector((state) => state.userData.lang);
 
   return (
     <section className={clsx("contents", !isInitialized && "skeleton")}>

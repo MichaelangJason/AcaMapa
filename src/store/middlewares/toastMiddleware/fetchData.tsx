@@ -1,5 +1,5 @@
 import { MAX_COURSE_IDS_TO_DISPLAY } from "@/lib/constants";
-import { type Language, t, I18nKey } from "@/lib/i18n";
+import { t, I18nKey } from "@/lib/i18n";
 import { isValidDetailedCourse } from "@/lib/typeGuards";
 import { formatCourseId } from "@/lib/utils";
 import { fetchCourseData } from "@/store/thunks";
@@ -14,7 +14,7 @@ startListening({
     fetchCourseData.pending,
   ),
   effect: (action, listenerApi) => {
-    const lang = listenerApi.getState().userData.lang as Language;
+    const lang = listenerApi.getState().userData.lang;
     const isToastEnabled = listenerApi.getState().global.isToastEnabled;
 
     if (!isToastEnabled) return;

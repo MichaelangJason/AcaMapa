@@ -1,5 +1,5 @@
 import { ToastId } from "@/lib/enums";
-import { type Language, t, I18nKey } from "@/lib/i18n";
+import { t, I18nKey } from "@/lib/i18n";
 import { prepareExport } from "@/store/thunks";
 import { isAnyOf } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
@@ -12,7 +12,7 @@ startListening({
     prepareExport.rejected,
   ),
   effect: (action, listenerApi) => {
-    const lang = listenerApi.getState().userData.lang as Language;
+    const lang = listenerApi.getState().userData.lang;
     switch (action.type) {
       case prepareExport.pending.type: {
         toast.loading(t([I18nKey.PREPARING_EXPORT], lang), {

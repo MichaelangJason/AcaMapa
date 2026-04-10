@@ -75,7 +75,7 @@ export const useTermCardActions = ({
   deleteTerm?: (termId: string, termIdx: number) => void;
 }) => {
   const dispatch = useAppDispatch();
-  const lang = useAppSelector((state) => state.userData.lang) as Language;
+  const lang = useAppSelector((state) => state.userData.lang);
 
   // handle adding a course to the term
   const handleAddCourse = useCallback(async () => {

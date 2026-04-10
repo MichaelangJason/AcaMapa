@@ -1,7 +1,7 @@
 "use client";
 
 import type { CommonModalProps, EquivRuleModalProps } from "@/types/modals";
-import { t, I18nKey, type Language } from "@/lib/i18n";
+import { t, I18nKey } from "@/lib/i18n";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import clsx from "clsx";
 import { useRef, useState, useCallback, useEffect } from "react";
@@ -14,7 +14,7 @@ const EquivRulesModalContent = ({
   closeCb,
 }: EquivRuleModalProps & CommonModalProps) => {
   const dispatch = useAppDispatch();
-  const lang = useAppSelector((state) => state.userData.lang) as Language;
+  const lang = useAppSelector((state) => state.userData.lang);
   const courseData = useAppSelector((state) => state.localData.courseData);
   const courseSearchFn = useAppSelector(selectCourseSearchFn);
   const formRef = useRef<HTMLFormElement>(null);
@@ -87,7 +87,7 @@ const EquivRulesModalContent = ({
       dispatch(addEquivRule([courseId, equivCourseId]));
       closeCb();
     },
-    [courseData, courseSearchFn, dispatch, closeCb, existingRules],
+    [courseData, dispatch, closeCb, existingRules],
   );
 
   // focus on the first input at mount

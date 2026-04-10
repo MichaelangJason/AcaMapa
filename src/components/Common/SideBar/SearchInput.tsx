@@ -6,7 +6,7 @@ import DeleteIcon from "@/public/icons/delete.svg";
 import MagnifierIcon from "@/public/icons/magnifier.svg";
 import { useDebounce } from "@/lib/hooks/common";
 import { useAppSelector } from "@/store/hooks";
-import { I18nKey, t, Language } from "@/lib/i18n";
+import { I18nKey, t } from "@/lib/i18n";
 
 const SearchInput = ({
   callback = async () => {},
@@ -31,7 +31,7 @@ const SearchInput = ({
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const isInitialized = useAppSelector((state) => state.global.isInitialized);
-  const lang = useAppSelector((state) => state.userData.lang) as Language;
+  const lang = useAppSelector((state) => state.userData.lang);
   const debouncedCallback = useDebounce(callback, debounceTime);
 
   // auto resize function, acceptable overhead

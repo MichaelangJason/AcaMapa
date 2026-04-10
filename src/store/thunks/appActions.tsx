@@ -1,6 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import type { RootState, AppDispatch } from "..";
-import { type Language, t, I18nKey } from "@/lib/i18n";
+import { t, I18nKey } from "@/lib/i18n";
 import { toast } from "react-toastify";
 import {
   addCourse,
@@ -26,7 +26,7 @@ export const addCourseToTerm = createAppAsyncThunk(
     }: { courseIds: string[]; termId: string; planId: string },
     { getState, dispatch, rejectWithValue, fulfillWithValue },
   ) => {
-    const lang = getState().userData.lang as Language;
+    const lang = getState().userData.lang;
     const state = getState();
 
     const unCachedCourseIds = courseIds.filter(
@@ -119,7 +119,7 @@ export const addProgramToUser = createAppAsyncThunk(
     programNames: string[],
     { dispatch, rejectWithValue, fulfillWithValue, getState },
   ) => {
-    const lang = getState().userData.lang as Language;
+    const lang = getState().userData.lang;
     const state = getState();
     const programData = state.localData.programData;
     const cachedPrograms = state.localData.cachedDetailedProgramData;

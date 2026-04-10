@@ -1,5 +1,5 @@
 import { TooltipId } from "@/lib/enums";
-import { Language, t, I18nKey } from "@/lib/i18n";
+import { t, I18nKey } from "@/lib/i18n";
 import { useAppSelector } from "@/store/hooks";
 import clsx from "clsx";
 import { useRef, useCallback } from "react";
@@ -19,7 +19,7 @@ const AddTermButton = ({
   isBefore: boolean;
   onClick: (isBefore: boolean) => void;
 }) => {
-  const lang = useAppSelector((state) => state.userData.lang) as Language;
+  const lang = useAppSelector((state) => state.userData.lang);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
   const handleClick = useCallback(() => {

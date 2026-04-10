@@ -1,7 +1,7 @@
 "use client";
 import { ItemTag } from "@/components/Common";
 // import { TooltipId } from "@/lib/enums";
-import { t, I18nKey, type Language } from "@/lib/i18n";
+import { t, I18nKey } from "@/lib/i18n";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { setModalState } from "@/store/slices/localDataSlice";
 import { removeProgram } from "@/store/slices/userDataSlice";
@@ -16,7 +16,7 @@ const ProgramsTag = ({
 }) => {
   const dispatch = useAppDispatch();
   const programs = useAppSelector((state) => state.userData.programs);
-  const lang = useAppSelector((state) => state.userData.lang) as Language;
+  const lang = useAppSelector((state) => state.userData.lang);
 
   const handleClickProgram = useCallback(
     async (programName: string) => {

@@ -11,7 +11,7 @@ import { Course } from "@/types/db";
 import { clamp } from "@/lib/utils";
 import MiniCourseCard from "../../Course/CourseCard/MiniCourseCard";
 import clsx from "clsx";
-import { I18nKey, Language, t } from "@/lib/i18n";
+import { I18nKey, t } from "@/lib/i18n";
 import ScrollBar from "@/components/Common/ScrollBar";
 import { values_S } from "@/lib/utils/dataStructure";
 
@@ -55,7 +55,7 @@ const MultiSelect = () => {
   const dispatch = useAppDispatch();
   const [isHovering, setIsHovering] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
-  const lang = useAppSelector((state) => state.userData.lang) as Language;
+  const lang = useAppSelector((state) => state.userData.lang);
   const multiSelectRef = useRef<HTMLDivElement>(null);
 
   // memoized for mini course card to avoid unnecessary re-renders

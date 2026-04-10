@@ -1,5 +1,5 @@
 import { ToastId } from "@/lib/enums";
-import { type Language, t, I18nKey } from "@/lib/i18n";
+import { t, I18nKey } from "@/lib/i18n";
 import { addCourseToTerm } from "@/store/thunks";
 import { isAnyOf } from "@reduxjs/toolkit";
 import { toast, TypeOptions } from "react-toastify";
@@ -10,7 +10,7 @@ import { formatCourseId } from "@/lib/utils";
 startListening({
   predicate: (action) => isCourseAction(action),
   effect: (action, listenerApi) => {
-    const lang = listenerApi.getState().userData.lang as Language;
+    const lang = listenerApi.getState().userData.lang;
     const isToastEnabled = listenerApi.getState().global.isToastEnabled;
 
     if (!isToastEnabled) return;
@@ -91,7 +91,7 @@ startListening({
     addCourseToTerm.pending,
   ),
   effect: (action, listenerApi) => {
-    const lang = listenerApi.getState().userData.lang as Language;
+    const lang = listenerApi.getState().userData.lang;
     const isToastEnabled = listenerApi.getState().global.isToastEnabled;
 
     if (!isToastEnabled) return;

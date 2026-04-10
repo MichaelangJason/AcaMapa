@@ -37,7 +37,7 @@ const CourseTaken = ({
   );
   const courseTaken = useAppSelector((state) => state.userData.courseTaken);
   const isInitialized = useAppSelector((state) => state.global.isInitialized);
-  const userLang = useAppSelector((state) => state.userData.lang) as Language;
+  const userLang = useAppSelector((state) => state.userData.lang);
   const lang = displayLang || userLang;
   const courseTakenListRef = useRef<HTMLDivElement>(null);
 

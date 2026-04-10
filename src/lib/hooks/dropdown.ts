@@ -12,13 +12,13 @@ import {
 import { addPlan, addTerm, deletePlan } from "@/store/slices/userDataSlice";
 import { prepareExport } from "@/store/thunks";
 import { useMemo, useEffect, useCallback } from "react";
-import { type Language, t, I18nKey } from "../i18n";
+import { t, I18nKey } from "../i18n";
 import { getCommandKey } from "../utils";
 import { ModalType } from "@/lib/enums";
 
 export const useDropdownActions = () => {
   const isInitialized = useAppSelector((state) => state.global.isInitialized);
-  const lang = useAppSelector((state) => state.userData.lang) as Language;
+  const lang = useAppSelector((state) => state.userData.lang);
   const dispatch = useAppDispatch();
   const plans = useAppSelector((state) => state.userData.planData);
   const currentPlanId = useAppSelector(
@@ -210,11 +210,8 @@ export const useDropdownActions = () => {
     handleImportPlan,
     handleFoldAllCourses,
     handleUnfoldAllCourses,
-    dispatch,
     isInitialized,
     lang,
-    currentPlanId,
-    plans,
   ]) as ItemProps[];
 
   return actions;

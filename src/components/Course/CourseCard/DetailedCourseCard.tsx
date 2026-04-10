@@ -26,7 +26,7 @@ import {
   setSeekingCourseId,
 } from "@/store/slices/localDataSlice";
 import { overwriteCourse, seekCourse } from "@/store/thunks";
-import { I18nKey, Language, t } from "@/lib/i18n";
+import { I18nKey, t } from "@/lib/i18n";
 
 /**
  * Used to display a course card
@@ -83,7 +83,7 @@ const DetailedCourseCard = ({
   const dispatch = useAppDispatch();
 
   // user language setting
-  const lang = useAppSelector((state) => state.userData.lang) as Language;
+  const lang = useAppSelector((state) => state.userData.lang);
   const courseDetail = useAppSelector((state) =>
     selectCachedCourseDataById(state, courseId),
   );

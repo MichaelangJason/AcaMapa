@@ -21,7 +21,7 @@ const EquivRulesTag = ({
 }) => {
   const items = useAppSelector((state) => state.userData.equivRules);
   const dispatch = useAppDispatch();
-  const lang = useAppSelector((state) => state.userData.lang) as Language;
+  const lang = useAppSelector((state) => state.userData.lang);
   const [hasLongRules, setHasLongRules] = useState(false);
 
   const formattedRules = useMemo(() => {

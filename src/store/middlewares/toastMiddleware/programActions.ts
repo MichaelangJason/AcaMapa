@@ -1,5 +1,5 @@
 import { ToastId } from "@/lib/enums";
-import { Language, t, I18nKey } from "@/lib/i18n";
+import { t, I18nKey } from "@/lib/i18n";
 import { addProgram, removeProgram } from "@/store/slices/userDataSlice";
 import { addProgramToUser } from "@/store/thunks";
 import { isAnyOf } from "@reduxjs/toolkit";
@@ -13,7 +13,7 @@ startListening({
     addProgramToUser.pending,
   ),
   effect: (action, listenerApi) => {
-    const lang = listenerApi.getState().userData.lang as Language;
+    const lang = listenerApi.getState().userData.lang;
     const isToastEnabled = listenerApi.getState().global.isToastEnabled;
 
     if (!isToastEnabled) return;
@@ -50,7 +50,7 @@ startListening({
 startListening({
   matcher: isAnyOf(addProgram, removeProgram),
   effect: (action, listenerApi) => {
-    const lang = listenerApi.getState().userData.lang as Language;
+    const lang = listenerApi.getState().userData.lang;
     const isToastEnabled = listenerApi.getState().global.isToastEnabled;
 
     if (!isToastEnabled) return;

@@ -127,14 +127,11 @@ export const userDataSlice = createSlice({
       state.planOrder = [...action.payload];
     },
     addPlan: (state) => {
-      const newPlanName = t(
-        [I18nKey.DEFAULT_PLAN_NAME],
-        state.lang as Language,
-      );
+      const newPlanName = t([I18nKey.DEFAULT_PLAN_NAME], state.lang);
       const { planData, termData, planOrder } = mockPlanData(
         3,
         newPlanName,
-        state.lang as Language,
+        state.lang,
       );
 
       termData.forEach((term) => {
@@ -219,13 +216,12 @@ export const userDataSlice = createSlice({
         idx === -1 ? plan.termOrder.length - 1 : Math.max(0, idx - 1);
       const prevTermName =
         state.termData.get(plan.termOrder[prevTermIdx])?.name ??
-        t([I18nKey.NEW_M, I18nKey.SEMESTER], state.lang as Language);
+        t([I18nKey.NEW_M, I18nKey.SEMESTER], state.lang);
 
       const newTerm: Term = {
         _id: new ObjectId().toString(),
         name:
-          termData?.name ??
-          getNewTermName(prevTermName, idx !== 0, state.lang as Language),
+          termData?.name ?? getNewTermName(prevTermName, idx !== 0, state.lang),
         courseIds: termData?.courseIds ?? [],
       };
 

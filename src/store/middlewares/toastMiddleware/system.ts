@@ -1,5 +1,5 @@
 import { ToastId } from "@/lib/enums";
-import { type Language, t, I18nKey } from "@/lib/i18n";
+import { t, I18nKey } from "@/lib/i18n";
 import { fullSync, initApp } from "@/store/thunks";
 import { isAnyOf } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
@@ -8,7 +8,7 @@ import { startListening } from "./core";
 startListening({
   matcher: isAnyOf(fullSync.fulfilled, fullSync.rejected, fullSync.pending),
   effect: (action, listenerApi) => {
-    const lang = listenerApi.getState().userData.lang as Language;
+    const lang = listenerApi.getState().userData.lang;
     switch (action.type) {
       case fullSync.pending.type: {
       }
@@ -36,7 +36,7 @@ startListening({
 startListening({
   matcher: isAnyOf(initApp.fulfilled, initApp.rejected, initApp.pending),
   effect: (action, listenerApi) => {
-    const lang = listenerApi.getState().userData.lang as Language;
+    const lang = listenerApi.getState().userData.lang;
     switch (action.type) {
       case initApp.fulfilled.type: {
         toast.dismiss(ToastId.INIT_APP);

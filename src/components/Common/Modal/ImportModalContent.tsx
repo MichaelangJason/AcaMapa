@@ -2,7 +2,7 @@
 
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { useCallback, useState } from "react";
-import { t, I18nKey, type Language } from "@/lib/i18n";
+import { t, I18nKey } from "@/lib/i18n";
 import clsx from "clsx";
 import SpinnerIcon from "@/public/icons/spinner.svg";
 import PlanPreview from "./PlanPreview";
@@ -18,7 +18,7 @@ const ImportModalContent = ({
 }: ImportModalProps & CommonModalProps) => {
   // dispatch
   const dispatch = useAppDispatch();
-  const lang = useAppSelector((state) => state.userData.lang) as Language;
+  const lang = useAppSelector((state) => state.userData.lang);
 
   const [planData, setPlanData] = useState<{
     terms: Term[];

@@ -1,4 +1,4 @@
-import { Language, t, I18nKey } from "@/lib/i18n";
+import { t, I18nKey } from "@/lib/i18n";
 import { isCourseTakenAction } from "@/lib/typeGuards";
 import { toast } from "react-toastify";
 import { startListening } from "./core";
@@ -6,7 +6,7 @@ import { startListening } from "./core";
 startListening({
   predicate: (action) => isCourseTakenAction(action),
   effect: (action, listenerApi) => {
-    const lang = listenerApi.getState().userData.lang as Language;
+    const lang = listenerApi.getState().userData.lang;
     const isToastEnabled = listenerApi.getState().global.isToastEnabled;
 
     if (!isToastEnabled) return;

@@ -2,7 +2,7 @@ import type { Program } from "@/types/db";
 import { TextHighlighter } from "@/components/Common";
 import clsx from "clsx";
 import { TooltipId } from "@/lib/enums";
-import { I18nKey, type Language, t } from "@/lib/i18n";
+import { I18nKey, t } from "@/lib/i18n";
 import { useAppSelector } from "@/store/hooks";
 import { useCallback, useMemo } from "react";
 import RemoveIcon from "@/public/icons/minus.svg";
@@ -32,7 +32,7 @@ const MiniProgramCard = ({
   style?: React.CSSProperties;
 }) => {
   const { name, credits, faculty, department, degree, url } = data ?? {};
-  const lang = useAppSelector((state) => state.userData.lang) as Language;
+  const lang = useAppSelector((state) => state.userData.lang);
   const isAdding = useAppSelector((state) => state.global.isAdding);
 
   const metadata = useMemo(() => {

@@ -64,7 +64,7 @@ const TermNote = ({
   tooltipOptions?: TooltipProps;
   className?: string;
 }) => {
-  const lang = useAppSelector((state) => state.userData.lang) as Language;
+  const lang = useAppSelector((state) => state.userData.lang);
 
   return (
     <div

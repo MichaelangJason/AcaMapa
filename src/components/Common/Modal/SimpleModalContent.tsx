@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { SimpleModalProps, CommonModalProps } from "@/types/modals";
 import DOMPurify from "dompurify";
 import clsx from "clsx";
-import { t, I18nKey, type Language } from "@/lib/i18n";
+import { t, I18nKey } from "@/lib/i18n";
 import { useAppSelector } from "@/store/hooks";
 
 // simple modal with input field and confirm/cancel buttons
@@ -16,7 +16,7 @@ const SimpleModalContent = ({
   isConfirmOnly,
   inputConfig,
 }: SimpleModalProps & CommonModalProps) => {
-  const lang = useAppSelector((state) => state.userData.lang) as Language;
+  const lang = useAppSelector((state) => state.userData.lang);
   // input value
   const [newValue, setNewValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);

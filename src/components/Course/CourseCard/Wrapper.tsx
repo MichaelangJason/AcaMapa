@@ -8,7 +8,7 @@ import type {
   DraggableStateSnapshot,
 } from "@hello-pangea/dnd";
 import { TooltipId } from "@/lib/enums";
-import { I18nKey, Language, t } from "@/lib/i18n";
+import { I18nKey, t } from "@/lib/i18n";
 import { useAppSelector } from "@/store/hooks";
 
 /**
@@ -105,7 +105,7 @@ const Wrapper = ({
   } = draggableProvided || {};
 
   // user language setting
-  const lang = useAppSelector((state) => state.userData.lang) as Language;
+  const lang = useAppSelector((state) => state.userData.lang);
 
   return (
     <article

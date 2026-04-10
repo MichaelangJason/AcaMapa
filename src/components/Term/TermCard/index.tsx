@@ -122,7 +122,7 @@ const TermCard = ({
   const isSeekingCourse = useAppSelector(
     (state) => state.global.isSeekingCourse,
   );
-  const userLang = useAppSelector((state) => state.userData.lang) as Language;
+  const userLang = useAppSelector((state) => state.userData.lang);
   const lang = displayLang || userLang; // override the language if provided
 
   // refs

@@ -22,7 +22,7 @@ const ExportModalContent = ({
   closeCb,
 }: ExportModalProps & CommonModalProps) => {
   // user language
-  const userLang = useAppSelector((state) => state.userData.lang) as Language;
+  const userLang = useAppSelector((state) => state.userData.lang);
   const { plan, terms, planStats } = useAppSelector((state) =>
     selectExportInfo(state, planId),
   );

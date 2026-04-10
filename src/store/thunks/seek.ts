@@ -1,7 +1,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import type { RootState, AppDispatch } from "..";
 import { ResultType } from "@/lib/enums";
-import { type Language, t, I18nKey } from "@/lib/i18n";
+import { t, I18nKey } from "@/lib/i18n";
 import { formatCourseId } from "@/lib/utils";
 import type { ProgramReq } from "@/types/db";
 import { setIsSideBarFolded } from "../slices/globalSlice";
@@ -27,7 +27,7 @@ export const seekCourse = createAppAsyncThunk(
     }
     dispatch(setSeekingCourseId(courseId));
     const state = getState();
-    const lang = state.userData.lang as Language;
+    const lang = state.userData.lang;
 
     if (!state.localData.cachedDetailedCourseData[courseId]) {
       await dispatch(fetchCourseData([courseId])).unwrap();
@@ -60,7 +60,7 @@ export const seekProgram = createAppAsyncThunk(
   ) => {
     const isSideBarFolded = getState().global.isSideBarFolded;
     const state = getState();
-    const lang = state.userData.lang as Language;
+    const lang = state.userData.lang;
     if (isSideBarFolded) {
       dispatch(setIsSideBarFolded(false));
     }
