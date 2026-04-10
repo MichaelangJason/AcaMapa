@@ -297,7 +297,7 @@ export const _deleteCourseFromGraph = (
 
     gatherAffectedCourses(id, affectedCourses);
 
-    updateDepGraph(id, affectedCourses);
+    updateDepGraph(id, depDetail, affectedCourses);
 
     updateSubjectReqMap(id, depDetail);
   });
@@ -320,12 +320,30 @@ export const _deleteCourseFromGraph = (
     );
   }
 
-  function updateDepGraph(id: CourseId, affectedCourses: CourseId[]) {
+  function updateDepGraph(
+    id: CourseId,
+    depDetail: CourseDepDetail,
+    affectedCourses: CourseId[],
+  ) {
     // no affected courses left, acceptable overhead (usually very small number)
-    if (affectedCourses.every((c) => !isCourseInGraph(depGraph, c))) {
-      remove_S(depGraph, id);
+    if (
+      affectedCourses.length === 0 ||
+      affectedCourses.every((c) => !isCourseInGraph(depGraph, c))
+    ) {
+      remove_S(depGraph, id); // remove self from dep graph
+
+      const allReqs = findIdInReqGroup(depDetail.prerequisites)
+        .concat(findIdInReqGroup(depDetail.corequisites))
+        .concat(findIdInReqGroup(depDetail.restrictions));
+
+      allReqs.forEach((req) => {
+        const reqDetail = get_S(depGraph, req);
+        if (reqDetail) {
+          remove_S(reqDetail.affectedCourseIds, id);
+        }
+      });
     } else {
-      // REVIEW: should this cleanup be done each time an update is made?
+      // Keep track the affected courses of this course
       const depCourse = get_S(depGraph, id)!;
       depCourse.source = CONST_STR.EMPTY;
     }
