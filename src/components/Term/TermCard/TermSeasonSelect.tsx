@@ -3,44 +3,46 @@ import { mockTermNames } from "@/lib/mock";
 import { isValidTermName } from "@/lib/typeGuards";
 import { useAppDispatch } from "@/store/hooks";
 import { renameTerm } from "@/store/slices/userDataSlice";
-import { startTransition, useRef, useEffect } from "react";
+import { useRef, type Ref, useImperativeHandle } from "react";
 import type { Language } from "@/lib/i18n";
 
 const TermSeasonSelect = ({
+  handleRef,
   termId,
   termName,
   lang,
-  isEditing,
 }: {
+  handleRef: Ref<{ openPicker: () => void }>;
   termId: string;
   termName: string;
   lang: Language;
-  isEditing: boolean;
 }) => {
   const dispatch = useAppDispatch();
 
   // refs
   const selectRef = useRef<HTMLSelectElement>(null);
 
-  // OPTIMIZE: use to open select picker
-  // use to open select picker
-  useEffect(() => {
-    if (!isEditing || !selectRef.current) return;
+  useImperativeHandle(handleRef, () => ({
+    openPicker: () => {
+      if (!selectRef.current) return;
 
-    try {
-      const elem = selectRef.current;
-      elem?.focus();
+      try {
+        if (document) {
+          (document.activeElement as HTMLElement)?.blur();
+        }
+        const elem = selectRef.current;
+        elem?.focus();
 
-      if (elem.showPicker) {
-        elem.showPicker();
-      } else {
-        // safari case
-        elem.dispatchEvent(new MouseEvent("mousedown"));
+        if (elem.showPicker) {
+          elem.showPicker();
+        } else {
+          elem.dispatchEvent(new MouseEvent("mousedown"));
+        }
+      } catch (error) {
+        console.error(error);
       }
-    } catch (error) {
-      console.error(error);
-    }
-  }, [isEditing]);
+    },
+  }));
 
   return (
     <select
@@ -48,15 +50,14 @@ const TermSeasonSelect = ({
       value={termName}
       ref={selectRef}
       id={`term-name-select-${termId}`}
-      onChange={(e) => {
-        startTransition(() => {
-          dispatch(
-            renameTerm({
-              termId,
-              newName: e.target.value,
-            }),
-          );
-        });
+      onClick={(e) => e.stopPropagation()}
+      onChange={async (e) => {
+        dispatch(
+          renameTerm({
+            termId,
+            newName: e.target.value,
+          }),
+        );
       }}
     >
       {mockTermNames(

@@ -123,7 +123,7 @@ const Terms = () => {
               : currentTerms.map((term, idx) => (
                   // term card is draggable
                   <Draggable
-                    key={`draggable-${term._id}-${idx}`}
+                    key={`draggable-${term._id}`}
                     draggableId={term._id}
                     index={idx}
                     isDragDisabled={false}
