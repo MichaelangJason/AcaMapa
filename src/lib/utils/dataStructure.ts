@@ -1,10 +1,10 @@
 import type { S_Map, S_Set } from "@/types/utils";
 
-export function new_S<K extends string, V = undefined>() {
+export function new_S<K extends string, V = true>() {
   return {
     data: {},
     size: 0,
-  } as V extends undefined ? S_Set<K> : S_Map<K, V>;
+  } as V extends true ? S_Set<K> : S_Map<K, V>;
 }
 
 export function set_S<K extends string, V>(set: S_Map<K, V>, key: K, value: V) {
@@ -14,7 +14,7 @@ export function set_S<K extends string, V>(set: S_Map<K, V>, key: K, value: V) {
 }
 
 export function add_S<K extends string>(set: S_Set<K>, key: K) {
-  set_S(set, key, undefined);
+  set_S(set, key, true);
 }
 
 export function remove_S<K extends string, V>(set: S_Map<K, V>, key: K) {
