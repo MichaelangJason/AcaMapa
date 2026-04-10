@@ -1,8 +1,5 @@
-import { createSelector } from "@reduxjs/toolkit";
-import type { RootState } from "..";
+import { createAppSelector } from "../hooks";
 import { getCourseSearchFn, getProgramSearchFn } from "@/lib/utils";
-
-const createAppSelector = createSelector.withTypes<RootState>();
 
 export const selectCourseSearchFn = createAppSelector(
   [

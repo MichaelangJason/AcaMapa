@@ -151,10 +151,13 @@ export const addProgramToUser = createAppAsyncThunk(
 export const overwriteCourse = createAppAsyncThunk(
   "thunks/overwriteCourse",
   async (
-    { courseId, isOverwritten }: { courseId: string; isOverwritten: boolean },
-    { dispatch, getState },
+    {
+      courseId,
+      planId,
+      isOverwritten,
+    }: { courseId: string; planId: string; isOverwritten: boolean },
+    { dispatch },
   ) => {
-    const planId = getState().localData.currentPlanId;
     dispatch(setIsOverwritten({ courseId, planId, isOverwritten }));
   },
 );

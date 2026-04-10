@@ -4,11 +4,8 @@ export * from "./searchFn";
 export * from "./terms";
 export * from "./depGraph";
 
-import { createSelector } from "@reduxjs/toolkit";
-import type { RootState } from "..";
+import { createAppSelector } from "../hooks";
 import { getPlanCourseData, getPlanStats } from "@/lib/plan";
-
-const createAppSelector = createSelector.withTypes<RootState>();
 
 export const selectExportInfo = createAppSelector(
   [
