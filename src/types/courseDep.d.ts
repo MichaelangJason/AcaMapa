@@ -11,8 +11,8 @@ export type SubjectCode = string;
 export type CourseSource = TermId | CourseTakenStr | typeof CONST_STR.EMPTY;
 
 export type EquivGroups = {
-  courseToEquivCourses: Map<string, Set<string>>;
-  equivCourseToCourses: Map<string, Set<string>>;
+  courseToEquivCourses: S_Map<CourseId, S_Set<CourseId>>;
+  equivCourseToCourses: S_Map<CourseId, S_Set<CourseId>>;
 };
 
 export type CourseDepDetail = {

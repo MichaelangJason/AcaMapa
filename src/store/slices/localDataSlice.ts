@@ -31,6 +31,7 @@ import {
   remove_S,
   set_S,
 } from "@/lib/utils/dataStructure";
+import type { S_Set } from "@/types/utils";
 
 export const initialState = {
   // course data
@@ -61,8 +62,8 @@ export const initialState = {
   // courseDepData: new Map<PlanId, CourseDepData>(),
   courseDepData: new_S<PlanId, CourseDepData>(),
   equivGroups: {
-    courseToEquivCourses: new Map<CourseId, Set<string>>(), // course id to equivalent course ids
-    equivCourseToCourses: new Map<CourseId, Set<string>>(), // reverse map
+    courseToEquivCourses: new_S<CourseId, S_Set<CourseId>>(), // course id to equivalent course ids
+    equivCourseToCourses: new_S<CourseId, S_Set<CourseId>>(), // reverse map
   } as EquivGroups,
 
   // seeking information

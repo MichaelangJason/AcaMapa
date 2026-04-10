@@ -1,5 +1,14 @@
 import { formatCourseId } from "@/lib/utils";
 import type { EquivGroups, CourseId } from "@/types/local";
+import {
+  has_S,
+  set_S,
+  get_S,
+  new_S,
+  add_S,
+  remove_S,
+  toArray_S,
+} from "@/lib/utils/dataStructure";
 /**
  * Can be optimized with UNION-FIND if heavy usage
  */
@@ -16,16 +25,16 @@ export function addEquivGroup(
   const { courseToEquivCourses, equivCourseToCourses } = equivGroups;
 
   // update course to equiv courses map
-  if (!courseToEquivCourses.has(courseId)) {
-    courseToEquivCourses.set(courseId, new Set<CourseId>());
+  if (!has_S(courseToEquivCourses, courseId)) {
+    set_S(courseToEquivCourses, courseId, new_S<CourseId>());
   }
-  courseToEquivCourses.get(courseId)!.add(equivCourseId);
+  add_S(get_S(courseToEquivCourses, courseId)!, equivCourseId);
 
   // update equiv course to courses map
-  if (!equivCourseToCourses.has(equivCourseId)) {
-    equivCourseToCourses.set(equivCourseId, new Set<CourseId>());
+  if (!has_S(equivCourseToCourses, equivCourseId)) {
+    set_S(equivCourseToCourses, equivCourseId, new_S<CourseId>());
   }
-  equivCourseToCourses.get(equivCourseId)!.add(courseId);
+  add_S(get_S(equivCourseToCourses, equivCourseId)!, courseId);
 }
 
 export function removeEquivGroup(
@@ -35,22 +44,22 @@ export function removeEquivGroup(
 ) {
   const { courseToEquivCourses, equivCourseToCourses } = equivGroups;
 
-  if (!courseToEquivCourses.has(courseId)) return;
+  if (!has_S(courseToEquivCourses, courseId)) return;
 
   // update course to equiv courses map
-  const group1 = courseToEquivCourses.get(courseId)!;
-  group1.delete(equivCourseId);
+  const group1 = get_S(courseToEquivCourses, courseId)!;
+  remove_S(group1, equivCourseId);
 
   if (group1.size === 0) {
-    courseToEquivCourses.delete(courseId);
+    remove_S(courseToEquivCourses, courseId);
   }
 
   // update equiv course to courses map
-  const group2 = equivCourseToCourses.get(equivCourseId)!;
-  group2.delete(courseId);
+  const group2 = get_S(equivCourseToCourses, equivCourseId)!;
+  remove_S(group2, courseId);
 
   if (group2.size === 0) {
-    equivCourseToCourses.delete(equivCourseId);
+    remove_S(equivCourseToCourses, equivCourseId);
   }
 }
 
@@ -59,9 +68,9 @@ export function getEquivCourses(
   equivGroups: EquivGroups,
 ): CourseId[] {
   const { courseToEquivCourses } = equivGroups;
-  const group = courseToEquivCourses.get(courseId);
+  const group = get_S(courseToEquivCourses, courseId);
 
-  return group ? Array.from(group) : [];
+  return group ? toArray_S(group) : [];
 }
 
 export const getReverseEquivCourses = (
@@ -69,9 +78,9 @@ export const getReverseEquivCourses = (
   equivGroups: EquivGroups,
 ): CourseId[] => {
   const { equivCourseToCourses } = equivGroups;
-  const group = equivCourseToCourses.get(courseId);
+  const group = get_S(equivCourseToCourses, courseId);
 
-  return group ? Array.from(group) : [];
+  return group ? toArray_S(group) : [];
 };
 
 export function isEquivalent(
@@ -80,5 +89,7 @@ export function isEquivalent(
   equivGroups: EquivGroups,
 ): boolean {
   const { courseToEquivCourses } = equivGroups;
-  return !!courseToEquivCourses.get(courseId1)?.has(courseId2);
+  const group = get_S(courseToEquivCourses, courseId1);
+
+  return group ? has_S(group, courseId2) : false;
 }
