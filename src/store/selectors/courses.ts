@@ -39,10 +39,6 @@ export const selectIsOverwritten = createAppSelector(
 
     const plan = planData.get(planId);
 
-    if (!plan) {
-      console.error(`Plan id not found in plan data: ${planId}`);
-    }
-
     return plan ? !!plan.courseMetadata.get(courseId)?.isOverwritten : false;
   },
 );
