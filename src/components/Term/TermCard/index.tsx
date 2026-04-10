@@ -1,9 +1,7 @@
 "use client";
 
-import type { Term } from "@/types/db";
-import type { CachedDetailedCourse } from "@/types/local";
 import clsx from "clsx";
-import { useRef } from "react";
+import { useRef, memo } from "react";
 import { useAppSelector } from "@/store/hooks";
 import DetailedCourseCard from "@/components/Course/CourseCard/DetailedCourseCard";
 import {
@@ -24,13 +22,13 @@ import {
 import AddTermButton from "./AddTermButton";
 import CurrStatusIndicator from "./CurrStatusIndicator";
 import TermHeader from "./TermHeader";
+import { selectTermById } from "@/store/selectors";
 
 interface TermCardProps {
   // possible contents
-  planId: string;
-  term: Term;
-  courses: CachedDetailedCourse[];
   idx: number;
+  termId: string;
+  planId: string; // pass down for export mode
 
   // used for export mode
   isExport?: boolean;
@@ -60,7 +58,6 @@ interface TermCardProps {
  * Term Card Componnet
  *
  * === term info ===
- * @param planId - the id of the plan
  * @param term - the term to display
  * @param courses - the courses to display
  * @param idx - the index of the term
@@ -90,11 +87,9 @@ interface TermCardProps {
  */
 const TermCard = ({
   // possible contents
-  planId,
-  term,
-  courses,
   idx,
-
+  termId,
+  planId,
   // term states and actions
   isCourseDraggable = true,
   setIsCourseExpanded,
@@ -118,6 +113,10 @@ const TermCard = ({
   droppableProvided,
   droppableSnapshot,
 }: TermCardProps) => {
+  const termDetail = useAppSelector((state) => selectTermById(state, termId));
+
+  const { courseIds = [] as string[], name: termName = "" } = termDetail;
+
   // global states
   const isDragging = useAppSelector((state) => state.global.isDragging);
   const isSeekingCourse = useAppSelector(
@@ -131,10 +130,10 @@ const TermCard = ({
   const termContainerRef = useRef<HTMLDivElement>(null);
 
   // derived state and actions
-  const termSeason = useTermSeason(term);
+  const termSeason = useTermSeason(termName);
   const { isCurrTerm, isCurrYearTerm, totalCredits } = useTermStatus(
-    term,
-    courses,
+    termName,
+    courseIds,
   );
   const {
     handleAddCourse,
@@ -143,8 +142,9 @@ const TermCard = ({
     handleDeleteTerm,
   } = useTermCardActions({
     idx,
-    term,
-    courses,
+    termName,
+    termId,
+    courseIds,
     addCourse,
     deleteCourse,
     addTerm,
@@ -182,10 +182,11 @@ const TermCard = ({
       {/* header for the term card */}
       <TermHeader
         lang={lang}
-        term={term}
+        termName={termName}
+        termId={termId}
         termSeason={termSeason}
         isCurrYearTerm={isCurrYearTerm}
-        courses={courses}
+        courseIds={courseIds}
         isExport={isExport}
         handleAddCourse={handleAddCourse}
         handleDeleteTerm={handleDeleteTerm}
@@ -211,25 +212,24 @@ const TermCard = ({
           }}
           {...droppableProvided?.droppableProps}
         >
-          {courses.map((course, idx) =>
+          {courseIds.map((courseId, idx) =>
             isCourseDraggable ? (
               // draggable for the courses in the term card
               <Draggable
-                key={`draggable-${term._id}-${course.id}`}
-                draggableId={course.id}
+                key={`draggable-${courseId}`}
+                draggableId={courseId}
                 index={idx}
                 isDragDisabled={isSeekingCourse}
               >
                 {(courseDraggableProvided, courseDraggableSnapshot) => (
                   <DetailedCourseCard
-                    key={`${term._id}-${course.id}`}
-                    course={course}
-                    termId={term._id}
+                    key={courseId}
+                    courseId={courseId}
                     planId={planId}
                     termSeason={termSeason}
                     handleDelete={handleDeleteCourse}
                     setIsExpanded={setIsCourseExpanded}
-                    isDraggingTerm={isDraggingTerm ?? false}
+                    isDraggingTerm={isDraggingTerm}
                     draggableProvided={courseDraggableProvided}
                     draggableSnapshot={courseDraggableSnapshot}
                     isExport={isExport}
@@ -241,21 +241,20 @@ const TermCard = ({
             ) : (
               // non-draggable for the courses in the term card
               <DetailedCourseCard
-                key={`${term._id}-${course.id}`}
-                course={course}
-                termId={term._id}
+                key={courseId}
+                courseId={courseId}
                 planId={planId}
                 termSeason={termSeason}
                 handleDelete={handleDeleteCourse}
                 setIsExpanded={setIsCourseExpanded}
-                isDraggingTerm={isDraggingTerm ?? false}
+                isDraggingTerm={isDraggingTerm}
                 isExport={isExport}
                 expandCourses={expandCourses}
                 isTermInCurrentYear={isCurrYearTerm}
               />
             ),
           )}
-          {isExport && courses.length === 0 && (
+          {isExport && courseIds.length === 0 && (
             <div className="empty-term">
               <span>{t([I18nKey.EMPTY], lang)}</span>
             </div>
@@ -292,4 +291,4 @@ const TermCard = ({
   );
 };
 
-export default TermCard;
+export default memo(TermCard);
