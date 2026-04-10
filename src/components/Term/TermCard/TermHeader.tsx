@@ -9,7 +9,7 @@ import { type Term } from "@/types/db";
 import { type CachedDetailedCourse } from "@/types/local";
 import { Season } from "@/lib/enums";
 import SelectIcon from "@/public/icons/select.svg";
-import { useCallback, useState } from "react";
+import { useCallback, useRef } from "react";
 
 const TermHeader = ({
   term,
@@ -36,16 +36,13 @@ const TermHeader = ({
     (state) => state.global.hasSelectedCourses,
   );
 
-  const [isEditing, setIsEditing] = useState(false);
-
   const showButtons = !isExport;
 
-  const handleClick = useCallback(() => {
-    setIsEditing((prev) => !prev);
-    setTimeout(() => {
-      setIsEditing(false);
-    }, 100);
-  }, [setIsEditing]);
+  const selectHandleRef = useRef<{ openPicker: () => void }>(null);
+  const handleClick = useCallback((e: any) => {
+    e?.stopPropagation();
+    selectHandleRef.current?.openPicker();
+  }, []);
 
   return (
     /* header for the term card */
@@ -68,20 +65,20 @@ const TermHeader = ({
 
             {/* select element for the term name, hidden under the span */}
             <TermSeasonSelect
+              handleRef={selectHandleRef}
               termId={term._id.toString()}
               termName={term.name}
               lang={lang}
-              isEditing={isEditing}
             />
           </span>
 
           {/* select icon */}
           <SelectIcon
+            onClick={handleClick}
             className={clsx([
               "select clickable",
               (hasSelectedCourses || !showButtons) && "hidden",
             ])}
-            onClick={handleClick}
           />
         </span>
       )}
