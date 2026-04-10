@@ -13,6 +13,7 @@ import { selectCurrentPlan } from "@/store/selectors";
 import { setIsCourseTakenExpanded } from "@/store/slices/globalSlice";
 import { COURSE_TAKEN_SCROLL_DELAY } from "../constants";
 import { scrollCourseCardToView } from "../utils";
+import { keys_S } from "../utils/dataStructure";
 
 export const useCourseActions = () => {
   const dispatch = useAppDispatch();
@@ -42,7 +43,7 @@ export const useCourseActions = () => {
       const result = await dispatch(
         addCourseToTerm({
           termId,
-          courseIds: Array.from(selectedCourses.keys()),
+          courseIds: keys_S(selectedCourses),
           planId: currentPlan._id,
         }),
       );

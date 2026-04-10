@@ -17,6 +17,7 @@ import { useMemo } from "react";
 import clsx from "clsx";
 import { getSubjectCode } from "@/lib/course";
 import { CONST_STR } from "@/lib/constants";
+import { has_S } from "@/lib/utils/dataStructure";
 
 /**
  * Used to display one section of a program card
@@ -113,7 +114,7 @@ const DetailedInfoCard = ({
             <MiniCourseCard
               key={courseId}
               data={course}
-              isSelected={selectedCourses.has(courseId)}
+              isSelected={has_S(selectedCourses, courseId)}
               callback={handleAddCourse}
             />
           );

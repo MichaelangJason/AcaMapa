@@ -13,6 +13,7 @@ import MiniCourseCard from "../../Course/CourseCard/MiniCourseCard";
 import clsx from "clsx";
 import { I18nKey, Language, t } from "@/lib/i18n";
 import ScrollBar from "@/components/Common/ScrollBar";
+import { values_S } from "@/lib/utils/dataStructure";
 
 const getMarginTop = (
   idx: number,
@@ -103,18 +104,20 @@ const MultiSelect = () => {
           )}
           ref={multiSelectRef}
         >
-          {[...selectedCourses.values()].reverse().map((course, idx) => {
-            // TODO: why pure CSS has stacking issue on credits?
-            return (
-              <MiniCourseCard
-                key={`multi-select-${idx}`}
-                data={course}
-                isSelected
-                callback={handleRemoveCourse}
-                style={getStyle(idx, isHovering, isExpanded)}
-              />
-            );
-          })}
+          {values_S(selectedCourses)
+            .reverse()
+            .map((course, idx) => {
+              // TODO: why pure CSS has stacking issue on credits?
+              return (
+                <MiniCourseCard
+                  key={`multi-select-${idx}`}
+                  data={course}
+                  isSelected
+                  callback={handleRemoveCourse}
+                  style={getStyle(idx, isHovering, isExpanded)}
+                />
+              );
+            })}
         </div>
 
         {/* custom scroll bar */}

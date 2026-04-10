@@ -13,6 +13,7 @@ import {
   addCourseTaken,
 } from "@/store/slices/userDataSlice";
 import { useCallback } from "react";
+import { values_S } from "../utils/dataStructure";
 
 export const useCourseTakenActions = (isExport: boolean) => {
   const dispatch = useAppDispatch();
@@ -55,9 +56,7 @@ export const useCourseTakenActions = (isExport: boolean) => {
       e.stopPropagation();
 
       dispatch(
-        addCourseTaken(
-          [...selectedCourses.values()].map((course) => course.id),
-        ),
+        addCourseTaken(values_S(selectedCourses).map((course) => course.id)),
       );
       dispatch(clearSelectedCourses());
       dispatch(setSearchInput(""));

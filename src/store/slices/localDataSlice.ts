@@ -23,6 +23,7 @@ import {
   _setEquivRulesToGraph,
   _createCourseDepData,
 } from "@/lib/course/dependency";
+import { clear_S, new_S, remove_S, set_S } from "@/lib/utils/dataStructure";
 
 export const initialState = {
   // course data
@@ -42,9 +43,8 @@ export const initialState = {
   // current plan id to retrieve plan data
   currentPlanId: "" as string,
 
-  // INSPECT: do we really need map here?
   // utilize the hashmap for quick lookup and ordering
-  selectedCourses: new Map<string, Course>(),
+  selectedCourses: new_S<CourseId, Course>(),
 
   // course UI expanded state
   // stored in store to avoid card closing during drag
@@ -163,24 +163,24 @@ const localDataSlice = createSlice({
 
     /* selected courses */
     addSelectedCourse: (state, action: PayloadAction<Course | string>) => {
+      const selectedCourses = state.selectedCourses;
       if (typeof action.payload === "string") {
-        state.selectedCourses.set(
-          action.payload,
-          state.courseData[action.payload],
-        );
+        const course = state.courseData[action.payload];
+        set_S(selectedCourses, action.payload, course);
       } else {
-        state.selectedCourses.set(action.payload.id, action.payload);
+        set_S(selectedCourses, action.payload.id, action.payload);
       }
     },
     removeSelectedCourse: (state, action: PayloadAction<Course | string>) => {
+      const selectedCourses = state.selectedCourses;
       if (typeof action.payload === "string") {
-        state.selectedCourses.delete(action.payload);
+        remove_S(selectedCourses, action.payload);
       } else {
-        state.selectedCourses.delete(action.payload.id);
+        remove_S(selectedCourses, action.payload.id);
       }
     },
     clearSelectedCourses: (state) => {
-      state.selectedCourses.clear();
+      clear_S(state.selectedCourses);
     },
 
     /* set current plan id */
