@@ -39,9 +39,13 @@ const consecutivePattern =
 
 export const findCourseIds = (
   raw: string,
-  findAll: boolean,
-  log: boolean = false,
+  options?: {
+    findAll?: boolean;
+    log?: boolean;
+    format?: boolean;
+  },
 ) => {
+  const { findAll = true, log = false, format = false } = options || {};
   // find all course ids in the string that match the pattern
   let results: string[] = (raw.match(pattern) as string[]) || [];
   if (!findAll) results = results.slice(0, 1);
@@ -66,8 +70,13 @@ export const findCourseIds = (
         });
       } else if (id.match(alternativePattern)) {
         if (log) console.log("alternativePattern: ", id);
-        const prefix = id.replace(/( )*or( )*/gi, "/").slice(0, 4);
-        const suffix = id.replace(/( )*or( )*/gi, "/").slice(4);
+        const formatted = id.replace(/( )*or( )*/gi, "/");
+        const [prefix, suffix] = formatted.split(/(?=\d{3})/, 2);
+
+        if (log) {
+          console.log("prefix: ", prefix);
+          console.log("suffix: ", suffix);
+        }
         prefix.split("/").forEach((p) => {
           acc.push(p + suffix);
         });
@@ -108,5 +117,11 @@ export const findCourseIds = (
       return acc;
     }, [] as string[]) || [];
 
-  return [...new Set(results)]; // remove duplicates
+  let uniqueIds = [...new Set(results)]; // remove duplicates
+
+  if (format) {
+    uniqueIds = uniqueIds.map((s) => s.replace(" ", "").toLowerCase());
+  }
+
+  return uniqueIds;
 };
