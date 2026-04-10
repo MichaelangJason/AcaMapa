@@ -3,6 +3,7 @@ import type { WritableDraft } from "immer";
 import { type PayloadAction } from "@reduxjs/toolkit";
 import { addEquivGroup, removeEquivGroup } from "../equivalents";
 import type { CourseId, DepGraph } from "@/types/local";
+import { get_S } from "@/lib/utils/dataStructure";
 
 const gatherAffectedCourses = (
   depGraph: DepGraph,
@@ -57,7 +58,7 @@ export const _addEquivRulesToGraph = (
   });
 
   // gather all affected courses if plan id is provided
-  const depData = state.courseDepData.get(planId)!;
+  const depData = get_S(state.courseDepData, planId)!;
   const depGraph = depData.depGraph;
   const courseToBeUpdated = gatherAffectedCourses(depGraph, ruleCourseIds);
 
@@ -69,7 +70,7 @@ export const _removeEquivRulesFromGraph = (
   action: PayloadAction<{ rules: [string, string][]; planId: string }>,
 ) => {
   const { rules, planId } = action.payload;
-  const depData = state.courseDepData.get(planId)!;
+  const depData = get_S(state.courseDepData, planId)!;
   const equivGroups = state.equivGroups;
   const depGraph = depData.depGraph;
 

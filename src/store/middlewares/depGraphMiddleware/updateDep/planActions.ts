@@ -12,6 +12,7 @@ import type { HandlerContext } from "../core";
 import { getTermOrderMap } from "./helpers";
 import type { PlanAction } from "@/types/actions";
 import { getPlanCourseIds } from "@/lib/plan";
+import { get_S, has_S } from "@/lib/utils/dataStructure";
 
 export const handleSetCurrentPlan = ({
   action,
@@ -36,7 +37,7 @@ export const handleSetCurrentPlan = ({
   const courseTaken = state.userData.courseTaken;
   const courses = getPlanCourseIds(plan, state.userData.termData);
 
-  if (!depData.has(planId)) {
+  if (!has_S(depData, planId)) {
     dispatch(initCourseDepData({ planId }));
     plan.termOrder.forEach((termId) => {
       const term = state.userData.termData.get(termId)!;
@@ -56,7 +57,8 @@ export const handleSetCurrentPlan = ({
   }
 
   const updatedState = listenerApi.getState();
-  const isDirty = updatedState.localData.courseDepData.get(planId)!.isDirty;
+  const isDirty =
+    get_S(updatedState.localData.courseDepData, planId)?.isDirty ?? false;
   // update courses is satisfied
   if (isDirty) {
     if (courses.length > 0) {

@@ -1,4 +1,4 @@
-import type { S_Set } from "./utils";
+import type { S_Map, S_Set } from "./utils";
 import type { GroupType } from "@/lib/enums";
 import type { DetailedCourse, Requisite } from "./db";
 import type { CONST_STR } from "@/lib/constants";
@@ -90,7 +90,7 @@ export type CachedDetailedCourse = DetailedCourse & {
 
 // input type for dependency updates
 export type DepInput = {
-  courseDepData: Map<CourseId, CourseDepData>;
+  courseDepData: S_Map<PlanId, CourseDepData>;
   equivGroups: EquivGroups;
   cachedDetailedCourseData: Record<CourseId, CachedDetailedCourse>;
 };

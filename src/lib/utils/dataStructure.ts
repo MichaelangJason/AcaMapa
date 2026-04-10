@@ -28,6 +28,13 @@ export function clear_S<K extends string, V>(set: S_Map<K, V>) {
   set.size = 0;
 }
 
+export function get_S<K extends string, V>(
+  set: S_Map<K, V>,
+  key: K,
+): V | undefined {
+  return set.data[key];
+}
+
 export function has_S<K extends string, V>(set: S_Map<K, V>, key: K) {
   return key in set.data;
 }

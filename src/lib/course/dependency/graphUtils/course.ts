@@ -21,6 +21,8 @@ import type {
 import { getReverseEquivCourses } from "../equivalents";
 import {
   add_S,
+  get_S,
+  has_S,
   isEmpty_S,
   new_S,
   remove_S,
@@ -126,12 +128,12 @@ export const _addCourseToGraph = (
   const { planId, courseIds, termId } = action.payload;
 
   // validate plan id
-  if (!state.courseDepData.has(planId)) {
+  if (!has_S(state.courseDepData, planId)) {
     throw new Error(`Plan id not found in course dep data: ${planId}`);
   }
 
   // get current dependency graph
-  const depData = state.courseDepData.get(planId)!;
+  const depData = get_S(state.courseDepData, planId)!;
   const { depGraph, subjectReqMap } = depData;
   const equivGroups = state.equivGroups;
 
@@ -254,11 +256,11 @@ export const _deleteCourseFromGraph = (
   const { planId, courseIds } = action.payload;
 
   // validate plan id
-  if (!state.courseDepData.has(planId)) {
+  if (!has_S(state.courseDepData, planId)) {
     throw new Error(`Plan id not found in course dep data: ${planId}`);
   }
 
-  const depData = state.courseDepData.get(planId)!;
+  const depData = get_S(state.courseDepData, planId)!;
   const { depGraph, subjectReqMap } = depData;
   const equivGroups = state.equivGroups;
 
@@ -354,11 +356,11 @@ export const _moveCourseInGraph = (
 ) => {
   const { planId, courseIds, newTermId } = action.payload;
 
-  if (!state.courseDepData.has(planId)) {
+  if (!has_S(state.courseDepData, planId)) {
     throw new Error(`Plan id not found in course dep data: ${planId}`);
   }
 
-  const depData = state.courseDepData.get(planId)!;
+  const depData = get_S(state.courseDepData, planId)!;
   const { depGraph, subjectReqMap } = depData;
   const equivGroups = state.equivGroups;
 

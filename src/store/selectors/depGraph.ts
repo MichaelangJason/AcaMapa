@@ -6,6 +6,7 @@ import type {
   PlanId,
 } from "@/types/local";
 import { CONST_STR } from "@/lib/constants";
+import { get_S, has_S } from "@/lib/utils/dataStructure";
 
 export const selectCourseDepDetailByPlanId = createAppSelector(
   [
@@ -17,7 +18,7 @@ export const selectCourseDepDetailByPlanId = createAppSelector(
     if (!isInitialized) {
       return { isSatisfied: false, source: CONST_STR.EMPTY } as CourseDepDetail;
     }
-    const depGraph = courseDepData.get(planId)?.depGraph;
+    const depGraph = get_S(courseDepData, planId)?.depGraph;
     if (!depGraph) {
       throw new Error(`Plan id not found in course dep data: ${planId}`);
     }
@@ -41,7 +42,7 @@ export const selectCourseDepDetail = createAppSelector(
       return { isSatisfied: false, source: CONST_STR.EMPTY } as CourseDepDetail;
     }
 
-    const depGraph = courseDepData.get(currentPlanId)?.depGraph;
+    const depGraph = get_S(courseDepData, currentPlanId)?.depGraph;
 
     if (!depGraph) {
       throw new Error(`Plan id not found in course dep data: ${currentPlanId}`);
@@ -66,9 +67,9 @@ export const selectCurrDepGraph = createAppSelector(
     if (!isInitialized) {
       return new Map() as CourseDepData["depGraph"];
     }
-    if (!courseDepData.has(planId)) {
+    if (!has_S(courseDepData, planId)) {
       throw new Error(`Plan id not found in course dep data: ${planId}`);
     }
-    return courseDepData.get(planId)!.depGraph;
+    return get_S(courseDepData, planId)!.depGraph;
   },
 );

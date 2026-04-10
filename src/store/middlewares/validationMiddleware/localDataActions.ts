@@ -1,5 +1,6 @@
 import { MAX_COURSE_SELECTED } from "@/lib/constants";
 import { isValidCourseId, isValidObjectId } from "@/lib/typeGuards";
+import { has_S } from "@/lib/utils/dataStructure";
 import { type RootState } from "@/store";
 import type { LocalDataAction } from "@/types/actions";
 
@@ -33,7 +34,7 @@ export const handleLocalDataAction = (
       if (planIds.some((id) => !state.userData.planData.has(id))) {
         throw new Error(`Plan id not found in plan data: ${planIds}`);
       }
-      if (planIds.some((id) => !state.localData.courseDepData.has(id))) {
+      if (planIds.some((id) => !has_S(state.localData.courseDepData, id))) {
         throw new Error(`Plan id not found in course dep data: ${planIds}`);
       }
 

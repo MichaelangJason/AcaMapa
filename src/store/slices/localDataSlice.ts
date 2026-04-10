@@ -23,7 +23,14 @@ import {
   _setEquivRulesToGraph,
   _createCourseDepData,
 } from "@/lib/course/dependency";
-import { clear_S, new_S, remove_S, set_S } from "@/lib/utils/dataStructure";
+import {
+  clear_S,
+  get_S,
+  has_S,
+  new_S,
+  remove_S,
+  set_S,
+} from "@/lib/utils/dataStructure";
 
 export const initialState = {
   // course data
@@ -51,7 +58,8 @@ export const initialState = {
   isCourseExpanded: {} as Record<PlanId, Record<CourseId, boolean>>,
 
   // course dependency graph
-  courseDepData: new Map<PlanId, CourseDepData>(),
+  // courseDepData: new Map<PlanId, CourseDepData>(),
+  courseDepData: new_S<PlanId, CourseDepData>(),
   equivGroups: {
     courseToEquivCourses: new Map<CourseId, Set<string>>(), // course id to equivalent course ids
     equivCourseToCourses: new Map<CourseId, Set<string>>(), // reverse map
@@ -432,11 +440,11 @@ const localDataSlice = createSlice({
       const { planId, courseToBeUpdated, courseTaken, termOrderMap } =
         action.payload;
 
-      if (!state.courseDepData.has(planId)) {
+      if (!has_S(state.courseDepData, planId)) {
         throw new Error(`Plan id not found in course dep data: ${planId}`);
       }
 
-      const depData = state.courseDepData.get(planId)!;
+      const depData = get_S(state.courseDepData, planId)!;
 
       const { courseData: allCourseData, equivGroups } = state;
 
@@ -452,10 +460,10 @@ const localDataSlice = createSlice({
 
     /* course dep data */
     initCourseDepData: (state, action: PayloadAction<{ planId: string }>) => {
-      state.courseDepData.set(action.payload.planId, _createCourseDepData());
+      set_S(state.courseDepData, action.payload.planId, _createCourseDepData());
     },
     deleteCourseDepData: (state, action: PayloadAction<string>) => {
-      state.courseDepData.delete(action.payload);
+      remove_S(state.courseDepData, action.payload);
     },
     setCourseDepDataDirty: (
       state,
@@ -464,7 +472,10 @@ const localDataSlice = createSlice({
       const { planIds, isDirty } = action.payload;
       // console.log("setCourseDepDataDirty", planIds, isDirty);
       planIds.forEach((planId) => {
-        state.courseDepData.get(planId)!.isDirty = isDirty;
+        const plan = get_S(state.courseDepData, planId);
+        if (plan) {
+          plan.isDirty = isDirty;
+        }
       });
     },
 

@@ -1,6 +1,7 @@
 import { isCourseTakenAction, isEquivRulesAction } from "@/lib/typeGuards";
 import { setCourseDepDataDirty } from "@/store/slices/localDataSlice";
 import { startListening } from "./core";
+import { get_S } from "@/lib/utils/dataStructure";
 
 // handle dirty dep data updates only
 startListening({
@@ -17,7 +18,7 @@ startListening({
         planId !== currentPlanId &&
         // TODO: handle undefined case
         // undefined when plan depData is not (lazily) initialized yet
-        state.localData.courseDepData.get(planId)?.isDirty === false,
+        get_S(state.localData.courseDepData, planId)?.isDirty === false,
     );
 
     if (nonDirtyPlanIds.length === 0) {
