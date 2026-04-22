@@ -99,20 +99,23 @@ const DetailedCourseCard = ({
     terms = [] as string[],
   } = courseDetail;
 
+  // stable reference
+  const args = useMemo(() => ({ planId, courseId }), [planId, courseId]);
+
   // passing down an object is recommended in redux documentation,
   // but will it correctly memoize the selector? How does it compare the arguments?
   const depDetail = useAppSelector((state) =>
-    selectCourseDepDetailByPlanId(state, { planId, courseId }),
+    selectCourseDepDetailByPlanId(state, args),
   );
 
   // whether the course is expanded, controlled by redux
   const isExpanded = useAppSelector((state) =>
-    selectIsCourseExpanded(state, { courseId, planId }),
+    selectIsCourseExpanded(state, args),
   );
 
   // whether the course req is overwritten, controlled by redux
   const isOverwritten = useAppSelector((state) =>
-    selectIsOverwritten(state, { planId, courseId }),
+    selectIsOverwritten(state, args),
   );
 
   // whether the course req is satisfied

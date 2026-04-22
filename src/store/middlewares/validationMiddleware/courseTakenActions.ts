@@ -9,7 +9,7 @@ export const handleCourseTakenAction = (
 ) => {
   switch (action.type) {
     case "userData/setCourseTaken": {
-      const courseTakenErrors = Object.keys(action.payload).reduce(
+      const courseTakenErrors = [...action.payload.keys()].reduce(
         (acc: { [subjectCode: string]: string[] }, subjectCode: string) => {
           const errors: string[] = [];
           if (typeof subjectCode !== "string" || subjectCode.length !== 4) {
