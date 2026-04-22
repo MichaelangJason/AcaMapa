@@ -1,7 +1,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import type { RootState, AppDispatch } from "..";
 import { parseGroup } from "@/lib/course";
-import { type Language, t, I18nKey } from "@/lib/i18n";
+import { t, I18nKey } from "@/lib/i18n";
 import { isValidDetailedCourse, isValidProgram } from "@/lib/typeGuards";
 import type {
   CachedDetailedCourse,
@@ -25,7 +25,7 @@ export const fetchCourseData = createAppAsyncThunk(
     { dispatch, rejectWithValue, fulfillWithValue, getState },
   ) => {
     const state = getState();
-    const lang = state.userData.lang as Language;
+    const lang = state.userData.lang;
     const cachedCourseData = state.localData.cachedDetailedCourseData;
 
     const cachedCourses = courseIds
@@ -92,7 +92,7 @@ export const fetchProgramData = createAppAsyncThunk(
     programIds: string[],
     { dispatch, rejectWithValue, fulfillWithValue, getState },
   ) => {
-    const lang = getState().userData.lang as Language;
+    const lang = getState().userData.lang;
     const response = await fetch(`/api/programs?ids=${programIds.join(",")}`, {
       method: "GET",
     });

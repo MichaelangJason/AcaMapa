@@ -1,9 +1,29 @@
-import { createSelector } from "@reduxjs/toolkit";
-import type { RootState } from "..";
-import type { CourseId, CourseDepData, CourseDepDetail } from "@/types/local";
+import { createAppSelector } from "../hooks";
+import type { CourseId, CourseDepDetail, PlanId } from "@/types/local";
 import { CONST_STR } from "@/lib/constants";
+import { get_S, has_S, new_S } from "@/lib/utils/dataStructure";
 
-const createAppSelector = createSelector.withTypes<RootState>();
+export const selectCourseDepDetailByPlanId = createAppSelector(
+  [
+    (state) => state.global.isInitialized,
+    (state) => state.localData.courseDepData,
+    (_, args: { planId: PlanId; courseId: CourseId }) => args,
+  ],
+  (isInitialized, courseDepData, { planId, courseId }) => {
+    if (!isInitialized) {
+      return { isSatisfied: false, source: CONST_STR.EMPTY } as CourseDepDetail;
+    }
+    const depGraph = get_S(courseDepData, planId)?.depGraph;
+    if (!depGraph) {
+      throw new Error(`Plan id not found in course dep data: ${planId}`);
+    }
+    const depDetail = get_S(depGraph, courseId);
+    return (
+      depDetail ??
+      ({ isSatisfied: false, source: CONST_STR.EMPTY } as CourseDepDetail)
+    );
+  },
+);
 
 export const selectCourseDepDetail = createAppSelector(
   [
@@ -17,16 +37,16 @@ export const selectCourseDepDetail = createAppSelector(
       return { isSatisfied: false, source: CONST_STR.EMPTY } as CourseDepDetail;
     }
 
-    const depGraph = courseDepData.get(currentPlanId)?.depGraph;
+    const depGraph = get_S(courseDepData, currentPlanId)?.depGraph;
 
     if (!depGraph) {
       throw new Error(`Plan id not found in course dep data: ${currentPlanId}`);
     }
 
-    const depDetail = depGraph.get(courseId);
+    const depDetail = get_S(depGraph, courseId);
 
     return (
-      depDetail ||
+      depDetail ??
       ({ isSatisfied: false, source: CONST_STR.EMPTY } as CourseDepDetail)
     );
   },
@@ -40,33 +60,11 @@ export const selectCurrDepGraph = createAppSelector(
   ],
   (isInitialized, courseDepData, planId) => {
     if (!isInitialized) {
-      return new Map() as CourseDepData["depGraph"];
+      return new_S<CourseId, CourseDepDetail>();
     }
-    if (!courseDepData.has(planId)) {
+    if (!has_S(courseDepData, planId)) {
       throw new Error(`Plan id not found in course dep data: ${planId}`);
     }
-    return courseDepData.get(planId)!.depGraph;
-  },
-);
-
-export const selectIsCourseSatisfied = createAppSelector(
-  [
-    (state) => state.global.isInitialized,
-    (state) => state.localData.courseDepData,
-    (state) => state.localData.currentPlanId,
-    (_, courseId: CourseId) => courseId,
-  ],
-  (isInitialized, courseDepData, currPlanId, courseId) => {
-    if (!isInitialized) {
-      return false;
-    }
-
-    if (!courseDepData.has(currPlanId)) {
-      throw new Error(`Plan id not found in course dep data: ${currPlanId}`);
-    }
-
-    const depGraph = courseDepData.get(currPlanId)!.depGraph;
-
-    return depGraph.get(courseId)?.isSatisfied ?? false;
+    return get_S(courseDepData, planId)!.depGraph;
   },
 );

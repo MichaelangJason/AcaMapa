@@ -28,4 +28,4 @@ export type S_Map<K extends string, V> = {
   size: number;
 };
 // Serializable Set
-export type S_Set<K extends string> = S_Map<K, undefined>;
+export type S_Set<K extends string> = S_Map<K, true>;

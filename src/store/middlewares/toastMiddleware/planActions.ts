@@ -1,4 +1,4 @@
-import { type Language, t, I18nKey } from "@/lib/i18n";
+import { t, I18nKey } from "@/lib/i18n";
 import { isPlanAction } from "@/lib/typeGuards";
 import { setCurrentPlanId } from "@/store/slices/localDataSlice";
 import { toast } from "react-toastify";
@@ -7,7 +7,7 @@ import { startListening } from "./core";
 startListening({
   predicate: (action) => isPlanAction(action),
   effect: (action, listenerApi) => {
-    const lang = listenerApi.getState().userData.lang as Language;
+    const lang = listenerApi.getState().userData.lang;
     const isToastEnabled = listenerApi.getState().global.isToastEnabled;
 
     if (!isToastEnabled) return;
@@ -50,7 +50,7 @@ startListening({
 startListening({
   actionCreator: setCurrentPlanId,
   effect: (action, listenerApi) => {
-    const lang = listenerApi.getState().userData.lang as Language;
+    const lang = listenerApi.getState().userData.lang;
     const isToastEnabled = listenerApi.getState().global.isToastEnabled;
 
     if (!isToastEnabled) return;

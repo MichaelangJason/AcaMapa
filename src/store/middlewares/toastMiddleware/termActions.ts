@@ -1,4 +1,4 @@
-import { type Language, t, I18nKey } from "@/lib/i18n";
+import { t, I18nKey } from "@/lib/i18n";
 import { isTermAction } from "@/lib/typeGuards";
 import { toast } from "react-toastify";
 import { startListening } from "./core";
@@ -6,7 +6,7 @@ import { startListening } from "./core";
 startListening({
   predicate: (action) => isTermAction(action),
   effect: (action, listenerApi) => {
-    const lang = listenerApi.getState().userData.lang as Language;
+    const lang = listenerApi.getState().userData.lang;
     const isToastEnabled = listenerApi.getState().global.isToastEnabled;
 
     if (!isToastEnabled) return;

@@ -1,5 +1,5 @@
 import { ToastId } from "@/lib/enums";
-import { type Language, t, I18nKey } from "@/lib/i18n";
+import { t, I18nKey } from "@/lib/i18n";
 import {
   setIsSeekingCourse,
   setIsSeekingProgram,
@@ -16,7 +16,7 @@ import { formatCourseId } from "@/lib/utils";
 startListening({
   matcher: isAnyOf(setIsSeekingCourse, setIsSeekingProgram),
   effect: (_, listenerApi) => {
-    const lang = listenerApi.getState().userData.lang as Language;
+    const lang = listenerApi.getState().userData.lang;
     const isToastEnabled = listenerApi.getState().global.isToastEnabled;
 
     if (!isToastEnabled) return;

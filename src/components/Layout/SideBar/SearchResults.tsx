@@ -19,14 +19,15 @@ import { useDebounce } from "@/lib/hooks/common";
 import { selectAllCourseData } from "@/store/selectors";
 import FootNote from "../../Course/CourseCard/FootNote";
 import { MiniCourseCardSkeleton } from "@/components/Skeleton";
-import { I18nKey, Language, t } from "@/lib/i18n";
+import { I18nKey, t } from "@/lib/i18n";
 import ScrollBar from "@/components/Common/ScrollBar";
 import clsx from "clsx";
+import { has_S } from "@/lib/utils/dataStructure";
 
 const SearchResults = ({ result }: { result: SearchResult }) => {
   const { type, query, data } = result;
   const dispatch = useAppDispatch();
-  const lang = useAppSelector((state) => state.userData.lang) as Language;
+  const lang = useAppSelector((state) => state.userData.lang);
   const { courseData, selectedCourses } = useAppSelector(
     (state) => state.localData,
   );
@@ -163,11 +164,11 @@ const SearchResults = ({ result }: { result: SearchResult }) => {
 
             return (
               <MiniCourseCard
-                key={`search-result-${idx}`}
+                key={`search-result-${course.id}`}
                 data={course}
                 query={query}
                 callback={handleAddCourse}
-                isSelected={selectedCourses.has(course.id)}
+                isSelected={has_S(selectedCourses, course.id)}
               />
             );
           }

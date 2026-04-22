@@ -4,10 +4,10 @@ import { useCallback } from "react";
 import { toggleLang } from "@/store/slices/userDataSlice";
 import clsx from "clsx";
 import { TooltipId } from "@/lib/enums";
-import { I18nKey, Language, t } from "@/lib/i18n";
+import { I18nKey, t } from "@/lib/i18n";
 
 const UserLang = () => {
-  const lang = useAppSelector((state) => state.userData.lang) as Language;
+  const lang = useAppSelector((state) => state.userData.lang);
   const isInitialized = useAppSelector((state) => state.global.isInitialized);
   const isDragging = useAppSelector((state) => state.global.isDragging);
   const dispatch = useAppDispatch();

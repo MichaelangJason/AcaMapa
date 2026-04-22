@@ -1,19 +1,23 @@
-import { Term } from "@/types/db";
 import { Language, t, I18nKey } from "../i18n";
 import { useMemo } from "react";
 import { ModalType, Season } from "../enums";
 import { useCallback } from "react";
-import { CachedDetailedCourse } from "@/types/local";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { useAppDispatch, useAppSelector, useAppStore } from "@/store/hooks";
 import { setModalState } from "@/store/slices/localDataSlice";
 import { isCurrentTerm, isThisYearTerm } from "../term";
 
-export const useTermStatus = (term: Term, courses: CachedDetailedCourse[]) => {
-  const isCurrTerm = useMemo(() => isCurrentTerm(term.name), [term.name]);
-  const isCurrYearTerm = useMemo(() => isThisYearTerm(term.name), [term.name]);
+export const useTermStatus = (termName: string, courseIds: string[]) => {
+  const store = useAppStore();
+  const isCurrTerm = useMemo(() => isCurrentTerm(termName), [termName]);
+  const isCurrYearTerm = useMemo(() => isThisYearTerm(termName), [termName]);
   const totalCredits = useMemo(() => {
-    return courses.reduce((acc, course) => acc + course.credits, 0);
-  }, [courses]);
+    const courseData = store.getState().localData.courseData;
+    return courseIds.reduce(
+      (acc: number, courseId: string) =>
+        acc + (courseData[courseId]?.credits ?? 0),
+      0,
+    );
+  }, [courseIds, store]);
 
   return {
     isCurrTerm,
@@ -23,9 +27,9 @@ export const useTermStatus = (term: Term, courses: CachedDetailedCourse[]) => {
 };
 
 // TODO: normalize term name to avoid this hack
-export const useTermSeason = (term: Term) => {
+export const useTermSeason = (termName: string) => {
   const termSeason = useMemo(() => {
-    const normalizedTermName = term.name.toLowerCase();
+    const normalizedTermName = termName.toLowerCase();
     if (
       Object.values(Language).some((l) =>
         normalizedTermName.includes(t([I18nKey.WINTER], l).toLowerCase()),
@@ -46,73 +50,58 @@ export const useTermSeason = (term: Term) => {
       return Season.FALL;
     }
     return Season.NOT_OFFERED;
-  }, [term]);
+  }, [termName]);
 
   return termSeason;
 };
 
 export const useTermCardActions = ({
   idx,
-  term,
-  courses,
+  termName,
+  termId,
+  courseIds,
   addCourse,
   deleteCourse,
   addTerm,
   deleteTerm,
 }: {
   idx: number;
-  term: Term;
-  courses: CachedDetailedCourse[];
+  termName: string;
+  termId: string;
+  courseIds: string[];
   addCourse?: (termId: string) => Promise<void>;
   deleteCourse?: (termId: string, courseId: string) => void;
   addTerm?: (termId: string, isBefore: boolean) => void;
   deleteTerm?: (termId: string, termIdx: number) => void;
 }) => {
   const dispatch = useAppDispatch();
-  const lang = useAppSelector((state) => state.userData.lang) as Language;
+  const lang = useAppSelector((state) => state.userData.lang);
 
   // handle adding a course to the term
   const handleAddCourse = useCallback(async () => {
-    await addCourse?.(term._id.toString());
-  }, [addCourse, term._id]);
+    await addCourse?.(termId);
+  }, [addCourse, termId]);
 
   // handle deleting a course from the term
   const handleDeleteCourse = useCallback(
     (courseId: string) => {
-      deleteCourse?.(term._id.toString(), courseId);
+      deleteCourse?.(termId, courseId);
     },
-    [deleteCourse, term._id],
+    [deleteCourse, termId],
   );
 
   // handle adding a term to the plan
   const handleAddTerm = useCallback(
     (isBefore: boolean) => {
-      addTerm?.(term._id.toString(), isBefore);
+      addTerm?.(termId, isBefore);
     },
-    [addTerm, term._id],
+    [addTerm, termId],
   );
 
   // handle deleting a term from the plan
   const handleDeleteTerm = useCallback(() => {
     // ask for confirmation if the term has courses
-    if (courses.length > 0) {
-      // dispatch(
-      //   setSimpleModalInfo({
-      //     isOpen: true,
-      //     title: t([I18nKey.DELETE_TERM_TITLE], lang),
-      //     description: t([I18nKey.DELETE_TERM_DESC], lang, {
-      //       item1: term.name,
-      //     }),
-      //     confirmCb: () => {
-      //       deleteTerm?.(term._id.toString(), idx);
-      //       return Promise.resolve();
-      //     },
-      //     closeCb: () => {
-      //       return Promise.resolve();
-      //     },
-      //   }),
-      // );
-      //
+    if (courseIds.length > 0) {
       dispatch(
         setModalState({
           isOpen: true,
@@ -120,18 +109,18 @@ export const useTermCardActions = ({
             type: ModalType.SIMPLE,
             title: t([I18nKey.DELETE_TERM_TITLE], lang),
             description: t([I18nKey.DELETE_TERM_DESC], lang, {
-              item1: term.name,
+              item1: termName,
             }),
             confirmCb: async () => {
-              deleteTerm?.(term._id.toString(), idx);
+              deleteTerm?.(termId, idx);
             },
           },
         }),
       );
     } else {
-      deleteTerm?.(term._id.toString(), idx);
+      deleteTerm?.(termId, idx);
     }
-  }, [deleteTerm, idx, dispatch, term, courses.length, lang]);
+  }, [deleteTerm, idx, dispatch, termName, termId, courseIds.length, lang]);
 
   return {
     handleAddCourse,

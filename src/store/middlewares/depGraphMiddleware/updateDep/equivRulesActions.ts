@@ -6,6 +6,7 @@ import {
   removeEquivRulesFromGraph,
 } from "@/store/slices/localDataSlice";
 import { getTermOrderMap } from "./helpers";
+import { has_S } from "@/lib/utils/dataStructure";
 
 export const handleEquivRulesActions = ({
   action,
@@ -30,7 +31,7 @@ export const handleEquivRulesActions = ({
   const termOrderMap = getTermOrderMap(plan);
   const courseTaken = state.userData.courseTaken;
 
-  if (!depData.has(planId)) {
+  if (!has_S(depData, planId)) {
     throw new Error(`Plan id not found in course dep data: ${planId}`);
   }
 

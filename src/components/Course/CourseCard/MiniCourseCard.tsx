@@ -12,7 +12,7 @@ import { selectCourseDepDetail } from "@/store/selectors";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { TooltipId } from "@/lib/enums";
 import { setIsCourseTakenExpanded } from "@/store/slices/globalSlice";
-import { I18nKey, Language, t } from "@/lib/i18n";
+import { I18nKey, t } from "@/lib/i18n";
 
 /**
  * Used to display a mini course card
@@ -48,7 +48,7 @@ const MiniCourseCard = ({
   );
   const isAddingCourse = useAppSelector((state) => state.global.isAdding);
   const isDragging = useAppSelector((state) => state.global.isDragging);
-  const lang = useAppSelector((state) => state.userData.lang) as Language;
+  const lang = useAppSelector((state) => state.userData.lang);
 
   // handle the clicking of the course card, add or remove the course from the plan
   const handleClick = useCallback(

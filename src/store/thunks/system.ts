@@ -50,7 +50,7 @@ export const initApp = createAppAsyncThunk(
     },
     { dispatch, fulfillWithValue, rejectWithValue, getState },
   ) => {
-    const lang = getState().userData.lang as Language;
+    const lang = getState().userData.lang;
     if (getState().global.isInitialized) {
       return rejectWithValue(t([I18nKey.ALREADY_INITIALIZED], lang));
     }
@@ -88,7 +88,7 @@ export const fullSync = createAppAsyncThunk(
     const state = getState();
     const data = state.userData;
     // const currentPlanId = state.localData.currentPlanId;
-    const lang = state.userData.lang as Language;
+    const lang = state.userData.lang;
     const programData = state.localData.programData;
 
     const initNewPlan = () => {
@@ -135,7 +135,7 @@ export const fullSync = createAppAsyncThunk(
       );
 
       dispatch(initPlanIsCourseExpanded(courseExpandPayload));
-      dispatch(setLang(lang as Language));
+      dispatch(setLang(lang));
       dispatch(setChatThreadIds(chatThreadIds ?? []));
     };
 
@@ -159,7 +159,7 @@ export const fullSync = createAppAsyncThunk(
         );
         const distinctCourseIds = new Set(allCourseIds);
 
-        dispatch(setLang(parsedData.lang as Language));
+        dispatch(setLang(parsedData.lang));
         if (distinctCourseIds.size > 0) {
           await dispatch(
             fetchCourseData(Array.from(distinctCourseIds)),

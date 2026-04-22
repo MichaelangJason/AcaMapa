@@ -1,6 +1,6 @@
 "use client";
 import { TooltipId } from "@/lib/enums";
-import { Language, t, I18nKey } from "@/lib/i18n";
+import { t, I18nKey } from "@/lib/i18n";
 import HelpIcon from "@/public/icons/help.svg";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { useCallback } from "react";
@@ -8,7 +8,7 @@ import { setModalState } from "@/store/slices/localDataSlice";
 import { ModalType } from "@/lib/enums";
 
 const Help = () => {
-  const lang = useAppSelector((state) => state.userData.lang) as Language;
+  const lang = useAppSelector((state) => state.userData.lang);
   const isInitialized = useAppSelector((state) => state.global.isInitialized);
   const dispatch = useAppDispatch();
 
@@ -22,7 +22,7 @@ const Help = () => {
         },
       }),
     );
-  }, [isInitialized]);
+  }, [isInitialized, dispatch]);
 
   return (
     <section

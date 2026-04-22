@@ -11,7 +11,7 @@ import { DraggingType, ModalType } from "@/lib/enums";
 import { movePlan } from "@/store/slices/userDataSlice";
 import { setCurrentPlanId, setModalState } from "@/store/slices/localDataSlice";
 import { MAX_PLAN_NAME_LEN } from "@/lib/constants";
-import { I18nKey, Language, t } from "@/lib/i18n";
+import { I18nKey, t } from "@/lib/i18n";
 import { prepareExport } from "@/store/thunks";
 
 const Plans = ({
@@ -25,7 +25,7 @@ const Plans = ({
     (state) => state.localData.currentPlanId,
   );
   const dispatch = useAppDispatch();
-  const lang = useAppSelector((state) => state.userData.lang) as Language;
+  const lang = useAppSelector((state) => state.userData.lang);
 
   const handleSelectPlan = useCallback(
     (planId: string) => {

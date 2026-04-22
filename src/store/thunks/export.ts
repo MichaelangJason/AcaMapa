@@ -1,6 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import type { RootState, AppDispatch } from "..";
-import { type Language, t, I18nKey } from "@/lib/i18n";
+import { t, I18nKey } from "@/lib/i18n";
 import {
   initCourseDepData,
   addCoursesToGraph,
@@ -10,6 +10,7 @@ import {
 } from "../slices/localDataSlice";
 import { ModalType } from "@/lib/enums";
 import { getPlanCourseIds } from "@/lib/plan";
+import { get_S, has_S } from "@/lib/utils/dataStructure";
 
 const createAppAsyncThunk = createAsyncThunk.withTypes<{
   state: RootState;
@@ -23,7 +24,7 @@ export const prepareExport = createAppAsyncThunk(
     { getState, rejectWithValue, fulfillWithValue, dispatch },
   ) => {
     const state = getState();
-    const lang = state.userData.lang as Language;
+    const lang = state.userData.lang;
     const plan = state.userData.planData.get(planId);
     if (!plan) {
       return rejectWithValue(t([I18nKey.PLAN, I18nKey.NOT_FOUND], lang));
@@ -33,7 +34,7 @@ export const prepareExport = createAppAsyncThunk(
     const courseTaken = state.userData.courseTaken;
     const courses = getPlanCourseIds(plan, state.userData.termData);
 
-    if (!state.localData.courseDepData.has(planId)) {
+    if (!has_S(state.localData.courseDepData, planId)) {
       dispatch(initCourseDepData({ planId }));
       plan.termOrder.forEach((termId) => {
         const term = state.userData.termData.get(termId)!;
@@ -53,7 +54,8 @@ export const prepareExport = createAppAsyncThunk(
     }
 
     const updatedState = getState();
-    const isDirty = updatedState.localData.courseDepData.get(planId)!.isDirty;
+    const isDirty =
+      get_S(updatedState.localData.courseDepData, planId)?.isDirty ?? false;
     // update courses is satisfied
     if (isDirty) {
       if (courses.length > 0) {

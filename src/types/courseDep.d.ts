@@ -1,4 +1,4 @@
-import type { S_Set } from "./utils";
+import type { S_Map, S_Set } from "./utils";
 import type { GroupType } from "@/lib/enums";
 import type { DetailedCourse, Requisite } from "./db";
 import type { CONST_STR } from "@/lib/constants";
@@ -11,21 +11,21 @@ export type SubjectCode = string;
 export type CourseSource = TermId | CourseTakenStr | typeof CONST_STR.EMPTY;
 
 export type EquivGroups = {
-  courseToEquivCourses: Map<string, Set<string>>;
-  equivCourseToCourses: Map<string, Set<string>>;
+  courseToEquivCourses: S_Map<CourseId, S_Set<CourseId>>;
+  equivCourseToCourses: S_Map<CourseId, S_Set<CourseId>>;
 };
 
 export type CourseDepDetail = {
   isSatisfied: boolean;
   source: CourseSource;
-  affectedCourseIds: Set<CourseId>;
+  affectedCourseIds: S_Set<CourseId>;
 
   prerequisites?: SourcedReqGroup;
   corequisites?: SourcedReqGroup;
   restrictions?: SourcedReqGroup;
 };
 
-export type DepGraph = Map<CourseId, CourseDepDetail>;
+export type DepGraph = S_Map<CourseId, CourseDepDetail>;
 
 export type CourseDepData = {
   isDirty: boolean;
@@ -90,7 +90,7 @@ export type CachedDetailedCourse = DetailedCourse & {
 
 // input type for dependency updates
 export type DepInput = {
-  courseDepData: Map<CourseId, CourseDepData>;
+  courseDepData: S_Map<PlanId, CourseDepData>;
   equivGroups: EquivGroups;
   cachedDetailedCourseData: Record<CourseId, CachedDetailedCourse>;
 };

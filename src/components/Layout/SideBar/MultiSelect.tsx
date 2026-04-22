@@ -11,8 +11,9 @@ import { Course } from "@/types/db";
 import { clamp } from "@/lib/utils";
 import MiniCourseCard from "../../Course/CourseCard/MiniCourseCard";
 import clsx from "clsx";
-import { I18nKey, Language, t } from "@/lib/i18n";
+import { I18nKey, t } from "@/lib/i18n";
 import ScrollBar from "@/components/Common/ScrollBar";
+import { values_S } from "@/lib/utils/dataStructure";
 
 const getMarginTop = (
   idx: number,
@@ -54,7 +55,7 @@ const MultiSelect = () => {
   const dispatch = useAppDispatch();
   const [isHovering, setIsHovering] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
-  const lang = useAppSelector((state) => state.userData.lang) as Language;
+  const lang = useAppSelector((state) => state.userData.lang);
   const multiSelectRef = useRef<HTMLDivElement>(null);
 
   // memoized for mini course card to avoid unnecessary re-renders
@@ -103,18 +104,20 @@ const MultiSelect = () => {
           )}
           ref={multiSelectRef}
         >
-          {[...selectedCourses.values()].reverse().map((course, idx) => {
-            // TODO: why pure CSS has stacking issue on credits?
-            return (
-              <MiniCourseCard
-                key={`multi-select-${idx}`}
-                data={course}
-                isSelected
-                callback={handleRemoveCourse}
-                style={getStyle(idx, isHovering, isExpanded)}
-              />
-            );
-          })}
+          {values_S(selectedCourses)
+            .reverse()
+            .map((course, idx) => {
+              // TODO: why pure CSS has stacking issue on credits?
+              return (
+                <MiniCourseCard
+                  key={`multi-select-${idx}`}
+                  data={course}
+                  isSelected
+                  callback={handleRemoveCourse}
+                  style={getStyle(idx, isHovering, isExpanded)}
+                />
+              );
+            })}
         </div>
 
         {/* custom scroll bar */}

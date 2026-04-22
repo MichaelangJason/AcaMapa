@@ -7,7 +7,7 @@ import {
 } from "@/components/Common/DropdownMenu";
 import Plans from "./Plans";
 import { TooltipId } from "@/lib/enums";
-import { t, I18nKey, type Language } from "@/lib/i18n";
+import { t, I18nKey } from "@/lib/i18n";
 import PlanIcon from "@/public/icons/plan.svg";
 import clsx from "clsx";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -20,7 +20,7 @@ import { useDropdownActions, useRegisterShortcuts } from "@/lib/hooks/dropdown";
 
 const MapIcon = ({ className, ...rest }: { className?: string }) => {
   const isInitialized = useAppSelector((state) => state.global.isInitialized);
-  const lang = useAppSelector((state) => state.userData.lang) as Language;
+  const lang = useAppSelector((state) => state.userData.lang);
 
   return (
     // map icon
@@ -43,7 +43,7 @@ const MapIcon = ({ className, ...rest }: { className?: string }) => {
 
 const UtilityDropdown = () => {
   const dispatch = useAppDispatch();
-  const lang = useAppSelector((state) => state.userData.lang) as Language;
+  const lang = useAppSelector((state) => state.userData.lang);
   const isInitialized = useAppSelector((state) => state.global.isInitialized);
   const isUtilityDropdownMenuOpen = useAppSelector(
     (state) => state.global.isUtilityDropdownMenuOpen,

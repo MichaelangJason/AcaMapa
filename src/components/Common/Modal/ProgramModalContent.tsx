@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import CloseIcon from "@/public/icons/delete.svg";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
-import { I18nKey, Language, t } from "@/lib/i18n";
+import { I18nKey, t } from "@/lib/i18n";
 import { useDebounce } from "@/lib/hooks/common";
 import ScrollBar from "../ScrollBar";
 import { PROGRAM_RESULT_PER_PAGE } from "@/lib/constants";
@@ -23,7 +23,7 @@ const ProgramModalContent = ({
   // dispatch
   const dispatch = useAppDispatch();
   // user language
-  const lang = useAppSelector((state) => state.userData.lang) as Language;
+  const lang = useAppSelector((state) => state.userData.lang);
   // program data
   const programData = useAppSelector((state) => state.localData.programData);
   // program search function

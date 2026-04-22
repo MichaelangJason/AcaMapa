@@ -1,11 +1,7 @@
 "use client";
 
 import { useAppSelector } from "@/store/hooks";
-import {
-  selectPlanCourseData,
-  selectCurrentPlan,
-  selectTermData,
-} from "@/store/selectors";
+import { selectTermIds } from "@/store/selectors";
 import { useRef, memo } from "react";
 import TermCard from "./TermCard";
 import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
@@ -23,9 +19,10 @@ import { useTermsActions, useTermsDragAndDrop } from "@/lib/hooks/terms";
  */
 const Terms = () => {
   // local state
-  const currentPlan = useAppSelector(selectCurrentPlan);
-  const currentTerms = useAppSelector(selectTermData);
-  const currentCourseDataPerTerm = useAppSelector(selectPlanCourseData);
+  const currentPlanId = useAppSelector(
+    (state) => state.localData.currentPlanId,
+  );
+  const currentTermIds = useAppSelector(selectTermIds);
 
   // global state
   const isInitialized = useAppSelector((state) => state.global.isInitialized);
@@ -120,27 +117,25 @@ const Terms = () => {
                       numCourses={3}
                     />
                   ))
-              : currentTerms.map((term, idx) => (
+              : currentTermIds.map((termId, idx) => (
                   // term card is draggable
                   <Draggable
-                    key={`draggable-${term._id}`}
-                    draggableId={term._id}
+                    key={`draggable-${termId}`}
+                    draggableId={termId}
                     index={idx}
                     isDragDisabled={false}
                   >
                     {(draggableProvided, draggableSnapshot) => (
                       // term body is cours card droppable
                       <Droppable
-                        droppableId={term._id}
+                        droppableId={termId}
                         type={DraggingType.COURSE}
                       >
                         {(droppableProvided, droppableSnapshot) => (
                           <TermCard
-                            key={term._id}
-                            // pass down plan data
-                            planId={currentPlan!._id}
-                            term={term}
-                            courses={currentCourseDataPerTerm[term._id]}
+                            key={termId}
+                            termId={termId}
+                            planId={currentPlanId}
                             idx={idx}
                             // used for export mode to disable dragging
                             isCourseDraggable={true}

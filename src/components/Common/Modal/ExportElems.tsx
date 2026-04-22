@@ -4,7 +4,7 @@ import CourseTaken from "../../Course/CourseTaken";
 import { I18nKey, t, Language } from "@/lib/i18n";
 import { ItemTag } from "..";
 import type { Plan, Term } from "@/types/db";
-import type { getPlanCourseData, getPlanStats } from "@/lib/plan";
+import type { getPlanStats } from "@/lib/plan";
 import TermCard from "../../Term/TermCard";
 import { forwardRef, useCallback, useEffect, useState } from "react";
 import EquivRulesTag from "@/components/Layout/UtilityBar/AppActions/EquivRulesTag";
@@ -14,7 +14,6 @@ interface ExportElemsProps {
   plan: Plan;
   lang: Language;
   planStats: ReturnType<typeof getPlanStats>;
-  courseDataPerTerm: ReturnType<typeof getPlanCourseData>;
   terms: Term[];
   includeImportQRCode: boolean;
   includePlanStats: boolean;
@@ -29,7 +28,6 @@ const ExportElems = forwardRef<HTMLDivElement, ExportElemsProps>(
       plan,
       lang,
       planStats,
-      courseDataPerTerm,
       terms,
       includeImportQRCode,
       includePlanStats,
@@ -110,9 +108,8 @@ const ExportElems = forwardRef<HTMLDivElement, ExportElemsProps>(
               <TermCard
                 key={term._id}
                 planId={plan._id}
+                termId={term._id}
                 idx={idx}
-                term={term}
-                courses={courseDataPerTerm[term._id]}
                 isExport
                 isCourseDraggable={false}
                 className="export"

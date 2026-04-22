@@ -1,4 +1,4 @@
-import { Language, t, I18nKey } from "@/lib/i18n";
+import { t, I18nKey } from "@/lib/i18n";
 import { isEquivRulesAction } from "@/lib/typeGuards";
 import { toast } from "react-toastify";
 import { startListening } from "./core";
@@ -7,7 +7,7 @@ import { formatRule } from "@/lib/course/dependency/equivalents";
 startListening({
   predicate: (action) => isEquivRulesAction(action),
   effect: (action, listenerApi) => {
-    const lang = listenerApi.getState().userData.lang as Language;
+    const lang = listenerApi.getState().userData.lang;
     const isToastEnabled = listenerApi.getState().global.isToastEnabled;
 
     if (!isToastEnabled) return;

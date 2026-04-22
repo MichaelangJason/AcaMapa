@@ -41,8 +41,6 @@ const App = ({
 
       <Terms />
 
-      {/* <Assistant /> */}
-
       <Modals />
 
       <ToolTips />

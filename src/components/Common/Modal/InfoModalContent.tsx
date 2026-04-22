@@ -73,7 +73,7 @@ const InfoModalContent = ({ closeCb }: InfoModalProps & CommonModalProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const contentRef = useRef<HTMLDivElement>(null);
   const tocRef = useRef<HTMLDivElement>(null);
-  const lang = useAppSelector((state) => state.userData.lang) as Language;
+  const lang = useAppSelector((state) => state.userData.lang);
 
   const tabs = useMemo(() => {
     return [{ title: "Tutorial", src: `/tutorial-${lang}.md` }];

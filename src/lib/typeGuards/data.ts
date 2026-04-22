@@ -58,10 +58,7 @@ export const isValidGuestData = (
     return false;
 
   // can be simplified with chained type guards, but this is more readable
-  if (
-    typeof d.lang !== "string" ||
-    !Object.values(Language).includes(d.lang as Language)
-  )
+  if (typeof d.lang !== "string" || !Object.values(Language).includes(d.lang))
     return false;
 
   // this is acceptable since userData operations are performed and controlled by well-defined redux actions and middlewares

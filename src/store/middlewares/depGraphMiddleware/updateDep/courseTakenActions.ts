@@ -4,7 +4,7 @@ import { getSubjectCode } from "@/lib/course";
 import { updateCoursesIsSatisfied } from "@/store/slices/localDataSlice";
 import { getTermOrderMap } from "./helpers";
 import type { CourseId } from "@/types/courseDep";
-import { toArray_S } from "@/lib/utils/dataStructure";
+import { get_S, has_S, toArray_S } from "@/lib/utils/dataStructure";
 
 export const handleCourseTakenAction = ({
   action,
@@ -19,18 +19,18 @@ export const handleCourseTakenAction = ({
     case "userData/removeCourseTaken": {
       const courseIds = action.payload;
       const planId = state.localData.currentPlanId;
-      if (!depData.has(planId)) {
+      if (!has_S(depData, planId)) {
         throw new Error(`Plan id not found in course dep data: ${planId}`);
       }
-      const { depGraph, subjectReqMap } = depData.get(planId)!;
+      const { depGraph, subjectReqMap } = get_S(depData, planId)!;
 
       const courseToBeUpdated = new Set<CourseId>();
 
       courseIds.forEach((courseId) => {
-        const course = depGraph.get(courseId);
+        const course = get_S(depGraph, courseId);
         if (course) {
           // some other course depends on this course
-          course.affectedCourseIds.forEach((id) => {
+          toArray_S(course.affectedCourseIds).forEach((id) => {
             courseToBeUpdated.add(id);
           });
         }

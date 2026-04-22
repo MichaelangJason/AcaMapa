@@ -6,7 +6,7 @@ import { TooltipId } from "@/lib/enums";
 import { useCallback, useMemo } from "react";
 import { getDebouncedSync } from "@/lib/sync";
 import { setSyncStatus } from "@/store/slices/localDataSlice";
-import { I18nKey, Language, t } from "@/lib/i18n";
+import { I18nKey, t } from "@/lib/i18n";
 
 const Sync = () => {
   const isInitialized = useAppSelector((state) => state.global.isInitialized);
@@ -14,7 +14,7 @@ const Sync = () => {
   const { isSyncing, lastSyncedAt, syncError } = useAppSelector(
     (state) => state.localData.syncStatus,
   );
-  const lang = useAppSelector((state) => state.userData.lang) as Language;
+  const lang = useAppSelector((state) => state.userData.lang);
 
   const dispatch = useAppDispatch();
   // INVESTIGATE: why useCallback?

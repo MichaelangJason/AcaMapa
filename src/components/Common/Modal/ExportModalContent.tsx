@@ -22,8 +22,8 @@ const ExportModalContent = ({
   closeCb,
 }: ExportModalProps & CommonModalProps) => {
   // user language
-  const userLang = useAppSelector((state) => state.userData.lang) as Language;
-  const { terms, plan, planStats, planCourseData } = useAppSelector((state) =>
+  const userLang = useAppSelector((state) => state.userData.lang);
+  const { plan, terms, planStats } = useAppSelector((state) =>
     selectExportInfo(state, planId),
   );
 
@@ -112,7 +112,7 @@ const ExportModalContent = ({
         closeCb();
       }
     },
-    [],
+    [closeCb],
   );
 
   const debouncedPrepareExport = useDebounce(prepareExport, 1000);
@@ -139,7 +139,6 @@ const ExportModalContent = ({
           ref={exportContainerRef}
           plan={plan}
           planStats={planStats}
-          courseDataPerTerm={planCourseData}
           terms={terms}
           {...formState}
         />

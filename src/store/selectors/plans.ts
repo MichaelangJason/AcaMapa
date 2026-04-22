@@ -1,10 +1,7 @@
-import { createSelector } from "@reduxjs/toolkit";
-import type { RootState } from "..";
+import { createAppSelector } from "../hooks";
 import { isValidObjectId } from "@/lib/typeGuards";
 import type { Plan } from "@/types/db";
-import { getPlanCourseData, getPlanStats } from "@/lib/plan";
-
-const createAppSelector = createSelector.withTypes<RootState>();
+import { getPlanStats } from "@/lib/plan";
 
 export const selectCurrentPlan = createAppSelector(
   [
@@ -25,49 +22,6 @@ export const selectCurrentPlan = createAppSelector(
       throw new Error(`Invalid current plan id: ${currentPlanId}`);
     }
     return planData.get(currentPlanId) as Plan;
-  },
-);
-
-export const selectPlanById = createAppSelector(
-  [(state) => state.userData.planData, (_, planId: string) => planId],
-  (planData, planId) => {
-    const plan = planData.get(planId);
-    if (!plan) {
-      throw new Error(`Plan id not found in plan data: ${planId}`);
-    }
-    return plan as Plan;
-  },
-);
-
-export const selectPlanCourseData = createAppSelector(
-  [
-    (state) => state.global.isInitialized,
-    (state) => state.userData.planData,
-    (state) => state.userData.termData,
-    (state) => state.localData.cachedDetailedCourseData,
-    (state) => state.localData.currentPlanId,
-    (_: RootState, planId?: string) => planId,
-  ],
-  (
-    isInitialized,
-    planData,
-    termData,
-    cachedDetailedCourseData,
-    currentPlanId,
-    planId,
-  ) => {
-    if (!isInitialized) {
-      return {};
-    }
-
-    const plan = planData.get(planId ?? currentPlanId);
-    if (!plan) {
-      throw new Error(
-        `Plan id not found in plan data: ${planId ?? currentPlanId}`,
-      );
-    }
-
-    return getPlanCourseData(plan, termData, cachedDetailedCourseData);
   },
 );
 

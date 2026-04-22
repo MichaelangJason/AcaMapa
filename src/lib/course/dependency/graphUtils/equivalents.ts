@@ -3,6 +3,7 @@ import type { WritableDraft } from "immer";
 import { type PayloadAction } from "@reduxjs/toolkit";
 import { addEquivGroup, removeEquivGroup } from "../equivalents";
 import type { CourseId, DepGraph } from "@/types/local";
+import { get_S, toArray_S } from "@/lib/utils/dataStructure";
 
 const gatherAffectedCourses = (
   depGraph: DepGraph,
@@ -11,11 +12,14 @@ const gatherAffectedCourses = (
   const courseToBeUpdated = new Set<CourseId>();
 
   ruleCourseIds.forEach((courseId) => {
-    const course = depGraph.get(courseId);
+    const course = get_S(depGraph, courseId);
+
     if (!course) {
+      console.error(`Course ${courseId} not found in dep graph`);
       return;
     }
-    course.affectedCourseIds.forEach((c) => {
+
+    toArray_S(course.affectedCourseIds).forEach((c) => {
       courseToBeUpdated.add(c);
     });
   });
@@ -57,7 +61,7 @@ export const _addEquivRulesToGraph = (
   });
 
   // gather all affected courses if plan id is provided
-  const depData = state.courseDepData.get(planId)!;
+  const depData = get_S(state.courseDepData, planId)!;
   const depGraph = depData.depGraph;
   const courseToBeUpdated = gatherAffectedCourses(depGraph, ruleCourseIds);
 
@@ -69,7 +73,7 @@ export const _removeEquivRulesFromGraph = (
   action: PayloadAction<{ rules: [string, string][]; planId: string }>,
 ) => {
   const { rules, planId } = action.payload;
-  const depData = state.courseDepData.get(planId)!;
+  const depData = get_S(state.courseDepData, planId)!;
   const equivGroups = state.equivGroups;
   const depGraph = depData.depGraph;
 

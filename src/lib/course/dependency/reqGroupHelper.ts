@@ -2,7 +2,8 @@ import type { ReqGroup, CourseId } from "@/types/local";
 import { GroupType } from "../../enums";
 import { findCourseIds } from "../helpers";
 
-export const findIdInReqGroup = (initReq: ReqGroup | string) => {
+export const findIdInReqGroup = (initReq?: ReqGroup | string) => {
+  if (!initReq) return [];
   const stack = [initReq] as Array<ReqGroup | string>;
   const courseIds = [] as Array<CourseId>;
 

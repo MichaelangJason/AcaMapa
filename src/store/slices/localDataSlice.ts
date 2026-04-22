@@ -23,6 +23,15 @@ import {
   _setEquivRulesToGraph,
   _createCourseDepData,
 } from "@/lib/course/dependency";
+import {
+  clear_S,
+  get_S,
+  has_S,
+  new_S,
+  remove_S,
+  set_S,
+} from "@/lib/utils/dataStructure";
+import type { S_Set } from "@/types/utils";
 
 export const initialState = {
   // course data
@@ -42,19 +51,19 @@ export const initialState = {
   // current plan id to retrieve plan data
   currentPlanId: "" as string,
 
-  // INSPECT: do we really need map here?
   // utilize the hashmap for quick lookup and ordering
-  selectedCourses: new Map<string, Course>(),
+  selectedCourses: new_S<CourseId, Course>(),
 
   // course UI expanded state
   // stored in store to avoid card closing during drag
   isCourseExpanded: {} as Record<PlanId, Record<CourseId, boolean>>,
 
   // course dependency graph
-  courseDepData: new Map<PlanId, CourseDepData>(),
+  // courseDepData: new Map<PlanId, CourseDepData>(),
+  courseDepData: new_S<PlanId, CourseDepData>(),
   equivGroups: {
-    courseToEquivCourses: new Map<CourseId, Set<string>>(), // course id to equivalent course ids
-    equivCourseToCourses: new Map<CourseId, Set<string>>(), // reverse map
+    courseToEquivCourses: new_S<CourseId, S_Set<CourseId>>(), // course id to equivalent course ids
+    equivCourseToCourses: new_S<CourseId, S_Set<CourseId>>(), // reverse map
   } as EquivGroups,
 
   // seeking information
@@ -163,24 +172,24 @@ const localDataSlice = createSlice({
 
     /* selected courses */
     addSelectedCourse: (state, action: PayloadAction<Course | string>) => {
+      const selectedCourses = state.selectedCourses;
       if (typeof action.payload === "string") {
-        state.selectedCourses.set(
-          action.payload,
-          state.courseData[action.payload],
-        );
+        const course = state.courseData[action.payload];
+        set_S(selectedCourses, action.payload, course);
       } else {
-        state.selectedCourses.set(action.payload.id, action.payload);
+        set_S(selectedCourses, action.payload.id, action.payload);
       }
     },
     removeSelectedCourse: (state, action: PayloadAction<Course | string>) => {
+      const selectedCourses = state.selectedCourses;
       if (typeof action.payload === "string") {
-        state.selectedCourses.delete(action.payload);
+        remove_S(selectedCourses, action.payload);
       } else {
-        state.selectedCourses.delete(action.payload.id);
+        remove_S(selectedCourses, action.payload.id);
       }
     },
     clearSelectedCourses: (state) => {
-      state.selectedCourses.clear();
+      clear_S(state.selectedCourses);
     },
 
     /* set current plan id */
@@ -432,11 +441,11 @@ const localDataSlice = createSlice({
       const { planId, courseToBeUpdated, courseTaken, termOrderMap } =
         action.payload;
 
-      if (!state.courseDepData.has(planId)) {
+      if (!has_S(state.courseDepData, planId)) {
         throw new Error(`Plan id not found in course dep data: ${planId}`);
       }
 
-      const depData = state.courseDepData.get(planId)!;
+      const depData = get_S(state.courseDepData, planId)!;
 
       const { courseData: allCourseData, equivGroups } = state;
 
@@ -452,10 +461,10 @@ const localDataSlice = createSlice({
 
     /* course dep data */
     initCourseDepData: (state, action: PayloadAction<{ planId: string }>) => {
-      state.courseDepData.set(action.payload.planId, _createCourseDepData());
+      set_S(state.courseDepData, action.payload.planId, _createCourseDepData());
     },
     deleteCourseDepData: (state, action: PayloadAction<string>) => {
-      state.courseDepData.delete(action.payload);
+      remove_S(state.courseDepData, action.payload);
     },
     setCourseDepDataDirty: (
       state,
@@ -464,7 +473,10 @@ const localDataSlice = createSlice({
       const { planIds, isDirty } = action.payload;
       // console.log("setCourseDepDataDirty", planIds, isDirty);
       planIds.forEach((planId) => {
-        state.courseDepData.get(planId)!.isDirty = isDirty;
+        const plan = get_S(state.courseDepData, planId);
+        if (plan) {
+          plan.isDirty = isDirty;
+        }
       });
     },
 

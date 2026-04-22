@@ -55,7 +55,7 @@ const ItemTag = ({
   const [isHovering, setIsHovering] = useState(false);
   const [isPinned, setIsPinned] = useState(false);
   const isDragging = useAppSelector((state) => state.global.isDragging);
-  const userLang = useAppSelector((state) => state.userData.lang) as Language;
+  const userLang = useAppSelector((state) => state.userData.lang);
   const showExpanded =
     !isDragging &&
     (items.length > 0 || handleAddItem) &&
@@ -96,7 +96,7 @@ const ItemTag = ({
         handleAddItem?.();
       }
     },
-    [pinnable, expandable],
+    [pinnable, expandable, handleAddItem],
   );
 
   return (

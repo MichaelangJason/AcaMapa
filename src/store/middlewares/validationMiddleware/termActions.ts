@@ -22,13 +22,12 @@ export const handleTermAction = (action: TermAction, state: RootState) => {
     }
     case "userData/setTermData": {
       const termData = action.payload;
-      const invalidTermIds = Object.keys(termData).filter(
-        (id: string) => !isValidObjectId(id),
+      const invalidTermIds = Array.from(termData.keys()).filter(
+        (id) => !isValidObjectId(id),
       ); // no duplicate term ids guaranteed by dictionary
       if (invalidTermIds.length > 0) {
         throw new Error(`Invalid term ids: ${invalidTermIds.join(", ")}`);
       }
-
       break;
     }
     case "userData/addTerm": {
