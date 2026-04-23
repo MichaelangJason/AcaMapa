@@ -17,7 +17,7 @@ export const splitCourseIds = (val: string[]) => {
 };
 
 export const getSubjectCode = (courseId: string) => {
-  return courseId.slice(0, 4);
+  return courseId.slice(0, 4).toLowerCase();
 };
 
 export const getCourseLevel = (courseId: string) => {

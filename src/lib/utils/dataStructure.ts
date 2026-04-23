@@ -1,10 +1,26 @@
 import type { S_Map, S_Set } from "@/types/utils";
 
-export function new_S<K extends string, V = true>() {
-  return {
+export function new_S<K extends string, V = true>(
+  data?: V extends true ? Array<K> : Record<K, V>,
+) {
+  const newS = {
     data: {},
     size: 0,
   } as V extends true ? S_Set<K> : S_Map<K, V>;
+
+  if (data) {
+    if (Array.isArray(data)) {
+      data.forEach((key) => {
+        add_S(newS as S_Set<K>, key as K);
+      });
+    } else {
+      Object.entries(data).forEach(([key, value]) => {
+        set_S(newS as S_Map<K, V>, key as K, value);
+      });
+    }
+  }
+
+  return newS;
 }
 
 export function set_S<K extends string, V>(set: S_Map<K, V>, key: K, value: V) {

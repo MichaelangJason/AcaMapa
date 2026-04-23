@@ -4,6 +4,7 @@ import { ObjectId } from "bson";
 import { I18nKey, Language, t } from "@/lib/i18n";
 import { mockPlanData } from "@/lib/mock";
 import { getNewTermName } from "@/lib/term";
+import { getSubjectCode } from "@/lib/course";
 
 export const initialState = {
   lang: Language.EN,
@@ -46,7 +47,7 @@ export const userDataSlice = createSlice({
     },
     addCourseTaken: (state, action: PayloadAction<string[]>) => {
       action.payload.forEach((id) => {
-        const subjectCode = id.slice(0, 4);
+        const subjectCode = getSubjectCode(id);
         if (!state.courseTaken.has(subjectCode)) {
           state.courseTaken.set(subjectCode, []);
         }
@@ -55,7 +56,7 @@ export const userDataSlice = createSlice({
     },
     removeCourseTaken: (state, action: PayloadAction<string[]>) => {
       action.payload.forEach((id) => {
-        const subjectCode = id.slice(0, 4);
+        const subjectCode = getSubjectCode(id);
         state.courseTaken.set(
           subjectCode,
           state.courseTaken

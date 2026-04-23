@@ -188,7 +188,7 @@ export const _addCourseToGraph = (
       // subjects are structured as [totalCrReq, levels, ...subjects]
       // so we start from idx=2
       for (let i = 2; i < creditGroup.inner.length; i++) {
-        const reqSubject = creditGroup.inner[i] as SubjectCode;
+        const reqSubject = (creditGroup.inner[i] as SubjectCode).toLowerCase();
         initSubjectMap(subjectReqMap, reqSubject);
         add_S(subjectReqMap[reqSubject].subscribed, course.id);
       }
@@ -340,7 +340,7 @@ export const _deleteCourseFromGraph = (
 
     if (creditGroup) {
       for (let i = 2; i < creditGroup.inner.length; i++) {
-        const reqSubject = creditGroup.inner[i] as SubjectCode;
+        const reqSubject = (creditGroup.inner[i] as SubjectCode).toLowerCase();
         remove_S(subjectReqMap[reqSubject].subscribed, id);
         removeSubjectReqMetaIfEmpty(subjectReqMap, reqSubject);
       }
