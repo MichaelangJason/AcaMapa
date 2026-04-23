@@ -1,4 +1,3 @@
-import { type PayloadAction } from "@reduxjs/toolkit";
 import { GroupType } from "@/lib/enums";
 import { getSubjectCode } from "@/lib/course/helpers";
 import {
@@ -15,7 +14,6 @@ import type {
   CourseDepData,
   SourcedReqGroup,
   CourseDepDetail,
-  PlanId,
   TermId,
 } from "@/types/local";
 import { getReverseEquivCourses } from "../equivalents";
@@ -124,27 +122,15 @@ export const _createCourseDepData = (): CourseDepData => ({
 });
 
 export const _addCourseToGraph = (
-  state: DepInput,
-  action: PayloadAction<{
-    planId: PlanId;
-    courseIds: Set<CourseId>; // course ids specific to the term
-    termId: TermId;
-  }>,
+  depInput: DepInput,
+  courseIds: Set<CourseId>, // course ids specific to the term
+  termId: TermId,
 ) => {
-  const { planId, courseIds, termId } = action.payload;
-
-  // validate plan id
-  if (!has_S(state.courseDepData, planId)) {
-    throw new Error(`Plan id not found in course dep data: ${planId}`);
-  }
-
-  // get current dependency graph
-  const depData = get_S(state.courseDepData, planId)!;
+  const { depData, equivGroups, cachedDetailedCourseData } = depInput;
   const { depGraph, subjectReqMap } = depData;
-  const equivGroups = state.equivGroups;
 
   // invalid course ids
-  if (Array.from(courseIds).some((c) => !state.cachedDetailedCourseData[c])) {
+  if (Array.from(courseIds).some((c) => !cachedDetailedCourseData[c])) {
     // cancel the action
     throw new Error(
       "Course not in cached detailed course data: " +
@@ -157,7 +143,7 @@ export const _addCourseToGraph = (
 
   // fill the set
   courseIds.forEach((id) => {
-    const course = state.cachedDetailedCourseData[id];
+    const course = cachedDetailedCourseData[id];
 
     if (!course)
       throw new Error("Course Not Cached, Failed to add to dependency graph");
@@ -254,32 +240,21 @@ export const _addCourseToGraph = (
     courseToBeUpdated.add(course.id); // add self
   }
 
-  return { courseToBeUpdated, depData };
+  return courseToBeUpdated;
 };
 
 export const _deleteCourseFromGraph = (
-  state: DepInput,
-  action: PayloadAction<{
-    planId: PlanId;
-    courseIds: Set<CourseId>;
-  }>,
+  depInput: DepInput,
+  courseIds: Set<CourseId>,
 ) => {
-  const { planId, courseIds } = action.payload;
+  const { depData, equivGroups, cachedDetailedCourseData } = depInput;
 
-  // validate plan id
-  if (!has_S(state.courseDepData, planId)) {
-    throw new Error(`Plan id not found in course dep data: ${planId}`);
-  }
-
-  const depData = get_S(state.courseDepData, planId)!;
   const { depGraph, subjectReqMap } = depData;
-  const equivGroups = state.equivGroups;
 
   // invalid course ids
   if (
     Array.from(courseIds).some(
-      (c) =>
-        !isCourseInGraph(depGraph, c) || !state.cachedDetailedCourseData[c],
+      (c) => !isCourseInGraph(depGraph, c) || !cachedDetailedCourseData[c],
     )
   ) {
     throw new Error(
@@ -372,34 +347,24 @@ export const _deleteCourseFromGraph = (
     }
   }
 
-  return { courseToBeUpdated, depData };
+  return courseToBeUpdated;
 };
 
 export const _moveCourseInGraph = (
-  state: DepInput,
-  action: PayloadAction<{
-    planId: PlanId;
-    courseIds: Set<CourseId>;
-    newTermId: TermId;
-  }>,
+  depInput: Omit<DepInput, "cachedDetailedCourseData">,
+  courseIds: Set<CourseId>,
+  newTermId: TermId,
 ) => {
-  const { planId, courseIds, newTermId } = action.payload;
-
-  if (!has_S(state.courseDepData, planId)) {
-    throw new Error(`Plan id not found in course dep data: ${planId}`);
-  }
-
-  const depData = get_S(state.courseDepData, planId)!;
+  const { depData, equivGroups } = depInput;
   const { depGraph, subjectReqMap } = depData;
-  const equivGroups = state.equivGroups;
+
+  const courseToBeUpdated = new Set<CourseId>();
 
   if (Array.from(courseIds).some((c) => !isCourseInGraph(depGraph, c))) {
     throw new Error(
       "Course not in dependency graph: " + Array.from(courseIds).join(", "),
     );
   }
-
-  const courseToBeUpdated = new Set<CourseId>();
 
   // gather affected courses
   courseIds.forEach((id) => {
@@ -422,5 +387,5 @@ export const _moveCourseInGraph = (
     );
   });
 
-  return { courseToBeUpdated, depData };
+  return courseToBeUpdated;
 };

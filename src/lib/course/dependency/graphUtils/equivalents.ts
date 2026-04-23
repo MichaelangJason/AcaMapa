@@ -1,13 +1,16 @@
-import { type LocalDataState } from "@/store/slices/localDataSlice";
-import type { WritableDraft } from "immer";
-import { type PayloadAction } from "@reduxjs/toolkit";
 import { addEquivGroup, removeEquivGroup } from "../equivalents";
-import type { CourseId, DepGraph } from "@/types/local";
+import type {
+  CourseId,
+  DepGraph,
+  DepInput,
+  EquivGroups,
+  EquivRule,
+} from "@/types/local";
 import { get_S, toArray_S } from "@/lib/utils/dataStructure";
 
 const gatherAffectedCourses = (
   depGraph: DepGraph,
-  ruleCourseIds: Set<string>,
+  ruleCourseIds: Set<CourseId>,
 ) => {
   const courseToBeUpdated = new Set<CourseId>();
 
@@ -28,28 +31,24 @@ const gatherAffectedCourses = (
 };
 
 export const _setEquivRulesToGraph = (
-  state: WritableDraft<LocalDataState>,
-  action: PayloadAction<[string, string][]>,
+  equivGroups: EquivGroups,
+  rules: EquivRule[],
 ) => {
-  const rules = action.payload;
-  const equivGroups = state.equivGroups;
-
   rules.forEach((rule) => {
     const [equivCourseId, courseId] = rule;
     addEquivGroup(equivCourseId, courseId, equivGroups);
   });
 
-  return { equivGroups };
+  return equivGroups;
 };
 
 export const _addEquivRulesToGraph = (
-  state: WritableDraft<LocalDataState>,
-  action: PayloadAction<{ rules: [string, string][]; planId: string }>,
+  depInput: Omit<DepInput, "cachedDetailedCourseData">,
+  rules: EquivRule[],
 ) => {
-  const { rules, planId } = action.payload;
-  const equivGroups = state.equivGroups;
+  const { depData, equivGroups } = depInput;
 
-  const ruleCourseIds = new Set<string>();
+  const ruleCourseIds = new Set<CourseId>();
 
   // parse rules and add to equiv groups
   rules.forEach((rule) => {
@@ -61,23 +60,21 @@ export const _addEquivRulesToGraph = (
   });
 
   // gather all affected courses if plan id is provided
-  const depData = get_S(state.courseDepData, planId)!;
-  const depGraph = depData.depGraph;
-  const courseToBeUpdated = gatherAffectedCourses(depGraph, ruleCourseIds);
+  const courseToBeUpdated = gatherAffectedCourses(
+    depData.depGraph,
+    ruleCourseIds,
+  );
 
-  return { courseToBeUpdated, depData };
+  return courseToBeUpdated;
 };
 
 export const _removeEquivRulesFromGraph = (
-  state: WritableDraft<LocalDataState>,
-  action: PayloadAction<{ rules: [string, string][]; planId: string }>,
+  depInput: Omit<DepInput, "cachedDetailedCourseData">,
+  rules: EquivRule[],
 ) => {
-  const { rules, planId } = action.payload;
-  const depData = get_S(state.courseDepData, planId)!;
-  const equivGroups = state.equivGroups;
-  const depGraph = depData.depGraph;
+  const { depData, equivGroups } = depInput;
 
-  const ruleCourseIds = new Set<string>();
+  const ruleCourseIds = new Set<CourseId>();
   rules.forEach((rule) => {
     const [equivCourseId, courseId] = rule;
 
@@ -87,7 +84,10 @@ export const _removeEquivRulesFromGraph = (
   });
 
   // gather all affected courses
-  const courseToBeUpdated = gatherAffectedCourses(depGraph, ruleCourseIds);
+  const courseToBeUpdated = gatherAffectedCourses(
+    depData.depGraph,
+    ruleCourseIds,
+  );
 
-  return { courseToBeUpdated, depData };
+  return courseToBeUpdated;
 };

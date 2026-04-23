@@ -65,6 +65,20 @@ export const handleLocalDataAction = (
 
       break;
     }
+    case "localData/addCoursesToGraph":
+    case "localData/deleteCoursesFromGraph":
+    case "localData/moveCoursesInGraph":
+    case "localData/addEquivRulesToGraph":
+    case "localData/removeEquivRulesFromGraph": {
+      const { planId } = action.payload;
+      if (!isValidObjectId(planId)) {
+        throw new Error(`Invalid plan id: ${planId}`);
+      }
+      if (!has_S(state.localData.courseDepData, planId)) {
+        throw new Error(`Plan id not found in course dep data: ${planId}`);
+      }
+      break;
+    }
     default:
       break; // TODO add other validations
   }

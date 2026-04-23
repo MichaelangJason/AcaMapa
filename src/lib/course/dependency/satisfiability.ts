@@ -38,6 +38,34 @@ export function isCourseTaken(
   return !!courseTaken.get(subjectCode)?.includes(courseId);
 }
 
+export function combineSubjectMap(
+  subjectReqMap: CourseDepData["subjectReqMap"],
+  courseTaken: Map<SubjectCode, CourseId[]>,
+) {
+  // combine planned courses and course taken
+  const combinedSubjectMap = new Map() as SharedSatCxt["combinedSubjectMap"];
+
+  Object.entries(subjectReqMap).forEach(([subject, subjectReqMeta]) => {
+    if (!combinedSubjectMap.has(subject)) {
+      combinedSubjectMap.set(subject, new Set());
+    }
+
+    const m = combinedSubjectMap.get(subject)!;
+    toArray_S(subjectReqMeta.planned).forEach((c) => m.add(c));
+  });
+
+  courseTaken.entries().forEach(([subject, courseIds]) => {
+    if (!combinedSubjectMap.has(subject)) {
+      combinedSubjectMap.set(subject, new Set());
+    }
+
+    const m = combinedSubjectMap.get(subject)!;
+    courseIds.forEach((c) => m.add(c));
+  });
+
+  return combinedSubjectMap;
+}
+
 /**
  * Utilized hoisting to put the function declarations at the bottom of the function
  * Gather Dependency information and fill it for dep graph
@@ -327,25 +355,7 @@ export const updateAffectedCourses = (
   const { depGraph, subjectReqMap } = depData;
 
   // combine planned courses and course taken
-  const combinedSubjectMap = new Map() as SharedSatCxt["combinedSubjectMap"];
-
-  Object.entries(subjectReqMap).forEach(([subject, subjectReqMeta]) => {
-    if (!combinedSubjectMap.has(subject)) {
-      combinedSubjectMap.set(subject, new Set());
-    }
-
-    const m = combinedSubjectMap.get(subject)!;
-    toArray_S(subjectReqMeta.planned).forEach((c) => m.add(c));
-  });
-
-  courseTaken.entries().forEach(([subject, courseIds]) => {
-    if (!combinedSubjectMap.has(subject)) {
-      combinedSubjectMap.set(subject, new Set());
-    }
-
-    const m = combinedSubjectMap.get(subject)!;
-    courseIds.forEach((c) => m.add(c));
-  });
+  const combinedSubjectMap = combineSubjectMap(subjectReqMap, courseTaken);
 
   const sharedSatCxt: SharedSatCxt = {
     // dependency graph

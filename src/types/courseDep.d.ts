@@ -9,6 +9,7 @@ export type PlanId = string;
 export type CourseTakenStr = typeof CONST_STR.COURSE_TAKEN;
 export type SubjectCode = string;
 export type CourseSource = TermId | CourseTakenStr | typeof CONST_STR.EMPTY;
+export type EquivRule = [CourseId, CourseId];
 
 export type EquivGroups = {
   courseToEquivCourses: S_Map<CourseId, S_Set<CourseId>>;
@@ -90,7 +91,7 @@ export type CachedDetailedCourse = DetailedCourse & {
 
 // input type for dependency updates
 export type DepInput = {
-  courseDepData: S_Map<PlanId, CourseDepData>;
+  depData: CourseDepData;
   equivGroups: EquivGroups;
   cachedDetailedCourseData: Record<CourseId, CachedDetailedCourse>;
 };

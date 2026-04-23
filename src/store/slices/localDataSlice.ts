@@ -8,6 +8,7 @@ import type {
   EquivGroups,
   PlanId,
   CourseId,
+  EquivRule,
 } from "@/types/local";
 import type { ModalState } from "@/types/modals";
 import type { Session } from "@/types/auth";
@@ -274,13 +275,28 @@ const localDataSlice = createSlice({
         isSkipUpdate?: boolean;
       }>,
     ) => {
-      const { courseTaken, termOrderMap, isSkipUpdate } = action.payload;
+      const {
+        courseTaken,
+        termOrderMap,
+        isSkipUpdate,
+        planId,
+        courseIds,
+        termId,
+      } = action.payload;
 
-      const { courseToBeUpdated, depData } = _addCourseToGraph(state, action);
+      const depData = get_S(state.courseDepData, planId)!;
 
-      if (isSkipUpdate) {
-        return;
-      }
+      const courseToBeUpdated = _addCourseToGraph(
+        {
+          depData,
+          equivGroups: state.equivGroups,
+          cachedDetailedCourseData: state.cachedDetailedCourseData,
+        },
+        courseIds,
+        termId,
+      );
+
+      if (isSkipUpdate) return;
 
       const { courseData: allCourseData, equivGroups } = state;
       // calculate isSatisfied for all courses that are affected by the added courses
@@ -304,16 +320,21 @@ const localDataSlice = createSlice({
         isSkipUpdate?: boolean;
       }>,
     ) => {
-      const { courseTaken, termOrderMap, isSkipUpdate } = action.payload;
+      const { planId, courseIds, courseTaken, termOrderMap, isSkipUpdate } =
+        action.payload;
 
-      const { courseToBeUpdated, depData } = _deleteCourseFromGraph(
-        state,
-        action,
+      const depData = get_S(state.courseDepData, planId)!;
+
+      const courseToBeUpdated = _deleteCourseFromGraph(
+        {
+          depData,
+          equivGroups: state.equivGroups,
+          cachedDetailedCourseData: state.cachedDetailedCourseData,
+        },
+        courseIds,
       );
 
-      if (isSkipUpdate) {
-        return;
-      }
+      if (isSkipUpdate) return;
 
       const { courseData: allCourseData, equivGroups } = state;
       updateAffectedCourses({
@@ -337,13 +358,27 @@ const localDataSlice = createSlice({
         isSkipUpdate?: boolean;
       }>,
     ) => {
-      const { courseTaken, termOrderMap, isSkipUpdate } = action.payload;
+      const {
+        courseTaken,
+        termOrderMap,
+        isSkipUpdate,
+        planId,
+        courseIds,
+        newTermId,
+      } = action.payload;
 
-      const { courseToBeUpdated, depData } = _moveCourseInGraph(state, action);
+      const depData = get_S(state.courseDepData, planId)!;
 
-      if (isSkipUpdate) {
-        return;
-      }
+      const courseToBeUpdated = _moveCourseInGraph(
+        {
+          depData,
+          equivGroups: state.equivGroups,
+        },
+        courseIds,
+        newTermId,
+      );
+
+      if (isSkipUpdate) return;
 
       const { courseData: allCourseData, equivGroups } = state;
       updateAffectedCourses({
@@ -356,33 +391,33 @@ const localDataSlice = createSlice({
       });
     },
 
-    setEquivRulesToGraph: (
-      state,
-      action: PayloadAction<[string, string][]>,
-    ) => {
-      _setEquivRulesToGraph(state, action);
+    setEquivRulesToGraph: (state, action: PayloadAction<EquivRule[]>) => {
+      _setEquivRulesToGraph(state.equivGroups, action.payload);
     },
 
     addEquivRulesToGraph: (
       state,
       action: PayloadAction<{
-        rules: [string, string][];
+        rules: EquivRule[];
         planId: string;
         courseTaken: Map<string, string[]>;
         termOrderMap: Map<string, number>;
         isSkipUpdate?: boolean;
       }>,
     ) => {
-      const { courseTaken, termOrderMap, isSkipUpdate } = action.payload;
+      const { courseTaken, termOrderMap, isSkipUpdate, rules } = action.payload;
 
-      const { courseToBeUpdated, depData } = _addEquivRulesToGraph(
-        state,
-        action,
+      const depData = get_S(state.courseDepData, action.payload.planId)!;
+
+      const courseToBeUpdated = _addEquivRulesToGraph(
+        {
+          depData,
+          equivGroups: state.equivGroups,
+        },
+        rules,
       );
 
-      if (isSkipUpdate) {
-        return;
-      }
+      if (isSkipUpdate) return;
 
       const { courseData: allCourseData, equivGroups } = state;
 
@@ -399,23 +434,26 @@ const localDataSlice = createSlice({
     removeEquivRulesFromGraph: (
       state,
       action: PayloadAction<{
-        rules: [string, string][];
+        rules: EquivRule[];
         planId: string;
         courseTaken: Map<string, string[]>;
         termOrderMap: Map<string, number>;
         isSkipUpdate?: boolean;
       }>,
     ) => {
-      const { courseTaken, termOrderMap, isSkipUpdate } = action.payload;
+      const { courseTaken, termOrderMap, isSkipUpdate, rules } = action.payload;
 
-      const { courseToBeUpdated, depData } = _removeEquivRulesFromGraph(
-        state,
-        action,
+      const depData = get_S(state.courseDepData, action.payload.planId)!;
+
+      const courseToBeUpdated = _removeEquivRulesFromGraph(
+        {
+          depData,
+          equivGroups: state.equivGroups,
+        },
+        rules,
       );
 
-      if (isSkipUpdate) {
-        return;
-      }
+      if (isSkipUpdate) return;
 
       const { courseData: allCourseData, equivGroups } = state;
       updateAffectedCourses({
