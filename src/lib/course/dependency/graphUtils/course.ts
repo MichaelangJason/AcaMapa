@@ -123,7 +123,7 @@ export const _createCourseDepData = (): CourseDepData => ({
 
 export const _addCourseToGraph = (
   depInput: DepInput,
-  courseIds: Set<CourseId>, // course ids specific to the term
+  courseIds: Set<CourseId> | Array<CourseId>, // course ids specific to the term
   termId: TermId,
 ) => {
   const { depData, equivGroups, cachedDetailedCourseData } = depInput;
@@ -245,7 +245,7 @@ export const _addCourseToGraph = (
 
 export const _deleteCourseFromGraph = (
   depInput: DepInput,
-  courseIds: Set<CourseId>,
+  courseIds: Set<CourseId> | Array<CourseId>,
 ) => {
   const { depData, equivGroups, cachedDetailedCourseData } = depInput;
 
@@ -352,7 +352,7 @@ export const _deleteCourseFromGraph = (
 
 export const _moveCourseInGraph = (
   depInput: Omit<DepInput, "cachedDetailedCourseData">,
-  courseIds: Set<CourseId>,
+  courseIds: Set<CourseId> | Array<CourseId>,
   newTermId: TermId,
 ) => {
   const { depData, equivGroups } = depInput;

@@ -1,3 +1,6 @@
+import { ReqGroup } from "@/types/courseDep";
+import { GroupType } from "../enums";
+
 export const splitCourseIds = (val: string[]) => {
   const pattern = /^[a-zA-Z]{4}\d{3}([djnDJN][1-3])?$/;
 
@@ -18,6 +21,19 @@ export const splitCourseIds = (val: string[]) => {
 
 export const getSubjectCode = (courseId: string) => {
   return courseId.slice(0, 4).toLowerCase();
+};
+
+export const parseCreditGroup = (group: ReqGroup<GroupType.CREDIT>) => {
+  if (group.type !== GroupType.CREDIT) return undefined;
+
+  const [totalCrReq, levels, ...subjects] = group.inner as string[];
+  if (!totalCrReq || !levels || !subjects) return undefined;
+
+  return {
+    totalCrReq: parseFloat(totalCrReq),
+    levels: levels.split(""),
+    subjects: subjects.map((s) => s.toString().toLowerCase()),
+  };
 };
 
 export const getCourseLevel = (courseId: string) => {
