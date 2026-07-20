@@ -16,7 +16,7 @@ import type {
   CourseDepDetail,
   TermId,
 } from "@/types/local";
-import { getReverseEquivCourses } from "../equivalents";
+import { getOriginalCourses } from "../equivalents";
 import {
   add_S,
   get_S,
@@ -97,20 +97,20 @@ const removeSubjectReqMetaIfEmpty = (
 };
 
 const gatherEquivAffectedCourses = (
-  courseId: CourseId,
+  equivCourseId: CourseId,
   equivGroups: EquivGroups,
   depGraph: DepGraph,
   courseToBeUpdated: Set<CourseId>,
 ) => {
-  getReverseEquivCourses(courseId, equivGroups).forEach((revEquivId) => {
+  getOriginalCourses(equivCourseId, equivGroups).forEach((origCourseId) => {
     // add affected courses of the equivalent course to the set
-    const affectedCourseIds = get_S(depGraph, revEquivId)?.affectedCourseIds;
+    const affectedCourseIds = get_S(depGraph, origCourseId)?.affectedCourseIds;
     if (affectedCourseIds) {
       toArray_S(affectedCourseIds).forEach((affectedId) => {
         courseToBeUpdated.add(affectedId);
       });
     } else {
-      console.error(`Equivalent course ${revEquivId} not found in dep graph`);
+      console.error(`Original course ${origCourseId} not found in dep graph`);
     }
   });
 };

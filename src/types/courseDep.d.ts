@@ -12,8 +12,8 @@ export type CourseSource = TermId | CourseTakenStr | typeof CONST_STR.EMPTY;
 export type EquivRule = [CourseId, CourseId];
 
 export type EquivGroups = {
-  courseToEquivCourses: S_Map<CourseId, S_Set<CourseId>>;
-  equivCourseToCourses: S_Map<CourseId, S_Set<CourseId>>;
+  origCoursesToEquivCourses: S_Map<CourseId, S_Set<CourseId>>;
+  equivCourseToOrigCourses: S_Map<CourseId, S_Set<CourseId>>;
 };
 
 export type CourseDepDetail = {
@@ -42,8 +42,8 @@ export type CourseDepData = {
   depGraph: DepGraph;
 };
 
-export type ReqGroup = {
-  type: GroupType;
+export type ReqGroup<T extends GroupType = GroupType> = {
+  type: T;
   inner: (string | ReqGroup)[];
 };
 

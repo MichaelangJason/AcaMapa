@@ -63,8 +63,8 @@ export const initialState = {
   // courseDepData: new Map<PlanId, CourseDepData>(),
   courseDepData: new_S<PlanId, CourseDepData>(),
   equivGroups: {
-    courseToEquivCourses: new_S<CourseId, S_Set<CourseId>>(), // course id to equivalent course ids
-    equivCourseToCourses: new_S<CourseId, S_Set<CourseId>>(), // reverse map
+    origCoursesToEquivCourses: new_S<CourseId, S_Set<CourseId>>(), // course id to equivalent course ids
+    equivCourseToOrigCourses: new_S<CourseId, S_Set<CourseId>>(), // reverse map
   } as EquivGroups,
 
   // seeking information

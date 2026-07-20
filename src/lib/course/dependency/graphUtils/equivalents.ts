@@ -1,4 +1,4 @@
-import { addEquivGroup, removeEquivGroup } from "../equivalents";
+import { addToEquivGroup, removeFromEquivGroup } from "../equivalents";
 import type {
   CourseId,
   DepGraph,
@@ -18,7 +18,7 @@ const gatherAffectedCourses = (
     const course = get_S(depGraph, courseId);
 
     if (!course) {
-      console.error(`Course ${courseId} not found in dep graph`);
+      console.log(`Course ${courseId} not found in dep graph`);
       return;
     }
 
@@ -36,12 +36,14 @@ export const _setEquivRulesToGraph = (
 ) => {
   rules.forEach((rule) => {
     const [equivCourseId, courseId] = rule;
-    addEquivGroup(equivCourseId, courseId, equivGroups);
+    addToEquivGroup(equivCourseId, courseId, equivGroups);
   });
 
   return equivGroups;
 };
 
+// COMP206 => COMP202
+// equivCourse => original
 export const _addEquivRulesToGraph = (
   depInput: Omit<DepInput, "cachedDetailedCourseData">,
   rules: EquivRule[],
@@ -54,7 +56,7 @@ export const _addEquivRulesToGraph = (
   rules.forEach((rule) => {
     const [equivCourseId, courseId] = rule;
 
-    addEquivGroup(equivCourseId, courseId, equivGroups);
+    addToEquivGroup(equivCourseId, courseId, equivGroups);
     ruleCourseIds.add(courseId);
     // ruleCourseIds.add(equivCourseId);
   });
@@ -78,7 +80,7 @@ export const _removeEquivRulesFromGraph = (
   rules.forEach((rule) => {
     const [equivCourseId, courseId] = rule;
 
-    removeEquivGroup(equivCourseId, courseId, equivGroups);
+    removeFromEquivGroup(equivCourseId, courseId, equivGroups);
     ruleCourseIds.add(courseId);
     // ruleCourseIds.add(equivCourseId);
   });
